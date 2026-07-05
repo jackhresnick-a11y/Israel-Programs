@@ -24,7 +24,7 @@ export default async function EditProgramPage({
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-10">
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight">
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-primary dark:text-white">
         Edit {program.name}
       </h1>
       {!isModerator && (

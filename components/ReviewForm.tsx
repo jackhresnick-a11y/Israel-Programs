@@ -46,7 +46,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
         <select
           value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
-          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 dark:border-white/15"
+          className="rounded-lg border border-blue-100 bg-transparent px-2 py-1 dark:border-blue-950"
         >
           {[5, 4, 3, 2, 1].map((n) => (
             <option key={n} value={n}>
@@ -61,12 +61,12 @@ export default function ReviewForm({ programId }: { programId: string }) {
         placeholder="Share your experience with this program..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/30 dark:border-white/15 dark:focus:border-white/40"
+        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
       />
       <button
         type="submit"
         disabled={submitting}
-        className="w-fit rounded-lg bg-foreground px-4 py-1.5 text-sm text-background hover:opacity-90 disabled:opacity-50"
+        className="w-fit rounded-lg bg-amber-500 px-4 py-1.5 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
       >
         {submitting ? "Posting..." : "Post review"}
       </button>

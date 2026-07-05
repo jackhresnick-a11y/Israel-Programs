@@ -39,11 +39,11 @@ export default function SearchBar({ tags }: SearchBarProps) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search by name, keyword, or #hashtag..."
-          className="w-full rounded-lg border border-black/10 bg-transparent px-4 py-2 text-sm outline-none focus:border-black/30 dark:border-white/15 dark:focus:border-white/40"
+          className="w-full rounded-lg border border-blue-100 bg-transparent px-4 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
         />
         <button
           type="submit"
-          className="rounded-lg bg-foreground px-4 py-2 text-sm text-background hover:opacity-90"
+          className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
         >
           Search
         </button>
@@ -53,7 +53,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
         <select
           value={activeDuration}
           onChange={(e) => updateParams({ duration: e.target.value || null })}
-          className="rounded-full border border-black/10 bg-transparent px-3 py-1 text-xs dark:border-white/15"
+          className="rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
         >
           <option value="">All durations</option>
           {Object.entries(DURATION_LABELS).map(([value, label]) => (
@@ -71,8 +71,8 @@ export default function SearchBar({ tags }: SearchBarProps) {
             }
             className={`rounded-full border px-3 py-1 text-xs transition ${
               activeTag === tag.slug
-                ? "border-foreground bg-foreground text-background"
-                : "border-black/10 hover:border-black/30 dark:border-white/15 dark:hover:border-white/40"
+                ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
+                : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
             }`}
           >
             #{tag.slug}

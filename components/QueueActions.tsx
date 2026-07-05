@@ -27,7 +27,7 @@ export default function QueueActions({
       <button
         onClick={() => act("approve")}
         disabled={busy !== null}
-        className="rounded-lg bg-foreground px-3 py-1.5 text-sm text-background hover:opacity-90 disabled:opacity-50"
+        className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400 disabled:opacity-50"
       >
         {busy === "approve" ? "Approving..." : "Approve"}
       </button>

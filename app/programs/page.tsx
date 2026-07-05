@@ -18,8 +18,8 @@ export default async function ProgramsPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="border-l-4 border-amber-500 pl-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
           Browse Programs
         </h1>
         <p className="mt-1 text-sm text-black/60 dark:text-white/60">
@@ -30,7 +30,7 @@ export default async function ProgramsPage({
       <SearchBar tags={tags} />
 
       {programs.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-black/15 p-8 text-center text-sm text-black/50 dark:border-white/15 dark:text-white/50">
+        <p className="rounded-lg border border-dashed border-blue-200 p-8 text-center text-sm text-black/50 dark:border-blue-900 dark:text-white/50">
           No programs match your search yet.
         </p>
       ) : (

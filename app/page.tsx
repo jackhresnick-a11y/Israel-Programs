@@ -9,7 +9,7 @@ export default async function Home() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 py-16">
       <div className="flex flex-col gap-4 text-center sm:text-left">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-primary dark:text-white sm:text-4xl">
           The wiki for Jewish Israel programs
         </h1>
         <p className="max-w-2xl text-black/60 dark:text-white/60">
@@ -20,7 +20,7 @@ export default async function Home() {
         <div className="flex justify-center gap-3 sm:justify-start">
           <Link
             href="/programs"
-            className="rounded-lg bg-foreground px-5 py-2 text-sm text-background hover:opacity-90"
+            className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
           >
             Browse all programs
           </Link>

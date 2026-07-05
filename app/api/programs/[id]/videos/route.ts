@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireRole } from "@/lib/roles";
+import { requireSignedIn } from "@/lib/roles";
 import { saveVideo, UploadError } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: Params) {
-  const check = await requireRole("moderator");
+  const check = await requireSignedIn();
   if (!check.ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
   }

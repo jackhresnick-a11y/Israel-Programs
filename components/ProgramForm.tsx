@@ -57,7 +57,7 @@ function Field({
 }
 
 const inputClass =
-  "rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/30 dark:border-white/15 dark:focus:border-white/40";
+  "rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500";
 
 export default function ProgramForm({
   initial,
@@ -264,7 +264,7 @@ export default function ProgramForm({
       <button
         type="submit"
         disabled={submitting}
-        className="w-fit rounded-lg bg-foreground px-5 py-2 text-sm text-background hover:opacity-90 disabled:opacity-50"
+        className="w-fit rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
       >
         {submitting ? "Saving..." : isEdit ? "Save changes" : "Create program"}
       </button>

@@ -21,7 +21,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
   const rating = averageRating(program.reviews);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/10 p-5 transition hover:border-black/30 dark:border-white/10 dark:hover:border-white/30">
+    <div className="flex flex-col gap-3 rounded-xl border border-blue-100 p-5 transition hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70">
       <Link href={`/programs/${program.slug}`} className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black/5 dark:bg-white/10">
@@ -55,7 +55,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
             {program.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-black/5 px-2 py-0.5 text-black/60 dark:bg-white/10 dark:text-white/60"
+                className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
               >
                 #{tag.slug}
               </span>

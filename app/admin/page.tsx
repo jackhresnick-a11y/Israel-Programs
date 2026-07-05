@@ -18,8 +18,10 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 py-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
+      <div className="border-l-4 border-amber-500 pl-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
+          Admin
+        </h1>
         <p className="mt-1 text-sm text-black/60 dark:text-white/60">
           Review submissions before they go live.
         </p>
@@ -34,7 +36,7 @@ export default async function AdminPage() {
             No new program submissions waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-black/10 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/10">
+          <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
             {pendingPrograms.map((program) => (
               <div
                 key={program.id}
@@ -77,7 +79,7 @@ export default async function AdminPage() {
               return (
                 <div
                   key={edit.id}
-                  className="flex flex-col gap-3 rounded-xl border border-black/10 p-4 dark:border-white/10"
+                  className="flex flex-col gap-3 rounded-xl border border-blue-100 p-4 dark:border-blue-950"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div>
@@ -141,7 +143,7 @@ async function UserRoleManagement() {
           {users.length === 1 ? "" : "s"}.
         </p>
       </div>
-      <div className="flex flex-col divide-y divide-black/10 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/10">
+      <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
         {users.map((user) => (
           <div
             key={user.id}

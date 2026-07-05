@@ -50,19 +50,19 @@ export default function VideoUploader({ programId }: { programId: string }) {
         type="file"
         accept="video/mp4,video/webm,video/quicktime"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 dark:border-white/15"
+        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 dark:border-blue-950"
       />
       <input
         type="text"
         placeholder="Caption (optional)"
         value={caption}
         onChange={(e) => setCaption(e.target.value)}
-        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 dark:border-white/15"
+        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 dark:border-blue-950"
       />
       <button
         type="submit"
         disabled={!file || uploading}
-        className="w-fit rounded-lg bg-foreground px-4 py-1.5 text-background hover:opacity-90 disabled:opacity-50"
+        className="w-fit rounded-lg bg-amber-500 px-4 py-1.5 font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
       >
         {uploading ? "Uploading..." : "Upload video"}
       </button>

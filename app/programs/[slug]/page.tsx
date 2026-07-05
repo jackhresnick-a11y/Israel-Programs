@@ -35,7 +35,7 @@ export default async function ProgramDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
-      {program.status === "PENDING" && (
+      {program.status === "PENDING" && !query.created && (
         <p className="rounded-lg bg-amber-500/10 px-4 py-2 text-sm text-amber-700 dark:text-amber-400">
           This program is awaiting moderator approval and isn&apos;t public yet.
         </p>
@@ -92,7 +92,7 @@ export default async function ProgramDetailPage({
         <div className="flex gap-2">
           <Link
             href={`/programs/${program.slug}/edit`}
-            className="rounded-lg border border-black/10 px-3 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]"
+            className="rounded-lg border border-primary/20 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 dark:border-white/15 dark:text-white dark:hover:bg-white/[.06]"
           >
             Edit
           </Link>
@@ -105,7 +105,7 @@ export default async function ProgramDetailPage({
           <Link
             key={tag.id}
             href={`/programs?tag=${tag.slug}`}
-            className="rounded-full bg-black/5 px-2.5 py-1 text-xs text-black/60 hover:bg-black/10 dark:bg-white/10 dark:text-white/60 dark:hover:bg-white/15"
+            className="rounded-full bg-amber-100 px-2.5 py-1 text-xs text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-900/60"
           >
             #{tag.slug}
           </Link>
@@ -116,7 +116,7 @@ export default async function ProgramDetailPage({
         {program.description}
       </p>
 
-      <dl className="grid grid-cols-1 gap-4 rounded-xl border border-black/10 p-5 text-sm sm:grid-cols-2 dark:border-white/10">
+      <dl className="grid grid-cols-1 gap-4 rounded-xl border border-blue-100 p-5 text-sm sm:grid-cols-2 dark:border-blue-950">
         <div>
           <dt className="font-medium text-black/50 dark:text-white/50">Duration</dt>
           <dd>
@@ -140,7 +140,7 @@ export default async function ProgramDetailPage({
               href={program.signupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm underline"
+              className="mt-1 inline-block text-sm text-amber-700 underline hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
             >
               {program.signupUrl}
             </a>
@@ -156,7 +156,7 @@ export default async function ProgramDetailPage({
                 href={program.contactWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline"
+                className="text-amber-700 underline hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
               >
                 {program.contactWebsite}
               </a>
@@ -171,7 +171,18 @@ export default async function ProgramDetailPage({
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold tracking-tight">Videos</h2>
         <VideoList videos={program.videos} isModerator={isModerator} />
-        {isModerator && <VideoUploader programId={program.id} />}
+        <Show
+          when="signed-in"
+          fallback={
+            <SignInButton mode="modal">
+              <button className="w-fit rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+                Sign in to add a video
+              </button>
+            </SignInButton>
+          }
+        >
+          <VideoUploader programId={program.id} />
+        </Show>
       </section>
 
       <section className="flex flex-col gap-4">
