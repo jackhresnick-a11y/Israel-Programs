@@ -133,7 +133,7 @@ export async function listPendingPrograms() {
 export async function listPendingEdits() {
   return prisma.programEdit.findMany({
     where: { status: "PENDING" },
-    include: { program: true },
+    include: { program: { include: { tags: true } } },
     orderBy: { createdAt: "asc" },
   });
 }
@@ -243,4 +243,23 @@ export function averageRating(reviews: { rating: number }[]) {
 
 export async function listAllTags() {
   return prisma.tag.findMany({ orderBy: { name: "asc" } });
+}
+
+/** Fetches published programs by slug, preserving the input order. */
+export async function getProgramsBySlugs(slugs: string[]) {
+  if (slugs.length === 0) return [];
+  const programs = await prisma.program.findMany({
+    where: { slug: { in: slugs }, status: "PUBLISHED" },
+    include: { tags: true, reviews: true },
+  });
+  const bySlug = new Map(programs.map((p) => [p.slug, p]));
+  return slugs.map((s) => bySlug.get(s)).filter((p): p is NonNullable<typeof p> => Boolean(p));
+}
+
+export async function listPublishedProgramNames() {
+  return prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true, name: true },
+    orderBy: { name: "asc" },
+  });
 }

@@ -2,6 +2,9 @@ import { listPrograms, listAllTags } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
 import ProgramCard from "@/components/ProgramCard";
 import SearchBar from "@/components/SearchBar";
+import { CompareProvider } from "@/components/CompareContext";
+import CompareCheckbox from "@/components/CompareCheckbox";
+import CompareBar from "@/components/CompareBar";
 
 type SearchParams = Promise<{ q?: string; tag?: string; duration?: string }>;
 
@@ -34,11 +37,17 @@ export default async function ProgramsPage({
           No programs match your search yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
-            <ProgramCard key={program.slug} program={program} />
-          ))}
-        </div>
+        <CompareProvider>
+          <div className="grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
+            {programs.map((program) => (
+              <div key={program.slug} className="relative">
+                <CompareCheckbox slug={program.slug} name={program.name} />
+                <ProgramCard program={program} />
+              </div>
+            ))}
+          </div>
+          <CompareBar />
+        </CompareProvider>
       )}
     </div>
   );

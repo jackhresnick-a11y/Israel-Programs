@@ -33,26 +33,30 @@ export default async function ProgramDetailPage({
 
   const rating = averageRating(program.reviews);
 
+  // Exactly one banner ever renders — a just-submitted confirmation takes
+  // priority over the program's persistent status, so the two never stack.
+  const banner =
+    query.created === "pending"
+      ? { tone: "info" as const, text: "Thanks! Your submission is awaiting moderator approval." }
+      : query.editPending === "1"
+        ? { tone: "info" as const, text: "Thanks! Your proposed edit is awaiting moderator approval." }
+        : program.status === "PENDING"
+          ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn't public yet." }
+          : program.status === "REJECTED"
+            ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn't public." }
+            : null;
+
+  const bannerClass = {
+    info: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+    warning: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    danger: "bg-red-500/10 text-red-600 dark:text-red-400",
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
-      {program.status === "PENDING" && !query.created && (
-        <p className="rounded-lg bg-amber-500/10 px-4 py-2 text-sm text-amber-700 dark:text-amber-400">
-          This program is awaiting moderator approval and isn&apos;t public yet.
-        </p>
-      )}
-      {program.status === "REJECTED" && (
-        <p className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
-          This submission was rejected by a moderator and isn&apos;t public.
-        </p>
-      )}
-      {query.created === "pending" && (
-        <p className="rounded-lg bg-blue-500/10 px-4 py-2 text-sm text-blue-700 dark:text-blue-400">
-          Thanks! Your submission is awaiting moderator approval.
-        </p>
-      )}
-      {query.editPending === "1" && (
-        <p className="rounded-lg bg-blue-500/10 px-4 py-2 text-sm text-blue-700 dark:text-blue-400">
-          Thanks! Your proposed edit is awaiting moderator approval.
+      {banner && (
+        <p className={`rounded-lg px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
+          {banner.text}
         </p>
       )}
       <div className="flex items-start gap-4">

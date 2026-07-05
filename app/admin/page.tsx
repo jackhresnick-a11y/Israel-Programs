@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getCurrentRole, normalizeRole } from "@/lib/roles";
 import { listPendingPrograms, listPendingEdits } from "@/lib/programs";
+import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import RoleSelect from "@/components/RoleSelect";
 import QueueActions from "@/components/QueueActions";
+import EditDiffView from "@/components/EditDiffView";
 import type { ProgramInput } from "@/lib/programs";
 
 export default async function AdminPage() {
@@ -76,48 +78,29 @@ export default async function AdminPage() {
           <div className="flex flex-col gap-4">
             {pendingEdits.map((edit) => {
               const proposed = JSON.parse(edit.payload) as ProgramInput;
+              const fieldDiffs = buildFieldDiffs(edit.program, proposed);
+              const tagDiff = buildTagDiff(edit.program.tags, proposed.tags);
               return (
                 <div
                   key={edit.id}
                   className="flex flex-col gap-3 rounded-xl border border-blue-100 p-4 dark:border-blue-950"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <Link
-                        href={`/programs/${edit.program.slug}`}
-                        className="text-sm font-medium hover:underline"
-                      >
-                        Edit to {edit.program.name}
-                      </Link>
-                      <p className="text-xs text-black/50 dark:text-white/50">
-                        submitted {new Date(edit.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <QueueActions
-                      approveUrl={`/api/admin/edits/${edit.id}/approve`}
-                      rejectUrl={`/api/admin/edits/${edit.id}/reject`}
-                    />
+                  <div>
+                    <Link
+                      href={`/programs/${edit.program.slug}`}
+                      className="text-sm font-medium hover:underline"
+                    >
+                      Edit to {edit.program.name}
+                    </Link>
+                    <p className="text-xs text-black/50 dark:text-white/50">
+                      submitted {new Date(edit.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                  <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
-                    <div>
-                      <dt className="font-medium text-black/50 dark:text-white/50">
-                        Name
-                      </dt>
-                      <dd>{proposed.name}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-medium text-black/50 dark:text-white/50">
-                        Cost
-                      </dt>
-                      <dd>{proposed.cost || "—"}</dd>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <dt className="font-medium text-black/50 dark:text-white/50">
-                        Description
-                      </dt>
-                      <dd className="line-clamp-3">{proposed.description}</dd>
-                    </div>
-                  </dl>
+                  <EditDiffView fieldDiffs={fieldDiffs} tagDiff={tagDiff} />
+                  <QueueActions
+                    approveUrl={`/api/admin/edits/${edit.id}/approve`}
+                    rejectUrl={`/api/admin/edits/${edit.id}/reject`}
+                  />
                 </div>
               );
             })}

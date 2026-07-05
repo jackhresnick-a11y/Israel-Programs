@@ -10,13 +10,51 @@ export default async function Home() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 py-16">
       <div className="flex flex-col gap-4 text-center sm:text-left">
         <h1 className="text-3xl font-semibold tracking-tight text-primary dark:text-white sm:text-4xl">
-          The wiki for Jewish Israel programs
+          Welcome to Israel Programs Wiki
         </h1>
-        <p className="max-w-2xl text-black/60 dark:text-white/60">
-          Gap years, 10-day summer trips, semester programs, and everything in
-          between — reviews, videos, costs, and how to sign up, all in one
-          place.
+        <p className="max-w-2xl text-black/70 dark:text-white/70">
+          Every year, thousands of Jews set out to explore, live, volunteer,
+          serve, or study in Israel — but finding the right program can be
+          overwhelming. This is a living, community-built directory to help
+          you find what actually fits you.
         </p>
+
+        <details className="group max-w-2xl text-left">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800 [&::-webkit-details-marker]:hidden dark:text-amber-400 dark:hover:text-amber-300">
+            About this project
+            <span className="transition-transform group-open:rotate-180">
+              ▾
+            </span>
+          </summary>
+          <div className="mt-3 flex flex-col gap-3 rounded-lg border border-blue-100 bg-blue-50/40 p-4 text-sm leading-relaxed text-black/70 dark:border-blue-950 dark:bg-blue-950/20 dark:text-white/70">
+            <p>
+              Every year, thousands of Jews — mostly from America — set out to
+              explore, live, volunteer, serve, or study in Israel. But finding
+              the right program, community, or path can be overwhelming: too
+              many options, scattered information, and no easy way to know
+              what actually fits you.
+            </p>
+            <p>
+              This is a living, community-built directory of programs across
+              Israel — gap years, yeshivot, seminaries, army service tracks,
+              volunteer opportunities, and more. It&apos;s built and maintained
+              by the people who&apos;ve actually done these programs, so the
+              details stay accurate and honest.
+            </p>
+            <p>
+              Our bigger goal: helping people not just find a program, but
+              find their place — the community, the yishuv, the path in
+              Israel that actually fits their life. This directory is just
+              the beginning.
+            </p>
+            <p>
+              Have experience with a program listed here? Add your review,
+              suggest an edit, or list a program we&apos;re missing. This only
+              works if the community helps keep it current.
+            </p>
+          </div>
+        </details>
+
         <div className="flex justify-center gap-3 sm:justify-start">
           <Link
             href="/programs"

@@ -67,6 +67,7 @@ export default function ProgramForm({
   const router = useRouter();
   const [values, setValues] = useState<ProgramFormValues>(initial ?? EMPTY);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEdit = Boolean(initial?.id);
@@ -97,6 +98,25 @@ export default function ProgramForm({
         throw new Error(body.error ?? "Something went wrong");
       }
       const body = await res.json();
+
+      // Videos attach to an existing program row, so upload happens as a
+      // follow-up request once we know the program's id — either the one
+      // just created, or the one already being edited (edits to an
+      // existing program can still take a video immediately; only the
+      // text-field changes are queued for non-moderators).
+      if (videoFile) {
+        const programId = isEdit ? initial!.id : body.id;
+        const videoForm = new FormData();
+        videoForm.set("video", videoFile);
+        const videoRes = await fetch(`/api/programs/${programId}/videos`, {
+          method: "POST",
+          body: videoForm,
+        });
+        if (!videoRes.ok) {
+          const videoErrBody = await videoRes.json().catch(() => ({}));
+          console.error("Video upload failed:", videoErrBody.error);
+        }
+      }
 
       if (isEdit) {
         // PATCH returns { pending, program } (moderator, applied immediately)
@@ -259,6 +279,19 @@ export default function ProgramForm({
             Current logo will be kept unless you choose a new file.
           </span>
         )}
+      </Field>
+
+      <Field label="Video (optional)">
+        <input
+          type="file"
+          accept="video/mp4,video/webm,video/quicktime"
+          className={inputClass}
+          onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
+        />
+        <span className="text-xs text-black/50 dark:text-white/50">
+          MP4, WebM, or MOV, up to 200MB. You can also add more videos later
+          from the program page.
+        </span>
       </Field>
 
       <button
