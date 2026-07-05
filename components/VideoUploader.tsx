@@ -1,0 +1,71 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function VideoUploader({ programId }: { programId: string }) {
+  const router = useRouter();
+  const [file, setFile] = useState<File | null>(null);
+  const [caption, setCaption] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.set("video", file);
+    if (caption) formData.set("caption", caption);
+
+    try {
+      const res = await fetch(`/api/programs/${programId}/videos`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to upload video");
+      }
+      setFile(null);
+      setCaption("");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload video");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-sm">
+      {error && (
+        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-600 dark:text-red-400">
+          {error}
+        </p>
+      )}
+      <input
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 dark:border-white/15"
+      />
+      <input
+        type="text"
+        placeholder="Caption (optional)"
+        value={caption}
+        onChange={(e) => setCaption(e.target.value)}
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 dark:border-white/15"
+      />
+      <button
+        type="submit"
+        disabled={!file || uploading}
+        className="w-fit rounded-lg bg-foreground px-4 py-1.5 text-background hover:opacity-90 disabled:opacity-50"
+      >
+        {uploading ? "Uploading..." : "Upload video"}
+      </button>
+    </form>
+  );
+}

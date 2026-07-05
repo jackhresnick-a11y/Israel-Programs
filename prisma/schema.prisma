@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum DurationType {
+  TEN_DAY
+  SUMMER
+  SEMESTER
+  GAP_YEAR
+  CUSTOM
+}
+
+model Program {
+  id                  String        @id @default(cuid())
+  name                String
+  slug                String        @unique
+  description         String
+  logoUrl             String?
+  organization        String?
+  location            String?
+  durationType        DurationType
+  durationText        String?
+  cost                String?
+  signupInstructions  String?
+  signupUrl           String?
+  contactEmail        String?
+  contactPhone        String?
+  contactWebsite      String?
+  published           Boolean       @default(true)
+  createdById         String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  tags                Tag[]         @relation("ProgramTags")
+  videos              Video[]
+  reviews             Review[]
+
+  @@index([durationType])
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  programs Program[] @relation("ProgramTags")
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  programId String
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  url       String
+  filename  String
+  mimeType  String
+  caption   String?
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  programId    String
+  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  rating       Int
+  text         String
+  reviewerName String
+  userId       String?
+  createdAt    DateTime @default(now())
+
+  @@index([programId])
+}
