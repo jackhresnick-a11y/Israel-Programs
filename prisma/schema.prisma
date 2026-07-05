@@ -20,6 +20,18 @@ enum DurationType {
   CUSTOM
 }
 
+enum ProgramStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+enum EditStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Program {
   id                  String        @id @default(cuid())
   name                String
@@ -36,15 +48,31 @@ model Program {
   contactEmail        String?
   contactPhone        String?
   contactWebsite      String?
-  published           Boolean       @default(true)
+  status              ProgramStatus @default(PENDING)
   createdById         String
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   tags                Tag[]         @relation("ProgramTags")
   videos              Video[]
   reviews             Review[]
+  edits               ProgramEdit[]
 
   @@index([durationType])
+  @@index([status])
+}
+
+model ProgramEdit {
+  id            String     @id @default(cuid())
+  programId     String
+  program       Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  payload       String
+  submittedById String
+  status        EditStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  reviewedAt    DateTime?
+
+  @@index([programId])
+  @@index([status])
 }
 
 model Tag {

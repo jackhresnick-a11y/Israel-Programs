@@ -26,3 +26,16 @@ export async function requireRole(minRole: "moderator" | "admin"): Promise<RoleC
 
   return { ok: true, userId, role };
 }
+
+/** Any signed-in user, regardless of role — used by routes open to all contributors. */
+export async function requireSignedIn(): Promise<RoleCheck> {
+  const { userId } = await auth();
+  if (!userId) return { ok: false, status: 401 };
+
+  const role = await getCurrentRole();
+  return { ok: true, userId, role };
+}
+
+export function isModeratorRole(role: Role): boolean {
+  return role === "moderator" || role === "admin";
+}

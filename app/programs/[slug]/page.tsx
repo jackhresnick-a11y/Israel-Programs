@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SignInButton, Show } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { getProgramBySlug, DURATION_LABELS, averageRating } from "@/lib/programs";
 import { getCurrentRole } from "@/lib/roles";
 import ReviewForm from "@/components/ReviewForm";
@@ -12,19 +13,48 @@ import DeleteProgramButton from "@/components/DeleteProgramButton";
 
 export default async function ProgramDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ created?: string; editPending?: string }>;
 }) {
   const { slug } = await params;
-  const program = await getProgramBySlug(slug);
+  const [program, role, { userId }, query] = await Promise.all([
+    getProgramBySlug(slug),
+    getCurrentRole(),
+    auth(),
+    searchParams,
+  ]);
   if (!program) notFound();
 
-  const role = await getCurrentRole();
   const isModerator = role === "moderator" || role === "admin";
+  const isOwner = userId === program.createdById;
+  if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
+
   const rating = averageRating(program.reviews);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
+      {program.status === "PENDING" && (
+        <p className="rounded-lg bg-amber-500/10 px-4 py-2 text-sm text-amber-700 dark:text-amber-400">
+          This program is awaiting moderator approval and isn&apos;t public yet.
+        </p>
+      )}
+      {program.status === "REJECTED" && (
+        <p className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+          This submission was rejected by a moderator and isn&apos;t public.
+        </p>
+      )}
+      {query.created === "pending" && (
+        <p className="rounded-lg bg-blue-500/10 px-4 py-2 text-sm text-blue-700 dark:text-blue-400">
+          Thanks! Your submission is awaiting moderator approval.
+        </p>
+      )}
+      {query.editPending === "1" && (
+        <p className="rounded-lg bg-blue-500/10 px-4 py-2 text-sm text-blue-700 dark:text-blue-400">
+          Thanks! Your proposed edit is awaiting moderator approval.
+        </p>
+      )}
       <div className="flex items-start gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-black/5 dark:bg-white/10">
           {program.logoUrl ? (
@@ -59,17 +89,15 @@ export default async function ProgramDetailPage({
             </p>
           )}
         </div>
-        {isModerator && (
-          <div className="flex gap-2">
-            <Link
-              href={`/programs/${program.slug}/edit`}
-              className="rounded-lg border border-black/10 px-3 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]"
-            >
-              Edit
-            </Link>
-            <DeleteProgramButton id={program.id} />
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Link
+            href={`/programs/${program.slug}/edit`}
+            className="rounded-lg border border-black/10 px-3 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]"
+          >
+            Edit
+          </Link>
+          {isModerator && <DeleteProgramButton id={program.id} />}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-1.5">

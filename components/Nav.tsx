@@ -16,12 +16,10 @@ export default async function Nav() {
           <Link href="/programs" className="hover:underline">
             Browse
           </Link>
+          <Link href="/programs/new" className="hover:underline">
+            Add Program
+          </Link>
           {isModerator && (
-            <Link href="/programs/new" className="hover:underline">
-              Add Program
-            </Link>
-          )}
-          {role === "admin" && (
             <Link href="/admin" className="hover:underline">
               Admin
             </Link>

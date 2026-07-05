@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { requireRole } from "@/lib/roles";
+import { requireSignedIn, isModeratorRole } from "@/lib/roles";
 import { createProgram, listPrograms, parseProgramFormData } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import type { DurationType } from "@/app/generated/prisma/client";
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const check = await requireRole("moderator");
+  const check = await requireSignedIn();
   if (!check.ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
   }
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
       logoUrl = (await saveLogo(logo)).url;
     }
 
-    const program = await createProgram({ ...input, logoUrl }, check.userId);
+    const status = isModeratorRole(check.role) ? "PUBLISHED" : "PENDING";
+    const program = await createProgram({ ...input, logoUrl }, check.userId, status);
     return NextResponse.json(program, { status: 201 });
   } catch (err) {
     if (err instanceof ZodError) {

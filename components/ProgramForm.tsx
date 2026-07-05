@@ -7,6 +7,7 @@ import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type ProgramFormValues = {
   id?: string;
+  slug?: string;
   name: string;
   description: string;
   organization: string;
@@ -81,7 +82,7 @@ export default function ProgramForm({
 
     const formData = new FormData();
     for (const [key, value] of Object.entries(values)) {
-      if (key === "id" || value == null) continue;
+      if (key === "id" || key === "slug" || value == null) continue;
       formData.set(key, String(value));
     }
     if (logoFile) formData.set("logo", logoFile);
@@ -95,8 +96,18 @@ export default function ProgramForm({
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? "Something went wrong");
       }
-      const program = await res.json();
-      router.push(`/programs/${program.slug}`);
+      const body = await res.json();
+
+      if (isEdit) {
+        // PATCH returns { pending, program } (moderator, applied immediately)
+        // or { pending, slug } (queued for review — nothing changed yet).
+        const suffix = body.pending ? "?editPending=1" : "";
+        router.push(`/programs/${initial!.slug}${suffix}`);
+      } else {
+        // POST returns the created program directly (status PENDING or PUBLISHED).
+        const suffix = body.status === "PENDING" ? "?created=pending" : "";
+        router.push(`/programs/${body.slug}${suffix}`);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

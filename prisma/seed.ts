@@ -110,6 +110,7 @@ async function main() {
       update: {},
       create: {
         ...data,
+        status: "PUBLISHED",
         createdById: SEED_USER_ID,
         tags: { connect: tags.map((t) => ({ id: t.id })) },
         reviews: {

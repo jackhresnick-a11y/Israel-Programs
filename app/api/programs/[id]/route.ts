@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { requireRole } from "@/lib/roles";
-import { parseProgramFormData, updateProgram } from "@/lib/programs";
+import { requireRole, requireSignedIn, isModeratorRole } from "@/lib/roles";
+import { createProgramEdit, parseProgramFormData, updateProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
 
@@ -20,7 +20,7 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-  const check = await requireRole("moderator");
+  const check = await requireSignedIn();
   if (!check.ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
   }
@@ -37,8 +37,14 @@ export async function PATCH(request: Request, { params }: Params) {
       logoUrl = (await saveLogo(logo)).url;
     }
 
-    const program = await updateProgram(id, { ...input, logoUrl });
-    return NextResponse.json(program);
+    if (isModeratorRole(check.role)) {
+      const program = await updateProgram(id, { ...input, logoUrl });
+      return NextResponse.json({ pending: false, program });
+    }
+
+    await createProgramEdit(id, { ...input, logoUrl }, check.userId);
+    const program = await prisma.program.findUnique({ where: { id }, select: { slug: true } });
+    return NextResponse.json({ pending: true, slug: program?.slug });
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });

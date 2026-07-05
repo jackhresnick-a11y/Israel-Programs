@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { DurationType, Prisma } from "@/app/generated/prisma/client";
+import { DurationType, Prisma, ProgramStatus } from "@/app/generated/prisma/client";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -78,7 +78,11 @@ async function tagConnections(tagNames: string[]) {
   );
 }
 
-export async function createProgram(input: ProgramInput, createdById: string) {
+export async function createProgram(
+  input: ProgramInput,
+  createdById: string,
+  status: ProgramStatus
+) {
   const slug = await uniqueSlug(input.name);
   const tags = await tagConnections(input.tags);
   return prisma.program.create({
@@ -98,8 +102,64 @@ export async function createProgram(input: ProgramInput, createdById: string) {
       contactWebsite: input.contactWebsite,
       logoUrl: input.logoUrl,
       createdById,
+      status,
       tags: { connect: tags },
     },
+  });
+}
+
+/** Queues a proposed edit for moderator review instead of applying it immediately. */
+export async function createProgramEdit(
+  programId: string,
+  input: ProgramInput,
+  submittedById: string
+) {
+  return prisma.programEdit.create({
+    data: {
+      programId,
+      submittedById,
+      payload: JSON.stringify(input),
+    },
+  });
+}
+
+export async function listPendingPrograms() {
+  return prisma.program.findMany({
+    where: { status: "PENDING" },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+export async function listPendingEdits() {
+  return prisma.programEdit.findMany({
+    where: { status: "PENDING" },
+    include: { program: true },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+export async function approveProgram(id: string) {
+  return prisma.program.update({ where: { id }, data: { status: "PUBLISHED" } });
+}
+
+export async function rejectProgram(id: string) {
+  return prisma.program.update({ where: { id }, data: { status: "REJECTED" } });
+}
+
+export async function approveEdit(editId: string) {
+  const edit = await prisma.programEdit.findUniqueOrThrow({ where: { id: editId } });
+  const input = JSON.parse(edit.payload) as ProgramInput;
+  await updateProgram(edit.programId, input);
+  return prisma.programEdit.update({
+    where: { id: editId },
+    data: { status: "APPROVED", reviewedAt: new Date() },
+  });
+}
+
+export async function rejectEdit(editId: string) {
+  return prisma.programEdit.update({
+    where: { id: editId },
+    data: { status: "REJECTED", reviewedAt: new Date() },
   });
 }
 
@@ -144,7 +204,7 @@ export type ProgramFilters = {
 
 export async function listPrograms(filters: ProgramFilters) {
   const where: Prisma.ProgramWhereInput = {
-    published: true,
+    status: "PUBLISHED",
     ...(filters.q
       ? {
           OR: [
