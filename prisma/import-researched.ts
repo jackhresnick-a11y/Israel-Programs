@@ -2,11 +2,9 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import slugify from "slugify";
 import { PrismaClient, DurationType } from "../app/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? "file:./dev.db",
-});
+const adapter = new PrismaPg(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
 
 const IMPORT_USER_ID = "researched-import";

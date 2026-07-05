@@ -7,10 +7,7 @@ uploads, keyword/hashtag search, and moderator-managed content.
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript + Tailwind CSS
-- Prisma + SQLite (local dev) via the `@prisma/adapter-better-sqlite3` driver
-  adapter — swap to Postgres by changing `prisma/schema.prisma`'s
-  `datasource` provider and installing a Postgres adapter when you're ready
-  to deploy
+- Prisma + PostgreSQL (Neon) via the `@prisma/adapter-pg` driver adapter
 - Clerk for authentication and roles (`user` / `moderator` / `admin`, stored
   in `publicMetadata.role`)
 - Local-disk file storage for logos/videos under `public/uploads/`, behind
@@ -18,10 +15,13 @@ uploads, keyword/hashtag search, and moderator-managed content.
 
 ## Getting started
 
+Create a Postgres database (e.g. a free project at https://neon.tech) and put
+its connection string in `.env.local` and `.env` as `DATABASE_URL`.
+
 ```bash
 npm install
 npx prisma generate
-npx prisma migrate dev   # creates dev.db
+npx prisma migrate dev   # creates the schema in your Postgres database
 npx prisma db seed       # loads sample programs
 npm run dev
 ```
@@ -68,11 +68,12 @@ be set manually, since no one can visit `/admin` yet:
 - `lib/roles.ts` — Clerk role helpers used by pages and API routes
 - `prisma/schema.prisma` — Program / Tag / Video / Review models
 - `prisma/seed.ts` — sample programs for local testing
+- `prisma/import-researched.ts` — imports `data/researched-programs.json`
+  (real, researched programs) into the database, deduping by slug
 
 ## Notes
 
 - Reviews publish immediately; moderators can delete any review or video.
 - Search matches program name/description/organization plus exact tag
   (hashtag) filters; combine `?q=` and `?tag=` on `/programs`.
-- Uploaded files live in `public/uploads/` (gitignored) and the SQLite file
-  is `dev.db` (also gitignored) — both are local-only for now.
+- Uploaded files live in `public/uploads/` (gitignored) — local-only for now.
