@@ -122,6 +122,17 @@ export default async function ProgramDetailPage({
         {program.description}
       </p>
 
+      {program.goodFor && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-900/50 dark:bg-amber-950/20">
+          <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            Who it&apos;s for
+          </h2>
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-black/80 dark:text-white/80">
+            {program.goodFor}
+          </p>
+        </div>
+      )}
+
       <dl className="grid grid-cols-1 gap-4 rounded-xl border border-blue-100 p-5 text-sm sm:grid-cols-2 dark:border-blue-950">
         <div>
           <dt className="font-medium text-black/50 dark:text-white/50">Duration</dt>

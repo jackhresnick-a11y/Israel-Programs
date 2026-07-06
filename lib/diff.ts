@@ -62,6 +62,7 @@ export function wordDiff(oldText: string, newText: string): DiffToken[] {
 type OriginalProgram = {
   name: string;
   description: string;
+  goodFor: string | null;
   organization: string | null;
   location: string | null;
   durationType: DurationType;
@@ -78,6 +79,7 @@ type OriginalProgram = {
 const TEXT_FIELDS: { key: keyof ProgramInput; label: string }[] = [
   { key: "name", label: "Name" },
   { key: "description", label: "Description" },
+  { key: "goodFor", label: "Who It's For" },
   { key: "organization", label: "Organization" },
   { key: "location", label: "Location" },
   { key: "durationText", label: "Duration Details" },

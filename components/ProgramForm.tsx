@@ -10,6 +10,7 @@ export type ProgramFormValues = {
   slug?: string;
   name: string;
   description: string;
+  goodFor: string;
   organization: string;
   location: string;
   durationType: DurationType;
@@ -27,6 +28,7 @@ export type ProgramFormValues = {
 const EMPTY: ProgramFormValues = {
   name: "",
   description: "",
+  goodFor: "",
   organization: "",
   location: "",
   durationType: "TEN_DAY",
@@ -159,6 +161,18 @@ export default function ProgramForm({
           className={inputClass}
           value={values.description}
           onChange={(e) => set("description", e.target.value)}
+        />
+      </Field>
+
+      <Field label="Who is this program good for?">
+        <textarea
+          rows={3}
+          placeholder={
+            'e.g. "Ideal for first-time visitors who want a broad overview; less suited to those seeking intensive text study." Describe the ideal participant — background, goals, learning style — rather than repeating cost, dates, or affiliation.'
+          }
+          className={inputClass}
+          value={values.goodFor}
+          onChange={(e) => set("goodFor", e.target.value)}
         />
       </Field>
 

@@ -48,6 +48,7 @@ export default async function EditProgramPage({
             slug: program.slug,
             name: program.name,
             description: program.description,
+            goodFor: program.goodFor ?? "",
             organization: program.organization ?? "",
             location: program.location ?? "",
             durationType: program.durationType,

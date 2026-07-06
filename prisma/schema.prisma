@@ -37,6 +37,7 @@ model Program {
   name                String
   slug                String        @unique
   description         String
+  goodFor             String?
   logoUrl             String?
   organization        String?
   location            String?

@@ -8,6 +8,7 @@ export { DURATION_LABELS } from "@/lib/duration";
 export type ProgramInput = {
   name: string;
   description: string;
+  goodFor?: string;
   organization?: string;
   location?: string;
   durationType: DurationType;
@@ -25,6 +26,7 @@ export type ProgramInput = {
 const programSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
   description: z.string().trim().min(1, "Description is required").max(5000),
+  goodFor: z.string().trim().max(2000).optional().or(z.literal("")),
   organization: z.string().trim().max(200).optional().or(z.literal("")),
   location: z.string().trim().max(200).optional().or(z.literal("")),
   durationType: z.enum(DurationType),
@@ -40,7 +42,7 @@ const programSchema = z.object({
 
 export function parseProgramFormData(formData: FormData): ProgramInput {
   const raw = Object.fromEntries(
-    ["name", "description", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "tags"].map(
+    ["name", "description", "goodFor", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "tags"].map(
       (key) => [key, formData.get(key)?.toString() ?? ""]
     )
   );
@@ -90,6 +92,7 @@ export async function createProgram(
       name: input.name,
       slug,
       description: input.description,
+      goodFor: input.goodFor,
       organization: input.organization,
       location: input.location,
       durationType: input.durationType,
@@ -170,6 +173,7 @@ export async function updateProgram(id: string, input: ProgramInput) {
     data: {
       name: input.name,
       description: input.description,
+      goodFor: input.goodFor,
       organization: input.organization,
       location: input.location,
       durationType: input.durationType,
