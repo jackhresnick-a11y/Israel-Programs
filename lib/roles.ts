@@ -1,9 +1,10 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 
-export type Role = "user" | "moderator" | "admin";
+export type Role = "user" | "moderator" | "admin" | "banned";
 
 export function normalizeRole(value: unknown): Role {
-  return value === "admin" || value === "moderator" ? value : "user";
+  if (value === "admin" || value === "moderator" || value === "banned") return value;
+  return "user";
 }
 
 export async function getCurrentRole(): Promise<Role> {
@@ -34,6 +35,20 @@ export async function requireSignedIn(): Promise<RoleCheck> {
 
   const role = await getCurrentRole();
   return { ok: true, userId, role };
+}
+
+/**
+ * Signed-in and not banned -- used specifically by the "suggestion" routes
+ * (new program submissions, proposed edits) per the ban's intentionally
+ * narrow scope. Other user-generated content (reviews, references, videos,
+ * contact requests) intentionally still uses requireSignedIn() and remains
+ * open to banned users.
+ */
+export async function requireSignedInNotBanned(): Promise<RoleCheck> {
+  const check = await requireSignedIn();
+  if (!check.ok) return check;
+  if (check.role === "banned") return { ok: false, status: 403 };
+  return check;
 }
 
 export function isModeratorRole(role: Role): boolean {

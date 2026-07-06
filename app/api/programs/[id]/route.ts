@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { requireRole, requireSignedIn, isModeratorRole } from "@/lib/roles";
+import { requireRole, requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
 import { createProgramEdit, parseProgramFormData, updateProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
@@ -20,9 +20,12 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-  const check = await requireSignedIn();
+  const check = await requireSignedInNotBanned();
   if (!check.ok) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
+    return NextResponse.json(
+      { error: check.status === 403 ? "Your account is not permitted to propose edits" : "Unauthorized" },
+      { status: check.status }
+    );
   }
 
   const { id } = await params;

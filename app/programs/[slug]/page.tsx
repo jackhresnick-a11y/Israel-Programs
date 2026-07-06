@@ -114,7 +114,7 @@ export default async function ProgramDetailPage({
         {program.tags.map((tag) => (
           <Link
             key={tag.id}
-            href={`/programs?tag=${tag.slug}`}
+            href={`/programs?tags=${tag.slug}`}
             className="rounded-full bg-amber-100 px-2.5 py-1 text-xs text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-900/60"
           >
             #{tag.slug}

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DURATION_LABELS } from "@/lib/duration";
+import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type ProgramFormValues = {
@@ -21,6 +22,9 @@ export type ProgramFormValues = {
   contactEmail: string;
   contactPhone: string;
   contactWebsite: string;
+  hasScholarship: boolean;
+  hasCollegeCredit: boolean;
+  travelType: string;
   tags: string;
   logoUrl?: string | null;
 };
@@ -39,6 +43,9 @@ const EMPTY: ProgramFormValues = {
   contactEmail: "",
   contactPhone: "",
   contactWebsite: "",
+  hasScholarship: false,
+  hasCollegeCredit: false,
+  travelType: "",
   tags: "",
   logoUrl: null,
 };
@@ -224,6 +231,39 @@ export default function ProgramForm({
             value={values.cost}
             onChange={(e) => set("cost", e.target.value)}
           />
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={values.hasScholarship}
+            onChange={(e) => set("hasScholarship", e.target.checked)}
+          />
+          Scholarships / financial aid available
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={values.hasCollegeCredit}
+            onChange={(e) => set("hasCollegeCredit", e.target.checked)}
+          />
+          College credit available
+        </label>
+        <Field label="Travel">
+          <select
+            className={inputClass}
+            value={values.travelType}
+            onChange={(e) => set("travelType", e.target.value)}
+          >
+            <option value="">Not specified</option>
+            {Object.entries(TRAVEL_TYPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
 

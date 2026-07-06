@@ -1,30 +1,31 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { requireSignedIn, isModeratorRole } from "@/lib/roles";
+import { requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
 import { createProgram, listPrograms, parseProgramFormData } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
-import type { DurationType } from "@/app/generated/prisma/client";
+import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const tagsParam = searchParams.get("tags");
   const programs = await listPrograms({
     q: searchParams.get("q") ?? undefined,
-    tag: searchParams.get("tag") ?? undefined,
+    tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
     duration: (searchParams.get("duration") as DurationType) ?? undefined,
-    gender: searchParams.get("gender") ?? undefined,
-    affiliation: searchParams.get("affiliation") ?? undefined,
-    scholarship: searchParams.get("scholarship") ?? undefined,
-    collegeCredit: searchParams.get("collegeCredit") ?? undefined,
-    travel: searchParams.get("travel") ?? undefined,
-    population: searchParams.get("population") ?? undefined,
+    hasScholarship: searchParams.get("hasScholarship") === "true" ? true : undefined,
+    hasCollegeCredit: searchParams.get("hasCollegeCredit") === "true" ? true : undefined,
+    travelType: (searchParams.get("travelType") as TravelType) ?? undefined,
   });
   return NextResponse.json(programs);
 }
 
 export async function POST(request: Request) {
-  const check = await requireSignedIn();
+  const check = await requireSignedInNotBanned();
   if (!check.ok) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
+    return NextResponse.json(
+      { error: check.status === 403 ? "Your account is not permitted to submit programs" : "Unauthorized" },
+      { status: check.status }
+    );
   }
 
   try {

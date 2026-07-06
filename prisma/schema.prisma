@@ -37,6 +37,17 @@ enum ContactRequestStatus {
   REPLIED
 }
 
+enum TravelType {
+  SINGLE_LOCATION
+  MULTI_CITY_TOURING
+}
+
+enum FieldDecisionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model Program {
   id                  String        @id @default(cuid())
   name                String
@@ -54,6 +65,9 @@ model Program {
   contactEmail        String?
   contactPhone        String?
   contactWebsite      String?
+  hasScholarship      Boolean?
+  hasCollegeCredit    Boolean?
+  travelType          TravelType?
   status              ProgramStatus @default(PENDING)
   createdById         String
   createdAt           DateTime      @default(now())
@@ -69,23 +83,42 @@ model Program {
 }
 
 model ProgramEdit {
-  id            String     @id @default(cuid())
-  programId     String
-  program       Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
-  payload       String
-  submittedById String
-  status        EditStatus @default(PENDING)
-  createdAt     DateTime   @default(now())
-  reviewedAt    DateTime?
+  id              String                     @id @default(cuid())
+  programId       String
+  program         Program                    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  payload         String
+  submittedById   String
+  status          EditStatus                 @default(PENDING)
+  createdAt       DateTime                   @default(now())
+  reviewedAt      DateTime?
+  fieldDecisions  ProgramEditFieldDecision[]
 
   @@index([programId])
   @@index([status])
+}
+
+/// One row per changed field on a ProgramEdit, seeded from the computed diff
+/// the first time a moderator opens the review screen. Tag adds/removes reuse
+/// this same shape via a "tag:added:<slug>" / "tag:removed:<slug>" fieldName
+/// convention rather than a second parallel structure. finalValue defaults to
+/// proposedValue but a moderator can overwrite it before accepting.
+model ProgramEditFieldDecision {
+  id            String              @id @default(cuid())
+  editId        String
+  edit          ProgramEdit         @relation(fields: [editId], references: [id], onDelete: Cascade)
+  fieldName     String
+  proposedValue String?
+  finalValue    String?
+  decision      FieldDecisionStatus @default(PENDING)
+
+  @@unique([editId, fieldName])
 }
 
 model Tag {
   id       String    @id @default(cuid())
   name     String
   slug     String    @unique
+  category String?
   programs Program[] @relation("ProgramTags")
 }
 

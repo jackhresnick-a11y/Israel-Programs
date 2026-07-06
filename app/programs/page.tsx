@@ -1,5 +1,5 @@
 import { listPrograms, listAllTags } from "@/lib/programs";
-import type { DurationType } from "@/app/generated/prisma/client";
+import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import ProgramCard from "@/components/ProgramCard";
 import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
@@ -8,14 +8,11 @@ import CompareBar from "@/components/CompareBar";
 
 type SearchParams = Promise<{
   q?: string;
-  tag?: string;
+  tags?: string;
   duration?: string;
-  gender?: string;
-  affiliation?: string;
-  scholarship?: string;
-  collegeCredit?: string;
-  travel?: string;
-  population?: string;
+  hasScholarship?: string;
+  hasCollegeCredit?: string;
+  travelType?: string;
 }>;
 
 export default async function ProgramsPage({
@@ -23,19 +20,16 @@ export default async function ProgramsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, tag, duration, gender, affiliation, scholarship, collegeCredit, travel, population } =
+  const { q, tags: tagsParam, duration, hasScholarship, hasCollegeCredit, travelType } =
     await searchParams;
   const [programs, tags] = await Promise.all([
     listPrograms({
       q,
-      tag,
+      tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
       duration: duration as DurationType | undefined,
-      gender,
-      affiliation,
-      scholarship,
-      collegeCredit,
-      travel,
-      population,
+      hasScholarship: hasScholarship === "true" ? true : undefined,
+      hasCollegeCredit: hasCollegeCredit === "true" ? true : undefined,
+      travelType: travelType as TravelType | undefined,
     }),
     listAllTags(),
   ]);

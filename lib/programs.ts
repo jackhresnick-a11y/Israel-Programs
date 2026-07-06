@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { DurationType, Prisma, ProgramStatus } from "@/app/generated/prisma/client";
+import { DurationType, Prisma, ProgramStatus, TravelType } from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
 
 export { DURATION_LABELS } from "@/lib/duration";
@@ -20,6 +20,9 @@ export type ProgramInput = {
   contactEmail?: string;
   contactPhone?: string;
   contactWebsite?: string;
+  hasScholarship?: boolean;
+  hasCollegeCredit?: boolean;
+  travelType?: TravelType;
   tags: string[];
   logoUrl?: string;
 };
@@ -38,12 +41,18 @@ const programSchema = z.object({
   contactEmail: z.string().trim().email().optional().or(z.literal("")),
   contactPhone: z.string().trim().max(50).optional().or(z.literal("")),
   contactWebsite: z.string().trim().url().optional().or(z.literal("")),
+  hasScholarship: z.string().optional().transform((v) => v === "true"),
+  hasCollegeCredit: z.string().optional().transform((v) => v === "true"),
+  travelType: z
+    .string()
+    .optional()
+    .transform((v) => (v === "SINGLE_LOCATION" || v === "MULTI_CITY_TOURING" ? v : undefined)),
   tags: z.string().optional().or(z.literal("")),
 });
 
 export function parseProgramFormData(formData: FormData): ProgramInput {
   const raw = Object.fromEntries(
-    ["name", "description", "goodFor", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "tags"].map(
+    ["name", "description", "goodFor", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "hasScholarship", "hasCollegeCredit", "travelType", "tags"].map(
       (key) => [key, formData.get(key)?.toString() ?? ""]
     )
   );
@@ -104,6 +113,9 @@ export async function createProgram(
       contactEmail: input.contactEmail,
       contactPhone: input.contactPhone,
       contactWebsite: input.contactWebsite,
+      hasScholarship: input.hasScholarship,
+      hasCollegeCredit: input.hasCollegeCredit,
+      travelType: input.travelType,
       logoUrl: input.logoUrl,
       createdById,
       status,
@@ -155,16 +167,6 @@ export async function rejectProgram(id: string) {
   return prisma.program.update({ where: { id }, data: { status: "REJECTED" } });
 }
 
-export async function approveEdit(editId: string) {
-  const edit = await prisma.programEdit.findUniqueOrThrow({ where: { id: editId } });
-  const input = JSON.parse(edit.payload) as ProgramInput;
-  await updateProgram(edit.programId, input);
-  return prisma.programEdit.update({
-    where: { id: editId },
-    data: { status: "APPROVED", reviewedAt: new Date() },
-  });
-}
-
 export async function rejectEdit(editId: string) {
   return prisma.programEdit.update({
     where: { id: editId },
@@ -190,6 +192,9 @@ export async function updateProgram(id: string, input: ProgramInput) {
       contactEmail: input.contactEmail,
       contactPhone: input.contactPhone,
       contactWebsite: input.contactWebsite,
+      hasScholarship: input.hasScholarship,
+      hasCollegeCredit: input.hasCollegeCredit,
+      travelType: input.travelType,
       ...(input.logoUrl ? { logoUrl: input.logoUrl } : {}),
       tags: { set: [], connect: tags },
     },
@@ -208,15 +213,41 @@ async function uniqueSlug(name: string) {
 
 export type ProgramFilters = {
   q?: string;
-  tag?: string;
+  tags?: string[];
   duration?: DurationType;
-  gender?: string;
-  affiliation?: string;
-  scholarship?: string;
-  collegeCredit?: string;
-  travel?: string;
-  population?: string;
+  hasScholarship?: boolean;
+  hasCollegeCredit?: boolean;
+  travelType?: TravelType;
 };
+
+/**
+ * Groups selected tag slugs by category and returns one AND-clause per
+ * category, each an OR across that category's selected slugs -- e.g.
+ * selecting two "location" tags matches either; selecting one "location" tag
+ * and one uncategorized tag requires both. Tags with no category (the
+ * general ~140-tag pool) all share one bucket, so multiple general tags OR
+ * together too.
+ */
+async function buildTagAndClauses(slugs: string[]): Promise<Prisma.ProgramWhereInput[]> {
+  if (slugs.length === 0) return [];
+
+  const rows = await prisma.tag.findMany({
+    where: { slug: { in: slugs } },
+    select: { slug: true, category: true },
+  });
+
+  const byCategory = new Map<string, string[]>();
+  for (const row of rows) {
+    const key = row.category ?? "__general__";
+    const bucket = byCategory.get(key);
+    if (bucket) bucket.push(row.slug);
+    else byCategory.set(key, [row.slug]);
+  }
+
+  return Array.from(byCategory.values()).map((categorySlugs) => ({
+    tags: { some: { slug: { in: categorySlugs } } },
+  }));
+}
 
 export async function listPrograms(filters: ProgramFilters) {
   const rawQ = filters.q?.trim();
@@ -225,18 +256,7 @@ export async function listPrograms(filters: ProgramFilters) {
   const qWithoutHash = rawQ?.replace(/^#/, "").trim();
   const qAsSlug = qWithoutHash?.toLowerCase().replace(/\s+/g, "-");
 
-  // Each facet below is backed by a Tag slug, but they're independent
-  // dimensions that must all match at once (an AND of ORs), so they can't
-  // share a single `tags: { some: ... }` key -- each gets its own AND entry.
-  const facetSlugs = [
-    filters.tag,
-    filters.gender,
-    filters.affiliation,
-    filters.scholarship,
-    filters.collegeCredit,
-    filters.travel,
-    filters.population,
-  ].filter((v): v is string => Boolean(v));
+  const tagAndClauses = await buildTagAndClauses(filters.tags ?? []);
 
   const where: Prisma.ProgramWhereInput = {
     status: "PUBLISHED",
@@ -255,10 +275,11 @@ export async function listPrograms(filters: ProgramFilters) {
           ],
         }
       : {}),
-    ...(facetSlugs.length > 0
-      ? { AND: facetSlugs.map((slug) => ({ tags: { some: { slug } } })) }
-      : {}),
+    ...(tagAndClauses.length > 0 ? { AND: tagAndClauses } : {}),
     ...(filters.duration ? { durationType: filters.duration } : {}),
+    ...(filters.hasScholarship ? { hasScholarship: true } : {}),
+    ...(filters.hasCollegeCredit ? { hasCollegeCredit: true } : {}),
+    ...(filters.travelType ? { travelType: filters.travelType } : {}),
   };
 
   return prisma.program.findMany({

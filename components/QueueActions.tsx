@@ -1,36 +1,49 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function QueueActions({
   approveUrl,
   rejectUrl,
+  reviewUrl,
 }: {
-  approveUrl: string;
+  approveUrl?: string;
   rejectUrl: string;
+  reviewUrl?: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState<"approve" | "reject" | null>(null);
 
   async function act(action: "approve" | "reject") {
+    const url = action === "approve" ? approveUrl : rejectUrl;
+    if (!url) return;
     setBusy(action);
-    const res = await fetch(action === "approve" ? approveUrl : rejectUrl, {
-      method: "POST",
-    });
+    const res = await fetch(url, { method: "POST" });
     setBusy(null);
     if (res.ok) router.refresh();
   }
 
   return (
     <div className="flex gap-2">
-      <button
-        onClick={() => act("approve")}
-        disabled={busy !== null}
-        className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
-        {busy === "approve" ? "Approving..." : "Approve"}
-      </button>
+      {reviewUrl && (
+        <Link
+          href={reviewUrl}
+          className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400"
+        >
+          Review
+        </Link>
+      )}
+      {approveUrl && (
+        <button
+          onClick={() => act("approve")}
+          disabled={busy !== null}
+          className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400 disabled:opacity-50"
+        >
+          {busy === "approve" ? "Approving..." : "Approve"}
+        </button>
+      )}
       <button
         onClick={() => act("reject")}
         disabled={busy !== null}

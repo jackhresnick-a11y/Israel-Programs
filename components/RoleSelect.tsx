@@ -35,6 +35,7 @@ export default function RoleSelect({
       <option value="user">User</option>
       <option value="moderator">Moderator</option>
       <option value="admin">Admin</option>
+      <option value="banned">Banned</option>
     </select>
   );
 }

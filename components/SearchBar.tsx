@@ -4,28 +4,33 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import { DURATION_LABELS } from "@/lib/duration";
-import { FACETS, type FacetKey } from "@/lib/facets";
+import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 
 type SearchBarProps = {
-  tags: { slug: string; name: string }[];
+  tags: { slug: string; name: string; category: string | null }[];
 };
 
-const FACET_PARAM: Record<FacetKey, string> = {
-  gender: "gender",
-  affiliation: "affiliation",
-  scholarship: "scholarship",
-  collegeCredit: "collegeCredit",
-  travel: "travel",
-  population: "population",
+const CATEGORY_LABELS: Record<string, string> = {
+  location: "Location",
+  affiliation: "Religious affiliation",
+  population: "Participant mix",
+  gender: "Gender",
 };
+
+// Display order for the categorized clusters; anything uncategorized always
+// renders last under "Tags".
+const CATEGORY_ORDER = ["gender", "affiliation", "population", "location"];
 
 export default function SearchBar({ tags }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(searchParams.get("q") ?? "");
 
-  const activeTag = searchParams.get("tag") ?? "";
+  const activeTags = (searchParams.get("tags") ?? "").split(",").filter(Boolean);
   const activeDuration = searchParams.get("duration") ?? "";
+  const hasScholarship = searchParams.get("hasScholarship") === "true";
+  const hasCollegeCredit = searchParams.get("hasCollegeCredit") === "true";
+  const activeTravelType = searchParams.get("travelType") ?? "";
 
   function updateParams(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -34,6 +39,42 @@ export default function SearchBar({ tags }: SearchBarProps) {
       else params.delete(key);
     }
     router.push(`/programs?${params.toString()}`);
+  }
+
+  function toggleTag(slug: string) {
+    const next = activeTags.includes(slug)
+      ? activeTags.filter((t) => t !== slug)
+      : [...activeTags, slug];
+    updateParams({ tags: next.length > 0 ? next.join(",") : null });
+  }
+
+  const byCategory = new Map<string, { slug: string; name: string }[]>();
+  const general: { slug: string; name: string }[] = [];
+  for (const tag of tags) {
+    if (tag.category) {
+      const bucket = byCategory.get(tag.category);
+      if (bucket) bucket.push(tag);
+      else byCategory.set(tag.category, [tag]);
+    } else {
+      general.push(tag);
+    }
+  }
+
+  function TagPill({ slug }: { slug: string }) {
+    const active = activeTags.includes(slug);
+    return (
+      <button
+        key={slug}
+        onClick={() => toggleTag(slug)}
+        className={`rounded-full border px-3 py-1 text-xs transition ${
+          active
+            ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
+            : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
+        }`}
+      >
+        #{slug}
+      </button>
+    );
   }
 
   return (
@@ -59,56 +100,77 @@ export default function SearchBar({ tags }: SearchBarProps) {
         </button>
       </form>
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          value={activeDuration}
-          onChange={(e) => updateParams({ duration: e.target.value || null })}
-          className="rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
-        >
-          <option value="">All durations</option>
-          {Object.entries(DURATION_LABELS).map(([value, label]) => (
-            <option key={value} value={value as DurationType}>
-              {label}
-            </option>
-          ))}
-        </select>
+      <select
+        value={activeDuration}
+        onChange={(e) => updateParams({ duration: e.target.value || null })}
+        className="w-fit rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
+      >
+        <option value="">All durations</option>
+        {Object.entries(DURATION_LABELS).map(([value, label]) => (
+          <option key={value} value={value as DurationType}>
+            {label}
+          </option>
+        ))}
+      </select>
 
-        {(Object.keys(FACETS) as FacetKey[]).map((key) => {
-          const facet = FACETS[key];
-          const param = FACET_PARAM[key];
-          const active = searchParams.get(param) ?? "";
+      <div className="flex flex-col gap-2">
+        {CATEGORY_ORDER.map((category) => {
+          const bucket = byCategory.get(category);
+          if (!bucket || bucket.length === 0) return null;
           return (
-            <select
-              key={key}
-              value={active}
-              onChange={(e) => updateParams({ [param]: e.target.value || null })}
-              className="rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
-            >
-              <option value="">{facet.label}: any</option>
-              {facet.options.map((opt) => (
-                <option key={opt.slug} value={opt.slug}>
-                  {opt.label}
-                </option>
+            <div key={category} className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-black/50 dark:text-white/50">
+                {CATEGORY_LABELS[category] ?? category}:
+              </span>
+              {bucket.map((tag) => (
+                <TagPill key={tag.slug} slug={tag.slug} />
               ))}
-            </select>
+            </div>
           );
         })}
 
-        {tags.slice(0, 20).map((tag) => (
-          <button
-            key={tag.slug}
-            onClick={() =>
-              updateParams({ tag: activeTag === tag.slug ? null : tag.slug })
-            }
-            className={`rounded-full border px-3 py-1 text-xs transition ${
-              activeTag === tag.slug
-                ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
-                : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
-            }`}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-black/50 dark:text-white/50">Tags:</span>
+          {general.slice(0, 20).map((tag) => (
+            <TagPill key={tag.slug} slug={tag.slug} />
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2 rounded-lg border border-blue-100 p-3 dark:border-blue-950">
+        <span className="text-xs font-medium text-black/50 dark:text-white/50">
+          Program details
+        </span>
+        <div className="flex flex-wrap items-center gap-4 text-xs">
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={hasScholarship}
+              onChange={(e) => updateParams({ hasScholarship: e.target.checked ? "true" : null })}
+            />
+            Scholarships / financial aid available
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={hasCollegeCredit}
+              onChange={(e) => updateParams({ hasCollegeCredit: e.target.checked ? "true" : null })}
+            />
+            College credit available
+          </label>
+          <select
+            value={activeTravelType}
+            onChange={(e) => updateParams({ travelType: e.target.value || null })}
+            className="rounded-full border border-blue-100 bg-transparent px-3 py-1 dark:border-blue-950"
           >
-            #{tag.slug}
-          </button>
-        ))}
+            <option value="">Travel: any</option>
+            {Object.entries(TRAVEL_TYPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );

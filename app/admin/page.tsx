@@ -5,6 +5,7 @@ import { getCurrentRole, normalizeRole } from "@/lib/roles";
 import { listPendingPrograms, listPendingEdits } from "@/lib/programs";
 import { listPendingReferences } from "@/lib/references";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
+import { getUsersByIds } from "@/lib/clerkUsers";
 import RoleSelect from "@/components/RoleSelect";
 import QueueActions from "@/components/QueueActions";
 import EditDiffView from "@/components/EditDiffView";
@@ -18,6 +19,11 @@ export default async function AdminPage() {
     listPendingPrograms(),
     listPendingEdits(),
     listPendingReferences(),
+  ]);
+
+  const submitters = await getUsersByIds([
+    ...pendingPrograms.map((p) => p.createdById),
+    ...pendingEdits.map((e) => e.submittedById),
   ]);
 
   return (
@@ -62,7 +68,8 @@ export default async function AdminPage() {
                     {program.name}
                   </Link>
                   <p className="text-xs text-black/50 dark:text-white/50">
-                    {program.organization} · submitted{" "}
+                    {program.organization} · submitted by{" "}
+                    {submitters.get(program.createdById)?.name ?? "Unknown"} on{" "}
                     {new Date(program.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -103,12 +110,13 @@ export default async function AdminPage() {
                       Edit to {edit.program.name}
                     </Link>
                     <p className="text-xs text-black/50 dark:text-white/50">
-                      submitted {new Date(edit.createdAt).toLocaleDateString()}
+                      submitted by {submitters.get(edit.submittedById)?.name ?? "Unknown"} on{" "}
+                      {new Date(edit.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <EditDiffView fieldDiffs={fieldDiffs} tagDiff={tagDiff} />
                   <QueueActions
-                    approveUrl={`/api/admin/edits/${edit.id}/approve`}
+                    reviewUrl={`/admin/edits/${edit.id}`}
                     rejectUrl={`/api/admin/edits/${edit.id}/reject`}
                   />
                 </div>

@@ -1,5 +1,6 @@
 import slugify from "slugify";
 import { DURATION_LABELS } from "@/lib/duration";
+import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import type { ProgramInput } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
@@ -73,6 +74,9 @@ type OriginalProgram = {
   contactEmail: string | null;
   contactPhone: string | null;
   contactWebsite: string | null;
+  hasScholarship: boolean | null;
+  hasCollegeCredit: boolean | null;
+  travelType: string | null;
   tags: { name: string; slug: string }[];
 };
 
@@ -90,6 +94,23 @@ const TEXT_FIELDS: { key: keyof ProgramInput; label: string }[] = [
   { key: "contactPhone", label: "Contact Phone" },
   { key: "contactWebsite", label: "Contact Website" },
 ];
+
+const BOOLEAN_FIELDS: { key: keyof ProgramInput; label: string }[] = [
+  { key: "hasScholarship", label: "Scholarships / Financial Aid" },
+  { key: "hasCollegeCredit", label: "College Credit" },
+];
+
+function yesNo(v: boolean | null | undefined): string {
+  return v ? "Yes" : "No";
+}
+
+/** Shared field-name -> human label lookup, reused by the review screen. */
+export const FIELD_LABELS: Record<string, string> = Object.fromEntries([
+  ...TEXT_FIELDS.map(({ key, label }) => [key, label]),
+  ...BOOLEAN_FIELDS.map(({ key, label }) => [key, label]),
+  ["durationType", "Duration Type"],
+  ["travelType", "Travel"],
+]);
 
 export function buildFieldDiffs(
   original: OriginalProgram,
@@ -109,6 +130,26 @@ export function buildFieldDiffs(
       field: "durationType",
       label: "Duration Type",
       tokens: wordDiff(DURATION_LABELS[original.durationType], DURATION_LABELS[proposed.durationType]),
+    });
+  }
+
+  for (const { key, label } of BOOLEAN_FIELDS) {
+    const before = Boolean(original[key as keyof OriginalProgram]);
+    const after = Boolean(proposed[key]);
+    if (before === after) continue;
+    diffs.push({ field: key, label, tokens: wordDiff(yesNo(before), yesNo(after)) });
+  }
+
+  const beforeTravel = original.travelType ?? "";
+  const afterTravel = proposed.travelType ?? "";
+  if (beforeTravel !== afterTravel) {
+    diffs.push({
+      field: "travelType",
+      label: "Travel",
+      tokens: wordDiff(
+        TRAVEL_TYPE_LABELS[beforeTravel] ?? "Not specified",
+        TRAVEL_TYPE_LABELS[afterTravel] ?? "Not specified"
+      ),
     });
   }
 

@@ -59,6 +59,9 @@ export default async function EditProgramPage({
             contactEmail: program.contactEmail ?? "",
             contactPhone: program.contactPhone ?? "",
             contactWebsite: program.contactWebsite ?? "",
+            hasScholarship: program.hasScholarship ?? false,
+            hasCollegeCredit: program.hasCollegeCredit ?? false,
+            travelType: program.travelType ?? "",
             tags: program.tags.map((t) => t.name).join(", "),
             logoUrl: program.logoUrl,
           }}
