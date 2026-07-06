@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import { DURATION_LABELS } from "@/lib/duration";
-import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 
 type SearchBarProps = {
   tags: { slug: string; name: string; category: string | null }[];
@@ -21,6 +20,29 @@ const CATEGORY_LABELS: Record<string, string> = {
 // renders last under "Tags".
 const CATEGORY_ORDER = ["gender", "affiliation", "population", "location"];
 
+function Pill({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1 text-xs transition ${
+        active
+          ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
+          : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function SearchBar({ tags }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,7 +52,6 @@ export default function SearchBar({ tags }: SearchBarProps) {
   const activeDuration = searchParams.get("duration") ?? "";
   const hasScholarship = searchParams.get("hasScholarship") === "true";
   const hasCollegeCredit = searchParams.get("hasCollegeCredit") === "true";
-  const activeTravelType = searchParams.get("travelType") ?? "";
 
   function updateParams(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -61,19 +82,12 @@ export default function SearchBar({ tags }: SearchBarProps) {
   }
 
   function TagPill({ slug }: { slug: string }) {
-    const active = activeTags.includes(slug);
     return (
-      <button
-        key={slug}
+      <Pill
+        active={activeTags.includes(slug)}
+        label={`#${slug}`}
         onClick={() => toggleTag(slug)}
-        className={`rounded-full border px-3 py-1 text-xs transition ${
-          active
-            ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
-            : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
-        }`}
-      >
-        #{slug}
-      </button>
+      />
     );
   }
 
@@ -130,46 +144,24 @@ export default function SearchBar({ tags }: SearchBarProps) {
         })}
 
         <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-black/50 dark:text-white/50">Details:</span>
+          <Pill
+            active={hasScholarship}
+            label="#scholarship"
+            onClick={() => updateParams({ hasScholarship: hasScholarship ? null : "true" })}
+          />
+          <Pill
+            active={hasCollegeCredit}
+            label="#college-credit"
+            onClick={() => updateParams({ hasCollegeCredit: hasCollegeCredit ? null : "true" })}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-black/50 dark:text-white/50">Tags:</span>
           {general.slice(0, 20).map((tag) => (
             <TagPill key={tag.slug} slug={tag.slug} />
           ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2 rounded-lg border border-blue-100 p-3 dark:border-blue-950">
-        <span className="text-xs font-medium text-black/50 dark:text-white/50">
-          Program details
-        </span>
-        <div className="flex flex-wrap items-center gap-4 text-xs">
-          <label className="flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              checked={hasScholarship}
-              onChange={(e) => updateParams({ hasScholarship: e.target.checked ? "true" : null })}
-            />
-            Scholarships / financial aid available
-          </label>
-          <label className="flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              checked={hasCollegeCredit}
-              onChange={(e) => updateParams({ hasCollegeCredit: e.target.checked ? "true" : null })}
-            />
-            College credit available
-          </label>
-          <select
-            value={activeTravelType}
-            onChange={(e) => updateParams({ travelType: e.target.value || null })}
-            className="rounded-full border border-blue-100 bg-transparent px-3 py-1 dark:border-blue-950"
-          >
-            <option value="">Travel: any</option>
-            {Object.entries(TRAVEL_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
     </div>
