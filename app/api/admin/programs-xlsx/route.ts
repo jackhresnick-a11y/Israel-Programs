@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
 import { requireRole } from "@/lib/roles";
-import { getXlsxPath, xlsxExists } from "@/lib/xlsxSync";
+import { generateProgramsXlsxBuffer } from "@/lib/programExport";
 
 export async function GET() {
   const check = await requireRole("admin");
@@ -9,12 +8,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
   }
 
-  if (!xlsxExists()) {
-    return NextResponse.json({ error: "No spreadsheet has been generated yet" }, { status: 404 });
-  }
-
-  const file = await readFile(getXlsxPath());
-  return new NextResponse(new Uint8Array(file), {
+  const buffer = await generateProgramsXlsxBuffer();
+  return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": 'attachment; filename="programs.xlsx"',

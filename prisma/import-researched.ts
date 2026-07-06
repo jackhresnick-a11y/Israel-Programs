@@ -3,7 +3,7 @@ import { join } from "path";
 import slugify from "slugify";
 import { PrismaClient, DurationType } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { appendProgramNameToXlsx } from "@/lib/xlsxSync";
+import { recordProgramForExport } from "@/lib/programExport";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
@@ -102,7 +102,7 @@ async function main() {
         tags: { connect: tags.map((t) => ({ id: t.id })) },
       },
     });
-    await appendProgramNameToXlsx(program.id, program.name);
+    await recordProgramForExport(program.id, program.name);
     created++;
   }
 

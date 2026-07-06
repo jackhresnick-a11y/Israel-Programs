@@ -151,3 +151,16 @@ model ContactRequest {
   @@unique([referenceId, requesterUserId])
   @@index([referenceId])
 }
+
+/// Immutable, append-only log powering the admin xlsx export. Deliberately
+/// has no foreign key to Program: a row here must survive even if the
+/// underlying program is later renamed or deleted, since it's a permanent
+/// historical record, not a live view of the Program table.
+model ProgramExportRow {
+  id        String   @id @default(cuid())
+  programId String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

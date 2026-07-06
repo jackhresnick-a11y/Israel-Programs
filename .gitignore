@@ -49,12 +49,5 @@ next-env.d.ts
 # uploaded media (local dev storage)
 /uploads
 
-# personal working spreadsheet + its internal sync bookkeeping (contains your
-# own notes in columns B+; not shared project data like the other data/*.json
-# files, so it's not committed by default -- remove these lines if you'd
-# rather have it tracked/backed up via git)
-/data/programs.xlsx
-/data/.programs-xlsx-sync-state.json
-
 # clerk configuration (can include secrets)
 /.clerk/

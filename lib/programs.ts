@@ -2,7 +2,7 @@ import slugify from "slugify";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DurationType, Prisma, ProgramStatus } from "@/app/generated/prisma/client";
-import { appendProgramNameToXlsx } from "@/lib/xlsxSync";
+import { recordProgramForExport } from "@/lib/programExport";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -110,10 +110,10 @@ export async function createProgram(
       tags: { connect: tags },
     },
   });
-  // Best-effort: never lets a spreadsheet-sync hiccup break program creation.
+  // Best-effort: never lets an export-log hiccup break program creation.
   // The startup reconciliation sweep (instrumentation.ts) catches anything
   // this misses.
-  void appendProgramNameToXlsx(program.id, program.name);
+  void recordProgramForExport(program.id, program.name);
   return program;
 }
 
