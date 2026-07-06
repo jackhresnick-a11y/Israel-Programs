@@ -2,6 +2,7 @@ import slugify from "slugify";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { DurationType, Prisma, ProgramStatus } from "@/app/generated/prisma/client";
+import { appendProgramNameToXlsx } from "@/lib/xlsxSync";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -87,7 +88,7 @@ export async function createProgram(
 ) {
   const slug = await uniqueSlug(input.name);
   const tags = await tagConnections(input.tags);
-  return prisma.program.create({
+  const program = await prisma.program.create({
     data: {
       name: input.name,
       slug,
@@ -109,6 +110,11 @@ export async function createProgram(
       tags: { connect: tags },
     },
   });
+  // Best-effort: never lets a spreadsheet-sync hiccup break program creation.
+  // The startup reconciliation sweep (instrumentation.ts) catches anything
+  // this misses.
+  void appendProgramNameToXlsx(program.id, program.name);
+  return program;
 }
 
 /** Queues a proposed edit for moderator review instead of applying it immediately. */

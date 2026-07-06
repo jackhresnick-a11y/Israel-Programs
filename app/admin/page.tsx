@@ -29,6 +29,14 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-black/60 dark:text-white/60">
           Review submissions before they go live.
         </p>
+        {role === "admin" && (
+          <a
+            href="/api/admin/programs-xlsx"
+            className="mt-3 inline-block w-fit rounded-lg border border-primary/20 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 dark:border-white/15 dark:text-white dark:hover:bg-white/[.06]"
+          >
+            Download programs.xlsx
+          </a>
+        )}
       </div>
 
       <section className="flex flex-col gap-4">
