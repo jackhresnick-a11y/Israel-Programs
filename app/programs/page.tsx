@@ -6,16 +6,37 @@ import { CompareProvider } from "@/components/CompareContext";
 import CompareCheckbox from "@/components/CompareCheckbox";
 import CompareBar from "@/components/CompareBar";
 
-type SearchParams = Promise<{ q?: string; tag?: string; duration?: string }>;
+type SearchParams = Promise<{
+  q?: string;
+  tag?: string;
+  duration?: string;
+  gender?: string;
+  affiliation?: string;
+  scholarship?: string;
+  collegeCredit?: string;
+  travel?: string;
+  population?: string;
+}>;
 
 export default async function ProgramsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, tag, duration } = await searchParams;
+  const { q, tag, duration, gender, affiliation, scholarship, collegeCredit, travel, population } =
+    await searchParams;
   const [programs, tags] = await Promise.all([
-    listPrograms({ q, tag, duration: duration as DurationType | undefined }),
+    listPrograms({
+      q,
+      tag,
+      duration: duration as DurationType | undefined,
+      gender,
+      affiliation,
+      scholarship,
+      collegeCredit,
+      travel,
+      population,
+    }),
     listAllTags(),
   ]);
 

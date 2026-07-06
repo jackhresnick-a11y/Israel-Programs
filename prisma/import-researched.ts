@@ -45,7 +45,8 @@ async function upsertTags(names: string[]) {
 }
 
 async function main() {
-  const jsonPath = join(__dirname, "..", "data", "researched-programs.json");
+  const fileName = process.argv[2] || "researched-programs.json";
+  const jsonPath = join(__dirname, "..", "data", fileName);
   const raw = JSON.parse(readFileSync(jsonPath, "utf-8")) as Record<string, unknown>;
 
   const categories = Object.keys(raw).filter((k) => k !== "_note");

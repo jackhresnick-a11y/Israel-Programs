@@ -7,6 +7,7 @@ import {
 } from "@/lib/programs";
 import { MAX_COMPARE } from "@/lib/compare";
 import CompareAddControl from "@/components/CompareAddControl";
+import BackButton from "@/components/BackButton";
 
 type Row = {
   label: string;
@@ -78,6 +79,7 @@ export default async function ComparePage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+      <BackButton fallbackHref="/programs" />
       <div className="border-l-4 border-amber-500 pl-4">
         <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
           Compare Programs

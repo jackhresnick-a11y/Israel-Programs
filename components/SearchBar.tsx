@@ -4,9 +4,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import { DURATION_LABELS } from "@/lib/duration";
+import { FACETS, type FacetKey } from "@/lib/facets";
 
 type SearchBarProps = {
   tags: { slug: string; name: string }[];
+};
+
+const FACET_PARAM: Record<FacetKey, string> = {
+  gender: "gender",
+  affiliation: "affiliation",
+  scholarship: "scholarship",
+  collegeCredit: "collegeCredit",
+  travel: "travel",
+  population: "population",
 };
 
 export default function SearchBar({ tags }: SearchBarProps) {
@@ -62,6 +72,27 @@ export default function SearchBar({ tags }: SearchBarProps) {
             </option>
           ))}
         </select>
+
+        {(Object.keys(FACETS) as FacetKey[]).map((key) => {
+          const facet = FACETS[key];
+          const param = FACET_PARAM[key];
+          const active = searchParams.get(param) ?? "";
+          return (
+            <select
+              key={key}
+              value={active}
+              onChange={(e) => updateParams({ [param]: e.target.value || null })}
+              className="rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
+            >
+              <option value="">{facet.label}: any</option>
+              {facet.options.map((opt) => (
+                <option key={opt.slug} value={opt.slug}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          );
+        })}
 
         {tags.slice(0, 20).map((tag) => (
           <button

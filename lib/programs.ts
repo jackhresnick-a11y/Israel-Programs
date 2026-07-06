@@ -200,21 +200,54 @@ export type ProgramFilters = {
   q?: string;
   tag?: string;
   duration?: DurationType;
+  gender?: string;
+  affiliation?: string;
+  scholarship?: string;
+  collegeCredit?: string;
+  travel?: string;
+  population?: string;
 };
 
 export async function listPrograms(filters: ProgramFilters) {
+  const rawQ = filters.q?.trim();
+  // Users are invited to type "#hashtag" into the same box, so strip a
+  // leading "#" and also try the slug form (spaces -> dashes) against tags.
+  const qWithoutHash = rawQ?.replace(/^#/, "").trim();
+  const qAsSlug = qWithoutHash?.toLowerCase().replace(/\s+/g, "-");
+
+  // Each facet below is backed by a Tag slug, but they're independent
+  // dimensions that must all match at once (an AND of ORs), so they can't
+  // share a single `tags: { some: ... }` key -- each gets its own AND entry.
+  const facetSlugs = [
+    filters.tag,
+    filters.gender,
+    filters.affiliation,
+    filters.scholarship,
+    filters.collegeCredit,
+    filters.travel,
+    filters.population,
+  ].filter((v): v is string => Boolean(v));
+
   const where: Prisma.ProgramWhereInput = {
     status: "PUBLISHED",
-    ...(filters.q
+    ...(rawQ
       ? {
           OR: [
-            { name: { contains: filters.q } },
-            { description: { contains: filters.q } },
-            { organization: { contains: filters.q } },
+            { name: { contains: rawQ, mode: "insensitive" } },
+            { description: { contains: rawQ, mode: "insensitive" } },
+            { organization: { contains: rawQ, mode: "insensitive" } },
+            ...(qWithoutHash
+              ? [
+                  { tags: { some: { slug: { contains: qAsSlug, mode: "insensitive" as const } } } },
+                  { tags: { some: { name: { contains: qWithoutHash, mode: "insensitive" as const } } } },
+                ]
+              : []),
           ],
         }
       : {}),
-    ...(filters.tag ? { tags: { some: { slug: filters.tag } } } : {}),
+    ...(facetSlugs.length > 0
+      ? { AND: facetSlugs.map((slug) => ({ tags: { some: { slug } } })) }
+      : {}),
     ...(filters.duration ? { durationType: filters.duration } : {}),
   };
 

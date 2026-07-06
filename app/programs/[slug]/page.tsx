@@ -10,6 +10,7 @@ import ReviewList from "@/components/ReviewList";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
 import DeleteProgramButton from "@/components/DeleteProgramButton";
+import BackButton from "@/components/BackButton";
 
 export default async function ProgramDetailPage({
   params,
@@ -54,6 +55,7 @@ export default async function ProgramDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
+      <BackButton fallbackHref="/programs" />
       {banner && (
         <p className={`rounded-lg px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
           {banner.text}

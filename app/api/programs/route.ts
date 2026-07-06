@@ -11,6 +11,12 @@ export async function GET(request: Request) {
     q: searchParams.get("q") ?? undefined,
     tag: searchParams.get("tag") ?? undefined,
     duration: (searchParams.get("duration") as DurationType) ?? undefined,
+    gender: searchParams.get("gender") ?? undefined,
+    affiliation: searchParams.get("affiliation") ?? undefined,
+    scholarship: searchParams.get("scholarship") ?? undefined,
+    collegeCredit: searchParams.get("collegeCredit") ?? undefined,
+    travel: searchParams.get("travel") ?? undefined,
+    population: searchParams.get("population") ?? undefined,
   });
   return NextResponse.json(programs);
 }
