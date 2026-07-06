@@ -32,6 +32,11 @@ enum EditStatus {
   REJECTED
 }
 
+enum ContactRequestStatus {
+  OPEN
+  REPLIED
+}
+
 model Program {
   id                  String        @id @default(cuid())
   name                String
@@ -57,6 +62,7 @@ model Program {
   videos              Video[]
   reviews             Review[]
   edits               ProgramEdit[]
+  references          Reference[]
 
   @@index([durationType])
   @@index([status])
@@ -105,4 +111,43 @@ model Review {
   createdAt    DateTime @default(now())
 
   @@index([programId])
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  body      String
+  updatedAt DateTime @updatedAt
+}
+
+model Reference {
+  id              String           @id @default(cuid())
+  programId       String
+  program         Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  userId          String
+  displayName     String
+  attendedText    String
+  note            String?
+  contactEmail    String
+  status          ProgramStatus    @default(PENDING)
+  createdAt       DateTime         @default(now())
+  contactRequests ContactRequest[]
+
+  @@unique([programId, userId])
+  @@index([programId])
+  @@index([status])
+}
+
+model ContactRequest {
+  id              String               @id @default(cuid())
+  referenceId     String
+  reference       Reference            @relation(fields: [referenceId], references: [id], onDelete: Cascade)
+  requesterUserId String
+  requesterEmail  String
+  note            String?
+  status          ContactRequestStatus @default(OPEN)
+  createdAt       DateTime             @default(now())
+
+  @@unique([referenceId, requesterUserId])
+  @@index([referenceId])
 }

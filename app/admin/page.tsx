@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getCurrentRole, normalizeRole } from "@/lib/roles";
 import { listPendingPrograms, listPendingEdits } from "@/lib/programs";
+import { listPendingReferences } from "@/lib/references";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import RoleSelect from "@/components/RoleSelect";
 import QueueActions from "@/components/QueueActions";
@@ -13,9 +14,10 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "moderator" && role !== "admin") redirect("/");
 
-  const [pendingPrograms, pendingEdits] = await Promise.all([
+  const [pendingPrograms, pendingEdits, pendingReferences] = await Promise.all([
     listPendingPrograms(),
     listPendingEdits(),
+    listPendingReferences(),
   ]);
 
   return (
@@ -104,6 +106,48 @@ export default async function AdminPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Pending References ({pendingReferences.length})
+        </h2>
+        {pendingReferences.length === 0 ? (
+          <p className="text-sm text-black/50 dark:text-white/50">
+            No alumni reference submissions waiting for review.
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
+            {pendingReferences.map((reference) => (
+              <div
+                key={reference.id}
+                className="flex items-center justify-between gap-4 px-4 py-3"
+              >
+                <div>
+                  <Link
+                    href={`/programs/${reference.program.slug}`}
+                    className="text-sm font-medium hover:underline"
+                  >
+                    {reference.displayName} — {reference.program.name}
+                  </Link>
+                  <p className="text-xs text-black/50 dark:text-white/50">
+                    Attended {reference.attendedText} · submitted{" "}
+                    {new Date(reference.createdAt).toLocaleDateString()}
+                  </p>
+                  {reference.note && (
+                    <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+                      &ldquo;{reference.note}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <QueueActions
+                  approveUrl={`/api/admin/references/${reference.id}/approve`}
+                  rejectUrl={`/api/admin/references/${reference.id}/reject`}
+                />
+              </div>
+            ))}
           </div>
         )}
       </section>

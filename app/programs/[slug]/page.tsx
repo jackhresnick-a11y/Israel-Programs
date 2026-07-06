@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SignInButton, Show } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { getProgramBySlug, DURATION_LABELS, averageRating } from "@/lib/programs";
+import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewList from "@/components/ReviewList";
@@ -11,6 +12,8 @@ import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
 import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
+import ReferenceForm from "@/components/ReferenceForm";
+import ReferenceList from "@/components/ReferenceList";
 
 export default async function ProgramDetailPage({
   params,
@@ -32,6 +35,7 @@ export default async function ProgramDetailPage({
   const isOwner = userId === program.createdById;
   if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
 
+  const references = await listPublishedReferences(program.id);
   const rating = averageRating(program.reviews);
 
   // Exactly one banner ever renders — a just-submitted confirmation takes
@@ -216,6 +220,27 @@ export default async function ProgramDetailPage({
           }
         >
           <ReviewForm programId={program.id} />
+        </Show>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold tracking-tight">Alumni References</h2>
+        <p className="text-sm text-black/60 dark:text-white/60">
+          People who attended this program and are willing to answer honest
+          questions about their real experience.
+        </p>
+        <ReferenceList references={references} isModerator={isModerator} />
+        <Show
+          when="signed-in"
+          fallback={
+            <SignInButton mode="modal">
+              <button className="w-fit rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+                Sign in to volunteer as a reference
+              </button>
+            </SignInButton>
+          }
+        >
+          <ReferenceForm programId={program.id} />
         </Show>
       </section>
     </div>

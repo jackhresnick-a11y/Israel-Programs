@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { getCurrentRole } from "@/lib/roles";
 
 export default async function Nav() {
-  const role = await getCurrentRole();
+  const [role, { userId }] = await Promise.all([getCurrentRole(), auth()]);
   const isModerator = role === "moderator" || role === "admin";
 
   return (
@@ -19,9 +20,17 @@ export default async function Nav() {
           <Link href="/programs" className="hover:text-amber-300">
             Browse
           </Link>
+          <Link href="/mission" className="hover:text-amber-300">
+            Mission
+          </Link>
           <Link href="/programs/new" className="hover:text-amber-300">
             Add Program
           </Link>
+          {userId && (
+            <Link href="/references/requests" className="hover:text-amber-300">
+              My Reference Requests
+            </Link>
+          )}
           {isModerator && (
             <Link href="/admin" className="hover:text-amber-300">
               Admin
