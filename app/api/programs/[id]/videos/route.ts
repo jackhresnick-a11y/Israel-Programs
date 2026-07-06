@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { requireSignedIn } from "@/lib/roles";
-import { saveVideo, UploadError } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
 
+const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
+
+/**
+ * The video file itself is uploaded directly from the browser to Vercel Blob
+ * (see /api/videos/upload for the token route). This route only records the
+ * resulting blob URL against the Program -- it never receives the file body,
+ * so it isn't subject to Vercel's read-only function filesystem or its
+ * ~4.5MB request-body limit.
+ */
 export async function POST(request: Request, { params }: Params) {
   const check = await requireSignedIn();
   if (!check.ok) {
@@ -12,31 +20,47 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const formData = await request.formData();
-  const file = formData.get("video");
-  const caption = formData.get("caption")?.toString() || undefined;
 
-  if (!(file instanceof File) || file.size === 0) {
-    return NextResponse.json({ error: "No video file provided" }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { url, filename, mimeType, caption } = body as Record<string, unknown>;
+
+  if (typeof url !== "string" || !isVercelBlobUrl(url)) {
+    return NextResponse.json({ error: "Invalid video URL" }, { status: 400 });
+  }
+  if (typeof filename !== "string" || filename.length === 0) {
+    return NextResponse.json({ error: "Missing filename" }, { status: 400 });
+  }
+  if (typeof mimeType !== "string" || !ALLOWED_VIDEO_TYPES.has(mimeType)) {
+    return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
   }
 
   try {
-    const saved = await saveVideo(file);
     const video = await prisma.video.create({
       data: {
         programId: id,
-        url: saved.url,
-        filename: saved.filename,
-        mimeType: saved.mimeType,
-        caption,
+        url,
+        filename,
+        mimeType,
+        caption: typeof caption === "string" && caption.length > 0 ? caption : undefined,
       },
     });
     return NextResponse.json(video, { status: 201 });
   } catch (err) {
-    if (err instanceof UploadError) {
-      return NextResponse.json({ error: err.message }, { status: 400 });
-    }
     console.error(err);
-    return NextResponse.json({ error: "Failed to upload video" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to save video" }, { status: 500 });
+  }
+}
+
+/** Guards against arbitrary URLs being recorded as a program's video source. */
+function isVercelBlobUrl(url: string): boolean {
+  try {
+    const { hostname, protocol } = new URL(url);
+    return protocol === "https:" && hostname.endsWith(".public.blob.vercel-storage.com");
+  } catch {
+    return false;
   }
 }

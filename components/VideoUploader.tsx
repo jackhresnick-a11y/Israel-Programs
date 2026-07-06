@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -16,14 +17,22 @@ export default function VideoUploader({ programId }: { programId: string }) {
     setUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.set("video", file);
-    if (caption) formData.set("caption", caption);
-
     try {
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/videos/upload",
+        multipart: true,
+      });
+
       const res = await fetch(`/api/programs/${programId}/videos`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: blob.url,
+          filename: file.name,
+          mimeType: file.type,
+          caption: caption || undefined,
+        }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));

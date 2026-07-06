@@ -71,6 +71,7 @@ export type ReviewDecisionInput = {
 };
 
 const BOOLEAN_PROGRAM_FIELDS = new Set(["hasScholarship", "hasCollegeCredit"]);
+const NULLABLE_ENUM_FIELDS = new Set(["travelType"]);
 
 /**
  * Records the moderator's per-field decisions, applies only the ACCEPTED
@@ -100,6 +101,8 @@ export async function applyReviewDecisions(editId: string, decisions: ReviewDeci
       tagsToDisconnectNames.push(d.fieldName.slice(TAG_REMOVED_PREFIX.length));
     } else if (BOOLEAN_PROGRAM_FIELDS.has(d.fieldName)) {
       data[d.fieldName] = d.finalValue === "true";
+    } else if (NULLABLE_ENUM_FIELDS.has(d.fieldName)) {
+      data[d.fieldName] = d.finalValue === "" ? null : d.finalValue;
     } else {
       data[d.fieldName] = d.finalValue;
     }

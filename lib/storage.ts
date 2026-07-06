@@ -5,7 +5,6 @@ import { randomUUID } from "crypto";
 const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
-const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200MB
 
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/png",
@@ -13,7 +12,6 @@ const ALLOWED_IMAGE_TYPES = new Set([
   "image/webp",
   "image/svg+xml",
 ]);
-const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
 export class UploadError extends Error {}
 
@@ -48,8 +46,4 @@ async function saveToUploads(
 
 export function saveLogo(file: File) {
   return saveToUploads(file, "logos", ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES);
-}
-
-export function saveVideo(file: File) {
-  return saveToUploads(file, "videos", ALLOWED_VIDEO_TYPES, MAX_VIDEO_BYTES);
 }
