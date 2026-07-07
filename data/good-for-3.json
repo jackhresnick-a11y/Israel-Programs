@@ -1,0 +1,245 @@
+{
+  "_note": "goodFor for batch-3 (48 programs, 2026-07-07). Matches good-for.json conventions: source of truth = program's own description/tags; 'medium' confidence = inferred from category/parent-org pattern rather than stated explicitly in this program's own text. Apply with prisma/apply-good-for.ts AFTER prisma/import-researched.ts researched-programs-3.json has created these rows (slugs match slugify(name)).",
+  "programs": [
+    {
+      "slug": "ariel-university-international-program",
+      "confidence": "high",
+      "goodFor": "For gap-year or semester students who want English-taught university courses fully integrated with Israeli dorm-mates on Ariel's campus, paired with an intensive 500-hour Hebrew ulpan."
+    },
+    {
+      "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+      "confidence": "high",
+      "goodFor": "For serious international dance students who want university-level ballet/contemporary training (including Gaga) combined with Hebrew University coursework on Israeli history and society; an audition/portfolio is required."
+    },
+    {
+      "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+      "confidence": "high",
+      "goodFor": "For top-performing science/math undergraduates (3.6+ GPA) who want a highly competitive 7-week hands-on research placement in a Weizmann lab under a scientist's supervision, not a touring or cultural-immersion program."
+    },
+    {
+      "slug": "musrara-international-residency-program",
+      "confidence": "high",
+      "goodFor": "For juried interdisciplinary artists (photography, new media, video, sound) wanting an intensive two-week international residency in Jerusalem alongside Israeli artists, or its separate multi-year photography/new-media degree tracks."
+    },
+    {
+      "slug": "sam-spiegel-jerusalem-international-film-lab",
+      "confidence": "high",
+      "goodFor": "For a small, highly selective cohort (12 filmmakers) of local and international emerging filmmakers developing a debut feature film in Jerusalem, rather than a broad study-abroad experience."
+    },
+    {
+      "slug": "birthright-israel-excel-fellowship",
+      "confidence": "high",
+      "goodFor": "For high-achieving Jewish college students (3.2+ GPA) who want an elite, highly competitive 10-week Tel Aviv internship at a top firm or startup plus a lifelong 1,500+ alumni professional network."
+    },
+    {
+      "slug": "tech2peace",
+      "confidence": "high",
+      "goodFor": "For Israelis and Palestinians ages 20-30 who want an intensive 10-day mix of tech/entrepreneurship training and facilitated conflict-dialogue in a highly competitive cohort (about 60 spots per ~500 applicants)."
+    },
+    {
+      "slug": "big-idea-gap-year",
+      "confidence": "high",
+      "goodFor": "For gap-year students wanting Israel's only hi-tech-focused year — a 4-month coding bootcamp plus internship at Be'er Sheva companies like Wix and PayPal — over a Torah-study or touring-focused year; Masa grants may reduce cost."
+    },
+    {
+      "slug": "torah-tech",
+      "confidence": "high",
+      "goodFor": "For young Orthodox men who want to pair serious Beit Midrash learning with real Tel Aviv startup internships, preparing for both a Torah-centered life and a tech career."
+    },
+    {
+      "slug": "project-ten-kibbutz-harduf",
+      "confidence": "high",
+      "goodFor": "For young adults who want grassroots coexistence and disability-support volunteering on a Galilee kibbutz alongside pluralistic Jewish learning and Hebrew/Arabic classes; Masa grants may be available."
+    },
+    {
+      "slug": "save-a-childs-heart-volunteer-program",
+      "confidence": "high",
+      "goodFor": "For volunteers 18+ who want to support children from developing countries receiving pediatric cardiac care in Holon, with commitments from a 3-week 'Immersive' track up to longer 'Superstar'/'Buddy' placements."
+    },
+    {
+      "slug": "leket-israel-volunteer-program",
+      "confidence": "high",
+      "goodFor": "For anyone wanting flexible, no-experience-needed volunteering — gleaning produce, night food-rescue runs, or sandwich-packing — with Israel's national food-rescue nonprofit, from single sessions to ongoing involvement."
+    },
+    {
+      "slug": "hadassah-medical-center-volunteer-program",
+      "confidence": "high",
+      "goodFor": "For short-term volunteers (1-3 months) who want hands-on placement alongside nursing staff or in patient-care roles at Hadassah's two Jerusalem university hospitals."
+    },
+    {
+      "slug": "mechinat-lachish",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina in the Judean foothills that pairs standard Jewish-identity/Zionism study with coursework in the arts and environmentalism."
+    },
+    {
+      "slug": "mechinat-telem",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting an urban, pluralistic co-ed mechina centered on social-justice and coexistence work within Tel Aviv-Jaffa's diverse Jewish and Arab communities."
+    },
+    {
+      "slug": "mechinat-haemek",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina on a Sea-of-Galilee-area kibbutz with an emphasis on nature exploration and bridging different sectors of Israeli society."
+    },
+    {
+      "slug": "mechinat-meitzar",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina on the Golan Heights focused on initiative, responsibility and leadership toward building a democratic Jewish society."
+    },
+    {
+      "slug": "mechinat-five-fingers-chamesh-etzbaot",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina (est. 2018) built around a distinctive physical-and-mental resilience training system in Zichron Ya'akov."
+    },
+    {
+      "slug": "mechinat-melach-haaretz",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting the standard mechina curriculum set in the Dead Sea region, split across two single-gender campuses (Ein Gedi for women, Mitzpe Shalem for men) rather than one co-ed site."
+    },
+    {
+      "slug": "mechinat-aderet",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina across three campuses emphasizing social and environmental responsibility in a new generation of Israeli leadership."
+    },
+    {
+      "slug": "mechinat-amichai",
+      "confidence": "medium",
+      "goodFor": "For gap-year students of any religious background wanting a pluralistic co-ed mechina in Beer Sheva centered on community volunteering in the Negev."
+    },
+    {
+      "slug": "mechinat-hannaton",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina in the Yizrael Valley centered on exploring Jewish-Israeli identity through study, leadership training and volunteer work."
+    },
+    {
+      "slug": "mechinat-rakia",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed leadership mechina in Harish that draws on Israeli Air Force heritage and values as its training framework."
+    },
+    {
+      "slug": "mechinat-arava",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina deliberately open to all Jewish denominations, spread across several small Arava Valley communities."
+    },
+    {
+      "slug": "mechinat-beeri",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina emphasizing progressive and Zionist leadership development alongside community volunteering."
+    },
+    {
+      "slug": "mechinat-dror",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a secular/pluralistic co-ed mechina in the western Negev near the Gaza border, with community volunteering in the region."
+    },
+    {
+      "slug": "mechinat-tavor",
+      "confidence": "medium",
+      "goodFor": "For gap-year students of any religious background wanting a pluralistic co-ed mechina spanning several northern Israel communities."
+    },
+    {
+      "slug": "mechinat-haviva-reich",
+      "confidence": "medium",
+      "goodFor": "For gap-year students wanting a pluralistic co-ed mechina in northern Israel named for WWII Jewish parachutist Haviva Reich, combining study, volunteering and IDF-service preparation."
+    },
+    {
+      "slug": "kadima-world-bnei-akiva",
+      "confidence": "high",
+      "goodFor": "For religious-Zionist gap-year students wanting a broad taste of Israeli life — internships, kibbutz living, volunteering, MDA training, a taste of Marva IDF prep, seminars and travel — rather than one fixed campus."
+    },
+    {
+      "slug": "mechina-olamit-world-bnei-akiva",
+      "confidence": "high",
+      "goodFor": "For religious-Zionist gap-year students wanting a 9.5-month leadership program with shared living and hands-on leadership experience alongside Israeli peers at World Bnei Akiva's flagship international campus near Jerusalem."
+    },
+    {
+      "slug": "torani-world-bnei-akiva",
+      "confidence": "medium",
+      "goodFor": "For students already enrolled in a separate yeshiva or midrasha gap year who want to layer on additional leadership training, seminars, Shabbatonim, a kibbutz stay and a wider Israel-wide Bnei Akiva peer community."
+    },
+    {
+      "slug": "mta-world-bnei-akiva",
+      "confidence": "medium",
+      "goodFor": "For religious-Zionist gap-year students specifically from Australia, New Zealand or South Africa wanting immersive Beit Midrash learning and Torat Eretz Yisrael at one of four campuses."
+    },
+    {
+      "slug": "ulpan-etzion",
+      "confidence": "high",
+      "goodFor": "For young-adult olim and prospective immigrants (22-35, college degree) wanting the Jewish Agency's flagship 5-month intensive Hebrew ulpan (5 hrs/day, 5 days/week), with prep for IDF service or Israeli employment."
+    },
+    {
+      "slug": "kibbutz-ulpan",
+      "confidence": "high",
+      "goodFor": "For tourists and prospective immigrants wanting a 5-month immersive rural experience — kibbutz dorm living and work assignments paired with multi-level Hebrew classes; Masa grants may be available."
+    },
+    {
+      "slug": "ulpan-or-sabra-immersion-program",
+      "confidence": "high",
+      "goodFor": "For anyone wanting fully personalized, one-on-one Hebrew instruction (in Jerusalem or worldwide via Zoom) using the 'Rapid Language Acquisition' method, from a 10-day intensive up to several weeks."
+    },
+    {
+      "slug": "neve-yerushalayim-shalhevet-program",
+      "confidence": "high",
+      "goodFor": "For women, including complete beginners, who want a foundational year building Jewish knowledge and spiritual growth at one of the world's largest women's seminaries (35,000+ alumni since 1970)."
+    },
+    {
+      "slug": "neve-yerushalayim-machon-devorah",
+      "confidence": "medium",
+      "goodFor": "For post-high-school and graduate-age women wanting an alternative seminary track within the broader Neve Yerushalayim network on the same Har Nof campus."
+    },
+    {
+      "slug": "ohr-somayach-derech-institute-for-torah-studies",
+      "confidence": "high",
+      "goodFor": "For motivated post-high-school men without a strong Jewish educational background who want to build independent Talmud/text-study skills from the ground up."
+    },
+    {
+      "slug": "aish-hatorah-aish-gesher",
+      "confidence": "high",
+      "goodFor": "For young men from public-school backgrounds wanting a traditional year-long Old City yeshiva experience combining serious text study with leadership development."
+    },
+    {
+      "slug": "aish-hatorah-foundations-program",
+      "confidence": "medium",
+      "goodFor": "For college students on a gap year or semester break wanting a flexible-length (3 weeks-3 months), no-background-assumed introduction to Jewish philosophy, history and text study in the Old City."
+    },
+    {
+      "slug": "shapells-yeshiva-darch-noam",
+      "confidence": "high",
+      "goodFor": "For English-speaking college graduates and young professionals (20s-30s) wanting flexible-length Torah study (1-3 months up to 6+ months) in Gemara, Chumash, Halacha and Hashkafa alongside character development."
+    },
+    {
+      "slug": "machon-shlomo",
+      "confidence": "high",
+      "goodFor": "For English-speaking Jewish college graduates and young professionals (20s-30s) pausing careers for 1-2 years of Torah learning, personal development and communal life in Har Nof."
+    },
+    {
+      "slug": "beit-chana-seminary-tzfat-chul-program",
+      "confidence": "high",
+      "goodFor": "For overseas young women with strong Hebrew proficiency wanting Chabad-Chassidic teacher training — leading to a government-recognized 'Morot Lagolah' certificate — at one of Lubavitch's most sought-after seminaries."
+    },
+    {
+      "slug": "diaspora-yeshiva-gap-year-program",
+      "confidence": "high",
+      "goodFor": "For male high-school graduates wanting a gap year of Torah/Talmud study tailored to their level on Mount Zion, with the option to simultaneously earn an accredited B.A. within the year; tuition subsidies available on request."
+    },
+    {
+      "slug": "yeshivat-shaarei-mevaseret-zion",
+      "confidence": "high",
+      "goodFor": "For post-high-school boys from North America, the UK, South America and Australia wanting Gemara study across all levels alongside Mussar/Hashkafa/Chassidus/Tanach, with most students returning for an official Shana Bet second year."
+    },
+    {
+      "slug": "yeshivas-bircas-hatorah",
+      "confidence": "high",
+      "goodFor": "For learners of any age and Jewish background wanting flexible-length Torah study — from short-term visitor programs up to a full year or more — at a yeshiva founded in 1989 in the Old City's Jewish Quarter."
+    },
+    {
+      "slug": "midreshet-amit",
+      "confidence": "high",
+      "goodFor": "For women wanting a Religious-Zionist year combining Torah learning with hands-on chesed, becoming part of the extended foster family for the children of Beit Hayeled."
+    },
+    {
+      "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+      "confidence": "high",
+      "goodFor": "For roughly 140 international women per year wanting a Torah-growth curriculum (Tanach, Halacha, Mussar, Machshava) focused on personal commitment to Torah life, within a college founded to train Israeli teachers."
+    }
+  ]
+}

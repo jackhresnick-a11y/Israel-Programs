@@ -1,0 +1,519 @@
+[
+  {
+    "slug": "ariel-university-international-program",
+    "name": "Ariel University International Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "college-credit",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+    "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+    "add_tags": [
+      "coed",
+      "secular",
+      "college-credit",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+    "name": "Weizmann Institute – Kupcinet-Getz International Summer School",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "musrara-international-residency-program",
+    "name": "Musrara International Residency Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "sam-spiegel-jerusalem-international-film-lab",
+    "name": "Sam Spiegel Jerusalem International Film Lab",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "birthright-israel-excel-fellowship",
+    "name": "Birthright Israel Excel Fellowship",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "tech2peace",
+    "name": "Tech2Peace",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "big-idea-gap-year",
+    "name": "Big Idea Gap Year",
+    "add_tags": [
+      "coed",
+      "secular",
+      "scholarships-available",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "project-ten-kibbutz-harduf",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "scholarships-available",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "save-a-childs-heart-volunteer-program",
+    "name": "Save a Child's Heart Volunteer Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "leket-israel-volunteer-program",
+    "name": "Leket Israel Volunteer Program",
+    "add_tags": [
+      "coed",
+      "secular"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "hadassah-medical-center-volunteer-program",
+    "name": "Hadassah Medical Center Volunteer Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-lachish",
+    "name": "Mechinat Lachish",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-telem",
+    "name": "Mechinat Telem",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-haemek",
+    "name": "Mechinat HaEmek",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-meitzar",
+    "name": "Mechinat Meitzar",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-five-fingers-chamesh-etzbaot",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-melach-haaretz",
+    "name": "Mechinat Melach HaAretz",
+    "add_tags": [
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "mechinat-aderet",
+    "name": "Mechinat Aderet",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-amichai",
+    "name": "Mechinat Amichai",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-hannaton",
+    "name": "Mechinat Hannaton",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-rakia",
+    "name": "Mechinat Rakia",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-arava",
+    "name": "Mechinat Arava",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-beeri",
+    "name": "Mechinat Be'eri",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-dror",
+    "name": "Mechinat Dror",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-tavor",
+    "name": "Mechinat Tavor",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechinat-haviva-reich",
+    "name": "Mechinat Haviva Reich",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "kadima-world-bnei-akiva",
+    "name": "Kadima (World Bnei Akiva)",
+    "add_tags": [
+      "coed",
+      "orthodox",
+      "scholarships-available",
+      "multi-city-touring",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "mechina-olamit-world-bnei-akiva",
+    "name": "Mechina Olamit (World Bnei Akiva)",
+    "add_tags": [
+      "coed",
+      "orthodox",
+      "scholarships-available",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "torani-world-bnei-akiva",
+    "name": "Torani (World Bnei Akiva)",
+    "add_tags": [
+      "orthodox"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "mta-world-bnei-akiva",
+    "name": "MTA (World Bnei Akiva)",
+    "add_tags": [
+      "orthodox",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "ulpan-etzion",
+    "name": "Ulpan Etzion",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "kibbutz-ulpan",
+    "name": "Kibbutz Ulpan",
+    "add_tags": [
+      "coed",
+      "secular",
+      "scholarships-available",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "ulpan-or-sabra-immersion-program",
+    "name": "Ulpan-Or Sabra Immersion Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "neve-yerushalayim-shalhevet-program",
+    "name": "Neve Yerushalayim – Shalhevet Program",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "neve-yerushalayim-machon-devorah",
+    "name": "Neve Yerushalayim – Machon Devorah",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "ohr-somayach-derech-institute-for-torah-studies",
+    "name": "Ohr Somayach – Derech Institute for Torah Studies",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "aish-hatorah-aish-gesher",
+    "name": "Aish HaTorah – Aish Gesher",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah – Foundations Program",
+    "add_tags": [
+      "coed",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "shapells-yeshiva-darch-noam",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "beit-chana-seminary-tzfat-chul-program",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "add_tags": [
+      "girls-only",
+      "chabad",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "scholarships-available",
+      "college-credit",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "yeshivat-shaarei-mevaseret-zion",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "midreshet-amit",
+    "name": "Midreshet AMIT",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "name": "Michlalah Jerusalem College – Machal (Overseas Students Program)",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  }
+]
