@@ -202,9 +202,11 @@
     "add_tags": [
       "pluralistic",
       "single-location",
-      "israeli-anglo-mix"
+      "israeli-anglo-mix",
+      "boys-only",
+      "girls-only"
     ],
-    "flagged_for_review": true
+    "flagged_for_review": false
   },
   {
     "slug": "mechinat-aderet",
@@ -341,11 +343,12 @@
     "slug": "mta-world-bnei-akiva",
     "name": "MTA (World Bnei Akiva)",
     "add_tags": [
+      "boys-only",
       "orthodox",
       "single-location",
       "anglo-only"
     ],
-    "flagged_for_review": true
+    "flagged_for_review": false
   },
   {
     "slug": "ulpan-etzion",
@@ -423,11 +426,11 @@
     "slug": "aish-hatorah-foundations-program",
     "name": "Aish HaTorah – Foundations Program",
     "add_tags": [
-      "coed",
+      "boys-only",
       "orthodox",
       "single-location"
     ],
-    "flagged_for_review": true
+    "flagged_for_review": false
   },
   {
     "slug": "shapells-yeshiva-darch-noam",
