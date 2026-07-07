@@ -1,5 +1,6 @@
 import slugify from "slugify";
 import { z } from "zod";
+import Fuse from "fuse.js";
 import { prisma } from "@/lib/prisma";
 import { DurationType, Prisma, ProgramStatus, TravelType } from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
@@ -249,32 +250,31 @@ async function buildTagAndClauses(slugs: string[]): Promise<Prisma.ProgramWhereI
   }));
 }
 
+// Weighted fuzzy-search keys for the free-text `q` box. Name/org/tags rank
+// highest since a match there is almost always what the user meant; location
+// and goodFor/description are searched too (unlike the old exact-substring
+// query, which skipped them) but weighted low so a stray match deep in a
+// long description doesn't outrank a real name/tag hit.
+const SEARCH_KEYS: { name: string; weight: number }[] = [
+  { name: "name", weight: 3 },
+  { name: "organization", weight: 2 },
+  { name: "tags.name", weight: 2 },
+  { name: "tags.slug", weight: 2 },
+  { name: "location", weight: 1 },
+  { name: "goodFor", weight: 1 },
+  { name: "description", weight: 1 },
+];
+
 export async function listPrograms(filters: ProgramFilters) {
-  const rawQ = filters.q?.trim();
   // Users are invited to type "#hashtag" into the same box, so strip a
-  // leading "#" and also try the slug form (spaces -> dashes) against tags.
-  const qWithoutHash = rawQ?.replace(/^#/, "").trim();
-  const qAsSlug = qWithoutHash?.toLowerCase().replace(/\s+/g, "-");
+  // leading "#" -- Fuse fuzzily matches the term against tag name/slug
+  // directly, so no separate slugify-and-compare pass is needed.
+  const term = filters.q?.trim().replace(/^#/, "").trim();
 
   const tagAndClauses = await buildTagAndClauses(filters.tags ?? []);
 
   const where: Prisma.ProgramWhereInput = {
     status: "PUBLISHED",
-    ...(rawQ
-      ? {
-          OR: [
-            { name: { contains: rawQ, mode: "insensitive" } },
-            { description: { contains: rawQ, mode: "insensitive" } },
-            { organization: { contains: rawQ, mode: "insensitive" } },
-            ...(qWithoutHash
-              ? [
-                  { tags: { some: { slug: { contains: qAsSlug, mode: "insensitive" as const } } } },
-                  { tags: { some: { name: { contains: qWithoutHash, mode: "insensitive" as const } } } },
-                ]
-              : []),
-          ],
-        }
-      : {}),
     ...(tagAndClauses.length > 0 ? { AND: tagAndClauses } : {}),
     ...(filters.duration ? { durationType: filters.duration } : {}),
     ...(filters.hasScholarship ? { hasScholarship: true } : {}),
@@ -282,11 +282,26 @@ export async function listPrograms(filters: ProgramFilters) {
     ...(filters.travelType ? { travelType: filters.travelType } : {}),
   };
 
-  return prisma.program.findMany({
+  const programs = await prisma.program.findMany({
     where,
     include: { tags: true, reviews: true },
     orderBy: { createdAt: "desc" },
   });
+
+  if (!term) return programs;
+
+  // Structured filters (status/tags/duration/etc.) run in Postgres above;
+  // the free-text term is fuzzy-ranked here in memory. At ~183 published
+  // programs this is effectively free and avoids a pg_trgm migration +
+  // raw SQL for a dataset this size -- see the fuzzy-search plan.
+  const fuse = new Fuse(programs, {
+    keys: SEARCH_KEYS,
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+  });
+
+  return fuse.search(term).map((result) => result.item);
 }
 
 export async function getProgramBySlug(slug: string) {
