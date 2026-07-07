@@ -39,7 +39,7 @@ function VideoPlayer({ url }: { url: string }) {
 
   if (failed) {
     return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-black/10 bg-black/5 text-sm text-black/50 dark:border-white/10 dark:bg-white/5 dark:text-white/50">
+      <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-border bg-surface-muted text-sm text-muted">
         Video failed to load. Try refreshing the page.
       </div>
     );
@@ -52,7 +52,7 @@ function VideoPlayer({ url }: { url: string }) {
       controls
       preload="metadata"
       onError={handleError}
-      className="w-full rounded-lg border border-black/10 dark:border-white/10"
+      className="w-full rounded-lg border border-border"
     />
   );
 }
@@ -76,11 +76,7 @@ export default function VideoList({
   }
 
   if (videos.length === 0) {
-    return (
-      <p className="text-sm text-black/50 dark:text-white/50">
-        No videos yet.
-      </p>
-    );
+    return <p className="text-sm text-muted">No videos yet.</p>;
   }
 
   return (
@@ -88,13 +84,13 @@ export default function VideoList({
       {videos.map((video) => (
         <div key={video.id} className="flex flex-col gap-2">
           <VideoPlayer url={video.url} />
-          <div className="flex items-center justify-between text-xs text-black/60 dark:text-white/60">
+          <div className="flex items-center justify-between text-xs text-muted">
             <span>{video.caption}</span>
             {isModerator && (
               <button
                 onClick={() => handleDelete(video.id)}
                 disabled={deletingId === video.id}
-                className="text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
+                className="text-danger hover:underline disabled:opacity-50"
               >
                 {deletingId === video.id ? "Deleting..." : "Delete"}
               </button>

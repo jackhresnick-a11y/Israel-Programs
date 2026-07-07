@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default function QueueActions({
   approveUrl,
@@ -28,10 +29,7 @@ export default function QueueActions({
   return (
     <div className="flex gap-2">
       {reviewUrl && (
-        <Link
-          href={reviewUrl}
-          className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400"
-        >
+        <Link href={reviewUrl} className={buttonVariants({ variant: "primary", size: "sm" })}>
           Review
         </Link>
       )}
@@ -39,7 +37,7 @@ export default function QueueActions({
         <button
           onClick={() => act("approve")}
           disabled={busy !== null}
-          className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-amber-400 disabled:opacity-50"
+          className={buttonVariants({ variant: "primary", size: "sm" })}
         >
           {busy === "approve" ? "Approving..." : "Approve"}
         </button>
@@ -47,7 +45,7 @@ export default function QueueActions({
       <button
         onClick={() => act("reject")}
         disabled={busy !== null}
-        className="rounded-lg border border-red-500/30 px-3 py-1.5 text-sm text-red-600 hover:bg-red-500/10 disabled:opacity-50 dark:text-red-400"
+        className={buttonVariants({ variant: "destructive", size: "sm" })}
       >
         {busy === "reject" ? "Rejecting..." : "Reject"}
       </button>

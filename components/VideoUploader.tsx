@@ -3,6 +3,8 @@
 import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function VideoUploader({ programId }: { programId: string }) {
   const router = useRouter();
@@ -51,30 +53,24 @@ export default function VideoUploader({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-sm">
       {error && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-danger-bg px-3 py-2 text-danger">
           {error}
         </p>
       )}
-      <input
+      <Input
         type="file"
         accept="video/mp4,video/webm,video/quicktime"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 dark:border-blue-950"
       />
-      <input
+      <Input
         type="text"
         placeholder="Caption (optional)"
         value={caption}
         onChange={(e) => setCaption(e.target.value)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 dark:border-blue-950"
       />
-      <button
-        type="submit"
-        disabled={!file || uploading}
-        className="w-fit rounded-lg bg-amber-500 px-4 py-1.5 font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
+      <Button type="submit" size="sm" disabled={!file || uploading} className="w-fit">
         {uploading ? "Uploading..." : "Upload video"}
-      </button>
+      </Button>
     </form>
   );
 }

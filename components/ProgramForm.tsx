@@ -5,6 +5,10 @@ import { useState } from "react";
 import { DURATION_LABELS } from "@/lib/duration";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import type { DurationType } from "@/app/generated/prisma/enums";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
+import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
 
 export type ProgramFormValues = {
   id?: string;
@@ -59,14 +63,11 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1 text-sm">
-      <span className="font-medium">{label}</span>
+      <span className="font-medium text-foreground">{label}</span>
       {children}
     </label>
   );
 }
-
-const inputClass =
-  "rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500";
 
 export default function ProgramForm({
   initial,
@@ -147,37 +148,34 @@ export default function ProgramForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {error && (
-        <p className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">
           {error}
         </p>
       )}
 
       <Field label="Program name">
-        <input
+        <Input
           required
-          className={inputClass}
           value={values.name}
           onChange={(e) => set("name", e.target.value)}
         />
       </Field>
 
       <Field label="Description">
-        <textarea
+        <Textarea
           required
           rows={4}
-          className={inputClass}
           value={values.description}
           onChange={(e) => set("description", e.target.value)}
         />
       </Field>
 
       <Field label="Who is this program good for?">
-        <textarea
+        <Textarea
           rows={3}
           placeholder={
             'e.g. "Ideal for first-time visitors who want a broad overview; less suited to those seeking intensive text study." Describe the ideal participant — background, goals, learning style — rather than repeating cost, dates, or affiliation.'
           }
-          className={inputClass}
           value={values.goodFor}
           onChange={(e) => set("goodFor", e.target.value)}
         />
@@ -185,15 +183,13 @@ export default function ProgramForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Organization">
-          <input
-            className={inputClass}
+          <Input
             value={values.organization}
             onChange={(e) => set("organization", e.target.value)}
           />
         </Field>
         <Field label="Location">
-          <input
-            className={inputClass}
+          <Input
             value={values.location}
             onChange={(e) => set("location", e.target.value)}
           />
@@ -202,8 +198,7 @@ export default function ProgramForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="Duration type">
-          <select
-            className={inputClass}
+          <Select
             value={values.durationType}
             onChange={(e) =>
               set("durationType", e.target.value as DurationType)
@@ -214,20 +209,18 @@ export default function ProgramForm({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Field label="Duration details">
-          <input
+          <Input
             placeholder="e.g. 10 days"
-            className={inputClass}
             value={values.durationText}
             onChange={(e) => set("durationText", e.target.value)}
           />
         </Field>
         <Field label="Cost">
-          <input
+          <Input
             placeholder="e.g. Free, or $30,000"
-            className={inputClass}
             value={values.cost}
             onChange={(e) => set("cost", e.target.value)}
           />
@@ -235,25 +228,26 @@ export default function ProgramForm({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
             checked={values.hasScholarship}
             onChange={(e) => set("hasScholarship", e.target.checked)}
+            className="accent-accent"
           />
           Scholarships / financial aid available
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
             checked={values.hasCollegeCredit}
             onChange={(e) => set("hasCollegeCredit", e.target.checked)}
+            className="accent-accent"
           />
           College credit available
         </label>
         <Field label="Travel">
-          <select
-            className={inputClass}
+          <Select
             value={values.travelType}
             onChange={(e) => set("travelType", e.target.value)}
           >
@@ -263,23 +257,21 @@ export default function ProgramForm({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
       </div>
 
       <Field label="How to sign up">
-        <textarea
+        <Textarea
           rows={2}
-          className={inputClass}
           value={values.signupInstructions}
           onChange={(e) => set("signupInstructions", e.target.value)}
         />
       </Field>
       <Field label="Signup URL">
-        <input
+        <Input
           type="url"
           placeholder="https://..."
-          className={inputClass}
           value={values.signupUrl}
           onChange={(e) => set("signupUrl", e.target.value)}
         />
@@ -287,25 +279,22 @@ export default function ProgramForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="Contact email">
-          <input
+          <Input
             type="email"
-            className={inputClass}
             value={values.contactEmail}
             onChange={(e) => set("contactEmail", e.target.value)}
           />
         </Field>
         <Field label="Contact phone">
-          <input
-            className={inputClass}
+          <Input
             value={values.contactPhone}
             onChange={(e) => set("contactPhone", e.target.value)}
           />
         </Field>
         <Field label="Contact website">
-          <input
+          <Input
             type="url"
             placeholder="https://..."
-            className={inputClass}
             value={values.contactWebsite}
             onChange={(e) => set("contactWebsite", e.target.value)}
           />
@@ -313,48 +302,41 @@ export default function ProgramForm({
       </div>
 
       <Field label="Tags / hashtags (comma separated)">
-        <input
+        <Input
           placeholder="gap-year, leadership, army"
-          className={inputClass}
           value={values.tags}
           onChange={(e) => set("tags", e.target.value)}
         />
       </Field>
 
       <Field label="Logo">
-        <input
+        <Input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"
-          className={inputClass}
           onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
         />
         {values.logoUrl && !logoFile && (
-          <span className="text-xs text-black/50 dark:text-white/50">
+          <span className="text-xs text-muted">
             Current logo will be kept unless you choose a new file.
           </span>
         )}
       </Field>
 
       <Field label="Video (optional)">
-        <input
+        <Input
           type="file"
           accept="video/mp4,video/webm,video/quicktime"
-          className={inputClass}
           onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
         />
-        <span className="text-xs text-black/50 dark:text-white/50">
+        <span className="text-xs text-muted">
           MP4, WebM, or MOV, up to 200MB. You can also add more videos later
           from the program page.
         </span>
       </Field>
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={submitting} className="w-fit">
         {submitting ? "Saving..." : isEdit ? "Save changes" : "Create program"}
-      </button>
+      </Button>
     </form>
   );
 }

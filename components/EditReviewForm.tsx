@@ -5,6 +5,10 @@ import { useState } from "react";
 import { DURATION_LABELS } from "@/lib/duration";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import { FIELD_LABELS } from "@/lib/diff";
+import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 type Decision = {
   fieldName: string;
@@ -36,47 +40,44 @@ function ValueEditor({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const inputClass =
-    "w-full rounded-lg border border-blue-100 bg-transparent px-2 py-1 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500";
-
   if (fieldName.startsWith("tag:")) {
     return <p className="text-sm">{displayValue(fieldName, value)}</p>;
   }
   if (fieldName === "durationType") {
     return (
-      <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>
+      <Select className="w-full" value={value} onChange={(e) => onChange(e.target.value)}>
         {Object.entries(DURATION_LABELS).map(([v, label]) => (
           <option key={v} value={v}>
             {label}
           </option>
         ))}
-      </select>
+      </Select>
     );
   }
   if (fieldName === "travelType") {
     return (
-      <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>
+      <Select className="w-full" value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">Not specified</option>
         {Object.entries(TRAVEL_TYPE_LABELS).map(([v, label]) => (
           <option key={v} value={v}>
             {label}
           </option>
         ))}
-      </select>
+      </Select>
     );
   }
   if (fieldName === "hasScholarship" || fieldName === "hasCollegeCredit") {
     return (
-      <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>
+      <Select className="w-full" value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="true">Yes</option>
         <option value="false">No</option>
-      </select>
+      </Select>
     );
   }
   return (
-    <textarea
+    <Textarea
       rows={2}
-      className={inputClass}
+      className="w-full"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -150,7 +151,7 @@ export default function EditReviewForm({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -161,17 +162,18 @@ export default function EditReviewForm({
           return (
             <div
               key={d.fieldName}
-              className={`flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between ${
+              className={cn(
+                "flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between",
                 row.decision === "REJECTED"
-                  ? "border-red-200 bg-red-50/30 dark:border-red-900/40 dark:bg-red-950/10"
-                  : "border-blue-100 dark:border-blue-950"
-              }`}
+                  ? "border-danger/30 bg-danger-bg/40"
+                  : "border-border"
+              )}
             >
               <div className="flex-1">
-                <p className="text-xs font-medium text-black/50 dark:text-white/50">
+                <p className="text-xs font-medium text-muted">
                   {humanizeFieldName(d.fieldName)}
                 </p>
-                <p className="text-xs text-black/40 dark:text-white/40">
+                <p className="text-xs text-muted/80">
                   proposed: {displayValue(d.fieldName, d.proposedValue ?? "")}
                 </p>
                 <div className="mt-1">
@@ -185,21 +187,23 @@ export default function EditReviewForm({
               <div className="flex shrink-0 gap-2">
                 <button
                   onClick={() => setRow(d.fieldName, { decision: "ACCEPTED" })}
-                  className={`rounded-lg px-3 py-1 text-xs font-medium ${
+                  className={cn(
+                    "rounded-lg px-3 py-1 text-xs font-medium",
                     row.decision === "ACCEPTED"
-                      ? "bg-amber-500 text-slate-900"
-                      : "border border-blue-100 hover:border-amber-400 dark:border-blue-950"
-                  }`}
+                      ? "bg-accent text-accent-foreground"
+                      : "border border-border hover:border-accent"
+                  )}
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => setRow(d.fieldName, { decision: "REJECTED" })}
-                  className={`rounded-lg px-3 py-1 text-xs font-medium ${
+                  className={cn(
+                    "rounded-lg px-3 py-1 text-xs font-medium",
                     row.decision === "REJECTED"
-                      ? "bg-red-500 text-white"
-                      : "border border-blue-100 hover:border-red-400 dark:border-blue-950"
-                  }`}
+                      ? "bg-danger text-white"
+                      : "border border-border hover:border-danger"
+                  )}
                 >
                   Reject
                 </button>
@@ -209,21 +213,13 @@ export default function EditReviewForm({
         })}
       </div>
 
-      <div className="flex items-center justify-between gap-4 border-t border-blue-100 pt-4 dark:border-blue-950">
-        <button
-          onClick={handleBan}
-          disabled={banning}
-          className="rounded-lg border border-red-500/30 px-3 py-1.5 text-sm text-red-600 hover:bg-red-500/10 disabled:opacity-50 dark:text-red-400"
-        >
+      <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
+        <Button variant="destructive" onClick={handleBan} disabled={banning}>
           {banning ? "Banning..." : `Ban ${submitterName}`}
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-        >
+        </Button>
+        <Button onClick={handleSubmit} disabled={submitting}>
           {submitting ? "Applying..." : "Apply approved changes"}
-        </button>
+        </Button>
       </div>
     </div>
   );

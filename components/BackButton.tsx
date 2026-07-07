@@ -24,7 +24,7 @@ export default function BackButton({ fallbackHref = "/programs", className = "" 
           router.push(fallbackHref);
         }
       }}
-      className={`inline-flex w-fit items-center gap-1 text-sm text-black/60 hover:text-primary dark:text-white/60 dark:hover:text-white ${className}`}
+      className={`inline-flex w-fit items-center gap-1 text-sm text-muted hover:text-foreground ${className}`}
     >
       <span aria-hidden="true">&larr;</span> Back
     </button>

@@ -4,6 +4,8 @@ import { SignInButton, Show } from "@clerk/nextjs";
 import { getCurrentRole } from "@/lib/roles";
 import { getProgramBySlug } from "@/lib/programs";
 import ProgramForm from "@/components/ProgramForm";
+import PageContainer from "@/components/ui/PageContainer";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default async function EditProgramPage({
   params,
@@ -23,20 +25,22 @@ export default async function EditProgramPage({
   if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-10">
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-primary dark:text-white">
-        Edit {program.name}
-      </h1>
-      {!isModerator && (
-        <p className="mb-6 text-sm text-black/60 dark:text-white/60">
-          Your changes will be reviewed by a moderator before they go live.
-        </p>
-      )}
+    <PageContainer width="narrow" className="gap-4">
+      <div>
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+          Edit {program.name}
+        </h1>
+        {!isModerator && (
+          <p className="mt-2 text-sm text-muted">
+            Your changes will be reviewed by a moderator before they go live.
+          </p>
+        )}
+      </div>
       <Show
         when="signed-in"
         fallback={
           <SignInButton mode="modal">
-            <button className="rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+            <button className={buttonVariants({ variant: "secondary" })}>
               Sign in to propose an edit
             </button>
           </SignInButton>
@@ -67,6 +71,6 @@ export default async function EditProgramPage({
           }}
         />
       </Show>
-    </div>
+    </PageContainer>
   );
 }

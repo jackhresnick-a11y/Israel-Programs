@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Select from "@/components/ui/Select";
 
 export default function CompareAddControl({
   currentSlugs,
@@ -15,14 +16,14 @@ export default function CompareAddControl({
   if (available.length === 0) return null;
 
   return (
-    <select
+    <Select
       defaultValue=""
       onChange={(e) => {
         if (!e.target.value) return;
         const next = [...currentSlugs, e.target.value];
         router.push(`/compare?slugs=${encodeURIComponent(next.join(","))}`);
       }}
-      className="w-full rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
+      className="w-full"
     >
       <option value="" disabled>
         + Add a program to compare
@@ -32,6 +33,6 @@ export default function CompareAddControl({
           {o.name}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

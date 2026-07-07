@@ -31,7 +31,7 @@ export default function ReviewList({
 
   if (reviews.length === 0) {
     return (
-      <p className="text-sm text-black/50 dark:text-white/50">
+      <p className="text-sm text-muted">
         No reviews yet. Be the first to share your experience.
       </p>
     );
@@ -40,29 +40,26 @@ export default function ReviewList({
   return (
     <ul className="flex flex-col gap-4">
       {reviews.map((review) => (
-        <li
-          key={review.id}
-          className="rounded-lg border border-black/10 p-4 dark:border-white/10"
-        >
+        <li key={review.id} className="rounded-lg border border-border p-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-amber-500">
+              <span className="text-accent">
                 {"★".repeat(review.rating)}
                 {"☆".repeat(5 - review.rating)}
               </span>
-              <span className="font-medium">{review.reviewerName}</span>
+              <span className="font-medium text-foreground">{review.reviewerName}</span>
             </div>
             {isModerator && (
               <button
                 onClick={() => handleDelete(review.id)}
                 disabled={deletingId === review.id}
-                className="text-xs text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
+                className="text-xs text-danger hover:underline disabled:opacity-50"
               >
                 {deletingId === review.id ? "Deleting..." : "Delete"}
               </button>
             )}
           </div>
-          <p className="mt-2 text-sm text-black/70 dark:text-white/70">
+          <p className="mt-2 text-sm text-foreground/70">
             {review.text}
           </p>
         </li>

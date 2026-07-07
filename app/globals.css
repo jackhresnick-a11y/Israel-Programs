@@ -1,32 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #12335c;
-  --primary-hover: #1c477d;
-  --primary-foreground: #ffffff;
+  --background: #fbf8f2;
+  --surface: #ffffff;
+  --surface-muted: #f4efe6;
+  --foreground: #1a2740;
+  /* Brand navy — deliberately constant across themes (Nav's solid header
+     background); use --foreground for text that should adapt instead. */
+  --primary: #1a2740;
+  --primary-foreground: #fbf8f2;
+  --accent: #c8912f;
+  --accent-hover: #b37f22;
+  --accent-foreground: #1a2740;
+  --muted: #6b6656;
+  --border: #e7dfd0;
+
+  --info: #2f5fa8;
+  --info-bg: #eaf1fb;
+  --success: #3a7d4f;
+  --success-bg: #eaf5ee;
+  --warning: #b37f22;
+  --warning-bg: #faf1e0;
+  --danger: #b3432f;
+  --danger-bg: #fbecea;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-fraunces);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #14110b;
+    --surface: #201b12;
+    --surface-muted: #2a2318;
+    --foreground: #f3ecdd;
+    --accent: #e0ac4a;
+    --accent-hover: #ebbb5e;
+    --accent-foreground: #14110b;
+    --muted: #a79e8b;
+    --border: #37301f;
+
+    --info: #8fb6e8;
+    --info-bg: #1c2a3d;
+    --success: #8bc9a0;
+    --success-bg: #1b3024;
+    --warning: #e0ac4a;
+    --warning-bg: #332512;
+    --danger: #e5a08f;
+    --danger-bg: #3a201a;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

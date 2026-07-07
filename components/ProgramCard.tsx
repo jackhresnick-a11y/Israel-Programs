@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { DURATION_LABELS, averageRating } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 
 type ProgramCardProps = {
   program: {
@@ -21,10 +23,10 @@ export default function ProgramCard({ program }: ProgramCardProps) {
   const rating = averageRating(program.reviews);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-blue-100 p-5 transition hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70">
+    <Card interactive className="flex flex-col gap-3 p-5">
       <Link href={`/programs/${program.slug}`} className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black/5 dark:bg-white/10">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-muted">
             {program.logoUrl ? (
               <Image
                 src={program.logoUrl}
@@ -34,51 +36,49 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="text-lg font-semibold text-black/40 dark:text-white/40">
+              <span className="font-serif text-lg font-semibold text-muted">
                 {program.name.charAt(0)}
               </span>
             )}
           </div>
           <div>
-            <h3 className="font-semibold leading-tight">{program.name}</h3>
-            <p className="text-xs text-black/60 dark:text-white/60">
+            <h3 className="font-serif font-semibold leading-tight text-foreground">
+              {program.name}
+            </h3>
+            <p className="text-xs text-muted">
               {DURATION_LABELS[program.durationType]}
               {program.location ? ` · ${program.location}` : ""}
             </p>
           </div>
         </div>
-        <p className="line-clamp-3 text-sm text-black/70 dark:text-white/70">
+        <p className="line-clamp-3 text-sm text-foreground/80">
           {program.description}
         </p>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex flex-wrap gap-1.5">
             {program.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag.id}
-                className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-              >
+              <Badge key={tag.id} tone="tag">
                 #{tag.slug}
-              </span>
+              </Badge>
             ))}
           </div>
           {rating !== null && (
-            <span className="whitespace-nowrap text-black/60 dark:text-white/60">
-              ★ {rating.toFixed(1)} ({program.reviews.length})
+            <span className="whitespace-nowrap text-muted">
+              <span className="text-accent">★</span> {rating.toFixed(1)} (
+              {program.reviews.length})
             </span>
           )}
         </div>
         {program.cost && (
-          <p className="text-xs font-medium text-black/50 dark:text-white/50">
-            {program.cost}
-          </p>
+          <p className="text-xs font-medium text-muted">{program.cost}</p>
         )}
       </Link>
       <Link
         href={`/programs/${program.slug}/edit`}
-        className="self-end text-xs text-black/50 hover:underline dark:text-white/50"
+        className="self-end text-xs text-muted hover:text-accent hover:underline"
       >
         Edit
       </Link>
-    </div>
+    </Card>
   );
 }

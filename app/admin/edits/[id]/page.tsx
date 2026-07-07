@@ -4,6 +4,8 @@ import { getCurrentRole } from "@/lib/roles";
 import { getEditForReview } from "@/lib/programEdits";
 import { getUsersByIds } from "@/lib/clerkUsers";
 import EditReviewForm from "@/components/EditReviewForm";
+import PageContainer from "@/components/ui/PageContainer";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default async function EditReviewPage({
   params,
@@ -21,27 +23,30 @@ export default async function EditReviewPage({
   const submitter = submitters.get(edit.submittedById);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <div className="border-l-4 border-amber-500 pl-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
-          Review edit to {edit.program.name}
-        </h1>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          Submitted by{" "}
-          <span className="font-medium">{submitter?.name ?? "Unknown"}</span>
-          {submitter?.email ? ` (${submitter.email})` : ""} on{" "}
-          {new Date(edit.createdAt).toLocaleDateString()}
-        </p>
+    <PageContainer width="narrow" className="gap-6">
+      <PageHeader
+        title={`Review edit to ${edit.program.name}`}
+        description={
+          <>
+            Submitted by{" "}
+            <span className="font-medium text-foreground">
+              {submitter?.name ?? "Unknown"}
+            </span>
+            {submitter?.email ? ` (${submitter.email})` : ""} on{" "}
+            {new Date(edit.createdAt).toLocaleDateString()}
+          </>
+        }
+      >
         <Link
           href={`/programs/${edit.program.slug}`}
-          className="mt-1 inline-block text-sm text-amber-700 hover:underline dark:text-amber-400"
+          className="mt-1 inline-block text-sm text-accent-hover hover:underline dark:text-accent"
         >
           View current program
         </Link>
-      </div>
+      </PageHeader>
 
       {edit.fieldDecisions.length === 0 ? (
-        <p className="text-sm text-black/50 dark:text-white/50">
+        <p className="text-sm text-muted">
           No field changes detected (the edit may only affect the logo). You
           can still reject it from the admin queue.
         </p>
@@ -58,6 +63,6 @@ export default async function EditReviewPage({
           submitterName={submitter?.name ?? "this user"}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }

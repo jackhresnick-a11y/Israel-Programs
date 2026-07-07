@@ -9,6 +9,9 @@ import { getUsersByIds } from "@/lib/clerkUsers";
 import RoleSelect from "@/components/RoleSelect";
 import QueueActions from "@/components/QueueActions";
 import EditDiffView from "@/components/EditDiffView";
+import PageContainer from "@/components/ui/PageContainer";
+import PageHeader from "@/components/ui/PageHeader";
+import { buttonVariants } from "@/components/ui/Button";
 import type { ProgramInput } from "@/lib/programs";
 
 export default async function AdminPage() {
@@ -27,34 +30,28 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 py-10">
-      <div className="border-l-4 border-amber-500 pl-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
-          Admin
-        </h1>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          Review submissions before they go live.
-        </p>
+    <PageContainer width="base" className="gap-10">
+      <PageHeader title="Admin" description="Review submissions before they go live.">
         {role === "admin" && (
           <a
             href="/api/admin/programs-xlsx"
-            className="mt-3 inline-block w-fit rounded-lg border border-primary/20 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 dark:border-white/15 dark:text-white dark:hover:bg-white/[.06]"
+            className={`mt-3 inline-block w-fit ${buttonVariants({ variant: "secondary", size: "sm" })}`}
           >
             Download programs.xlsx
           </a>
         )}
-      </div>
+      </PageHeader>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Pending Programs ({pendingPrograms.length})
         </h2>
         {pendingPrograms.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">
+          <p className="text-sm text-muted">
             No new program submissions waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
+          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
             {pendingPrograms.map((program) => (
               <div
                 key={program.id}
@@ -63,11 +60,11 @@ export default async function AdminPage() {
                 <div>
                   <Link
                     href={`/programs/${program.slug}`}
-                    className="text-sm font-medium hover:underline"
+                    className="text-sm font-medium text-foreground hover:underline"
                   >
                     {program.name}
                   </Link>
-                  <p className="text-xs text-black/50 dark:text-white/50">
+                  <p className="text-xs text-muted">
                     {program.organization} · submitted by{" "}
                     {submitters.get(program.createdById)?.name ?? "Unknown"} on{" "}
                     {new Date(program.createdAt).toLocaleDateString()}
@@ -84,11 +81,11 @@ export default async function AdminPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Pending Edits ({pendingEdits.length})
         </h2>
         {pendingEdits.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">
+          <p className="text-sm text-muted">
             No proposed edits waiting for review.
           </p>
         ) : (
@@ -100,16 +97,16 @@ export default async function AdminPage() {
               return (
                 <div
                   key={edit.id}
-                  className="flex flex-col gap-3 rounded-xl border border-blue-100 p-4 dark:border-blue-950"
+                  className="flex flex-col gap-3 rounded-xl border border-border p-4"
                 >
                   <div>
                     <Link
                       href={`/programs/${edit.program.slug}`}
-                      className="text-sm font-medium hover:underline"
+                      className="text-sm font-medium text-foreground hover:underline"
                     >
                       Edit to {edit.program.name}
                     </Link>
-                    <p className="text-xs text-black/50 dark:text-white/50">
+                    <p className="text-xs text-muted">
                       submitted by {submitters.get(edit.submittedById)?.name ?? "Unknown"} on{" "}
                       {new Date(edit.createdAt).toLocaleDateString()}
                     </p>
@@ -127,15 +124,15 @@ export default async function AdminPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Pending References ({pendingReferences.length})
         </h2>
         {pendingReferences.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">
+          <p className="text-sm text-muted">
             No alumni reference submissions waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
+          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
             {pendingReferences.map((reference) => (
               <div
                 key={reference.id}
@@ -144,16 +141,16 @@ export default async function AdminPage() {
                 <div>
                   <Link
                     href={`/programs/${reference.program.slug}`}
-                    className="text-sm font-medium hover:underline"
+                    className="text-sm font-medium text-foreground hover:underline"
                   >
                     {reference.displayName} — {reference.program.name}
                   </Link>
-                  <p className="text-xs text-black/50 dark:text-white/50">
+                  <p className="text-xs text-muted">
                     Attended {reference.attendedText} · submitted{" "}
                     {new Date(reference.createdAt).toLocaleDateString()}
                   </p>
                   {reference.note && (
-                    <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+                    <p className="mt-1 text-xs text-foreground/70">
                       &ldquo;{reference.note}&rdquo;
                     </p>
                   )}
@@ -169,7 +166,7 @@ export default async function AdminPage() {
       </section>
 
       {role === "admin" && <UserRoleManagement />}
-    </div>
+    </PageContainer>
   );
 }
 
@@ -180,25 +177,27 @@ async function UserRoleManagement() {
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">User Roles</h2>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          User Roles
+        </h2>
+        <p className="mt-1 text-sm text-muted">
           Manage moderator access for {users.length} user
           {users.length === 1 ? "" : "s"}.
         </p>
       </div>
-      <div className="flex flex-col divide-y divide-blue-100 rounded-xl border border-blue-100 dark:divide-blue-950 dark:border-blue-950">
+      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
         {users.map((user) => (
           <div
             key={user.id}
             className="flex items-center justify-between gap-4 px-4 py-3"
           >
             <div>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium text-foreground">
                 {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
                   user.username ||
                   "Unnamed user"}
               </p>
-              <p className="text-xs text-black/50 dark:text-white/50">
+              <p className="text-xs text-muted">
                 {user.primaryEmailAddress?.emailAddress}
               </p>
             </div>

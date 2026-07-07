@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SignInButton, Show } from "@clerk/nextjs";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
 
 type Reference = {
   id: string;
@@ -41,7 +43,7 @@ function ContactRequestForm({ referenceId }: { referenceId: string }) {
 
   if (sent) {
     return (
-      <p className="mt-2 text-xs text-blue-700 dark:text-blue-400">
+      <p className="mt-2 text-xs text-info">
         Request sent. They&apos;ll reach out to the email on your account if they
         reply.
       </p>
@@ -50,24 +52,18 @@ function ContactRequestForm({ referenceId }: { referenceId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-2">
-      {error && (
-        <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-      )}
-      <textarea
+      {error && <p className="text-xs text-danger">{error}</p>}
+      <Textarea
         required
         rows={2}
         placeholder="What would you like to ask them?"
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-xs outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
+        className="text-xs"
       />
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit rounded-lg bg-amber-500 px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
+      <Button type="submit" size="sm" disabled={submitting} className="w-fit">
         {submitting ? "Sending..." : "Send request"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -86,11 +82,11 @@ function ReferenceRow({
   const [requesting, setRequesting] = useState(false);
 
   return (
-    <li className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+    <li className="rounded-lg border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm">
-          <span className="font-medium">{reference.displayName}</span>
-          <span className="text-black/50 dark:text-white/50">
+          <span className="font-medium text-foreground">{reference.displayName}</span>
+          <span className="text-muted">
             {" "}
             · attended {reference.attendedText}
           </span>
@@ -99,14 +95,14 @@ function ReferenceRow({
           <button
             onClick={() => onDelete(reference.id)}
             disabled={deleting}
-            className="text-xs text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
+            className="text-xs text-danger hover:underline disabled:opacity-50"
           >
             {deleting ? "Deleting..." : "Delete"}
           </button>
         )}
       </div>
       {reference.note && (
-        <p className="mt-2 text-sm text-black/70 dark:text-white/70">
+        <p className="mt-2 text-sm text-foreground/70">
           {reference.note}
         </p>
       )}
@@ -115,7 +111,7 @@ function ReferenceRow({
         when="signed-in"
         fallback={
           <SignInButton mode="modal">
-            <button className="mt-2 text-xs text-amber-700 hover:underline dark:text-amber-400">
+            <button className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent">
               Sign in to request contact
             </button>
           </SignInButton>
@@ -126,7 +122,7 @@ function ReferenceRow({
         ) : (
           <button
             onClick={() => setRequesting(true)}
-            className="mt-2 text-xs text-amber-700 hover:underline dark:text-amber-400"
+            className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent"
           >
             Request to connect
           </button>
@@ -156,7 +152,7 @@ export default function ReferenceList({
 
   if (references.length === 0) {
     return (
-      <p className="text-sm text-black/50 dark:text-white/50">
+      <p className="text-sm text-muted">
         No alumni references yet. Be the first to volunteer.
       </p>
     );

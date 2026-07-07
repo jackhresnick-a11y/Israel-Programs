@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 
 export default function ContactRequestActions({ id }: { id: string }) {
   const router = useRouter();
@@ -15,12 +16,8 @@ export default function ContactRequestActions({ id }: { id: string }) {
   }
 
   return (
-    <button
-      onClick={markReplied}
-      disabled={busy}
-      className="w-fit rounded-lg border border-black/10 px-3 py-1 text-xs hover:bg-black/[.04] disabled:opacity-50 dark:border-white/15 dark:hover:bg-white/[.06]"
-    >
+    <Button variant="secondary" size="sm" onClick={markReplied} disabled={busy} className="w-fit">
       {busy ? "Saving..." : "Mark as replied"}
-    </button>
+    </Button>
   );
 }

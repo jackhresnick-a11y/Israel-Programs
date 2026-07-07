@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Role } from "@/lib/roles";
+import Select from "@/components/ui/Select";
 
 export default function RoleSelect({
   userId,
@@ -26,16 +27,16 @@ export default function RoleSelect({
   }
 
   return (
-    <select
+    <Select
       value={role}
       disabled={saving}
       onChange={(e) => handleChange(e.target.value as Role)}
-      className="rounded-lg border border-black/10 bg-transparent px-2 py-1 text-sm dark:border-white/15"
+      className="py-1"
     >
       <option value="user">User</option>
       <option value="moderator">Moderator</option>
       <option value="admin">Admin</option>
       <option value="banned">Banned</option>
-    </select>
+    </Select>
   );
 }

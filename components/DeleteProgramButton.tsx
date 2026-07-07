@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 
 export default function DeleteProgramButton({ id }: { id: string }) {
   const router = useRouter();
@@ -20,12 +21,8 @@ export default function DeleteProgramButton({ id }: { id: string }) {
   }
 
   return (
-    <button
-      onClick={handleDelete}
-      disabled={deleting}
-      className="rounded-lg border border-red-500/30 px-3 py-1.5 text-sm text-red-600 hover:bg-red-500/10 disabled:opacity-50 dark:text-red-400"
-    >
+    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
       {deleting ? "Deleting..." : "Delete"}
-    </button>
+    </Button>
   );
 }

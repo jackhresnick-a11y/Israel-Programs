@@ -5,6 +5,8 @@ import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
 import CompareCheckbox from "@/components/CompareCheckbox";
 import CompareBar from "@/components/CompareBar";
+import PageContainer from "@/components/ui/PageContainer";
+import PageHeader from "@/components/ui/PageHeader";
 
 type SearchParams = Promise<{
   q?: string;
@@ -35,20 +37,16 @@ export default async function ProgramsPage({
   ]);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
-      <div className="border-l-4 border-amber-500 pl-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
-          Browse Programs
-        </h1>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          {programs.length} program{programs.length === 1 ? "" : "s"} found
-        </p>
-      </div>
+    <PageContainer width="wide">
+      <PageHeader
+        title="Browse Programs"
+        description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
+      />
 
       <SearchBar tags={tags} />
 
       {programs.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-blue-200 p-8 text-center text-sm text-black/50 dark:border-blue-900 dark:text-white/50">
+        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted">
           No programs match your search yet.
         </p>
       ) : (
@@ -64,6 +62,6 @@ export default async function ProgramsPage({
           <CompareBar />
         </CompareProvider>
       )}
-    </div>
+    </PageContainer>
   );
 }

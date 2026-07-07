@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
 
 export default function ReferenceForm({ programId }: { programId: string }) {
   const router = useRouter();
@@ -38,7 +41,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
 
   if (submitted) {
     return (
-      <p className="rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-700 dark:text-blue-400">
+      <p className="rounded-lg bg-info-bg px-3 py-2 text-sm text-info">
         Thanks! Your reference listing is awaiting moderator approval.
       </p>
     );
@@ -47,31 +50,25 @@ export default function ReferenceForm({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {error && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
-      <input
+      <Input
         required
         placeholder="When did you attend? e.g. 2021-2022, or Summer 2019"
         value={attendedText}
         onChange={(e) => setAttendedText(e.target.value)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
       />
-      <textarea
+      <Textarea
         rows={2}
         placeholder="Optional: what are you happy to talk about? (e.g. the medical track, dorm life, the application process)"
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
       />
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit rounded-lg bg-amber-500 px-4 py-1.5 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
+      <Button type="submit" size="sm" disabled={submitting} className="w-fit">
         {submitting ? "Submitting..." : "Volunteer as a reference"}
-      </button>
+      </Button>
     </form>
   );
 }

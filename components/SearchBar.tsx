@@ -4,6 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import { DURATION_LABELS } from "@/lib/duration";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 type SearchBarProps = {
   tags: { slug: string; name: string; category: string | null }[];
@@ -32,11 +36,12 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3 py-1 text-xs transition ${
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs transition",
         active
-          ? "border-amber-500 bg-amber-500 text-slate-900 font-medium"
-          : "border-blue-100 hover:border-amber-400 dark:border-blue-950 dark:hover:border-amber-500/70"
-      }`}
+          ? "border-accent bg-accent font-medium text-accent-foreground"
+          : "border-border text-foreground/80 hover:border-accent hover:text-foreground"
+      )}
     >
       {label}
     </button>
@@ -100,24 +105,21 @@ export default function SearchBar({ tags }: SearchBarProps) {
         }}
         className="flex gap-2"
       >
-        <input
+        <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search by name, keyword, or #hashtag..."
-          className="w-full rounded-lg border border-blue-100 bg-transparent px-4 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
+          className="w-full"
         />
-        <button
-          type="submit"
-          className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
-        >
+        <button type="submit" className={buttonVariants({ variant: "primary" })}>
           Search
         </button>
       </form>
 
-      <select
+      <Select
         value={activeDuration}
         onChange={(e) => updateParams({ duration: e.target.value || null })}
-        className="w-fit rounded-full border border-blue-100 bg-transparent px-3 py-1 text-xs dark:border-blue-950"
+        className="w-fit"
       >
         <option value="">All durations</option>
         {Object.entries(DURATION_LABELS).map(([value, label]) => (
@@ -125,7 +127,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
             {label}
           </option>
         ))}
-      </select>
+      </Select>
 
       <div className="flex flex-col gap-2">
         {CATEGORY_ORDER.map((category) => {
@@ -133,7 +135,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
           if (!bucket || bucket.length === 0) return null;
           return (
             <div key={category} className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-black/50 dark:text-white/50">
+              <span className="text-xs font-medium text-muted">
                 {CATEGORY_LABELS[category] ?? category}:
               </span>
               {bucket.map((tag) => (
@@ -144,7 +146,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
         })}
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-black/50 dark:text-white/50">Details:</span>
+          <span className="text-xs font-medium text-muted">Details:</span>
           <Pill
             active={hasScholarship}
             label="#scholarship"
@@ -158,7 +160,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-black/50 dark:text-white/50">Tags:</span>
+          <span className="text-xs font-medium text-muted">Tags:</span>
           {general.slice(0, 20).map((tag) => (
             <TagPill key={tag.slug} slug={tag.slug} />
           ))}

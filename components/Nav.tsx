@@ -2,48 +2,49 @@ import Link from "next/link";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { getCurrentRole } from "@/lib/roles";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default async function Nav() {
   const [role, { userId }] = await Promise.all([getCurrentRole(), auth()]);
   const isModerator = role === "moderator" || role === "admin";
 
   return (
-    <header className="bg-primary">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-primary">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-4">
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight text-white"
+          className="font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
           Israel Programs Wiki
         </Link>
-        <nav className="flex items-center gap-5 text-sm font-medium text-white/90">
-          <Link href="/programs" className="hover:text-amber-300">
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-primary-foreground/90">
+          <Link href="/programs" className="hover:text-accent">
             Browse
           </Link>
-          <Link href="/mission" className="hover:text-amber-300">
+          <Link href="/mission" className="hover:text-accent">
             Mission
           </Link>
-          <Link href="/programs/new" className="hover:text-amber-300">
+          <Link href="/programs/new" className="hover:text-accent">
             Add Program
           </Link>
           {userId && (
-            <Link href="/references/requests" className="hover:text-amber-300">
+            <Link href="/references/requests" className="hover:text-accent">
               My Reference Requests
             </Link>
           )}
           {isModerator && (
-            <Link href="/admin" className="hover:text-amber-300">
+            <Link href="/admin" className="hover:text-accent">
               Admin
             </Link>
           )}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button className="rounded-full border border-white/30 px-4 py-1.5 text-white hover:bg-white/10">
+              <button className={buttonVariants({ variant: "onDark", size: "sm" })}>
                 Sign in
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="rounded-full bg-amber-500 px-4 py-1.5 font-semibold text-slate-900 hover:bg-amber-400">
+              <button className={buttonVariants({ variant: "primary", size: "sm" })}>
                 Sign up
               </button>
             </SignUpButton>

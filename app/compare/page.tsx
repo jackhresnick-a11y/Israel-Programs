@@ -8,6 +8,10 @@ import {
 import { MAX_COMPARE } from "@/lib/compare";
 import CompareAddControl from "@/components/CompareAddControl";
 import BackButton from "@/components/BackButton";
+import PageContainer from "@/components/ui/PageContainer";
+import PageHeader from "@/components/ui/PageHeader";
+import Badge from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
 
 type Row = {
   label: string;
@@ -44,12 +48,9 @@ const ROWS: Row[] = [
       ) : (
         <div className="flex flex-wrap gap-1">
           {p.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-            >
+            <Badge key={tag.id} tone="tag">
               #{tag.slug}
-            </span>
+            </Badge>
           ))}
         </div>
       ),
@@ -78,23 +79,19 @@ export default async function ComparePage({
   const currentSlugs = programs.map((p) => p.slug);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+    <PageContainer width="wide" className="gap-6">
       <BackButton fallbackHref="/programs" />
-      <div className="border-l-4 border-amber-500 pl-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-primary dark:text-white">
-          Compare Programs
-        </h1>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          Pick up to {MAX_COMPARE} programs side by side.
-        </p>
-      </div>
+      <PageHeader
+        title="Compare Programs"
+        description={`Pick up to ${MAX_COMPARE} programs side by side.`}
+      />
 
       {programs.length === 0 ? (
-        <div className="flex flex-col gap-4 rounded-lg border border-dashed border-blue-200 p-8 text-center text-sm text-black/50 dark:border-blue-900 dark:text-white/50">
+        <div className="flex flex-col gap-4 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted">
           <p>No programs selected yet.</p>
           <Link
             href="/programs"
-            className="mx-auto w-fit rounded-lg bg-amber-500 px-4 py-1.5 text-sm font-semibold text-slate-900 hover:bg-amber-400"
+            className={`mx-auto w-fit ${buttonVariants({ variant: "primary", size: "sm" })}`}
           >
             Browse programs to compare
           </Link>
@@ -116,19 +113,19 @@ export default async function ComparePage({
                     <div className="flex items-start justify-between gap-2">
                       <Link
                         href={`/programs/${program.slug}`}
-                        className="font-semibold leading-tight hover:underline"
+                        className="font-serif font-semibold leading-tight text-foreground hover:underline"
                       >
                         {program.name}
                       </Link>
                       <Link
                         href={`/compare?slugs=${encodeURIComponent(remaining.join(","))}`}
                         aria-label={`Remove ${program.name} from comparison`}
-                        className="shrink-0 text-black/40 hover:text-red-600 dark:text-white/40 dark:hover:text-red-400"
+                        className="shrink-0 text-muted hover:text-danger"
                       >
                         ×
                       </Link>
                     </div>
-                    <p className="text-xs text-black/50 dark:text-white/50">
+                    <p className="text-xs text-muted">
                       {program.organization}
                     </p>
                   </div>
@@ -137,7 +134,7 @@ export default async function ComparePage({
 
               {ROWS.map((row) => (
                 <div key={row.label} className="contents">
-                  <div className="self-start text-sm font-medium text-black/50 dark:text-white/50">
+                  <div className="self-start text-sm font-medium text-muted">
                     {row.label}
                   </div>
                   {programs.map((program) => (
@@ -157,6 +154,6 @@ export default async function ComparePage({
           )}
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }

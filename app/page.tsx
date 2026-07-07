@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { listPrograms } from "@/lib/programs";
 import ProgramCard from "@/components/ProgramCard";
+import { buttonVariants } from "@/components/ui/Button";
+import PageContainer from "@/components/ui/PageContainer";
 
 export default async function Home() {
   const programs = await listPrograms({});
   const featured = programs.slice(0, 6);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 py-16">
+    <PageContainer width="wide" className="gap-10 py-16">
       <div className="flex flex-col gap-4 text-center sm:text-left">
-        <h1 className="text-3xl font-semibold tracking-tight text-primary dark:text-white sm:text-4xl">
+        <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Welcome to Israel Programs Wiki
         </h1>
-        <p className="max-w-2xl text-black/70 dark:text-white/70">
+        <p className="max-w-2xl text-foreground/70">
           Every year, thousands of Jews set out to explore, live, volunteer,
           serve, or study in Israel — but finding the right program can be
           overwhelming. This is a living, community-built directory to help
@@ -20,13 +22,13 @@ export default async function Home() {
         </p>
 
         <details className="group max-w-2xl text-left">
-          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800 [&::-webkit-details-marker]:hidden dark:text-amber-400 dark:hover:text-amber-300">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden dark:text-accent dark:hover:text-accent-hover">
             About this project
             <span className="transition-transform group-open:rotate-180">
               ▾
             </span>
           </summary>
-          <div className="mt-3 flex flex-col gap-3 rounded-lg border border-blue-100 bg-blue-50/40 p-4 text-sm leading-relaxed text-black/70 dark:border-blue-950 dark:bg-blue-950/20 dark:text-white/70">
+          <div className="mt-3 flex flex-col gap-3 rounded-lg border border-border bg-surface-muted p-4 text-sm leading-relaxed text-foreground/70">
             <p>
               Every year, thousands of Jews — mostly from America — set out to
               explore, live, volunteer, serve, or study in Israel. But finding
@@ -56,17 +58,14 @@ export default async function Home() {
         </details>
 
         <div className="flex justify-center gap-3 sm:justify-start">
-          <Link
-            href="/programs"
-            className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
-          >
+          <Link href="/programs" className={buttonVariants({ variant: "primary" })}>
             Browse all programs
           </Link>
         </div>
       </div>
 
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Recently added
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -75,6 +74,6 @@ export default async function Home() {
           ))}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

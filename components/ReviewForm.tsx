@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
 
 export default function ReviewForm({ programId }: { programId: string }) {
   const router = useRouter();
@@ -37,39 +40,34 @@ export default function ReviewForm({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {error && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium">Your rating</span>
-        <select
+        <span className="font-medium text-foreground">Your rating</span>
+        <Select
           value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
-          className="rounded-lg border border-blue-100 bg-transparent px-2 py-1 dark:border-blue-950"
+          className="py-1"
         >
           {[5, 4, 3, 2, 1].map((n) => (
             <option key={n} value={n}>
               {"★".repeat(n)} ({n})
             </option>
           ))}
-        </select>
+        </Select>
       </div>
-      <textarea
+      <Textarea
         required
         rows={3}
         placeholder="Share your experience with this program..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="rounded-lg border border-blue-100 bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-blue-950 dark:focus:border-amber-500"
       />
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit rounded-lg bg-amber-500 px-4 py-1.5 text-sm font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-50"
-      >
+      <Button type="submit" size="sm" disabled={submitting} className="w-fit">
         {submitting ? "Posting..." : "Post review"}
-      </button>
+      </Button>
     </form>
   );
 }

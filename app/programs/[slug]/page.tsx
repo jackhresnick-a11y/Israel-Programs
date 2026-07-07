@@ -14,6 +14,10 @@ import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
+import PageContainer from "@/components/ui/PageContainer";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default async function ProgramDetailPage({
   params,
@@ -52,13 +56,13 @@ export default async function ProgramDetailPage({
             : null;
 
   const bannerClass = {
-    info: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
-    warning: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-    danger: "bg-red-500/10 text-red-600 dark:text-red-400",
+    info: "bg-info-bg text-info",
+    warning: "bg-warning-bg text-warning",
+    danger: "bg-danger-bg text-danger",
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
+    <PageContainer>
       <BackButton fallbackHref="/programs" />
       {banner && (
         <p className={`rounded-lg px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
@@ -66,7 +70,7 @@ export default async function ProgramDetailPage({
         </p>
       )}
       <div className="flex items-start gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-black/5 dark:bg-white/10">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
           {program.logoUrl ? (
             <Image
               src={program.logoUrl}
@@ -76,23 +80,23 @@ export default async function ProgramDetailPage({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-2xl font-semibold text-black/40 dark:text-white/40">
+            <span className="font-serif text-2xl font-semibold text-muted">
               {program.name.charAt(0)}
             </span>
           )}
         </div>
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
             {program.name}
           </h1>
-          <p className="text-sm text-black/60 dark:text-white/60">
+          <p className="text-sm text-muted">
             {program.organization}
             {program.location ? ` · ${program.location}` : ""}
           </p>
           {rating !== null && (
-            <p className="mt-1 text-sm text-amber-500">
+            <p className="mt-1 text-sm text-accent">
               {"★".repeat(Math.round(rating))}
-              <span className="ml-1 text-black/50 dark:text-white/50">
+              <span className="ml-1 text-muted">
                 {rating.toFixed(1)} ({program.reviews.length} review
                 {program.reviews.length === 1 ? "" : "s"})
               </span>
@@ -102,7 +106,7 @@ export default async function ProgramDetailPage({
         <div className="flex gap-2">
           <Link
             href={`/programs/${program.slug}/edit`}
-            className="rounded-lg border border-primary/20 px-3 py-1.5 text-sm text-primary hover:bg-primary/5 dark:border-white/15 dark:text-white dark:hover:bg-white/[.06]"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             Edit
           </Link>
@@ -112,45 +116,43 @@ export default async function ProgramDetailPage({
 
       <div className="flex flex-wrap gap-1.5">
         {program.tags.map((tag) => (
-          <Link
-            key={tag.id}
-            href={`/programs?tags=${tag.slug}`}
-            className="rounded-full bg-amber-100 px-2.5 py-1 text-xs text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-900/60"
-          >
-            #{tag.slug}
+          <Link key={tag.id} href={`/programs?tags=${tag.slug}`}>
+            <Badge tone="tag" className="hover:bg-accent/25">
+              #{tag.slug}
+            </Badge>
           </Link>
         ))}
       </div>
 
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-black/80 dark:text-white/80">
+      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
         {program.description}
       </p>
 
       {program.goodFor && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-900/50 dark:bg-amber-950/20">
-          <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+        <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
+          <h2 className="text-sm font-semibold text-accent-hover dark:text-accent">
             Who it&apos;s for
           </h2>
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-black/80 dark:text-white/80">
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
             {program.goodFor}
           </p>
         </div>
       )}
 
-      <dl className="grid grid-cols-1 gap-4 rounded-xl border border-blue-100 p-5 text-sm sm:grid-cols-2 dark:border-blue-950">
+      <Card as="dl" className="grid grid-cols-1 gap-4 p-5 text-sm sm:grid-cols-2">
         <div>
-          <dt className="font-medium text-black/50 dark:text-white/50">Duration</dt>
+          <dt className="font-medium text-muted">Duration</dt>
           <dd>
             {DURATION_LABELS[program.durationType]}
             {program.durationText ? ` — ${program.durationText}` : ""}
           </dd>
         </div>
         <div>
-          <dt className="font-medium text-black/50 dark:text-white/50">Cost</dt>
+          <dt className="font-medium text-muted">Cost</dt>
           <dd>{program.cost || "Not listed"}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="font-medium text-black/50 dark:text-white/50">
+          <dt className="font-medium text-muted">
             How to sign up
           </dt>
           <dd className="whitespace-pre-wrap">
@@ -161,14 +163,14 @@ export default async function ProgramDetailPage({
               href={program.signupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-amber-700 underline hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+              className="mt-1 inline-block text-sm text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
             >
               {program.signupUrl}
             </a>
           )}
         </div>
         <div className="sm:col-span-2">
-          <dt className="font-medium text-black/50 dark:text-white/50">Contact</dt>
+          <dt className="font-medium text-muted">Contact</dt>
           <dd className="flex flex-col gap-0.5">
             {program.contactEmail && <span>{program.contactEmail}</span>}
             {program.contactPhone && <span>{program.contactPhone}</span>}
@@ -177,7 +179,7 @@ export default async function ProgramDetailPage({
                 href={program.contactWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-amber-700 underline hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+                className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
               >
                 {program.contactWebsite}
               </a>
@@ -187,16 +189,18 @@ export default async function ProgramDetailPage({
             )}
           </dd>
         </div>
-      </dl>
+      </Card>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Videos</h2>
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Videos
+        </h2>
         <VideoList videos={program.videos} isModerator={isModerator} />
         <Show
           when="signed-in"
           fallback={
             <SignInButton mode="modal">
-              <button className="w-fit rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+              <button className={buttonVariants({ variant: "secondary" })}>
                 Sign in to add a video
               </button>
             </SignInButton>
@@ -207,13 +211,15 @@ export default async function ProgramDetailPage({
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">Reviews</h2>
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Reviews
+        </h2>
         <ReviewList reviews={program.reviews} isModerator={isModerator} />
         <Show
           when="signed-in"
           fallback={
             <SignInButton mode="modal">
-              <button className="w-fit rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+              <button className={buttonVariants({ variant: "secondary" })}>
                 Sign in to leave a review
               </button>
             </SignInButton>
@@ -224,8 +230,10 @@ export default async function ProgramDetailPage({
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">Alumni References</h2>
-        <p className="text-sm text-black/60 dark:text-white/60">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Alumni References
+        </h2>
+        <p className="text-sm text-muted">
           People who attended this program and are willing to answer honest
           questions about their real experience.
         </p>
@@ -234,7 +242,7 @@ export default async function ProgramDetailPage({
           when="signed-in"
           fallback={
             <SignInButton mode="modal">
-              <button className="w-fit rounded-lg border border-black/10 px-4 py-1.5 text-sm hover:bg-black/[.04] dark:border-white/15 dark:hover:bg-white/[.06]">
+              <button className={buttonVariants({ variant: "secondary" })}>
                 Sign in to volunteer as a reference
               </button>
             </SignInButton>
@@ -243,6 +251,6 @@ export default async function ProgramDetailPage({
           <ReferenceForm programId={program.id} />
         </Show>
       </section>
-    </div>
+    </PageContainer>
   );
 }
