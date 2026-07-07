@@ -28,7 +28,7 @@ export default async function ProgramsPage({
     listPrograms({
       q,
       tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
-      duration: duration as DurationType | undefined,
+      duration: duration ? (duration.split(",").filter(Boolean) as DurationType[]) : undefined,
       hasScholarship: hasScholarship === "true" ? true : undefined,
       hasCollegeCredit: hasCollegeCredit === "true" ? true : undefined,
       travelType: travelType as TravelType | undefined,

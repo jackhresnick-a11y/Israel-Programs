@@ -8,10 +8,13 @@ import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tagsParam = searchParams.get("tags");
+  const durationParam = searchParams.get("duration");
   const programs = await listPrograms({
     q: searchParams.get("q") ?? undefined,
     tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
-    duration: (searchParams.get("duration") as DurationType) ?? undefined,
+    duration: durationParam
+      ? (durationParam.split(",").filter(Boolean) as DurationType[])
+      : undefined,
     hasScholarship: searchParams.get("hasScholarship") === "true" ? true : undefined,
     hasCollegeCredit: searchParams.get("hasCollegeCredit") === "true" ? true : undefined,
     travelType: (searchParams.get("travelType") as TravelType) ?? undefined,

@@ -215,7 +215,7 @@ async function uniqueSlug(name: string) {
 export type ProgramFilters = {
   q?: string;
   tags?: string[];
-  duration?: DurationType;
+  duration?: DurationType[];
   hasScholarship?: boolean;
   hasCollegeCredit?: boolean;
   travelType?: TravelType;
@@ -265,6 +265,50 @@ const SEARCH_KEYS: { name: string; weight: number }[] = [
   { name: "description", weight: 1 },
 ];
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Fuse's weighted multi-key blend can let a program that matches several
+// low-weight fields fuzzily outrank one with a single strong, literal match --
+// there's no "closest match wins" guarantee from field weights alone. This
+// tier is computed on top of (not instead of) Fuse's fuzzy candidate set, so a
+// literal/near-literal match always sorts above a fuzzy-only one, while Fuse's
+// own score still breaks ties within a tier and keeps typo-tolerant recall.
+function relevanceTier(
+  program: { name: string; organization: string | null; tags: { name: string; slug: string }[] },
+  termLower: string
+): number {
+  const name = program.name.toLowerCase();
+  const org = program.organization?.toLowerCase() ?? "";
+  const tagNames = program.tags.map((t) => t.name.toLowerCase());
+  const tagSlugs = program.tags.map((t) => t.slug.toLowerCase());
+
+  if (name === termLower || tagNames.includes(termLower) || tagSlugs.includes(termLower)) {
+    return 0; // exact name or exact tag match
+  }
+  if (name.startsWith(termLower) || org.startsWith(termLower)) {
+    return 1; // name/org starts with the term
+  }
+  const wordBoundary = new RegExp(`\\b${escapeRegExp(termLower)}`);
+  if (
+    wordBoundary.test(name) ||
+    wordBoundary.test(org) ||
+    tagSlugs.some((slug) => slug.startsWith(termLower))
+  ) {
+    return 2; // word-boundary match in name/org, or tag slug prefix
+  }
+  if (
+    name.includes(termLower) ||
+    org.includes(termLower) ||
+    tagNames.some((t) => t.includes(termLower)) ||
+    tagSlugs.some((s) => s.includes(termLower))
+  ) {
+    return 3; // substring match in name/org/tags
+  }
+  return 4; // fuzzy-only match (location/goodFor/description or typo-distance)
+}
+
 export async function listPrograms(filters: ProgramFilters) {
   // Users are invited to type "#hashtag" into the same box, so strip a
   // leading "#" -- Fuse fuzzily matches the term against tag name/slug
@@ -276,7 +320,9 @@ export async function listPrograms(filters: ProgramFilters) {
   const where: Prisma.ProgramWhereInput = {
     status: "PUBLISHED",
     ...(tagAndClauses.length > 0 ? { AND: tagAndClauses } : {}),
-    ...(filters.duration ? { durationType: filters.duration } : {}),
+    ...(filters.duration && filters.duration.length > 0
+      ? { durationType: { in: filters.duration } }
+      : {}),
     ...(filters.hasScholarship ? { hasScholarship: true } : {}),
     ...(filters.hasCollegeCredit ? { hasCollegeCredit: true } : {}),
     ...(filters.travelType ? { travelType: filters.travelType } : {}),
@@ -293,15 +339,29 @@ export async function listPrograms(filters: ProgramFilters) {
   // Structured filters (status/tags/duration/etc.) run in Postgres above;
   // the free-text term is fuzzy-ranked here in memory. At ~183 published
   // programs this is effectively free and avoids a pg_trgm migration +
-  // raw SQL for a dataset this size -- see the fuzzy-search plan.
+  // raw SQL for a dataset this size. Fuse selects the fuzzy candidate set;
+  // relevanceTier then re-sorts so the closest match always surfaces first
+  // (see relevanceTier above), with Fuse's own score breaking ties within a
+  // tier -- fuzzy recall is preserved, but a literal hit is never buried
+  // under several weak fuzzy ones.
   const fuse = new Fuse(programs, {
     keys: SEARCH_KEYS,
     threshold: 0.35,
     ignoreLocation: true,
     minMatchCharLength: 2,
+    includeScore: true,
   });
 
-  return fuse.search(term).map((result) => result.item);
+  const termLower = term.toLowerCase();
+  return fuse
+    .search(term)
+    .map((result) => ({
+      item: result.item,
+      tier: relevanceTier(result.item, termLower),
+      score: result.score ?? 1,
+    }))
+    .sort((a, b) => a.tier - b.tier || a.score - b.score)
+    .map((result) => result.item);
 }
 
 export async function getProgramBySlug(slug: string) {
