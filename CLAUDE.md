@@ -4,6 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+`docs/PRODUCT_SPEC.md` is the product roadmap ("Living document," currently v0.1) —
+check it for target-state product direction beyond what's already built. Its own
+"Current State" section (§0) is partially stale (it still says "Prisma + SQLite"; the
+live stack is Prisma + Postgres/Neon, per this file) — trust CLAUDE.md over §0 for what
+actually exists today, and the spec for where things are headed.
+
 ## Commands
 
 ```bash
@@ -35,9 +41,10 @@ npx prisma db seed                              # runs prisma/seed.ts (sample da
 for Prisma CLI commands automatically. **That auto-loading does not extend to plain
 `tsx` scripts** — the repo has several one-off data scripts in `prisma/*.ts`
 (`import-researched.ts`, `categorize-tags.ts`, `migrate-structured-attrs.ts`,
-`apply-facet-tags.ts`, `apply-good-for.ts`, `seed-mission.ts`) that talk to Prisma
-directly; running them with bare `npx tsx prisma/whatever.ts` will fail to connect
-because `DATABASE_URL` isn't in the environment. Load it first:
+`apply-facet-tags.ts`, `apply-facet-tags-by-slug.ts`, `apply-good-for.ts`,
+`seed-mission.ts`) that talk to Prisma directly; running them with bare
+`npx tsx prisma/whatever.ts` will fail to connect because `DATABASE_URL` isn't in the
+environment. Load it first:
 
 ```bash
 set -a && source .env && source .env.local && set +a && npx tsx prisma/whatever.ts
@@ -165,6 +172,17 @@ lives in Neon rather than local disk, this works identically on a Vercel cold st
 local `next dev`. If you're tempted to write a file for some other feature, this is
 the cautionary precedent — prefer DB-backed or object-storage-backed state instead.
 
+### Program comparison is client-side state, not a URL or DB concept
+`CompareProvider` (`components/CompareContext.tsx`) holds up to `MAX_COMPARE` (3,
+`lib/compare.ts`) selected programs in plain React state — there's no query param or
+persisted "compare list," so a refresh clears the selection. `CompareCheckbox`/
+`CompareAddControl` toggle membership from program cards, `CompareBar` is the
+floating summary, and `app/compare/page.tsx` renders the side-by-side table by
+re-fetching the selected slugs server-side (`getProgramsBySlugs` in `lib/programs.ts`)
+rather than trusting client-held program data. `lib/facets.ts`'s `TRAVEL_TYPE_LABELS`
+(a display-label map for the `TravelType` enum, same idea as `DURATION_LABELS`) backs
+both this table and other travel-type displays.
+
 ### AI layer exists but is fully dormant
 `lib/ai/` defines an `AIProvider` interface with a `NullProvider` (default) and
 `AnthropicProvider`, switched by `isAIEnabled()` (`AI_ENABLED=true` + `ANTHROPIC_API_KEY`
@@ -210,6 +228,25 @@ separate manual resolution pass; a slug with no matching program (e.g. one delib
 excluded from import) is logged and skipped, not an error. The original
 `apply-facet-tags.ts` still only reads `data/facet-tags.json` and matches by `id` — it
 cannot be pointed at a by-slug file.
+
+When a batch's research already pins down `hasScholarship`/`hasCollegeCredit`/
+`travelType` with confidence (rather than needing a separate enrichment pass), the
+precedent — see `prisma/apply-structured-attrs-6.ts` — is a small one-off script that
+hardcodes `slug -> value` lists and applies them with `prisma.program.updateMany`
+directly, bypassing the `good-for`/`facet-tags` files entirely. This is a legitimate
+per-batch exception, not a replacement for the general pipeline; don't expect a future
+batch's structured attributes to always show up via `apply-good-for.ts`/
+`apply-facet-tags-by-slug.ts` — check for a batch-specific `apply-structured-attrs-N.ts`
+too. `prisma/migrate-structured-attrs.ts` (the *original* one-time migration that first
+promoted these out of tags into typed columns) is unrelated and still not something to
+re-run.
+
+`data/batch3-consolidated.json`, `batch4-consolidated.json`, and
+`batch5-consolidated.json` are **not** pipeline inputs — they're flat-array intermediate
+artifacts from the research-consolidation process (a different shape than the
+`{_note, <category>: [...]}` dict `import-researched.ts` expects) and no script reads
+them. Don't assume they're live data just because they live in `data/` alongside the
+files that are.
 
 **Slug mismatches are a real, recurring failure mode, not a hypothetical one.** The
 canonical slug always comes from the `slugify` npm package (`lower: true, strict: true`)
