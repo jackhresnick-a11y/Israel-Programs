@@ -10,6 +10,12 @@ check it for target-state product direction beyond what's already built. Its own
 live stack is Prisma + Postgres/Neon, per this file) — trust CLAUDE.md over §0 for what
 actually exists today, and the spec for where things are headed.
 
+`README.md`'s "Stack"/"Project structure"/"Notes" sections are also stale on upload
+storage — they describe logos *and* videos as local-disk under `public/uploads/`. That
+was true once, but per "Upload storage" below, video now uploads browser-direct to
+Vercel Blob; only logo is still local-disk (and still broken in production). Trust this
+file over the README for upload storage specifics.
+
 ## Commands
 
 ```bash
@@ -42,7 +48,7 @@ for Prisma CLI commands automatically. **That auto-loading does not extend to pl
 `tsx` scripts** — the repo has several one-off data scripts in `prisma/*.ts`
 (`import-researched.ts`, `categorize-tags.ts`, `migrate-structured-attrs.ts`,
 `apply-facet-tags.ts`, `apply-facet-tags-by-slug.ts`, `apply-good-for.ts`,
-`seed-mission.ts`) that talk to Prisma directly; running them with bare
+`apply-structured-attrs-6.ts`, `seed-mission.ts`) that talk to Prisma directly; running them with bare
 `npx tsx prisma/whatever.ts` will fail to connect because `DATABASE_URL` isn't in the
 environment. Load it first:
 
