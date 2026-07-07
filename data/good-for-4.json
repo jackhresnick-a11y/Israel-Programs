@@ -1,0 +1,105 @@
+{
+  "_note": "goodFor for batch-4 (20 programs, 2026-07-07). Same conventions as good-for.json/good-for-3.json. Apply with prisma/apply-good-for.ts AFTER prisma/import-researched.ts researched-programs-4.json has created these rows.",
+  "programs": [
+    {
+      "slug": "pardes-institute-of-jewish-studies-year-semester-program",
+      "confidence": "high",
+      "goodFor": "For university graduates who want pluralistic, egalitarian Torah study in seminar-style classes and chavruta pairs, with the flexibility to study for just Elul, a semester, or the full year."
+    },
+    {
+      "slug": "conservative-yeshiva",
+      "confidence": "high",
+      "goodFor": "For adults of any background wanting a full-time egalitarian, Conservative/Masorti-inflected yeshiva experience, from a single summer or winter session up to a full year."
+    },
+    {
+      "slug": "hevruta-gap-year-program",
+      "confidence": "high",
+      "goodFor": "For recent high school graduates who want a Jerusalem gap year split evenly between North American and Israeli peers, pairing Hartman Institute-style pluralistic text study with leadership training."
+    },
+    {
+      "slug": "arevim-masa-year-of-service",
+      "confidence": "high",
+      "goodFor": "For young adults (18-21) who want to choose their own social-service focus — health, education, or welfare — alongside political and current-events education, while living independently in Tel Aviv."
+    },
+    {
+      "slug": "fzy-year-course",
+      "confidence": "high",
+      "goodFor": "For UK Jewish young adults wanting a two-city gap year — a Jerusalem semester then a Tel Aviv-area semester — with a free choice of Special Interest Month: kibbutz, yeshiva, hiking, business internship, or surfing."
+    },
+    {
+      "slug": "habonim-dror-uk-shnat",
+      "confidence": "high",
+      "goodFor": "For UK school leavers wanting a Socialist-Zionist, collective-living gap year — three months on kibbutz, then four months living communally while volunteering and teaching English in an Israeli city, plus a Poland trip."
+    },
+    {
+      "slug": "noam-drachim-gap-year",
+      "confidence": "medium",
+      "goodFor": "For young Masorti/Conservative-movement adults from Noam's global network wanting a Galilee-based gap year built around Zionism, Masorti Judaism, tikkun olam and leadership education."
+    },
+    {
+      "slug": "maccabi-gap-year",
+      "confidence": "high",
+      "goodFor": "For post-high-schoolers wanting a fully supervised Maccabi-movement gap year mixing leadership seminars, a taste of IDF Marva and MDA training, kibbutz work, and touring, over a flexible 5-10 month length."
+    },
+    {
+      "slug": "kol-ami-mechina",
+      "confidence": "high",
+      "goodFor": "For young Israelis and diaspora peers who want to spend 6 months together in a Jewish Peoplehood leadership program, with an optional 3+ month internship extension."
+    },
+    {
+      "slug": "israel-government-fellows-igf",
+      "confidence": "high",
+      "goodFor": "For young adults wanting an elite, hands-on 10-month government/policy internship inside Israeli ministries and NGOs, paired with intensive Hebrew study and weekly access to top Israeli officials and policymakers."
+    },
+    {
+      "slug": "hasbara-fellowships-israel-training-program",
+      "confidence": "high",
+      "goodFor": "For North American college-student leaders wanting an intensive 16-day Israel advocacy and leadership crash course, meeting Israeli political, military and business figures and both Israelis and Palestinians firsthand."
+    },
+    {
+      "slug": "eli-gap-year-program",
+      "confidence": "high",
+      "goodFor": "For recent high school graduates (3.0+ GPA) wanting a brand-new (2026-27 launch) Tel Aviv University gap year pairing for-credit coursework with cybersecurity/AI/entrepreneurship workshops and mentorship from Israeli founders."
+    },
+    {
+      "slug": "technion-american-medical-school-teams",
+      "confidence": "high",
+      "goodFor": "For US/Canadian pre-med graduates (MCAT required) wanting an English-language M.D. degree in Haifa preparing them specifically to practice back in North America."
+    },
+    {
+      "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+      "confidence": "high",
+      "goodFor": "For English-speaking men wanting to combine a real yeshiva learning schedule (mornings) with an accredited Computer Science or Business Administration degree taught in English (afternoons)."
+    },
+    {
+      "slug": "ono-academic-college-international-school",
+      "confidence": "high",
+      "goodFor": "For international students, Olim, and globally minded applicants wanting an English/Hebrew-hybrid Israeli degree — the International Law LLB is the flagship track — while gradually integrating into a large, multicultural campus."
+    },
+    {
+      "slug": "shenkar-college-international-program",
+      "confidence": "high",
+      "goodFor": "For international students 18+ wanting one semester of English-taught art, design or engineering coursework at a school that fuses all three disciplines, with hands-on workshops taught in simplified Hebrew."
+    },
+    {
+      "slug": "emunah-college-faculty-of-arts-and-design",
+      "confidence": "medium",
+      "goodFor": "For religious women wanting an accredited multi-year arts, design or drama degree, with dedicated English-language coursework support built in."
+    },
+    {
+      "slug": "buchmann-mehta-school-of-music-international-program",
+      "confidence": "high",
+      "goodFor": "For outstanding international musicians (audition required) wanting a fully-funded Bachelor's, Master's, or Artist Diploma studying under Israel Philharmonic principal players in Tel Aviv."
+    },
+    {
+      "slug": "israel-lacrosse-gap-year-program",
+      "confidence": "high",
+      "goodFor": "For lacrosse players (18-30) wanting a gap year built around competing and coaching in Israel — training, league games, European tournaments, and mentoring local youth teams as sport ambassadors."
+    },
+    {
+      "slug": "eyaht-aish-hatorah-college-for-women",
+      "confidence": "high",
+      "goodFor": "For unaffiliated, college-educated professional women (22-30) wanting a flexible-length, no-background-assumed introduction to Torah Judaism designed specifically for women exploring observance."
+    }
+  ]
+}

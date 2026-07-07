@@ -1,0 +1,229 @@
+[
+  {
+    "slug": "pardes-institute-of-jewish-studies-year-semester-program",
+    "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "scholarships-available",
+      "single-location"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "conservative-yeshiva",
+    "name": "Conservative Yeshiva",
+    "add_tags": [
+      "coed",
+      "conservative",
+      "scholarships-available",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "hevruta-gap-year-program",
+    "name": "Hevruta Gap-Year Program",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "scholarships-available",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "arevim-masa-year-of-service",
+    "name": "Arevim - Masa Year of Service",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "fzy-year-course",
+    "name": "FZY Year Course",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "scholarships-available",
+      "multi-city-touring",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "habonim-dror-uk-shnat",
+    "name": "Habonim Dror UK - Shnat",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "noam-drachim-gap-year",
+    "name": "Noam - Drachim Gap Year",
+    "add_tags": [
+      "coed",
+      "conservative",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "maccabi-gap-year",
+    "name": "Maccabi Gap Year",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "kol-ami-mechina",
+    "name": "Kol Ami Mechina",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "israel-government-fellows-igf",
+    "name": "Israel Government Fellows (IGF)",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "eli-gap-year-program",
+    "name": "ELI Gap Year Program",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "scholarships-available",
+      "college-credit",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "technion-american-medical-school-teams",
+    "name": "Technion American Medical School (TeAMS)",
+    "add_tags": [
+      "coed",
+      "secular",
+      "college-credit",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "add_tags": [
+      "boys-only",
+      "orthodox",
+      "college-credit",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "ono-academic-college-international-school",
+    "name": "Ono Academic College International School",
+    "add_tags": [
+      "coed",
+      "secular",
+      "college-credit",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "shenkar-college-international-program",
+    "name": "Shenkar College International Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "college-credit",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "emunah-college-faculty-of-arts-and-design",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "college-credit",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "buchmann-mehta-school-of-music-international-program",
+    "name": "Buchmann-Mehta School of Music International Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "scholarships-available",
+      "college-credit",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "israel-lacrosse-gap-year-program",
+    "name": "Israel Lacrosse Gap Year Program",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "add_tags": [
+      "girls-only",
+      "orthodox",
+      "single-location",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  }
+]
