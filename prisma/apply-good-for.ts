@@ -9,8 +9,9 @@ const prisma = new PrismaClient({ adapter });
 type Entry = { slug: string; confidence: "high" | "medium" | "low"; goodFor: string };
 
 async function main() {
+  const fileName = process.argv[2] || "good-for.json";
   const { programs } = JSON.parse(
-    readFileSync(join(__dirname, "..", "data", "good-for.json"), "utf-8")
+    readFileSync(join(__dirname, "..", "data", fileName), "utf-8")
   ) as { programs: Entry[] };
 
   let updated = 0;

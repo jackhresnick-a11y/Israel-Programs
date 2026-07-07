@@ -2,7 +2,7 @@
   "_note": "goodFor for batch-4 (20 programs, 2026-07-07). Same conventions as good-for.json/good-for-3.json. Apply with prisma/apply-good-for.ts AFTER prisma/import-researched.ts researched-programs-4.json has created these rows.",
   "programs": [
     {
-      "slug": "pardes-institute-of-jewish-studies-year-semester-program",
+      "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
       "confidence": "high",
       "goodFor": "For university graduates who want pluralistic, egalitarian Torah study in seminar-style classes and chavruta pairs, with the flexibility to study for just Elul, a semester, or the full year."
     },
