@@ -63,6 +63,14 @@ CRUD + search/filter), `lib/references.ts` (alumni references + contact requests
 (batch Clerk profile lookups by id), `lib/programExport.ts` (xlsx export log). New
 features should follow the same shape rather than inlining Prisma calls in a route.
 
+**Watch what you pass to client components.** `lib/references.ts`'s
+`listPublishedReferences` deliberately `select`s only the fields the public program page
+may render — `contactEmail`/`userId` must never reach a client component's props, since
+Next.js serializes client-component props into the page's RSC payload and they end up in
+the raw HTML even for fields the JSX never displays. Follow the same
+select-only-what's-public pattern for any other model with a mix of public and
+sensitive fields (e.g. `ContactRequest`, which carries `requesterEmail`).
+
 ### Moderation: three different shapes for three different risks
 `ProgramStatus` (`PENDING`/`PUBLISHED`/`REJECTED`) gates **new** Program and Reference
 submissions with a simple whole-record approve/reject (`components/QueueActions.tsx`,
@@ -76,11 +84,25 @@ field (plus synthetic rows for tag adds/removes, keyed `tag:added:<name>` /
 `tag:removed:<name>`). The review screen at `app/admin/edits/[id]/page.tsx` lets a
 moderator accept, reject, or hand-edit each field independently; only `ACCEPTED` rows'
 (possibly moderator-edited) `finalValue`s get merged onto the Program. There is
-deliberately no one-click "approve entire edit" path anymore.
+deliberately no one-click "approve entire edit" path anymore. Every accepted `finalValue`
+is a plain string that gets assigned onto the typed `Program` row — nullable enum
+columns (currently just `travelType`) need an explicit `"" -> null` coercion in
+`applyReviewDecisions`'s `NULLABLE_ENUM_FIELDS` branch, or an empty selection ("Not
+specified") throws a Postgres enum-violation on approval. Adding a new nullable
+enum/typed column that's edit-reviewable should extend that same branch.
 
 Reviews (`Review` model) are **not moderated at all** — they publish immediately, and
 only deletion is moderator-gated. Don't assume all user-generated content follows the
 same review pipeline; check which one a given model actually uses.
+
+`Reference` (an alumni's "I attended, here's my experience") reuses the same
+`ProgramStatus` whole-record approve/reject as Program. `ContactRequest` (a prospective
+participant asking to be put in touch with a reference-giver) is **not moderated at
+all**, but it's also not public — `lib/references.ts`'s `markContactRequestReplied`
+checks that the caller owns the `Reference` the request is attached to before allowing
+a status change, since a reference-giver's real contact info (`Reference.contactEmail`)
+is only ever meant to reach that one requester out-of-band, never rendered to anyone
+else via the API.
 
 ### Roles: `user` / `moderator` / `admin` / `banned`
 Stored in Clerk `publicMetadata.role`, read via `lib/roles.ts`. `requireRole`/
@@ -106,19 +128,34 @@ used to be tags and that was the wrong shape. If a new attribute is genuinely a
 boolean/enum rather than a freeform identity/vibe descriptor, follow that precedent
 instead of adding another tag.
 
-### Upload storage is currently broken in production — know this before touching it
-`lib/storage.ts` writes logo/video uploads to local disk (`public/uploads/`). **This
-does not work on Vercel**: serverless functions there have a read-only filesystem
-(breaks every upload with a 500) and a hard ~4.5 MB request-body limit (breaks large
-files with a 413) that cannot be raised. Diagnosed and confirmed in production; not
-yet fixed. Any work touching uploads should assume a migration to browser-direct
-Vercel Blob uploads (bypassing both limits) is the intended direction, not patch the
-local-disk path further.
+### Upload storage: video is on Vercel Blob, logo is not (and is still broken)
+The two upload surfaces do **not** share an implementation, and it's important not to
+conflate them:
+
+- **Video** (`components/VideoUploader.tsx`) uploads browser-direct to Vercel Blob via
+  `@vercel/blob/client`'s `upload()`, authorized by the token route at
+  `app/api/videos/upload/route.ts` (`handleUpload`, gated by `requireSignedIn`). The
+  video file itself never touches a serverless function — `app/api/programs/[id]/videos/route.ts`
+  only receives a JSON `{url, filename, mimeType, caption}` body afterward and records it
+  against the Program, after checking the URL's hostname ends with
+  `.public.blob.vercel-storage.com` (don't accept arbitrary URLs there). This requires a
+  **Public**-access Blob store connected to the project with `BLOB_READ_WRITE_TOKEN` set
+  — a Private-access store will reject/mismatch the public-URL assumption both here and
+  in playback (`<video src={video.url}>` in `components/VideoList.tsx` can't attach an
+  auth header for a private blob). For local dev, pull/set `BLOB_READ_WRITE_TOKEN` in
+  `.env.local` the same way `DATABASE_URL` is set up.
+- **Logo** (`lib/storage.ts`'s `saveLogo`, called from `app/api/programs/route.ts` and
+  `app/api/programs/[id]/route.ts`) still writes to local disk (`public/uploads/logos/`)
+  and **does not work on Vercel** for the same reasons video used to fail: the
+  serverless function filesystem is read-only (500s) and the ~4.5MB request-body limit
+  rejects larger files (413s). This is known, unfixed, and the next candidate for the
+  same browser-direct-Blob treatment video just got — don't assume `saveLogo` works in
+  production, and don't reuse it as a reference implementation for new uploads.
 
 ### The xlsx export is DB-backed, not file-based — and that's deliberate
 `lib/programExport.ts` does **not** write a file to disk. It was originally
 implemented that way and broke in production for the same filesystem reasons as
-uploads above; it now maintains `ProgramExportRow` — an immutable, append-only log
+logo uploads above; it now maintains `ProgramExportRow` — an immutable, append-only log
 table with no FK to `Program` (so a row survives even if its program is later renamed
 or deleted) — and generates the `.xlsx` fresh in memory, on demand, at download time
 (`app/api/admin/programs-xlsx/route.ts`). `instrumentation.ts`'s `register()` runs a
@@ -135,12 +172,65 @@ in env). As of now **nothing in the app calls `getAIProvider()`** — it's scaff
 for a future AI-powered surface, not a currently-active feature. Don't assume any
 existing behavior is AI-driven.
 
+### Adding real programs: a two-phase research → enrichment pipeline, not one script
+New programs don't get created by hand one at a time. `data/researched-programs*.json`
+files (batch 1, 2, 3, …) hold raw web-researched program data — each keyed by category,
+with a top-level `_note` documenting what that batch covered, what's still TODO, and any
+known cross-batch duplicates. `prisma/import-researched.ts <filename>` imports one of
+these files, deriving each `Program.slug` from `slugify(name)` and skipping rows whose
+slug already exists — **but this only catches exact-slug repeats**, not the same real
+program re-researched under a differently-worded name (e.g. "Ben-Gurion University —
+Ginsburg-Ingerman OSP" vs. the already-imported "Ginsburg-Ingerman Overseas Student
+Program (OSP)"); a new batch needs a description-level duplicate check against prior
+batches before import, not just a slug check.
+
+Import creates each row with **`status: "PUBLISHED"` immediately** — there is no
+moderation gate on research-imported programs the way there is on user-submitted ones
+(see "Moderation" above). A batch is live on the public site the moment
+`import-researched.ts` runs against it, before any enrichment pass; don't assume an
+imported program is somehow reviewed or pending just because it came from a script.
+
+Import only populates the raw fields (`name`, `description`, `cost`, `tags`, etc.) —
+`goodFor`, `hasScholarship`, `hasCollegeCredit`, and `travelType` are a **second pass**,
+applied after the fact: `data/good-for.json` (`{slug, confidence, goodFor}` rows) via
+`prisma/apply-good-for.ts <filename>` (filename arg is optional, defaults to
+`good-for.json`), and `data/facet-tags.json` (`{id, name, add_tags}` rows, keyed by the
+*Program's DB id* since it's generated post-import) via `prisma/apply-facet-tags.ts`.
+`prisma/categorize-tags.ts` and `prisma/migrate-structured-attrs.ts` were the one-time
+migrations that first split gender/affiliation/population into `Tag.category` and
+promoted scholarship/credit/travel out of tags into typed columns (see "Tags: flat
+model..." above) — they're historical record of *why* the current shape looks the way
+it does, not scripts you need to re-run.
+
+Batches researched before import (3, 4, …) can't know a `Program.id` yet, so their
+facet-tag files are named `facet-tags-N-by-slug.json` and shaped `{slug, name,
+add_tags}` instead. `prisma/apply-facet-tags-by-slug.ts <filename>` handles these —
+it resolves each row's slug to a `Program.id` at apply time rather than requiring a
+separate manual resolution pass; a slug with no matching program (e.g. one deliberately
+excluded from import) is logged and skipped, not an error. The original
+`apply-facet-tags.ts` still only reads `data/facet-tags.json` and matches by `id` — it
+cannot be pointed at a by-slug file.
+
+**Slug mismatches are a real, recurring failure mode, not a hypothetical one.** The
+canonical slug always comes from the `slugify` npm package (`lower: true, strict: true`)
+inside `import-researched.ts` itself — never hand-approximate it (e.g. with a quick
+regex in a one-off Python script) when pre-computing slugs for a `good-for-N.json` or
+`facet-tags-N-by-slug.json` file before import. Confirmed divergences: accented Latin
+letters (`é`) get transliterated to their ASCII equivalent (`e`), not stripped; a `/`
+between words with no surrounding whitespace (`"Year/Semester"`) is deleted outright
+rather than replaced with a `-`. Both silently produce a slug that matches zero programs
+— `apply-good-for.ts`/`apply-facet-tags-by-slug.ts` log it as "not found" rather than
+erroring, so it's easy to miss unless you diff intended vs. actual slugs after import.
+
 ## Local setup essentials
 
 - `DATABASE_URL` (Neon Postgres) in both `.env` and `.env.local`.
 - Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) in `.env.local`
   — `next dev` will issue temporary keyless credentials if these are absent, but a
   production build (`next start`) requires real ones.
+- `BLOB_READ_WRITE_TOKEN` in `.env.local` for video uploads to work locally — must be
+  issued against a **Public**-access Vercel Blob store (see Upload storage above); a
+  token from a Private store will not produce working video URLs.
 - First admin has to be set by hand once: sign up in the app, then in the Clerk
   dashboard set that user's **public metadata** to `{ "role": "admin" }`. After that,
   `/admin` can promote/demote other users without touching Clerk directly.

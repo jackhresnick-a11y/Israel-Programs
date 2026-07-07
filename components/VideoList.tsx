@@ -1,13 +1,61 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Video = {
   id: string;
   url: string;
   caption: string | null;
 };
+
+const MAX_LOAD_RETRIES = 4;
+const RETRY_DELAY_MS = 1500;
+
+/**
+ * A freshly-uploaded blob can occasionally 404/error on its first load if
+ * the CDN edge the browser hits hasn't picked up the object yet, which
+ * otherwise sticks as a permanent black box until a manual page reload.
+ * Retry a few times with a cache-busting query param instead of giving up
+ * after the first error.
+ */
+function VideoPlayer({ url }: { url: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const retriesRef = useRef(0);
+  const [src, setSrc] = useState(url);
+  const [failed, setFailed] = useState(false);
+
+  function handleError() {
+    if (retriesRef.current >= MAX_LOAD_RETRIES) {
+      setFailed(true);
+      return;
+    }
+    retriesRef.current += 1;
+    setTimeout(() => {
+      setSrc(`${url}?retry=${retriesRef.current}`);
+      videoRef.current?.load();
+    }, RETRY_DELAY_MS * retriesRef.current);
+  }
+
+  if (failed) {
+    return (
+      <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-black/10 bg-black/5 text-sm text-black/50 dark:border-white/10 dark:bg-white/5 dark:text-white/50">
+        Video failed to load. Try refreshing the page.
+      </div>
+    );
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      controls
+      preload="metadata"
+      onError={handleError}
+      className="w-full rounded-lg border border-black/10 dark:border-white/10"
+    />
+  );
+}
 
 export default function VideoList({
   videos,
@@ -39,11 +87,7 @@ export default function VideoList({
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {videos.map((video) => (
         <div key={video.id} className="flex flex-col gap-2">
-          <video
-            src={video.url}
-            controls
-            className="w-full rounded-lg border border-black/10 dark:border-white/10"
-          />
+          <VideoPlayer url={video.url} />
           <div className="flex items-center justify-between text-xs text-black/60 dark:text-white/60">
             <span>{video.caption}</span>
             {isModerator && (

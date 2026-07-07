@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { head } from "@vercel/blob";
 import { requireSignedIn } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 
@@ -36,6 +37,35 @@ export async function POST(request: Request, { params }: Params) {
   }
   if (typeof mimeType !== "string" || !ALLOWED_VIDEO_TYPES.has(mimeType)) {
     return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
+  }
+
+  // A retried/double-submitted request would otherwise create a second Video
+  // row pointing at the same already-recorded blob.
+  const existing = await prisma.video.findFirst({ where: { programId: id, url } });
+  if (existing) {
+    return NextResponse.json(existing, { status: 200 });
+  }
+
+  // Vercel Blob's client-side upload() call resolves once the object is
+  // fully written, but that response reaches the browser before this route
+  // is ever called -- there's no guarantee the object is visible to every
+  // read path (including Blob's own metadata store) by the time we get here.
+  // Confirming via head() before writing the DB row means we only ever
+  // persist a URL that is verifiably a committed, non-empty blob.
+  try {
+    const blobMeta = await head(url);
+    if (!blobMeta || blobMeta.size === 0) {
+      return NextResponse.json(
+        { error: "Uploaded video appears to be empty. Please try again." },
+        { status: 409 }
+      );
+    }
+  } catch (err) {
+    console.error("Blob head() check failed for", url, err);
+    return NextResponse.json(
+      { error: "Video upload did not finish propagating. Please try again in a moment." },
+      { status: 409 }
+    );
   }
 
   try {
