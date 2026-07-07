@@ -12,3 +12,7 @@ export async function upsertSiteContent(key: string, body: string) {
     create: { key, body },
   });
 }
+
+export async function deleteSiteContent(key: string) {
+  await prisma.siteContent.deleteMany({ where: { key } });
+}

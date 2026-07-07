@@ -33,12 +33,20 @@ export default async function AdminPage() {
     <PageContainer width="base" className="gap-10">
       <PageHeader title="Admin" description="Review submissions before they go live.">
         {role === "admin" && (
-          <a
-            href="/api/admin/programs-xlsx"
-            className={`mt-3 inline-block w-fit ${buttonVariants({ variant: "secondary", size: "sm" })}`}
-          >
-            Download programs.xlsx
-          </a>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <a
+              href="/api/admin/programs-xlsx"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Download programs.xlsx
+            </a>
+            <Link
+              href="/admin/settings"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Site settings
+            </Link>
+          </div>
         )}
       </PageHeader>
 

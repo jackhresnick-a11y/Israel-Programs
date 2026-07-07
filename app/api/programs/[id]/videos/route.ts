@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { head } from "@vercel/blob";
 import { requireSignedIn } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import { isVercelBlobUrl } from "@/lib/blob";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -82,15 +83,5 @@ export async function POST(request: Request, { params }: Params) {
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to save video" }, { status: 500 });
-  }
-}
-
-/** Guards against arbitrary URLs being recorded as a program's video source. */
-function isVercelBlobUrl(url: string): boolean {
-  try {
-    const { hostname, protocol } = new URL(url);
-    return protocol === "https:" && hostname.endsWith(".public.blob.vercel-storage.com");
-  } catch {
-    return false;
   }
 }

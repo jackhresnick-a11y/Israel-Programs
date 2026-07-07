@@ -2,20 +2,32 @@ import Link from "next/link";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { getCurrentRole } from "@/lib/roles";
+import { getSiteContent } from "@/lib/siteContent";
 import { buttonVariants } from "@/components/ui/Button";
 
 export default async function Nav() {
-  const [role, { userId }] = await Promise.all([getCurrentRole(), auth()]);
+  const [role, { userId }, logoUrl, logoMode] = await Promise.all([
+    getCurrentRole(),
+    auth(),
+    getSiteContent("headerLogoUrl"),
+    getSiteContent("headerLogoMode"),
+  ]);
   const isModerator = role === "moderator" || role === "admin";
+  const showText = !logoUrl || logoMode === "alongside";
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-primary">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-4">
         <Link
           href="/"
-          className="font-serif text-xl font-semibold tracking-tight text-primary-foreground"
+          className="flex items-center gap-2 font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
-          Israel Programs Wiki
+          {logoUrl && (
+            // External Blob URL — plain img avoids next/image remotePatterns config.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Israel Programs Wiki" className="h-8 w-auto" />
+          )}
+          {showText && "Israel Programs Wiki"}
         </Link>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-primary-foreground/90">
           <Link href="/programs" className="hover:text-accent">
