@@ -1,0 +1,55 @@
+{
+  "_note": "goodFor for batch-5 (10 programs, 2026-07-07). Same conventions as good-for.json/good-for-3.json/good-for-4.json. Apply with prisma/apply-good-for.ts AFTER prisma/import-researched.ts researched-programs-5.json has created these rows.",
+  "programs": [
+    {
+      "slug": "huc-jir-year-in-israel",
+      "confidence": "high",
+      "goodFor": "For first-year HUC-JIR rabbinical, cantorial and Jewish-education graduate students (enrollment is automatic upon admission, not separately applied for) wanting a required, immersive year that uses Israel itself as the classroom."
+    },
+    {
+      "slug": "jts-israel-year",
+      "confidence": "high",
+      "goodFor": "For JTS rabbinical students (required as part of the degree, not separately applied for) wanting a year of advanced Jewish text study at the Schechter Institute alongside deep engagement with Israeli society and history."
+    },
+    {
+      "slug": "ziegler-school-israel-summer-program",
+      "confidence": "high",
+      "goodFor": "For Ziegler rabbinical students (required, not separately applied for) wanting an intensive 10-12 week Israel immersion as part of their Conservative ordination track."
+    },
+    {
+      "slug": "rrc-israel-summer-term",
+      "confidence": "high",
+      "goodFor": "For Reconstructionist Rabbinical College students (required, not separately applied for) wanting a summer term of Israel immersion, with the option to extend to a full year via RRC scholarships."
+    },
+    {
+      "slug": "hashomer-hatzair-shnat-hachshara",
+      "confidence": "high",
+      "goodFor": "For members of the secular, Labor-Zionist Hashomer Hatzair youth movement (active in a dozen-plus countries) wanting a 10-month communal-living gap year in Israel before returning home to lead the movement."
+    },
+    {
+      "slug": "shnat-betar",
+      "confidence": "high",
+      "goodFor": "For Revisionist-Zionist Betar movement members wanting an 8-month gap year mixing leadership training alongside 100+ peers from other youth movements worldwide, a taste of IDF service, and touring in Israel and Poland."
+    },
+    {
+      "slug": "limmud-world-bnei-akiva",
+      "confidence": "high",
+      "goodFor": "For religious-Zionist gap-year students specifically from Australia, New Zealand, South Africa or South America wanting Torah study paired with self-empowerment and personal-growth programming."
+    },
+    {
+      "slug": "shvilim-traveling-gap-year-program",
+      "confidence": "high",
+      "goodFor": "For 18-22-year-old European, Israeli and American Jews of any observance level wanting a 10-month program blending Israel immersion, University of Oslo coursework, and travel to Jewish communities worldwide."
+    },
+    {
+      "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+      "confidence": "high",
+      "goodFor": "For CAMERA Fellows and campus Israel-advocacy activists (US, Canada, Uruguay) wanting an intensive 2-week Israel mission of expert speakers and touring to sharpen their advocacy skills before returning to campus."
+    },
+    {
+      "slug": "vertigo-international-dance-program-vidp",
+      "confidence": "high",
+      "goodFor": "For trained contemporary dancers (men 18-28, women 18-25) from Israel and worldwide wanting professional-level training at a kibbutz-based dance company recognized by Israel's Ministry of Culture & Sports."
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+[
+  {
+    "slug": "huc-jir-year-in-israel",
+    "name": "HUC-JIR Year-in-Israel",
+    "add_tags": [
+      "coed",
+      "reform",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "jts-israel-year",
+    "name": "JTS Israel Year",
+    "add_tags": [
+      "coed",
+      "conservative",
+      "single-location"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "add_tags": [
+      "coed",
+      "conservative"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "add_tags": [
+      "coed",
+      "reconstructionist",
+      "scholarships-available"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "hashomer-hatzair-shnat-hachshara",
+    "name": "Hashomer Hatzair Shnat Hachshara",
+    "add_tags": [
+      "coed",
+      "secular",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": true
+  },
+  {
+    "slug": "shnat-betar",
+    "name": "Shnat Betar",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "limmud-world-bnei-akiva",
+    "name": "Limmud (World Bnei Akiva)",
+    "add_tags": [
+      "coed",
+      "orthodox",
+      "multi-city-touring",
+      "anglo-only"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "shvilim-traveling-gap-year-program",
+    "name": "Shvilim Traveling Gap Year Program",
+    "add_tags": [
+      "coed",
+      "pluralistic",
+      "multi-city-touring",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+    "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+    "add_tags": [
+      "coed",
+      "secular",
+      "multi-city-touring"
+    ],
+    "flagged_for_review": false
+  },
+  {
+    "slug": "vertigo-international-dance-program-vidp",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "add_tags": [
+      "coed",
+      "secular",
+      "single-location",
+      "israeli-anglo-mix"
+    ],
+    "flagged_for_review": false
+  }
+]

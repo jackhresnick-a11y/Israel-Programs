@@ -1,0 +1,161 @@
+{
+  "_note": "Batch 5: 10 additional real, web-researched Israel programs gathered 2026-07-07, targeting whatever veins remained after batches 1-4 covered 173 programs (105 in DB + 48 in batch 3 + 20 in batch 4). Yield dropped sharply this round -- 20 in batch 4, only 10 here -- which is itself the signal that this research vein (new, reputable, verifiable, non-duplicate Israel programs for diaspora Jewish young adults) is now close to exhausted at the mainstream level; what's left tends to be denominational rabbinical-school Israel years, niche youth-movement variants, and single distinctive arts/dance programs. Roughly 20 more leads were researched and rejected this round: Sheba Medical Center (no dedicated open-enrollment program, mostly ad hoc Masa job postings or closed foreign-med-school partnerships), Encounter (paused since 2020, and its short multi-day delegations for established professionals don't match this wiki's young-adult program shape), Ramah Israel Institute (a custom-trip service for existing school/synagogue groups, not an individually-joinable program), Machon Kaplan (based in Washington DC, not Israel), Colel Chabad/Ohr Chabad volunteer gap year and Tadmor Culinary School's international track (too thin on verifiable specifics to write an honest entry), Bnei Akiva Australia's own Shnat (routes into yeshivot/seminaries already in the DB rather than being a distinct destination), StarTAU's Entrepreneurship track and several regional colleges (Sami Shamoon, HIT Holon, Netanya Academic College, Max Stern Yezreel Valley, Hadassah Academic College) that turned out to be sub-tracks of an already-listed program or too thin on English-language/overseas-student specifics. Every kept candidate was run through a description-and-org-level fuzzy dedup check against all 173 existing programs. Where a cost or contact detail could not be verified from a current public source, the field is left as an empty string rather than guessed. durationType is one of TEN_DAY|SUMMER|SEMESTER|GAP_YEAR|CUSTOM.",
+  "rabbinical_and_cantorial_israel_years": [
+    {
+      "name": "HUC-JIR Year-in-Israel",
+      "organization": "Hebrew Union College - Jewish Institute of Religion",
+      "location": "Jerusalem",
+      "description": "A mandatory first year in Israel for all HUC-JIR rabbinical, cantorial and Jewish-education graduate students, opening with a Hebrew ulpan before a full slate of Hebrew immersion, foundational textual skills, Israel studies, community-building and community-service projects, using Israel itself as a classroom to explore Israeli culture, Zionist history and contemporary social/political issues.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year (summer ulpan plus fall/spring terms)",
+      "cost": "",
+      "signupInstructions": "Enrollment is automatic upon admission to an HUC-JIR rabbinical, cantorial, or Jewish-education graduate program (apply through huc.edu); also listed on the Masa Israel program directory.",
+      "signupUrl": "https://huc.edu/for-students/for-new-students/year-in-israel/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://huc.edu/",
+      "tags": ["pluralistic", "coed", "jerusalem", "gap-year", "hebrew-ulpan", "torah-study", "masa", "post-grad"]
+    },
+    {
+      "name": "JTS Israel Year",
+      "organization": "Jewish Theological Seminary, at the Schechter Institute of Jewish Studies",
+      "location": "Jerusalem",
+      "description": "A required second-year-of-study year in Israel for JTS rabbinical students, based at the Schechter Institute of Jewish Studies, engaging students with Israeli society, history and politics alongside advanced Jewish text study to prepare them to teach and speak knowledgeably about Israel in their future communities. A joint Pardes/JTS track also lets students count a year at Pardes toward the rabbinical degree.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year",
+      "cost": "",
+      "signupInstructions": "Enrollment is part of JTS's Rabbinical School curriculum; apply to the Rabbinical School through jtsa.edu.",
+      "signupUrl": "https://www.jtsa.edu/the-rabbinical-school-of-jts/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://www.jtsa.edu/jts-and-israel/",
+      "tags": ["conservative", "coed", "jerusalem", "gap-year", "torah-study", "post-grad"]
+    },
+    {
+      "name": "Ziegler School Israel Summer Program",
+      "organization": "American Jewish University, Ziegler School of Rabbinic Studies",
+      "location": "Israel",
+      "description": "An intensive 10-12 week summer Israel program for Ziegler rabbinical students, replacing what was previously a full year in Israel (third-year students traditionally spent a year there before the school's 2023 curriculum restructuring shortened the program overall).",
+      "durationType": "SUMMER",
+      "durationText": "10-12 weeks",
+      "cost": "",
+      "signupInstructions": "Enrollment is part of the Ziegler School's Master in Rabbinic Studies curriculum; apply through aju.edu.",
+      "signupUrl": "https://www.aju.edu/ziegler-school-rabbinic-studies",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://www.aju.edu/ziegler-school-rabbinic-studies",
+      "tags": ["conservative", "coed", "summer", "torah-study", "post-grad"]
+    },
+    {
+      "name": "RRC Israel Summer Term",
+      "organization": "Reconstructionist Rabbinical College",
+      "location": "Israel",
+      "description": "A required summer-term Israel program (typically in the third year) for Reconstructionist Rabbinical College students, combining academic coursework and experiential learning on Israel's history, culture, politics and contemporary society; students who want to extend for an additional term or full year can access RRC scholarships and academic advising to do so.",
+      "durationType": "SUMMER",
+      "durationText": "1 summer term, with an optional extension to a full year",
+      "cost": "",
+      "signupInstructions": "Enrollment is part of RRC's rabbinical curriculum; apply through rrc.edu.",
+      "signupUrl": "https://rrc.edu/overview/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://rrc.edu/",
+      "tags": ["reconstructionist", "coed", "summer", "torah-study", "scholarships-available", "post-grad"]
+    }
+  ],
+  "youth_movement_gap_years": [
+    {
+      "name": "Hashomer Hatzair Shnat Hachshara",
+      "organization": "Hashomer Hatzair",
+      "location": "Israel",
+      "description": "A 10-month gap year for members of the Labor-Zionist, secular Hashomer Hatzair youth movement (active in over a dozen countries including France, Argentina, Brazil and Uruguay), living communally in Israel and becoming part of Israeli society before returning home to lead the movement's younger members.",
+      "durationType": "GAP_YEAR",
+      "durationText": "10 months",
+      "cost": "",
+      "signupInstructions": "Apply through a local Hashomer Hatzair branch (e.g. campshomria.com for North America) or the Hashomer Hatzair Worldwide office.",
+      "signupUrl": "https://campshomria.com/pages/israel-programs",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://www.progressiveisrael.org/hashomer-hatzair/",
+      "tags": ["secular", "coed", "gap-year", "kibbutz", "socialist-zionism", "israeli-anglo-mix"]
+    },
+    {
+      "name": "Shnat Betar",
+      "organization": "World Betar",
+      "location": "Kiryat Moriah (Jerusalem) and sites across Israel",
+      "description": "An 8-month gap year for the Revisionist-Zionist Betar movement, running March-November: four months of Machon LeMadrichim leadership training at Kiryat Moriah alongside 100+ young people from other youth movements worldwide, a taste of IDF service through the Marva course, seminars across Israel and in Poland, and an extended period of community volunteering.",
+      "durationType": "GAP_YEAR",
+      "durationText": "8 months (March-November)",
+      "cost": "",
+      "signupInstructions": "Apply through betar.org.il.",
+      "signupUrl": "https://betar.org.il/en/shnat/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://betar.org.il/",
+      "tags": ["secular", "coed", "gap-year", "jerusalem", "leadership", "idf", "israeli-anglo-mix"]
+    },
+    {
+      "name": "Limmud (World Bnei Akiva)",
+      "organization": "World Bnei Akiva",
+      "location": "Multiple religious-Zionist locations across Israel",
+      "description": "A co-ed, religious-Zionist Israel year program for post-high-school graduates from Australia, New Zealand, South Africa and South America, combining Torah/Jewish-studies learning with self-empowerment and personal-growth programming, distinct from World Bnei Akiva's other tracks (Kadima, Mechina Olamit, Torani, MTA).",
+      "durationType": "GAP_YEAR",
+      "durationText": "Full gap year",
+      "cost": "",
+      "signupInstructions": "Apply through worldbneiakiva.org's Limmud program page.",
+      "signupUrl": "https://www.worldbneiakiva.org/limmud",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://www.worldbneiakiva.org/",
+      "tags": ["orthodox", "coed", "gap-year", "religious-zionist", "bnei-akiva", "torah-study"]
+    },
+    {
+      "name": "Shvilim Traveling Gap Year Program",
+      "organization": "TUGLA, hosted at the Upper Galilee Leadership Academy (Mechinat Galil Elyon)",
+      "location": "Upper Galilee, Israel, with travel to Oslo and Jewish communities worldwide",
+      "description": "A 10-month leadership program founded in 2015 by the Jewish Community of Oslo, open to 18-22-year-old European, Israeli and American Jews of any observance level, combining an immersive Israel experience at the Upper Galilee Leadership Academy with University of Oslo coursework and travel to Jewish communities around the world, centered on Jewish history, religion, culture and identity.",
+      "durationType": "GAP_YEAR",
+      "durationText": "10 months",
+      "cost": "",
+      "signupInstructions": "Apply through gap-year-israel.org.",
+      "signupUrl": "https://gap-year-israel.org/apply/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://gap-year-israel.org/",
+      "tags": ["pluralistic", "coed", "gap-year", "leadership", "israeli-anglo-mix"]
+    }
+  ],
+  "advocacy": [
+    {
+      "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+      "organization": "CAMERA on Campus",
+      "location": "Jerusalem, Tel Aviv, and a kibbutz on the Kinneret",
+      "description": "An annual two-week Israel mission for CAMERA Fellows, CCAP activists and other campus Israel-advocacy leaders from the US, Canada and Uruguay, filled with expert speakers, lectures and touring -- most of the trip based in Jerusalem, with a Tel Aviv visit, a free weekend, and closing days on a Kinneret-area kibbutz -- to sharpen participants' ability to advocate accurately and effectively for Israel back on campus.",
+      "durationType": "CUSTOM",
+      "durationText": "2 weeks",
+      "cost": "",
+      "signupInstructions": "Open to CAMERA Fellows and CCAP activists; apply through cameraoncampus.org's Fellowship page.",
+      "signupUrl": "https://cameraoncampus.org/programs/fellowship/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://cameraoncampus.org/",
+      "tags": ["secular", "coed", "advocacy", "leadership", "short-term", "jerusalem", "tel-aviv", "kibbutz"]
+    }
+  ],
+  "arts": [
+    {
+      "name": "Vertigo International Dance Program (VIDP)",
+      "organization": "Vertigo Dance Company",
+      "location": "Vertigo Eco-Art Village, Kibbutz Netiv HaLamed-Heh (with related programs in Jerusalem)",
+      "description": "A contemporary-dance program (established 2012) for male dancers 18-28 and female dancers 18-25 with a dance background, from Israel and around the world, offered by Vertigo Dance Company at its Eco-Art Village on a Judean-foothills kibbutz; recognized by Israel's Ministry of Culture & Sports, with graduates going on to the independent dance scene internationally.",
+      "durationType": "CUSTOM",
+      "durationText": "Varies by program (VIDP main program, VDC Prep-Workshop)",
+      "cost": "",
+      "signupInstructions": "Apply through vertigo.org.il's dance-education pages; a dance background/audition is required.",
+      "signupUrl": "https://vertigo.org.il/en/dance-education/about-the-vidp-vertigo-international-dance-program/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://vertigo.org.il/en/",
+      "tags": ["secular", "coed", "arts", "dance", "kibbutz", "audition-required", "israeli-anglo-mix"]
+    }
+  ]
+}
