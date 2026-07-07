@@ -16,6 +16,7 @@ const CATEGORIES: Record<string, string[]> = {
   ],
   population: ["israeli-anglo-mix", "anglo-only", "israeli-only"],
   gender: ["coed", "boys-only", "girls-only"],
+  language: ["spanish-speaking"],
 };
 
 async function main() {

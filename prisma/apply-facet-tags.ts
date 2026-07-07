@@ -29,6 +29,7 @@ const LABELS: Record<string, string> = {
   "israeli-anglo-mix": "Mixed Israeli & Anglo",
   "anglo-only": "Anglo only",
   "israeli-only": "Israeli only",
+  "spanish-speaking": "Spanish-speaking",
 };
 
 async function main() {
