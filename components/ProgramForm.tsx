@@ -9,6 +9,7 @@ import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
 
 export type ProgramFormValues = {
   id?: string;
@@ -71,8 +72,12 @@ function Field({
 
 export default function ProgramForm({
   initial,
+  allTags,
+  categories,
 }: {
   initial?: ProgramFormValues;
+  allTags: TagOption[];
+  categories: TagCategoryOption[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ProgramFormValues>(initial ?? EMPTY);
@@ -301,11 +306,12 @@ export default function ProgramForm({
         </Field>
       </div>
 
-      <Field label="Tags / hashtags (comma separated)">
-        <Input
-          placeholder="gap-year, leadership, army"
+      <Field label="Tags">
+        <TagPicker
           value={values.tags}
-          onChange={(e) => set("tags", e.target.value)}
+          onChange={(next) => set("tags", next)}
+          allTags={allTags}
+          categories={categories}
         />
       </Field>
 

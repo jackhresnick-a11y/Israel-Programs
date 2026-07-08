@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton, Show } from "@clerk/nextjs";
 import { getCurrentRole } from "@/lib/roles";
-import { getProgramBySlug } from "@/lib/programs";
+import { getProgramBySlug, listAllTags } from "@/lib/programs";
+import { listTagCategories } from "@/lib/tags";
 import ProgramForm from "@/components/ProgramForm";
 import PageContainer from "@/components/ui/PageContainer";
 import { buttonVariants } from "@/components/ui/Button";
@@ -13,10 +14,12 @@ export default async function EditProgramPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [program, role, { userId }] = await Promise.all([
+  const [program, role, { userId }, allTags, categories] = await Promise.all([
     getProgramBySlug(slug),
     getCurrentRole(),
     auth(),
+    listAllTags(),
+    listTagCategories(),
   ]);
   if (!program) notFound();
 
@@ -69,6 +72,8 @@ export default async function EditProgramPage({
             tags: program.tags.map((t) => t.name).join(", "),
             logoUrl: program.logoUrl,
           }}
+          allTags={allTags}
+          categories={categories}
         />
       </Show>
     </PageContainer>
