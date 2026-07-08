@@ -7,15 +7,16 @@ import Button from "@/components/ui/Button";
 import { uploadSiteImage } from "@/components/uploadSiteImage";
 
 const ALLOWED_LOGO_TYPES = "image/png,image/jpeg,image/webp,image/svg+xml";
-const SIZE_MIN = 80;
+const SIZE_MIN = 20;
 const SIZE_MAX = 800;
-const OFFSET_MIN = -500;
-const OFFSET_MAX = 500;
+const OFFSET_MIN = -1200;
+const OFFSET_MAX = 1200;
 
 type BreakpointFields = {
   size: number;
   offsetX: number;
   offsetY: number;
+  layer: "front" | "back";
 };
 
 function BreakpointControls({
@@ -83,6 +84,14 @@ function BreakpointControls({
           className="accent-accent"
         />
       </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={value.layer === "front"}
+          onChange={(e) => onChange({ ...value, layer: e.target.checked ? "front" : "back" })}
+        />
+        Show in front of the text
+      </label>
     </div>
   );
 }
@@ -112,9 +121,11 @@ export default function HomeLogoForm({
     desktop.size !== currentDesktop.size ||
     desktop.offsetX !== currentDesktop.offsetX ||
     desktop.offsetY !== currentDesktop.offsetY ||
+    desktop.layer !== currentDesktop.layer ||
     mobile.size !== currentMobile.size ||
     mobile.offsetX !== currentMobile.offsetX ||
-    mobile.offsetY !== currentMobile.offsetY;
+    mobile.offsetY !== currentMobile.offsetY ||
+    mobile.layer !== currentMobile.layer;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -176,9 +187,11 @@ export default function HomeLogoForm({
           sizeDesktop: desktop.size,
           offsetXDesktop: desktop.offsetX,
           offsetYDesktop: desktop.offsetY,
+          layerDesktop: desktop.layer,
           sizeMobile: mobile.size,
           offsetXMobile: mobile.offsetX,
           offsetYMobile: mobile.offsetY,
+          layerMobile: mobile.layer,
         }),
       });
       if (!res.ok) {

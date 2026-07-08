@@ -13,9 +13,11 @@ export default async function Home() {
     homeSizeDesktop,
     homeOffsetXDesktop,
     homeOffsetYDesktop,
+    homeLayerDesktop,
     homeSizeMobile,
     homeOffsetXMobile,
     homeOffsetYMobile,
+    homeLayerMobile,
   ] = await Promise.all([
     listPrograms({}),
     getSiteContent("homeLogoUrl"),
@@ -23,26 +25,33 @@ export default async function Home() {
     getSiteContent("homeLogoSize"),
     getSiteContent("homeLogoOffsetX"),
     getSiteContent("homeLogoOffsetY"),
+    getSiteContent("homeLogoLayer"),
     getSiteContent("homeLogoSizeMobile"),
     getSiteContent("homeLogoOffsetXMobile"),
     getSiteContent("homeLogoOffsetYMobile"),
+    getSiteContent("homeLogoLayerMobile"),
   ]);
   const featured = programs.slice(0, 6);
 
   const homeDesktopHeight = Number(homeSizeDesktop) || 320;
   const homeDesktopOffsetX = Number(homeOffsetXDesktop) || 0;
   const homeDesktopOffsetY = Number(homeOffsetYDesktop) || 0;
+  const homeDesktopFront = homeLayerDesktop === "front";
   const homeMobileHeight = Number(homeSizeMobile) || 160;
   const homeMobileOffsetX = Number(homeOffsetXMobile) || 0;
   const homeMobileOffsetY = Number(homeOffsetYMobile) || 0;
+  const homeMobileFront = homeLayerMobile === "front";
 
   return (
     <PageContainer width="wide" className="gap-10 py-16">
       <div className="relative">
         {homeEnabled === "true" && homeUrl && (
-          // Clipping lives on this decorative-only layer, not on the content
-          // below, matching the browse-page background watermark pattern.
-          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          // No clip here (unlike the browse-page background watermark) so the
+          // logo can be positioned above/below/beside the hero content; the
+          // page-level overflow-x-clip in app/layout.tsx stops that from
+          // creating a horizontal scrollbar. z-30 keeps a "front" logo below
+          // the sticky nav's z-40 so it never paints over the header.
+          <div className="pointer-events-none absolute inset-0" aria-hidden>
             {/* Anchored to the right edge, vertically centered, so the default
                 (zero offset) placement already sits to the right of the
                 heading; offsetX/offsetY let an admin nudge it from there. */}
@@ -54,7 +63,7 @@ export default async function Home() {
                 height: `${homeMobileHeight}px`,
                 transform: `translate(${homeMobileOffsetX}px, calc(-50% + ${homeMobileOffsetY}px))`,
               }}
-              className="absolute right-0 top-1/2 w-auto max-w-none select-none sm:hidden"
+              className={`absolute right-0 top-1/2 w-auto max-w-none select-none sm:hidden ${homeMobileFront ? "z-30" : ""}`}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -64,7 +73,7 @@ export default async function Home() {
                 height: `${homeDesktopHeight}px`,
                 transform: `translate(${homeDesktopOffsetX}px, calc(-50% + ${homeDesktopOffsetY}px))`,
               }}
-              className="absolute right-0 top-1/2 hidden w-auto max-w-none select-none sm:block"
+              className={`absolute right-0 top-1/2 hidden w-auto max-w-none select-none sm:block ${homeDesktopFront ? "z-30" : ""}`}
             />
           </div>
         )}

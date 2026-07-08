@@ -31,10 +31,13 @@ const HOME_OFFSET_X_DESKTOP_KEY = "homeLogoOffsetX";
 const HOME_OFFSET_X_MOBILE_KEY = "homeLogoOffsetXMobile";
 const HOME_OFFSET_Y_DESKTOP_KEY = "homeLogoOffsetY";
 const HOME_OFFSET_Y_MOBILE_KEY = "homeLogoOffsetYMobile";
+const HOME_LAYER_DESKTOP_KEY = "homeLogoLayer";
+const HOME_LAYER_MOBILE_KEY = "homeLogoLayerMobile";
 
 const DEFAULT_HOME_SIZE_DESKTOP = 320; // px height
 const DEFAULT_HOME_SIZE_MOBILE = 160; // px height, smaller for narrow screens
 const DEFAULT_HOME_OFFSET = 0; // px, relative to centered anchor
+const DEFAULT_HOME_LAYER = "back"; // "back" = behind hero text (matches original behavior)
 
 const postBodySchema = z.discriminatedUnion("target", [
   z.object({
@@ -65,12 +68,14 @@ const backgroundPatchSchema = z.object({
 const homePatchSchema = z.object({
   target: z.literal("home"),
   enabled: z.boolean().optional(),
-  sizeDesktop: z.number().int().min(80).max(800).optional(),
-  sizeMobile: z.number().int().min(80).max(800).optional(),
-  offsetXDesktop: z.number().int().min(-500).max(500).optional(),
-  offsetXMobile: z.number().int().min(-500).max(500).optional(),
-  offsetYDesktop: z.number().int().min(-500).max(500).optional(),
-  offsetYMobile: z.number().int().min(-500).max(500).optional(),
+  sizeDesktop: z.number().int().min(20).max(800).optional(),
+  sizeMobile: z.number().int().min(20).max(800).optional(),
+  offsetXDesktop: z.number().int().min(-1200).max(1200).optional(),
+  offsetXMobile: z.number().int().min(-1200).max(1200).optional(),
+  offsetYDesktop: z.number().int().min(-1200).max(1200).optional(),
+  offsetYMobile: z.number().int().min(-1200).max(1200).optional(),
+  layerDesktop: z.enum(["front", "back"]).optional(),
+  layerMobile: z.enum(["front", "back"]).optional(),
 });
 
 const patchBodySchema = z
@@ -127,6 +132,8 @@ export async function POST(request: Request) {
       [HOME_OFFSET_X_MOBILE_KEY, String(DEFAULT_HOME_OFFSET)],
       [HOME_OFFSET_Y_DESKTOP_KEY, String(DEFAULT_HOME_OFFSET)],
       [HOME_OFFSET_Y_MOBILE_KEY, String(DEFAULT_HOME_OFFSET)],
+      [HOME_LAYER_DESKTOP_KEY, DEFAULT_HOME_LAYER],
+      [HOME_LAYER_MOBILE_KEY, DEFAULT_HOME_LAYER],
     ];
     for (const [key, value] of homeSeeds) {
       if ((await getSiteContent(key)) === null) {
@@ -176,8 +183,17 @@ export async function PATCH(request: Request) {
       return NextResponse.json(parsed);
     }
 
-    const { enabled, sizeDesktop, sizeMobile, offsetXDesktop, offsetXMobile, offsetYDesktop, offsetYMobile } =
-      parsed;
+    const {
+      enabled,
+      sizeDesktop,
+      sizeMobile,
+      offsetXDesktop,
+      offsetXMobile,
+      offsetYDesktop,
+      offsetYMobile,
+      layerDesktop,
+      layerMobile,
+    } = parsed;
     if (enabled !== undefined) {
       await upsertSiteContent(HOME_ENABLED_KEY, enabled ? "true" : "false");
     }
@@ -198,6 +214,12 @@ export async function PATCH(request: Request) {
     }
     if (offsetYMobile !== undefined) {
       await upsertSiteContent(HOME_OFFSET_Y_MOBILE_KEY, String(offsetYMobile));
+    }
+    if (layerDesktop !== undefined) {
+      await upsertSiteContent(HOME_LAYER_DESKTOP_KEY, layerDesktop);
+    }
+    if (layerMobile !== undefined) {
+      await upsertSiteContent(HOME_LAYER_MOBILE_KEY, layerMobile);
     }
     return NextResponse.json(parsed);
   } catch (err) {
@@ -250,6 +272,8 @@ export async function DELETE(request: Request) {
       await deleteSiteContent(HOME_OFFSET_X_MOBILE_KEY);
       await deleteSiteContent(HOME_OFFSET_Y_DESKTOP_KEY);
       await deleteSiteContent(HOME_OFFSET_Y_MOBILE_KEY);
+      await deleteSiteContent(HOME_LAYER_DESKTOP_KEY);
+      await deleteSiteContent(HOME_LAYER_MOBILE_KEY);
     }
     return NextResponse.json({ ok: true });
   } catch (err) {

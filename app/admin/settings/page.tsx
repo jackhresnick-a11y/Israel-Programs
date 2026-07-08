@@ -26,9 +26,11 @@ export default async function AdminSettingsPage() {
     homeSizeDesktop,
     homeOffsetXDesktop,
     homeOffsetYDesktop,
+    homeLayerDesktop,
     homeSizeMobile,
     homeOffsetXMobile,
     homeOffsetYMobile,
+    homeLayerMobile,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -44,9 +46,11 @@ export default async function AdminSettingsPage() {
     getSiteContent("homeLogoSize"),
     getSiteContent("homeLogoOffsetX"),
     getSiteContent("homeLogoOffsetY"),
+    getSiteContent("homeLogoLayer"),
     getSiteContent("homeLogoSizeMobile"),
     getSiteContent("homeLogoOffsetXMobile"),
     getSiteContent("homeLogoOffsetYMobile"),
+    getSiteContent("homeLogoLayerMobile"),
   ]);
 
   return (
@@ -101,11 +105,13 @@ export default async function AdminSettingsPage() {
             size: Number(homeSizeDesktop) || 320,
             offsetX: Number(homeOffsetXDesktop) || 0,
             offsetY: Number(homeOffsetYDesktop) || 0,
+            layer: homeLayerDesktop === "front" ? "front" : "back",
           }}
           currentMobile={{
             size: Number(homeSizeMobile) || 160,
             offsetX: Number(homeOffsetXMobile) || 0,
             offsetY: Number(homeOffsetYMobile) || 0,
+            layer: homeLayerMobile === "front" ? "front" : "back",
           }}
         />
       </section>
