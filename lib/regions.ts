@@ -17,6 +17,6 @@ export const REGION_TO_SLUGS: Record<string, string[]> = {
   south: ["negev", "beer-sheva", "arava-valley", "south"],
   jerusalem: ["jerusalem", "old-city", "old-city-jerusalem"],
   judea: ["gush-etzion", "hebron"],
-  samaria: [],
+  samaria: ["eli", "ariel", "shiloh"],
   coast: ["tel-aviv", "herzliya", "ramat-hasharon", "hod-hasharon", "modiin"],
 };

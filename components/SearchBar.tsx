@@ -74,10 +74,12 @@ export default function SearchBar({ tags }: SearchBarProps) {
     value: t.slug,
     label: t.name,
   }));
-  const regionOptions = REGION_ORDER.map((region) => ({
-    value: region,
-    label: REGION_LABELS[region],
-  }));
+  const regionOptions = REGION_ORDER
+    .filter((region) => REGION_TO_SLUGS[region].length > 0)
+    .map((region) => ({
+      value: region,
+      label: REGION_LABELS[region],
+    }));
 
   // Each dropdown's "selected" list is scoped to its own options so the count badge
   // reflects that category only, not every active tag across all categories.
@@ -93,7 +95,7 @@ export default function SearchBar({ tags }: SearchBarProps) {
   );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-muted p-3 shadow-sm">
       <form
         onSubmit={(e) => {
           e.preventDefault();

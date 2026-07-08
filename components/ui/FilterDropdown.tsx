@@ -91,7 +91,7 @@ export default function FilterDropdown({
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          open ? tone.active : "border-border text-foreground/80",
+          open ? tone.active : "border-border bg-surface text-foreground shadow-sm",
           tone.hover,
           tone.ring
         )}
