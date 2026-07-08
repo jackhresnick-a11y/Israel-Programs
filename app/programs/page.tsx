@@ -25,19 +25,24 @@ export default async function ProgramsPage({
 }) {
   const { q, tags: tagsParam, duration, hasScholarship, hasCollegeCredit, travelType } =
     await searchParams;
-  const [programs, tags, backgroundUrl, backgroundEnabled] = await Promise.all([
-    listPrograms({
-      q,
-      tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
-      duration: duration ? (duration.split(",").filter(Boolean) as DurationType[]) : undefined,
-      hasScholarship: hasScholarship === "true" ? true : undefined,
-      hasCollegeCredit: hasCollegeCredit === "true" ? true : undefined,
-      travelType: travelType as TravelType | undefined,
-    }),
-    listAllTags(),
-    getSiteContent("backgroundLogoUrl"),
-    getSiteContent("backgroundLogoEnabled"),
-  ]);
+  const [programs, tags, backgroundUrl, backgroundEnabled, backgroundSize, backgroundOpacity] =
+    await Promise.all([
+      listPrograms({
+        q,
+        tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
+        duration: duration ? (duration.split(",").filter(Boolean) as DurationType[]) : undefined,
+        hasScholarship: hasScholarship === "true" ? true : undefined,
+        hasCollegeCredit: hasCollegeCredit === "true" ? true : undefined,
+        travelType: travelType as TravelType | undefined,
+      }),
+      listAllTags(),
+      getSiteContent("backgroundLogoUrl"),
+      getSiteContent("backgroundLogoEnabled"),
+      getSiteContent("backgroundLogoSize"),
+      getSiteContent("backgroundLogoOpacity"),
+    ]);
+  const backgroundHeight = Number(backgroundSize) || 280;
+  const backgroundOpacityValue = (Number(backgroundOpacity) || 5) / 100;
 
   return (
     <PageContainer width="wide">
@@ -48,7 +53,8 @@ export default async function ProgramsPage({
             src={backgroundUrl}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[280px] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.05] dark:opacity-[0.08]"
+            style={{ height: `${backgroundHeight}px`, opacity: backgroundOpacityValue }}
+            className="pointer-events-none absolute left-1/2 top-1/2 w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none"
           />
         )}
         <div className="relative flex flex-col gap-8">

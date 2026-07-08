@@ -10,12 +10,15 @@ export default async function AdminSettingsPage() {
   const role = await getCurrentRole();
   if (role !== "admin") redirect("/");
 
-  const [logoUrl, logoMode, backgroundUrl, backgroundEnabled] = await Promise.all([
-    getSiteContent("headerLogoUrl"),
-    getSiteContent("headerLogoMode"),
-    getSiteContent("backgroundLogoUrl"),
-    getSiteContent("backgroundLogoEnabled"),
-  ]);
+  const [logoUrl, logoMode, backgroundUrl, backgroundEnabled, backgroundSize, backgroundOpacity] =
+    await Promise.all([
+      getSiteContent("headerLogoUrl"),
+      getSiteContent("headerLogoMode"),
+      getSiteContent("backgroundLogoUrl"),
+      getSiteContent("backgroundLogoEnabled"),
+      getSiteContent("backgroundLogoSize"),
+      getSiteContent("backgroundLogoOpacity"),
+    ]);
 
   return (
     <PageContainer width="narrow">
@@ -40,7 +43,12 @@ export default async function AdminSettingsPage() {
           A large, subtle watermark shown behind the Browse Programs heading and search bar.
           This is a separate image from the header logo above.
         </p>
-        <BackgroundLogoForm currentUrl={backgroundUrl} currentEnabled={backgroundEnabled === "true"} />
+        <BackgroundLogoForm
+          currentUrl={backgroundUrl}
+          currentEnabled={backgroundEnabled === "true"}
+          currentSize={Number(backgroundSize) || 280}
+          currentOpacity={Number(backgroundOpacity) || 5}
+        />
       </section>
     </PageContainer>
   );
