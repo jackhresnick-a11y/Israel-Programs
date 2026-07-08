@@ -10,15 +10,23 @@ export default async function AdminSettingsPage() {
   const role = await getCurrentRole();
   if (role !== "admin") redirect("/");
 
-  const [logoUrl, logoMode, backgroundUrl, backgroundEnabled, backgroundSize, backgroundOpacity] =
-    await Promise.all([
-      getSiteContent("headerLogoUrl"),
-      getSiteContent("headerLogoMode"),
-      getSiteContent("backgroundLogoUrl"),
-      getSiteContent("backgroundLogoEnabled"),
-      getSiteContent("backgroundLogoSize"),
-      getSiteContent("backgroundLogoOpacity"),
-    ]);
+  const [
+    logoUrl,
+    logoMode,
+    backgroundUrl,
+    backgroundEnabled,
+    backgroundSize,
+    backgroundOpacity,
+    backgroundOffsetY,
+  ] = await Promise.all([
+    getSiteContent("headerLogoUrl"),
+    getSiteContent("headerLogoMode"),
+    getSiteContent("backgroundLogoUrl"),
+    getSiteContent("backgroundLogoEnabled"),
+    getSiteContent("backgroundLogoSize"),
+    getSiteContent("backgroundLogoOpacity"),
+    getSiteContent("backgroundLogoOffsetY"),
+  ]);
 
   return (
     <PageContainer width="narrow">
@@ -48,6 +56,7 @@ export default async function AdminSettingsPage() {
           currentEnabled={backgroundEnabled === "true"}
           currentSize={Number(backgroundSize) || 280}
           currentOpacity={Number(backgroundOpacity) || 5}
+          currentOffsetY={Number(backgroundOffsetY) || 0}
         />
       </section>
     </PageContainer>

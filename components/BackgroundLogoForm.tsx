@@ -11,29 +11,35 @@ const SIZE_MIN = 80;
 const SIZE_MAX = 600;
 const OPACITY_MIN = 1;
 const OPACITY_MAX = 60;
+const OFFSET_Y_MIN = -300;
+const OFFSET_Y_MAX = 300;
 
 export default function BackgroundLogoForm({
   currentUrl,
   currentEnabled,
   currentSize,
   currentOpacity,
+  currentOffsetY,
 }: {
   currentUrl: string | null;
   currentEnabled: boolean;
   currentSize: number;
   currentOpacity: number;
+  currentOffsetY: number;
 }) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [size, setSize] = useState(currentSize);
   const [opacity, setOpacity] = useState(currentOpacity);
+  const [offsetY, setOffsetY] = useState(currentOffsetY);
   const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [savingAppearance, setSavingAppearance] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const appearanceDirty = size !== currentSize || opacity !== currentOpacity;
+  const appearanceDirty =
+    size !== currentSize || opacity !== currentOpacity || offsetY !== currentOffsetY;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,7 +96,7 @@ export default function BackgroundLogoForm({
       const res = await fetch("/api/admin/logo", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target: "background", size, opacity }),
+        body: JSON.stringify({ target: "background", size, opacity, offsetY }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -186,6 +192,27 @@ export default function BackgroundLogoForm({
                 onChange={(e) => setOpacity(Number(e.target.value))}
                 className="accent-accent"
               />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="flex justify-between font-medium text-foreground">
+                <span>Vertical position</span>
+                <span className="text-muted">
+                  {offsetY === 0 ? "centered" : offsetY > 0 ? `${offsetY}px down` : `${-offsetY}px up`}
+                </span>
+              </span>
+              <input
+                type="range"
+                min={OFFSET_Y_MIN}
+                max={OFFSET_Y_MAX}
+                step={10}
+                value={offsetY}
+                onChange={(e) => setOffsetY(Number(e.target.value))}
+                className="accent-accent"
+              />
+              <span className="text-xs text-muted">
+                Position is relative to the Browse Programs section on the live page — not
+                reflected in the preview below.
+              </span>
             </label>
 
             <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface-muted">

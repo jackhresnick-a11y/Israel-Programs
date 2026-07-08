@@ -11,9 +11,11 @@ const BACKGROUND_URL_KEY = "backgroundLogoUrl";
 const BACKGROUND_ENABLED_KEY = "backgroundLogoEnabled";
 const BACKGROUND_SIZE_KEY = "backgroundLogoSize";
 const BACKGROUND_OPACITY_KEY = "backgroundLogoOpacity";
+const BACKGROUND_OFFSET_Y_KEY = "backgroundLogoOffsetY";
 
 const DEFAULT_BACKGROUND_SIZE = 280; // px height
 const DEFAULT_BACKGROUND_OPACITY = 5; // percent
+const DEFAULT_BACKGROUND_OFFSET_Y = 0; // px, relative to vertical center
 
 const postBodySchema = z.discriminatedUnion("target", [
   z.object({
@@ -33,9 +35,14 @@ const patchBodySchema = z
     enabled: z.boolean().optional(),
     size: z.number().int().min(80).max(600).optional(),
     opacity: z.number().int().min(1).max(60).optional(),
+    offsetY: z.number().int().min(-300).max(300).optional(),
   })
   .refine(
-    (b) => b.enabled !== undefined || b.size !== undefined || b.opacity !== undefined,
+    (b) =>
+      b.enabled !== undefined ||
+      b.size !== undefined ||
+      b.opacity !== undefined ||
+      b.offsetY !== undefined,
     "No changes provided"
   );
 
@@ -65,6 +72,9 @@ export async function POST(request: Request) {
     if ((await getSiteContent(BACKGROUND_OPACITY_KEY)) === null) {
       await upsertSiteContent(BACKGROUND_OPACITY_KEY, String(DEFAULT_BACKGROUND_OPACITY));
     }
+    if ((await getSiteContent(BACKGROUND_OFFSET_Y_KEY)) === null) {
+      await upsertSiteContent(BACKGROUND_OFFSET_Y_KEY, String(DEFAULT_BACKGROUND_OFFSET_Y));
+    }
     return NextResponse.json({ url: body.url, enabled: true });
   } catch (err) {
     if (err instanceof ZodError) {
@@ -83,7 +93,7 @@ export async function PATCH(request: Request) {
 
   try {
     const json = await request.json();
-    const { enabled, size, opacity } = patchBodySchema.parse(json);
+    const { enabled, size, opacity, offsetY } = patchBodySchema.parse(json);
     if (enabled !== undefined) {
       await upsertSiteContent(BACKGROUND_ENABLED_KEY, enabled ? "true" : "false");
     }
@@ -93,7 +103,10 @@ export async function PATCH(request: Request) {
     if (opacity !== undefined) {
       await upsertSiteContent(BACKGROUND_OPACITY_KEY, String(opacity));
     }
-    return NextResponse.json({ enabled, size, opacity });
+    if (offsetY !== undefined) {
+      await upsertSiteContent(BACKGROUND_OFFSET_Y_KEY, String(offsetY));
+    }
+    return NextResponse.json({ enabled, size, opacity, offsetY });
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });
@@ -131,6 +144,7 @@ export async function DELETE(request: Request) {
       await deleteSiteContent(BACKGROUND_ENABLED_KEY);
       await deleteSiteContent(BACKGROUND_SIZE_KEY);
       await deleteSiteContent(BACKGROUND_OPACITY_KEY);
+      await deleteSiteContent(BACKGROUND_OFFSET_Y_KEY);
     }
     return NextResponse.json({ ok: true });
   } catch (err) {
