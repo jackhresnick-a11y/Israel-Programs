@@ -122,6 +122,23 @@ model Tag {
   programs Program[] @relation("ProgramTags")
 }
 
+/// Admin-editable registry of the category headers tags are grouped under (both in the
+/// browse-page filter bar and the program-form tag picker). `Tag.category` is a soft
+/// string reference to `TagCategory.slug` -- deliberately not a foreign key, so existing
+/// tags and the OR-within/AND-across grouping in lib/programs.ts's buildTagAndClauses
+/// keep working unchanged even for a category that has since been renamed or removed.
+/// Duration and Region are NOT rows here -- Duration is a real Program column
+/// (durationType) and Region is a pure UI-layer grouping over `location`-category tags
+/// (see lib/regions.ts) -- neither is a Tag category.
+model TagCategory {
+  id           String  @id @default(cuid())
+  slug         String  @unique
+  label        String
+  order        Int     @default(0)
+  tint         String  @default("accent")
+  showInFilter Boolean @default(true)
+}
+
 model Video {
   id        String   @id @default(cuid())
   programId String

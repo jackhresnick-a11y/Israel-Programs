@@ -46,6 +46,12 @@ export default async function AdminPage() {
             >
               Site settings
             </Link>
+            <Link
+              href="/admin/tags"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Tags & categories
+            </Link>
           </div>
         )}
       </PageHeader>

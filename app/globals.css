@@ -23,6 +23,8 @@
   --warning-bg: #faf1e0;
   --danger: #b3432f;
   --danger-bg: #fbecea;
+  --violet: #7c5cbf;
+  --violet-bg: #f1ecfa;
 }
 
 @theme inline {
@@ -46,6 +48,8 @@
   --color-warning-bg: var(--warning-bg);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
+  --color-violet: var(--violet);
+  --color-violet-bg: var(--violet-bg);
 
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-fraunces);
@@ -72,6 +76,8 @@
     --warning-bg: #332512;
     --danger: #e5a08f;
     --danger-bg: #3a201a;
+    --violet: #b79ce8;
+    --violet-bg: #2a2140;
   }
 }
 

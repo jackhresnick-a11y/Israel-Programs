@@ -1,4 +1,5 @@
 import { listPrograms, listAllTags } from "@/lib/programs";
+import { listTagCategories } from "@/lib/tags";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import { getSiteContent } from "@/lib/siteContent";
 import ProgramCard from "@/components/ProgramCard";
@@ -28,6 +29,7 @@ export default async function ProgramsPage({
   const [
     programs,
     tags,
+    categories,
     backgroundUrl,
     backgroundEnabled,
     backgroundOpacity,
@@ -35,6 +37,7 @@ export default async function ProgramsPage({
     backgroundOffsetYDesktop,
     backgroundSizeMobile,
     backgroundOffsetYMobile,
+    backgroundUrlDark,
   ] = await Promise.all([
     listPrograms({
       q,
@@ -45,6 +48,7 @@ export default async function ProgramsPage({
       travelType: travelType as TravelType | undefined,
     }),
     listAllTags(),
+    listTagCategories(),
     getSiteContent("backgroundLogoUrl"),
     getSiteContent("backgroundLogoEnabled"),
     getSiteContent("backgroundLogoOpacity"),
@@ -52,6 +56,7 @@ export default async function ProgramsPage({
     getSiteContent("backgroundLogoOffsetY"),
     getSiteContent("backgroundLogoSizeMobile"),
     getSiteContent("backgroundLogoOffsetYMobile"),
+    getSiteContent("backgroundLogoUrlDark"),
   ]);
   const backgroundOpacityValue = (Number(backgroundOpacity) || 5) / 100;
   const backgroundDesktopHeight = Number(backgroundSizeDesktop) || 280;
@@ -77,7 +82,7 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
               }}
-              className="absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
+              className={`absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden ${backgroundUrlDark ? "dark:hidden" : ""}`}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -88,8 +93,34 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
               }}
-              className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
+              className={`absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block ${backgroundUrlDark ? "dark:hidden" : ""}`}
             />
+            {backgroundUrlDark && (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={backgroundUrlDark}
+                  alt=""
+                  style={{
+                    height: `${backgroundMobileHeight}px`,
+                    opacity: backgroundOpacityValue,
+                    transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
+                  }}
+                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none dark:block sm:dark:hidden"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={backgroundUrlDark}
+                  alt=""
+                  style={{
+                    height: `${backgroundDesktopHeight}px`,
+                    opacity: backgroundOpacityValue,
+                    transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
+                  }}
+                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:dark:block"
+                />
+              </>
+            )}
           </div>
         )}
         <div className="relative flex flex-col gap-8">
@@ -98,7 +129,7 @@ export default async function ProgramsPage({
             description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
           />
 
-          <SearchBar tags={tags} />
+          <SearchBar tags={tags} categories={categories} />
         </div>
       </div>
 
