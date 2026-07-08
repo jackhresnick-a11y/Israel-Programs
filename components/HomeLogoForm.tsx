@@ -101,11 +101,13 @@ export default function HomeLogoForm({
   currentEnabled,
   currentDesktop,
   currentMobile,
+  currentDarkUrl,
 }: {
   currentUrl: string | null;
   currentEnabled: boolean;
   currentDesktop: BreakpointFields;
   currentMobile: BreakpointFields;
+  currentDarkUrl: string | null;
 }) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -116,6 +118,10 @@ export default function HomeLogoForm({
   const [toggling, setToggling] = useState(false);
   const [savingAppearance, setSavingAppearance] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [darkFile, setDarkFile] = useState<File | null>(null);
+  const [uploadingDark, setUploadingDark] = useState(false);
+  const [removingDark, setRemovingDark] = useState(false);
 
   const appearanceDirty =
     desktop.size !== currentDesktop.size ||
@@ -223,6 +229,48 @@ export default function HomeLogoForm({
     }
   }
 
+  async function handleSubmitDark(e: React.FormEvent) {
+    e.preventDefault();
+    if (!darkFile) return;
+    setUploadingDark(true);
+    setError(null);
+    try {
+      const url = await uploadSiteImage(darkFile);
+      const res = await fetch("/api/admin/logo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: "home", url, variant: "dark" }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to save dark-mode homepage logo");
+      }
+      setDarkFile(null);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save dark-mode homepage logo");
+    } finally {
+      setUploadingDark(false);
+    }
+  }
+
+  async function handleRemoveDark() {
+    setRemovingDark(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/logo?target=home&variant=dark", { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to remove dark-mode homepage logo");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove dark-mode homepage logo");
+    } finally {
+      setRemovingDark(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {error && (
@@ -307,6 +355,44 @@ export default function HomeLogoForm({
           {uploading ? "Uploading..." : "Upload homepage logo"}
         </Button>
       </form>
+
+      <div className="flex flex-col gap-3 border-t border-border pt-4">
+        <div>
+          <span className="text-sm font-medium text-foreground">Dark-mode version</span>
+          <p className="text-xs text-muted">
+            Optional. Shown instead of the homepage logo above when a visitor&rsquo;s
+            device is in dark mode (same size/position settings as above). Falls back to
+            the logo above if not set.
+          </p>
+        </div>
+
+        {currentDarkUrl && (
+          <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={currentDarkUrl} alt="Current dark-mode homepage logo" className="h-12 w-auto" />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              disabled={removingDark}
+              onClick={handleRemoveDark}
+            >
+              {removingDark ? "Removing..." : "Remove dark-mode logo"}
+            </Button>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmitDark} className="flex flex-col gap-3">
+          <Input
+            type="file"
+            accept={ALLOWED_LOGO_TYPES}
+            onChange={(e) => setDarkFile(e.target.files?.[0] ?? null)}
+          />
+          <Button type="submit" variant="secondary" size="sm" disabled={!darkFile || uploadingDark} className="w-fit">
+            {uploadingDark ? "Uploading..." : "Upload dark-mode logo"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

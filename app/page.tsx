@@ -26,6 +26,7 @@ export default async function Home() {
     homeOffsetXMobile,
     homeOffsetYMobile,
     homeLayerMobile,
+    homeUrlDark,
   ] = await Promise.all([
     recentlyAdded.mode === "manual"
       ? resolveManualItems(recentlyAdded.items)
@@ -44,6 +45,7 @@ export default async function Home() {
     getSiteContent("homeLogoOffsetXMobile"),
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
+    getSiteContent("homeLogoUrlDark"),
   ]);
 
   const homeDesktopHeight = Number(homeSizeDesktop) || 320;
@@ -76,7 +78,7 @@ export default async function Home() {
                 height: `${homeMobileHeight}px`,
                 transform: `translate(${homeMobileOffsetX}px, calc(-50% + ${homeMobileOffsetY}px))`,
               }}
-              className={`absolute right-0 top-1/2 w-auto max-w-none select-none sm:hidden ${homeMobileFront ? "z-30" : ""}`}
+              className={`absolute right-0 top-1/2 w-auto max-w-none select-none sm:hidden ${homeMobileFront ? "z-30" : ""} ${homeUrlDark ? "dark:hidden" : ""}`}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -86,8 +88,32 @@ export default async function Home() {
                 height: `${homeDesktopHeight}px`,
                 transform: `translate(${homeDesktopOffsetX}px, calc(-50% + ${homeDesktopOffsetY}px))`,
               }}
-              className={`absolute right-0 top-1/2 hidden w-auto max-w-none select-none sm:block ${homeDesktopFront ? "z-30" : ""}`}
+              className={`absolute right-0 top-1/2 hidden w-auto max-w-none select-none sm:block ${homeDesktopFront ? "z-30" : ""} ${homeUrlDark ? "dark:hidden" : ""}`}
             />
+            {homeUrlDark && (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={homeUrlDark}
+                  alt=""
+                  style={{
+                    height: `${homeMobileHeight}px`,
+                    transform: `translate(${homeMobileOffsetX}px, calc(-50% + ${homeMobileOffsetY}px))`,
+                  }}
+                  className={`absolute right-0 top-1/2 hidden w-auto max-w-none select-none dark:block sm:dark:hidden ${homeMobileFront ? "z-30" : ""}`}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={homeUrlDark}
+                  alt=""
+                  style={{
+                    height: `${homeDesktopHeight}px`,
+                    transform: `translate(${homeDesktopOffsetX}px, calc(-50% + ${homeDesktopOffsetY}px))`,
+                  }}
+                  className={`absolute right-0 top-1/2 hidden w-auto max-w-none select-none sm:dark:block ${homeDesktopFront ? "z-30" : ""}`}
+                />
+              </>
+            )}
           </div>
         )}
         <div className="relative flex flex-col gap-4 text-center sm:text-left">

@@ -6,11 +6,12 @@ import { getSiteContent } from "@/lib/siteContent";
 import { buttonVariants } from "@/components/ui/Button";
 
 export default async function Nav() {
-  const [role, { userId }, logoUrl, logoMode] = await Promise.all([
+  const [role, { userId }, logoUrl, logoMode, logoUrlDark] = await Promise.all([
     getCurrentRole(),
     auth(),
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
+    getSiteContent("headerLogoUrlDark"),
   ]);
   const isModerator = role === "moderator" || role === "admin";
   const showText = !logoUrl || logoMode === "alongside";
@@ -23,9 +24,23 @@ export default async function Nav() {
           className="flex items-center gap-2 font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
           {logoUrl && (
-            // External Blob URL — plain img avoids next/image remotePatterns config.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Israel Programs Wiki" className="h-12 w-auto sm:h-14" />
+            <>
+              {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoUrl}
+                alt="Israel Programs Wiki"
+                className={`h-12 w-auto sm:h-14 ${logoUrlDark ? "dark:hidden" : ""}`}
+              />
+              {logoUrlDark && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrlDark}
+                  alt="Israel Programs Wiki"
+                  className="hidden h-12 w-auto sm:h-14 dark:block"
+                />
+              )}
+            </>
           )}
           {showText && "Israel Programs Wiki"}
         </Link>

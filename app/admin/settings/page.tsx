@@ -17,6 +17,7 @@ export default async function AdminSettingsPage() {
   const [
     logoUrl,
     logoMode,
+    logoUrlDark,
     backgroundUrl,
     backgroundEnabled,
     backgroundOpacity,
@@ -24,6 +25,7 @@ export default async function AdminSettingsPage() {
     backgroundOffsetYDesktop,
     backgroundSizeMobile,
     backgroundOffsetYMobile,
+    backgroundUrlDark,
     homeUrl,
     homeEnabled,
     homeSizeDesktop,
@@ -34,12 +36,14 @@ export default async function AdminSettingsPage() {
     homeOffsetXMobile,
     homeOffsetYMobile,
     homeLayerMobile,
+    homeUrlDark,
     recentlyAdded,
     programOptions,
     videosBySlug,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
+    getSiteContent("headerLogoUrlDark"),
     getSiteContent("backgroundLogoUrl"),
     getSiteContent("backgroundLogoEnabled"),
     getSiteContent("backgroundLogoOpacity"),
@@ -47,6 +51,7 @@ export default async function AdminSettingsPage() {
     getSiteContent("backgroundLogoOffsetY"),
     getSiteContent("backgroundLogoSizeMobile"),
     getSiteContent("backgroundLogoOffsetYMobile"),
+    getSiteContent("backgroundLogoUrlDark"),
     getSiteContent("homeLogoUrl"),
     getSiteContent("homeLogoEnabled"),
     getSiteContent("homeLogoSize"),
@@ -57,6 +62,7 @@ export default async function AdminSettingsPage() {
     getSiteContent("homeLogoOffsetXMobile"),
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
+    getSiteContent("homeLogoUrlDark"),
     getRecentlyAddedConfig(),
     listPublishedProgramNames(),
     listVideoOptionsByProgramSlug(),
@@ -75,6 +81,7 @@ export default async function AdminSettingsPage() {
         <SiteLogoForm
           currentLogoUrl={logoUrl}
           currentMode={logoMode === "alongside" ? "alongside" : logoMode === "replace" ? "replace" : null}
+          currentDarkLogoUrl={logoUrlDark}
         />
       </section>
       <section className="flex flex-col gap-4">
@@ -97,6 +104,7 @@ export default async function AdminSettingsPage() {
             size: Number(backgroundSizeMobile) || 150,
             offsetY: Number(backgroundOffsetYMobile) || 0,
           }}
+          currentDarkUrl={backgroundUrlDark}
         />
       </section>
       <section className="flex flex-col gap-4">
@@ -122,6 +130,7 @@ export default async function AdminSettingsPage() {
             offsetY: Number(homeOffsetYMobile) || 0,
             layer: homeLayerMobile === "front" ? "front" : "back",
           }}
+          currentDarkUrl={homeUrlDark}
         />
       </section>
       <section className="flex flex-col gap-4">

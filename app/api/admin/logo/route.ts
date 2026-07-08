@@ -6,8 +6,10 @@ import { getSiteContent, upsertSiteContent, deleteSiteContent } from "@/lib/site
 import { isVercelBlobUrl } from "@/lib/blob";
 
 const HEADER_URL_KEY = "headerLogoUrl";
+const HEADER_URL_DARK_KEY = "headerLogoUrlDark";
 const HEADER_MODE_KEY = "headerLogoMode";
 const BACKGROUND_URL_KEY = "backgroundLogoUrl";
+const BACKGROUND_URL_DARK_KEY = "backgroundLogoUrlDark";
 const BACKGROUND_ENABLED_KEY = "backgroundLogoEnabled";
 const BACKGROUND_OPACITY_KEY = "backgroundLogoOpacity";
 // "Size"/"OffsetY" (no suffix) are the desktop values -- the original single-
@@ -24,6 +26,7 @@ const DEFAULT_BACKGROUND_SIZE_MOBILE = 150; // px height, smaller for narrow scr
 const DEFAULT_BACKGROUND_OFFSET_Y = 0; // px, relative to vertical center
 
 const HOME_URL_KEY = "homeLogoUrl";
+const HOME_URL_DARK_KEY = "homeLogoUrlDark";
 const HOME_ENABLED_KEY = "homeLogoEnabled";
 const HOME_SIZE_DESKTOP_KEY = "homeLogoSize";
 const HOME_SIZE_MOBILE_KEY = "homeLogoSizeMobile";
@@ -43,15 +46,18 @@ const postBodySchema = z.discriminatedUnion("target", [
   z.object({
     target: z.literal("header"),
     url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
-    mode: z.enum(["replace", "alongside"]),
+    mode: z.enum(["replace", "alongside"]).optional(),
+    variant: z.enum(["light", "dark"]).default("light"),
   }),
   z.object({
     target: z.literal("background"),
     url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
+    variant: z.enum(["light", "dark"]).default("light"),
   }),
   z.object({
     target: z.literal("home"),
     url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
+    variant: z.enum(["light", "dark"]).default("light"),
   }),
 ]);
 
@@ -96,12 +102,20 @@ export async function POST(request: Request) {
     const body = postBodySchema.parse(json);
 
     if (body.target === "header") {
+      if (body.variant === "dark") {
+        await upsertSiteContent(HEADER_URL_DARK_KEY, body.url);
+        return NextResponse.json({ url: body.url, variant: "dark" });
+      }
       await upsertSiteContent(HEADER_URL_KEY, body.url);
-      await upsertSiteContent(HEADER_MODE_KEY, body.mode);
-      return NextResponse.json({ url: body.url, mode: body.mode });
+      await upsertSiteContent(HEADER_MODE_KEY, body.mode ?? "replace");
+      return NextResponse.json({ url: body.url, mode: body.mode ?? "replace" });
     }
 
     if (body.target === "background") {
+      if (body.variant === "dark") {
+        await upsertSiteContent(BACKGROUND_URL_DARK_KEY, body.url);
+        return NextResponse.json({ url: body.url, variant: "dark" });
+      }
       await upsertSiteContent(BACKGROUND_URL_KEY, body.url);
       await upsertSiteContent(BACKGROUND_ENABLED_KEY, "true");
       // Only seed defaults the first time an image is set, so re-uploading a
@@ -121,6 +135,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: body.url, enabled: true });
     }
 
+    if (body.variant === "dark") {
+      await upsertSiteContent(HOME_URL_DARK_KEY, body.url);
+      return NextResponse.json({ url: body.url, variant: "dark" });
+    }
     await upsertSiteContent(HOME_URL_KEY, body.url);
     await upsertSiteContent(HOME_ENABLED_KEY, "true");
     // Only seed defaults the first time an image is set, so re-uploading a
@@ -240,17 +258,33 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const targetParam = searchParams.get("target");
   const target = targetParam === "background" ? "background" : targetParam === "home" ? "home" : "header";
+  const variant = searchParams.get("variant") === "dark" ? "dark" : "light";
   const urlKey = target === "header" ? HEADER_URL_KEY : target === "background" ? BACKGROUND_URL_KEY : HOME_URL_KEY;
+  const darkUrlKey =
+    target === "header" ? HEADER_URL_DARK_KEY : target === "background" ? BACKGROUND_URL_DARK_KEY : HOME_URL_DARK_KEY;
+
+  async function deleteBlobFor(key: string) {
+    const existingUrl = await getSiteContent(key);
+    if (!existingUrl) return;
+    try {
+      await del(existingUrl);
+    } catch (err) {
+      console.error("Failed to delete blob for", existingUrl, err);
+    }
+  }
 
   try {
-    const existingUrl = await getSiteContent(urlKey);
-    if (existingUrl) {
-      try {
-        await del(existingUrl);
-      } catch (err) {
-        console.error("Failed to delete blob for", existingUrl, err);
-      }
+    if (variant === "dark") {
+      await deleteBlobFor(darkUrlKey);
+      await deleteSiteContent(darkUrlKey);
+      return NextResponse.json({ ok: true });
     }
+
+    // Deleting the light logo also clears its dark companion -- a dark image with no
+    // light fallback would leave light-mode visitors with no logo at all.
+    await deleteBlobFor(urlKey);
+    await deleteBlobFor(darkUrlKey);
+    await deleteSiteContent(darkUrlKey);
 
     if (target === "header") {
       await deleteSiteContent(HEADER_URL_KEY);
