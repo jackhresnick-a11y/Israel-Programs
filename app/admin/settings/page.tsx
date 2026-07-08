@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
+import { listPublishedProgramNames } from "@/lib/programs";
+import { getRecentlyAddedConfig, listVideoOptionsByProgramSlug } from "@/lib/recentlyAdded";
 import SiteLogoForm from "@/components/SiteLogoForm";
 import BackgroundLogoForm from "@/components/BackgroundLogoForm";
 import HomeLogoForm from "@/components/HomeLogoForm";
+import RecentlyAddedForm from "@/components/RecentlyAddedForm";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -31,6 +34,9 @@ export default async function AdminSettingsPage() {
     homeOffsetXMobile,
     homeOffsetYMobile,
     homeLayerMobile,
+    recentlyAdded,
+    programOptions,
+    videosBySlug,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -51,6 +57,9 @@ export default async function AdminSettingsPage() {
     getSiteContent("homeLogoOffsetXMobile"),
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
+    getRecentlyAddedConfig(),
+    listPublishedProgramNames(),
+    listVideoOptionsByProgramSlug(),
   ]);
 
   return (
@@ -113,6 +122,23 @@ export default async function AdminSettingsPage() {
             offsetY: Number(homeOffsetYMobile) || 0,
             layer: homeLayerMobile === "front" ? "front" : "back",
           }}
+        />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Recently Added Section
+        </h2>
+        <p className="text-sm text-muted">
+          Controls the homepage section below the welcome heading. Automatic mode always
+          shows the 6 most recently added programs; manual mode lets you hand-pick which
+          programs appear, in any order, and optionally feature a video on each.
+        </p>
+        <RecentlyAddedForm
+          currentHeading={recentlyAdded.heading}
+          currentMode={recentlyAdded.mode}
+          currentItems={recentlyAdded.items}
+          programOptions={programOptions}
+          videosBySlug={videosBySlug}
         />
       </section>
     </PageContainer>

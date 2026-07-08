@@ -19,7 +19,7 @@ const RETRY_DELAY_MS = 1500;
  * Retry a few times with a cache-busting query param instead of giving up
  * after the first error.
  */
-function VideoPlayer({ url }: { url: string }) {
+export function VideoPlayer({ url }: { url: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const retriesRef = useRef(0);
   const [src, setSrc] = useState(url);

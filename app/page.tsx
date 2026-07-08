@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { listPrograms } from "@/lib/programs";
 import ProgramCard from "@/components/ProgramCard";
+import FeaturedProgramCard from "@/components/FeaturedProgramCard";
 import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getSiteContent } from "@/lib/siteContent";
+import {
+  getRecentlyAddedConfig,
+  resolveManualItems,
+  type ResolvedRecentlyAddedItem,
+} from "@/lib/recentlyAdded";
 
 export default async function Home() {
+  const recentlyAdded = await getRecentlyAddedConfig();
+
   const [
-    programs,
+    featured,
     homeUrl,
     homeEnabled,
     homeSizeDesktop,
@@ -19,7 +27,13 @@ export default async function Home() {
     homeOffsetYMobile,
     homeLayerMobile,
   ] = await Promise.all([
-    listPrograms({}),
+    recentlyAdded.mode === "manual"
+      ? resolveManualItems(recentlyAdded.items)
+      : listPrograms({}).then((programs) =>
+          programs.slice(0, 6).map(
+            (program): ResolvedRecentlyAddedItem => ({ program, video: null })
+          )
+        ),
     getSiteContent("homeLogoUrl"),
     getSiteContent("homeLogoEnabled"),
     getSiteContent("homeLogoSize"),
@@ -31,7 +45,6 @@ export default async function Home() {
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
   ]);
-  const featured = programs.slice(0, 6);
 
   const homeDesktopHeight = Number(homeSizeDesktop) || 320;
   const homeDesktopOffsetX = Number(homeOffsetXDesktop) || 0;
@@ -132,16 +145,24 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          Recently added
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((program) => (
-            <ProgramCard key={program.slug} program={program} />
-          ))}
+      {featured.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+            {recentlyAdded.heading}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map(({ program, video }) =>
+              video ? (
+                <div key={program.slug} className="sm:col-span-2 lg:col-span-3">
+                  <FeaturedProgramCard program={program} video={video} />
+                </div>
+              ) : (
+                <ProgramCard key={program.slug} program={program} />
+              )
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </PageContainer>
   );
 }
