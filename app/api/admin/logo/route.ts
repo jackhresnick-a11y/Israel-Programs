@@ -23,6 +23,19 @@ const DEFAULT_BACKGROUND_SIZE_DESKTOP = 280; // px height
 const DEFAULT_BACKGROUND_SIZE_MOBILE = 150; // px height, smaller for narrow screens
 const DEFAULT_BACKGROUND_OFFSET_Y = 0; // px, relative to vertical center
 
+const HOME_URL_KEY = "homeLogoUrl";
+const HOME_ENABLED_KEY = "homeLogoEnabled";
+const HOME_SIZE_DESKTOP_KEY = "homeLogoSize";
+const HOME_SIZE_MOBILE_KEY = "homeLogoSizeMobile";
+const HOME_OFFSET_X_DESKTOP_KEY = "homeLogoOffsetX";
+const HOME_OFFSET_X_MOBILE_KEY = "homeLogoOffsetXMobile";
+const HOME_OFFSET_Y_DESKTOP_KEY = "homeLogoOffsetY";
+const HOME_OFFSET_Y_MOBILE_KEY = "homeLogoOffsetYMobile";
+
+const DEFAULT_HOME_SIZE_DESKTOP = 320; // px height
+const DEFAULT_HOME_SIZE_MOBILE = 160; // px height, smaller for narrow screens
+const DEFAULT_HOME_OFFSET = 0; // px, relative to centered anchor
+
 const postBodySchema = z.discriminatedUnion("target", [
   z.object({
     target: z.literal("header"),
@@ -33,26 +46,37 @@ const postBodySchema = z.discriminatedUnion("target", [
     target: z.literal("background"),
     url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
   }),
+  z.object({
+    target: z.literal("home"),
+    url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
+  }),
 ]);
 
+const backgroundPatchSchema = z.object({
+  target: z.literal("background"),
+  enabled: z.boolean().optional(),
+  opacity: z.number().int().min(1).max(60).optional(),
+  sizeDesktop: z.number().int().min(80).max(600).optional(),
+  sizeMobile: z.number().int().min(80).max(600).optional(),
+  offsetYDesktop: z.number().int().min(-300).max(300).optional(),
+  offsetYMobile: z.number().int().min(-300).max(300).optional(),
+});
+
+const homePatchSchema = z.object({
+  target: z.literal("home"),
+  enabled: z.boolean().optional(),
+  sizeDesktop: z.number().int().min(80).max(800).optional(),
+  sizeMobile: z.number().int().min(80).max(800).optional(),
+  offsetXDesktop: z.number().int().min(-500).max(500).optional(),
+  offsetXMobile: z.number().int().min(-500).max(500).optional(),
+  offsetYDesktop: z.number().int().min(-500).max(500).optional(),
+  offsetYMobile: z.number().int().min(-500).max(500).optional(),
+});
+
 const patchBodySchema = z
-  .object({
-    target: z.literal("background"),
-    enabled: z.boolean().optional(),
-    opacity: z.number().int().min(1).max(60).optional(),
-    sizeDesktop: z.number().int().min(80).max(600).optional(),
-    sizeMobile: z.number().int().min(80).max(600).optional(),
-    offsetYDesktop: z.number().int().min(-300).max(300).optional(),
-    offsetYMobile: z.number().int().min(-300).max(300).optional(),
-  })
+  .discriminatedUnion("target", [backgroundPatchSchema, homePatchSchema])
   .refine(
-    (b) =>
-      b.enabled !== undefined ||
-      b.opacity !== undefined ||
-      b.sizeDesktop !== undefined ||
-      b.sizeMobile !== undefined ||
-      b.offsetYDesktop !== undefined ||
-      b.offsetYMobile !== undefined,
+    (b) => Object.entries(b).some(([key, value]) => key !== "target" && value !== undefined),
     "No changes provided"
   );
 
@@ -72,18 +96,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: body.url, mode: body.mode });
     }
 
-    await upsertSiteContent(BACKGROUND_URL_KEY, body.url);
-    await upsertSiteContent(BACKGROUND_ENABLED_KEY, "true");
+    if (body.target === "background") {
+      await upsertSiteContent(BACKGROUND_URL_KEY, body.url);
+      await upsertSiteContent(BACKGROUND_ENABLED_KEY, "true");
+      // Only seed defaults the first time an image is set, so re-uploading a
+      // replacement image doesn't reset appearance settings the admin already tuned.
+      const seeds: [string, string][] = [
+        [BACKGROUND_OPACITY_KEY, String(DEFAULT_BACKGROUND_OPACITY)],
+        [BACKGROUND_SIZE_DESKTOP_KEY, String(DEFAULT_BACKGROUND_SIZE_DESKTOP)],
+        [BACKGROUND_SIZE_MOBILE_KEY, String(DEFAULT_BACKGROUND_SIZE_MOBILE)],
+        [BACKGROUND_OFFSET_Y_DESKTOP_KEY, String(DEFAULT_BACKGROUND_OFFSET_Y)],
+        [BACKGROUND_OFFSET_Y_MOBILE_KEY, String(DEFAULT_BACKGROUND_OFFSET_Y)],
+      ];
+      for (const [key, value] of seeds) {
+        if ((await getSiteContent(key)) === null) {
+          await upsertSiteContent(key, value);
+        }
+      }
+      return NextResponse.json({ url: body.url, enabled: true });
+    }
+
+    await upsertSiteContent(HOME_URL_KEY, body.url);
+    await upsertSiteContent(HOME_ENABLED_KEY, "true");
     // Only seed defaults the first time an image is set, so re-uploading a
     // replacement image doesn't reset appearance settings the admin already tuned.
-    const seeds: [string, string][] = [
-      [BACKGROUND_OPACITY_KEY, String(DEFAULT_BACKGROUND_OPACITY)],
-      [BACKGROUND_SIZE_DESKTOP_KEY, String(DEFAULT_BACKGROUND_SIZE_DESKTOP)],
-      [BACKGROUND_SIZE_MOBILE_KEY, String(DEFAULT_BACKGROUND_SIZE_MOBILE)],
-      [BACKGROUND_OFFSET_Y_DESKTOP_KEY, String(DEFAULT_BACKGROUND_OFFSET_Y)],
-      [BACKGROUND_OFFSET_Y_MOBILE_KEY, String(DEFAULT_BACKGROUND_OFFSET_Y)],
+    const homeSeeds: [string, string][] = [
+      [HOME_SIZE_DESKTOP_KEY, String(DEFAULT_HOME_SIZE_DESKTOP)],
+      [HOME_SIZE_MOBILE_KEY, String(DEFAULT_HOME_SIZE_MOBILE)],
+      [HOME_OFFSET_X_DESKTOP_KEY, String(DEFAULT_HOME_OFFSET)],
+      [HOME_OFFSET_X_MOBILE_KEY, String(DEFAULT_HOME_OFFSET)],
+      [HOME_OFFSET_Y_DESKTOP_KEY, String(DEFAULT_HOME_OFFSET)],
+      [HOME_OFFSET_Y_MOBILE_KEY, String(DEFAULT_HOME_OFFSET)],
     ];
-    for (const [key, value] of seeds) {
+    for (const [key, value] of homeSeeds) {
       if ((await getSiteContent(key)) === null) {
         await upsertSiteContent(key, value);
       }
@@ -107,25 +152,52 @@ export async function PATCH(request: Request) {
   try {
     const json = await request.json();
     const parsed = patchBodySchema.parse(json);
-    const { enabled, opacity, sizeDesktop, sizeMobile, offsetYDesktop, offsetYMobile } = parsed;
 
-    if (enabled !== undefined) {
-      await upsertSiteContent(BACKGROUND_ENABLED_KEY, enabled ? "true" : "false");
+    if (parsed.target === "background") {
+      const { enabled, opacity, sizeDesktop, sizeMobile, offsetYDesktop, offsetYMobile } = parsed;
+      if (enabled !== undefined) {
+        await upsertSiteContent(BACKGROUND_ENABLED_KEY, enabled ? "true" : "false");
+      }
+      if (opacity !== undefined) {
+        await upsertSiteContent(BACKGROUND_OPACITY_KEY, String(opacity));
+      }
+      if (sizeDesktop !== undefined) {
+        await upsertSiteContent(BACKGROUND_SIZE_DESKTOP_KEY, String(sizeDesktop));
+      }
+      if (sizeMobile !== undefined) {
+        await upsertSiteContent(BACKGROUND_SIZE_MOBILE_KEY, String(sizeMobile));
+      }
+      if (offsetYDesktop !== undefined) {
+        await upsertSiteContent(BACKGROUND_OFFSET_Y_DESKTOP_KEY, String(offsetYDesktop));
+      }
+      if (offsetYMobile !== undefined) {
+        await upsertSiteContent(BACKGROUND_OFFSET_Y_MOBILE_KEY, String(offsetYMobile));
+      }
+      return NextResponse.json(parsed);
     }
-    if (opacity !== undefined) {
-      await upsertSiteContent(BACKGROUND_OPACITY_KEY, String(opacity));
+
+    const { enabled, sizeDesktop, sizeMobile, offsetXDesktop, offsetXMobile, offsetYDesktop, offsetYMobile } =
+      parsed;
+    if (enabled !== undefined) {
+      await upsertSiteContent(HOME_ENABLED_KEY, enabled ? "true" : "false");
     }
     if (sizeDesktop !== undefined) {
-      await upsertSiteContent(BACKGROUND_SIZE_DESKTOP_KEY, String(sizeDesktop));
+      await upsertSiteContent(HOME_SIZE_DESKTOP_KEY, String(sizeDesktop));
     }
     if (sizeMobile !== undefined) {
-      await upsertSiteContent(BACKGROUND_SIZE_MOBILE_KEY, String(sizeMobile));
+      await upsertSiteContent(HOME_SIZE_MOBILE_KEY, String(sizeMobile));
+    }
+    if (offsetXDesktop !== undefined) {
+      await upsertSiteContent(HOME_OFFSET_X_DESKTOP_KEY, String(offsetXDesktop));
+    }
+    if (offsetXMobile !== undefined) {
+      await upsertSiteContent(HOME_OFFSET_X_MOBILE_KEY, String(offsetXMobile));
     }
     if (offsetYDesktop !== undefined) {
-      await upsertSiteContent(BACKGROUND_OFFSET_Y_DESKTOP_KEY, String(offsetYDesktop));
+      await upsertSiteContent(HOME_OFFSET_Y_DESKTOP_KEY, String(offsetYDesktop));
     }
     if (offsetYMobile !== undefined) {
-      await upsertSiteContent(BACKGROUND_OFFSET_Y_MOBILE_KEY, String(offsetYMobile));
+      await upsertSiteContent(HOME_OFFSET_Y_MOBILE_KEY, String(offsetYMobile));
     }
     return NextResponse.json(parsed);
   } catch (err) {
@@ -133,7 +205,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });
     }
     console.error(err);
-    return NextResponse.json({ error: "Failed to update background logo" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update logo" }, { status: 500 });
   }
 }
 
@@ -144,8 +216,9 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const target = searchParams.get("target") === "background" ? "background" : "header";
-  const urlKey = target === "header" ? HEADER_URL_KEY : BACKGROUND_URL_KEY;
+  const targetParam = searchParams.get("target");
+  const target = targetParam === "background" ? "background" : targetParam === "home" ? "home" : "header";
+  const urlKey = target === "header" ? HEADER_URL_KEY : target === "background" ? BACKGROUND_URL_KEY : HOME_URL_KEY;
 
   try {
     const existingUrl = await getSiteContent(urlKey);
@@ -160,7 +233,7 @@ export async function DELETE(request: Request) {
     if (target === "header") {
       await deleteSiteContent(HEADER_URL_KEY);
       await deleteSiteContent(HEADER_MODE_KEY);
-    } else {
+    } else if (target === "background") {
       await deleteSiteContent(BACKGROUND_URL_KEY);
       await deleteSiteContent(BACKGROUND_ENABLED_KEY);
       await deleteSiteContent(BACKGROUND_OPACITY_KEY);
@@ -168,6 +241,15 @@ export async function DELETE(request: Request) {
       await deleteSiteContent(BACKGROUND_SIZE_MOBILE_KEY);
       await deleteSiteContent(BACKGROUND_OFFSET_Y_DESKTOP_KEY);
       await deleteSiteContent(BACKGROUND_OFFSET_Y_MOBILE_KEY);
+    } else {
+      await deleteSiteContent(HOME_URL_KEY);
+      await deleteSiteContent(HOME_ENABLED_KEY);
+      await deleteSiteContent(HOME_SIZE_DESKTOP_KEY);
+      await deleteSiteContent(HOME_SIZE_MOBILE_KEY);
+      await deleteSiteContent(HOME_OFFSET_X_DESKTOP_KEY);
+      await deleteSiteContent(HOME_OFFSET_X_MOBILE_KEY);
+      await deleteSiteContent(HOME_OFFSET_Y_DESKTOP_KEY);
+      await deleteSiteContent(HOME_OFFSET_Y_MOBILE_KEY);
     }
     return NextResponse.json({ ok: true });
   } catch (err) {

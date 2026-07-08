@@ -3,6 +3,7 @@ import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import SiteLogoForm from "@/components/SiteLogoForm";
 import BackgroundLogoForm from "@/components/BackgroundLogoForm";
+import HomeLogoForm from "@/components/HomeLogoForm";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -20,6 +21,14 @@ export default async function AdminSettingsPage() {
     backgroundOffsetYDesktop,
     backgroundSizeMobile,
     backgroundOffsetYMobile,
+    homeUrl,
+    homeEnabled,
+    homeSizeDesktop,
+    homeOffsetXDesktop,
+    homeOffsetYDesktop,
+    homeSizeMobile,
+    homeOffsetXMobile,
+    homeOffsetYMobile,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -30,6 +39,14 @@ export default async function AdminSettingsPage() {
     getSiteContent("backgroundLogoOffsetY"),
     getSiteContent("backgroundLogoSizeMobile"),
     getSiteContent("backgroundLogoOffsetYMobile"),
+    getSiteContent("homeLogoUrl"),
+    getSiteContent("homeLogoEnabled"),
+    getSiteContent("homeLogoSize"),
+    getSiteContent("homeLogoOffsetX"),
+    getSiteContent("homeLogoOffsetY"),
+    getSiteContent("homeLogoSizeMobile"),
+    getSiteContent("homeLogoOffsetXMobile"),
+    getSiteContent("homeLogoOffsetYMobile"),
   ]);
 
   return (
@@ -66,6 +83,29 @@ export default async function AdminSettingsPage() {
           currentMobile={{
             size: Number(backgroundSizeMobile) || 150,
             offsetY: Number(backgroundOffsetYMobile) || 0,
+          }}
+        />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Homepage Logo
+        </h2>
+        <p className="text-sm text-muted">
+          A large logo shown on the homepage next to the welcome heading. This is a
+          separate image from the header logo and background logo above.
+        </p>
+        <HomeLogoForm
+          currentUrl={homeUrl}
+          currentEnabled={homeEnabled === "true"}
+          currentDesktop={{
+            size: Number(homeSizeDesktop) || 320,
+            offsetX: Number(homeOffsetXDesktop) || 0,
+            offsetY: Number(homeOffsetYDesktop) || 0,
+          }}
+          currentMobile={{
+            size: Number(homeSizeMobile) || 160,
+            offsetX: Number(homeOffsetXMobile) || 0,
+            offsetY: Number(homeOffsetYMobile) || 0,
           }}
         />
       </section>
