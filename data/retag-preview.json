@@ -1,0 +1,5498 @@
+[
+  {
+    "id": "cmr9qejw80006rumzt9e8ag41",
+    "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+    "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+    "existingTags": [
+      "anglo-only",
+      "arts",
+      "audition-required",
+      "coed",
+      "college-credit",
+      "dance",
+      "hebrew-university",
+      "jerusalem",
+      "secular",
+      "semester",
+      "single-location",
+      "study-abroad",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr6h000ivkmzvwx0mi4v",
+    "slug": "career-israel",
+    "name": "Career Israel",
+    "existingTags": [
+      "career-development",
+      "coed",
+      "hebrew-ulpan",
+      "internship",
+      "israeli-anglo-mix",
+      "professional",
+      "secular",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr7sl7nw000qw9mzugtq46bp",
+    "slug": "livnot",
+    "name": "Livnot U'Lehibanot",
+    "existingTags": [
+      "coed",
+      "hiking",
+      "identity",
+      "pluralistic",
+      "short-term",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr470008vkmz0r7653ff",
+    "slug": "kivunim",
+    "name": "Kivunim",
+    "existingTags": [
+      "academics",
+      "anglo-only",
+      "arabic",
+      "coed",
+      "gap-year",
+      "jewish-civilization",
+      "secular",
+      "travel"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr4y000bvkmzq5pd8b0n",
+    "slug": "bina-gap-year",
+    "name": "BINA Gap Year",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "pluralistic",
+      "pluralistic-judaism",
+      "social-action",
+      "tel-aviv",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr7sl7ln000bw9mzs5j52fku",
+    "slug": "onward-israel",
+    "name": "Onward Israel",
+    "existingTags": [
+      "academic",
+      "career",
+      "coed",
+      "internship",
+      "israeli-anglo-mix",
+      "secular",
+      "summer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr7sl7n4000lw9mzudhbeacz",
+    "slug": "nativ",
+    "name": "Nativ College Leadership Program",
+    "existingTags": [
+      "army",
+      "coed",
+      "conservative",
+      "conservative-movement",
+      "gap-year",
+      "leadership"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr8d000rvkmz0je8h5x8",
+    "slug": "habonim-dror-workshop",
+    "name": "Habonim Dror Workshop",
+    "existingTags": [
+      "coed",
+      "collective-living",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "secular",
+      "socialist-zionism",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgr7j000nvkmznxsrizid",
+    "slug": "tamid-israel-fellowship",
+    "name": "TAMID Israel Fellowship",
+    "existingTags": [
+      "business",
+      "coed",
+      "fellowship",
+      "israeli-anglo-mix",
+      "secular",
+      "summer-internship",
+      "tech",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr7sl7mh000hw9mz8902ii45",
+    "slug": "young-judaea-year-course",
+    "name": "Young Judaea Year Course",
+    "existingTags": [
+      "army",
+      "coed",
+      "gap-year",
+      "pluralistic",
+      "volunteering",
+      "zionism"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qeshs000arumzsk976tpl",
+    "slug": "musrara-international-residency-program",
+    "name": "Musrara International Residency Program",
+    "existingTags": [
+      "arts",
+      "coed",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "portfolio-required",
+      "secular",
+      "short-term",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgr95000vvkmzenbdg0r9",
+    "slug": "yahel-social-change-fellowship",
+    "name": "Yahel Social Change Fellowship",
+    "existingTags": [
+      "coed",
+      "hebrew-ulpan",
+      "israeli-anglo-mix",
+      "post-grad",
+      "secular",
+      "service-learning",
+      "social-change",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrci001cvkmzxsrf2b0k",
+    "slug": "yeshivat-har-etzion-the-gush",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "israeli-anglo-mix",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgre4001ivkmzczk9sstb",
+    "slug": "yeshivat-hakotel",
+    "name": "Yeshivat Hakotel",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mens-learning",
+      "modern-orthodox",
+      "old-city",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrfm001nvkmzo2ulmlqg",
+    "slug": "yeshivat-lev-hatorah",
+    "name": "Yeshivat Lev HaTorah",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrds001hvkmz8bbdr60b",
+    "slug": "yeshivat-netiv-aryeh",
+    "name": "Yeshivat Netiv Aryeh",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "old-city",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgree001jvkmzvmb184ch",
+    "slug": "yeshivat-orayta",
+    "name": "Yeshivat Orayta",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "old-city",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrdc001fvkmzyjn5z8p0",
+    "slug": "yeshivat-reishit-yerushalayim",
+    "name": "Yeshivat Reishit Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "ncsy",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrcu001dvkmz2f5znlsa",
+    "slug": "yeshivat-shaalvim",
+    "name": "Yeshivat Sha'alvim",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "israeli-anglo-mix",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrf9001mvkmzlcmzzhrh",
+    "slug": "yeshivat-torat-shraga",
+    "name": "Yeshivat Torat Shraga",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qfufi000orumzg3pptk4r",
+    "slug": "save-a-childs-heart-volunteer-program",
+    "name": "Save a Child's Heart Volunteer Program",
+    "existingTags": [
+      "coed",
+      "healthcare",
+      "hospital",
+      "medical",
+      "secular",
+      "single-location",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrjm0025vkmznanlknr8",
+    "slug": "yeshivas-brisk",
+    "name": "Yeshivas Brisk",
+    "existingTags": [
+      "boys-only",
+      "haredi",
+      "israeli-only",
+      "litvish",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrg3001pvkmz0xmf5b7y",
+    "slug": "yeshivat-ashreinu",
+    "name": "Yeshivat Ashreinu",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "chessed",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrk30027vkmz43207q1t",
+    "slug": "yeshivat-ateret-yerushalayim",
+    "name": "Yeshivat Ateret Yerushalayim",
+    "existingTags": [
+      "boys-only",
+      "hesder",
+      "israeli-only",
+      "no-overseas-program",
+      "old-city",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrgc001qvkmzygit9dgu",
+    "slug": "yeshivat-eretz-hatzvi",
+    "name": "Yeshivat Eretz HaTzvi",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrkb0028vkmzp9yvzamj",
+    "slug": "yeshivat-hesder-sderot",
+    "name": "Yeshivat Hesder Sderot",
+    "existingTags": [
+      "boys-only",
+      "hesder",
+      "israeli-only",
+      "negev",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgri8001zvkmzmyo1obvh",
+    "slug": "yeshivat-merkaz-harav",
+    "name": "Yeshivat Merkaz HaRav",
+    "existingTags": [
+      "boys-only",
+      "israeli-only",
+      "no-overseas-program",
+      "orthodox",
+      "religious-zionist",
+      "yeshiva",
+      "yeshiva-gevoha"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrhf001vvkmze799jt2s",
+    "slug": "yeshivat-mitzpe-yericho",
+    "name": "Yeshivat Mitzpe Yericho",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "orthodox",
+      "overseas-program",
+      "religious-zionist",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrkl0029vkmzw7yxp8gb",
+    "slug": "yeshivat-otniel",
+    "name": "Yeshivat Otniel",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "orthodox",
+      "overseas-program",
+      "religious-zionist",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrgw001tvkmz74jft5t2",
+    "slug": "machon-meir",
+    "name": "Machon Meir",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "orthodox",
+      "overseas-program",
+      "religious-zionist",
+      "ulpan",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qgffw000wrumz3ok3qf8x",
+    "slug": "mechinat-telem",
+    "name": "Mechinat Telem",
+    "existingTags": [
+      "coed",
+      "coexistence",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location",
+      "social-justice",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrpm002yvkmza38qbk5s",
+    "slug": "mach-hach-baaretz",
+    "name": "Mach Hach BaAretz",
+    "existingTags": [
+      "anglo-only",
+      "bnei-akiva",
+      "coed",
+      "israel-trip",
+      "orthodox",
+      "religious-zionist",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrmm002jvkmz0ap5fiq2",
+    "slug": "the-anne-samson-jerusalem-journey-tjj",
+    "name": "The Anne Samson Jerusalem Journey (TJJ)",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "israel-trip",
+      "ncsy",
+      "orthodox",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrou002uvkmzqvw43zqh",
+    "slug": "yallah-israel-nfty-in-israel-adventure",
+    "name": "Yallah! Israel (NFTY in Israel - Adventure)",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "israel-trip",
+      "nfty",
+      "reform",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrku002avkmzs1t3nngj",
+    "slug": "yeshivat-birkat-moshe-maale-adumim",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "orthodox",
+      "overseas-program",
+      "religious-zionist",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgro4002rvkmzil2jvlc3",
+    "slug": "yuval-yisrael-usy-israel-pilgrimage",
+    "name": "Yuval Yisrael (USY Israel Pilgrimage)",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "conservative",
+      "israel-trip",
+      "summer",
+      "teen",
+      "usy",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrls002evkmzce36g27m",
+    "slug": "yeshivat-kol-torah",
+    "name": "Yeshivat Kol Torah",
+    "existingTags": [
+      "boys-only",
+      "haredi",
+      "israeli-only",
+      "litvish",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrq90031vkmzfwvlj14u",
+    "slug": "bbyo-passport-israel-trek",
+    "name": "BBYO Passport: Israel Trek",
+    "existingTags": [
+      "anglo-only",
+      "bbyo",
+      "coed",
+      "hiking",
+      "israel-trip",
+      "pluralistic",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrnj002ovkmzckq546nn",
+    "slug": "ncsy-kollel",
+    "name": "NCSY Kollel",
+    "existingTags": [
+      "anglo-only",
+      "boys",
+      "boys-only",
+      "orthodox",
+      "summer",
+      "teen",
+      "torah-study",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrla002cvkmzc9r43647",
+    "slug": "yeshivat-nir-kiryat-arba",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "existingTags": [
+      "boys-only",
+      "hebron",
+      "hesder",
+      "israeli-only",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qhsqj001erumzr9myf0d1",
+    "slug": "mechinat-arava",
+    "name": "Mechinat Arava",
+    "existingTags": [
+      "arava-valley",
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrrj0038vkmzn9at3dvw",
+    "slug": "young-judaea-horizon-israel",
+    "name": "Young Judaea Horizon Israel",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "israel-trip",
+      "pluralistic",
+      "summer",
+      "teen",
+      "young-judaea",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo64e000ahdmzxdzyd2qs",
+    "slug": "midreshet-amudim",
+    "name": "Midreshet Amudim",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6220002hdmzdwhympdk",
+    "slug": "midreshet-lindenbaum",
+    "name": "Midreshet Lindenbaum",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo62g0003hdmzzsikwaa7",
+    "slug": "midreshet-moriah",
+    "name": "Midreshet Moriah",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo63c0007hdmzgsw9pcj4",
+    "slug": "migdal-oz-ska-beit-midrash-for-women",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "gush-etzion",
+      "israeli-anglo-mix",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo63o0008hdmzpllsjq2y",
+    "slug": "nishmat-alisa-flatow-program",
+    "name": "Nishmat - Alisa Flatow Program",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrqr0034vkmzhkwis3v5",
+    "slug": "diller-teen-fellows-israel-summer-seminar",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "existingTags": [
+      "coed",
+      "diller",
+      "israel-seminar",
+      "israeli-anglo-mix",
+      "leadership",
+      "pluralistic",
+      "summer",
+      "teen"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrr90037vkmzh8t1lhn1",
+    "slug": "young-judaea-gesher-israel",
+    "name": "Young Judaea Gesher Israel",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "israel-trip",
+      "pluralist",
+      "pluralistic",
+      "summer",
+      "teen",
+      "young-judaea",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qklz6002grumz0g518rfa",
+    "slug": "beit-chana-seminary-tzfat-chul-program",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "existingTags": [
+      "chabad",
+      "gap-year",
+      "girls-only",
+      "hebrew-required",
+      "israeli-anglo-mix",
+      "seminary",
+      "single-location",
+      "torah-study",
+      "tzfat",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9ql3y2002mrumzw5n5ol5b",
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "existingTags": [
+      "boys-only",
+      "jerusalem",
+      "mens-learning",
+      "old-city",
+      "old-city-jerusalem",
+      "orthodox",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapfume001nbkmzsg4v7p9k",
+    "slug": "meorot-yerushalayim",
+    "name": "Meorot Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo675000khdmzlipstyet",
+    "slug": "midreshet-eshel",
+    "name": "Midreshet Eshel",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "old-city-jerusalem",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "sephardic",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo65a000dhdmzebm1ozfr",
+    "slug": "midreshet-tehillah",
+    "name": "Midreshet Tehillah",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo661000fhdmzdn7px9dt",
+    "slug": "shaalvim-for-women-sfw",
+    "name": "Sha'alvim for Women (SFW)",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo66p000ihdmz2l4ei1mb",
+    "slug": "sharfmans-bnot-torah-institute",
+    "name": "Sharfman's / Bnot Torah Institute",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo65p000ehdmz21il1is0",
+    "slug": "mmy-michlelet-mevaseret-yerushalayim",
+    "name": "MMY (Michlelet Mevaseret Yerushalayim)",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo67j000mhdmzprxr16zx",
+    "slug": "rothberg-international-school",
+    "name": "Rothberg International School",
+    "existingTags": [
+      "academic",
+      "anglo-only",
+      "coed",
+      "hebrew-university",
+      "overseas-program",
+      "secular",
+      "semester",
+      "study-abroad",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo66g000hhdmzua8g06bh",
+    "slug": "midreshet-harova",
+    "name": "Midreshet HaRova",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "modern-orthodox",
+      "old-city-jerusalem",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6bu0019hdmzafo3av3d",
+    "slug": "mechinat-beit-yisrael-big",
+    "name": "Mechinat Beit Yisrael (Big)",
+    "existingTags": [
+      "coed",
+      "community-service",
+      "israeli-only",
+      "mechina",
+      "pluralistic",
+      "pre-army"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6ao0013hdmzbawf89co",
+    "slug": "mechinat-bnei-david-eli",
+    "name": "Mechinat Bnei David (Eli)",
+    "existingTags": [
+      "boys-only",
+      "eli",
+      "idf",
+      "israeli-only",
+      "mechina",
+      "orthodox",
+      "pre-army",
+      "religious-zionist"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6c3001ahdmz9uoz6g1b",
+    "slug": "mechinat-nachshon",
+    "name": "Mechinat Nachshon",
+    "existingTags": [
+      "coed",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "overseas-track",
+      "pluralistic",
+      "pre-army"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6bf0017hdmza0gvenaq",
+    "slug": "mechinat-rabin",
+    "name": "Mechinat Rabin",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "overseas-track",
+      "pluralistic",
+      "pre-army"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6cz001fhdmzl9bjyiyv",
+    "slug": "yachad-gap-year",
+    "name": "Yachad Gap Year",
+    "existingTags": [
+      "coed",
+      "diaspora",
+      "english-speaking",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "overseas-track"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo69s000yhdmzbiwbj04h",
+    "slug": "university-of-haifa-international-school-semesteryear-abroad",
+    "name": "University of Haifa International School - Semester/Year Abroad",
+    "existingTags": [
+      "academic",
+      "coed",
+      "haifa",
+      "israeli-anglo-mix",
+      "overseas-program",
+      "secular",
+      "semester",
+      "study-abroad",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo69f000whdmz9tq77hml",
+    "slug": "ginsburg-ingerman-overseas-student-program-osp",
+    "name": "Ginsburg-Ingerman Overseas Student Program (OSP)",
+    "existingTags": [
+      "academic",
+      "beer-sheva",
+      "coed",
+      "hebrew-ulpan",
+      "israeli-anglo-mix",
+      "overseas-program",
+      "secular",
+      "semester",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6em001phdmzdoezz43r",
+    "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+    "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+    "existingTags": [
+      "coed",
+      "israeli-anglo-mix",
+      "lone-volunteer",
+      "national-service",
+      "secular",
+      "sherut-leumi",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6f8001thdmzi6q478h8",
+    "slug": "vois-volunteer-in-israel",
+    "name": "VOIS - Volunteer in Israel",
+    "existingTags": [
+      "coed",
+      "government-program",
+      "israeli-anglo-mix",
+      "secular",
+      "special-needs",
+      "volunteering",
+      "welfare"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8em5m00062wmz2o0hxd5u",
+    "slug": "arevim-masa-year-of-service",
+    "name": "Arevim - Masa Year of Service",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "masa",
+      "secular",
+      "service-learning",
+      "single-location",
+      "tel-aviv",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bo6dz001lhdmzbodherzq",
+    "slug": "tikkun-olam-tel-aviv-jaffa",
+    "name": "Tikkun Olam Tel Aviv-Jaffa",
+    "existingTags": [
+      "coed",
+      "israeli-anglo-mix",
+      "masa",
+      "secular",
+      "social-action",
+      "tel-aviv",
+      "tikkun-olam",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8efae00042wmz60j4kdj3",
+    "slug": "hevruta-gap-year-program",
+    "name": "Hevruta Gap-Year Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "leadership",
+      "pluralistic",
+      "scholarships-available",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bo6di001ihdmzyzna575r",
+    "slug": "garin-tzabar",
+    "name": "Garin Tzabar",
+    "existingTags": [
+      "aliyah",
+      "coed",
+      "gap-year",
+      "idf",
+      "israeli-anglo-mix",
+      "lone-soldier",
+      "secular",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6g1001yhdmzh8xks4dm",
+    "slug": "mda-overseas-volunteers-program",
+    "name": "MDA Overseas Volunteers Program",
+    "existingTags": [
+      "coed",
+      "emt",
+      "first-responder",
+      "israeli-anglo-mix",
+      "mda",
+      "medical",
+      "secular",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qcbeq000wjbmzwfornwop",
+    "slug": "kibbutz-lotan-green-apprenticeship",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "existingTags": [
+      "agriculture",
+      "arava-valley",
+      "coed",
+      "environmental",
+      "negev",
+      "permaculture",
+      "secular",
+      "short-term",
+      "sustainability"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qbwix000kjbmzcbaa4q1w",
+    "slug": "tel-aviv-university-ny-stateamerican-program-sackler-gray-faculty-of-medicine",
+    "name": "Tel Aviv University NY State/American Program (Sackler / Gray Faculty of Medicine)",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "mcat-required",
+      "medical",
+      "medical-school",
+      "overseas-program",
+      "secular",
+      "tel-aviv",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qcgk5000xjbmzi0hxsr5v",
+    "slug": "eco-israel-program",
+    "name": "Eco-Israel Program",
+    "existingTags": [
+      "agriculture",
+      "coed",
+      "environmental",
+      "masa",
+      "permaculture",
+      "secular",
+      "sustainability",
+      "young-adults"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8f54i000c2wmzdfkn2egc",
+    "slug": "noam-drachim-gap-year",
+    "name": "Noam - Drachim Gap Year",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "leadership",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qbhmi000djbmz1figo7mt",
+    "slug": "nesiya-kehillah-summer-program",
+    "name": "Nesiya Kehillah Summer Program",
+    "existingTags": [
+      "arts",
+      "coed",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "non-denominational",
+      "pluralistic",
+      "secular",
+      "service-learning",
+      "summer",
+      "teen"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "mixed-affiliation",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qbrzt000jjbmzrmtsl0ux",
+    "slug": "medical-school-for-international-health-msih",
+    "name": "Medical School for International Health (MSIH)",
+    "existingTags": [
+      "anglo-only",
+      "beer-sheva",
+      "coed",
+      "mcat-required",
+      "medical",
+      "medical-school",
+      "overseas-program",
+      "secular",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qcw5n0017jbmzd1g8022z",
+    "slug": "noar-hadash-israel-program",
+    "name": "No'ar Hadash Israel Program",
+    "existingTags": [
+      "11th-grade",
+      "camp-jrf",
+      "coed",
+      "israel-trip",
+      "israeli-anglo-mix",
+      "reconstructionist",
+      "summer",
+      "teen"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qc13h000ojbmzuk81kmr0",
+    "slug": "apf-medical-and-nursing-volunteer-program",
+    "name": "APF Medical & Nursing Volunteer Program",
+    "existingTags": [
+      "coed",
+      "healthcare",
+      "hospital",
+      "israeli-anglo-mix",
+      "medical",
+      "nursing",
+      "secular",
+      "short-term",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qd57r001bjbmzbsbpk3h2",
+    "slug": "machon-alte-seminary-chaya-mushka",
+    "name": "Machon Alte - Seminary Chaya Mushka",
+    "existingTags": [
+      "anglo-only",
+      "chabad",
+      "gap-year",
+      "girls-only",
+      "seminary",
+      "tzfat",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8fqgj000l2wmzmlg7cxkw",
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "existingTags": [
+      "advocacy",
+      "coed",
+      "leadership",
+      "multi-city-touring",
+      "secular",
+      "short-term"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmrace9xk0008b1mzus4rxruv",
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bo6cm001dhdmzapy541kf",
+    "slug": "otzem-overseas-program",
+    "name": "Otzem Overseas Program",
+    "existingTags": [
+      "english-speaking",
+      "intergration",
+      "mechina",
+      "overseas-track",
+      "pre-army",
+      "religious"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmra8fg9l000g2wmzcv83erkn",
+    "slug": "kol-ami-mechina",
+    "name": "Kol Ami Mechina",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "masa",
+      "pluralistic",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qbcdd000bjbmz0jpqs95c",
+    "slug": "artzi",
+    "name": "Artzi",
+    "existingTags": [
+      "arts",
+      "coed",
+      "dance",
+      "gap-year",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "music",
+      "pluralistic",
+      "portfolio-required",
+      "tel-aviv",
+      "theater"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgrq10030vkmzh537u67j",
+    "slug": "bbyo-passport-israel-journey",
+    "name": "BBYO Passport: Israel Journey",
+    "existingTags": [
+      "anglo-only",
+      "bbyo",
+      "coed",
+      "israel-trip",
+      "pluralistic",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qc69d000tjbmzgb9bswu3",
+    "slug": "arava-institute-for-environmental-studies",
+    "name": "Arava Institute for Environmental Studies",
+    "existingTags": [
+      "agriculture",
+      "arava-valley",
+      "coed",
+      "coexistence",
+      "environmental",
+      "israeli-anglo-mix",
+      "negev",
+      "secular",
+      "semester"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qb6l90007jbmz3cmxrbdj",
+    "slug": "bezalel-academy-of-arts-and-design-student-exchange-program",
+    "name": "Bezalel Academy of Arts and Design - Student Exchange Program",
+    "existingTags": [
+      "anglo-only",
+      "arts",
+      "coed",
+      "design",
+      "jerusalem",
+      "nomination-required",
+      "overseas-program",
+      "secular",
+      "semester",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8gd9t000r2wmzrfavomw4",
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "college-credit",
+      "hebrew-ulpan",
+      "jerusalem",
+      "orthodox",
+      "single-location",
+      "tech",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrapbyrs0000bkmzx5os8otg",
+    "slug": "machon-yaakov",
+    "name": "Machon Yaakov",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8g5cy000p2wmzu38px90o",
+    "slug": "technion-american-medical-school-teams",
+    "name": "Technion American Medical School (TeAMS)",
+    "existingTags": [
+      "academic",
+      "anglo-only",
+      "coed",
+      "college-credit",
+      "haifa",
+      "healthcare",
+      "medical",
+      "secular",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrapc3eo0002bkmz7bgveurw",
+    "slug": "ohr-avraham",
+    "name": "Ohr Avraham",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapc87k0004bkmzee77dlo4",
+    "slug": "yeshivas-orchos-chaim",
+    "name": "Yeshivas Orchos Chaim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrju0026vkmzh1qdxmby",
+    "slug": "chevron-yeshiva-knesset-yisrael",
+    "name": "Chevron Yeshiva (Knesset Yisrael)",
+    "existingTags": [
+      "boys-only",
+      "haredi",
+      "israeli-only",
+      "litvish",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6b00015hdmzfshu4egd",
+    "slug": "ein-prat-academy-for-leadership",
+    "name": "Ein Prat Academy for Leadership",
+    "existingTags": [
+      "coed",
+      "israeli-only",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr5t000fvkmz74kmfj5r",
+    "slug": "masa-israel-teaching-fellows-mitf",
+    "name": "Masa Israel Teaching Fellows (MITF)",
+    "existingTags": [
+      "coed",
+      "english-teaching",
+      "gap-year",
+      "hebrew-ulpan",
+      "israeli-anglo-mix",
+      "secular",
+      "stipend",
+      "teaching-fellowship"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgrh6001uvkmzxagd2tku",
+    "slug": "yeshivat-kerem-byavneh",
+    "name": "Yeshivat Kerem B'Yavneh",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "mens-learning",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr7sl7ko0005w9mz4offzxck",
+    "slug": "birthright-israel",
+    "name": "Birthright Israel",
+    "existingTags": [
+      "10-day",
+      "coed",
+      "culture",
+      "first-timers",
+      "free",
+      "israeli-anglo-mix",
+      "pluralistic",
+      "young-adults"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgrso003fvkmz493thgvg",
+    "slug": "cteen-summer-heritage-quest-poland-israel",
+    "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+    "existingTags": [
+      "anglo-only",
+      "chabad",
+      "coed",
+      "cteen",
+      "poland-israel",
+      "summer",
+      "teen"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrs3003bvkmzu2x6770r",
+    "slug": "machaneh-bonim-bisrael-mbi",
+    "name": "Machaneh Bonim B'Israel (MBI)",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "habonim-dror",
+      "israel-trip",
+      "labor-zionist",
+      "secular",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmra8gsj0000x2wmzvyiaeb3c",
+    "slug": "emunah-college-faculty-of-arts-and-design",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "existingTags": [
+      "academic",
+      "arts",
+      "college-credit",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo64y000chdmz93ufyi9g",
+    "slug": "midreshet-rachel-vchaya",
+    "name": "Midreshet Rachel v'Chaya",
+    "existingTags": [
+      "adult-learners",
+      "anglo-only",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo62v0005hdmzm3o9y5us",
+    "slug": "midreshet-torat-chessed",
+    "name": "Midreshet Torat Chessed",
+    "existingTags": [
+      "anglo-only",
+      "chesed",
+      "gap-year",
+      "girls-only",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgriv0022vkmzxhr9ywp1",
+    "slug": "ponevezh-yeshiva",
+    "name": "Ponevezh Yeshiva",
+    "existingTags": [
+      "boys-only",
+      "haredi",
+      "israeli-only",
+      "litvish",
+      "no-overseas-program",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-high",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr9s000yvkmzlua78lst",
+    "slug": "sar-el-volunteers-for-israel",
+    "name": "Sar-El (Volunteers for Israel)",
+    "existingTags": [
+      "coed",
+      "idf",
+      "israeli-anglo-mix",
+      "logistics",
+      "secular",
+      "service",
+      "short-term",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrlj002dvkmzz4ak1hys",
+    "slug": "yeshivat-beit-el",
+    "name": "Yeshivat Beit El",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "hesder",
+      "orthodox",
+      "overseas-program",
+      "religious-zionist",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrn5002mvkmz3wmtttf5",
+    "slug": "ncsy-give-girls-israel-volunteer-experience",
+    "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+    "existingTags": [
+      "anglo-only",
+      "girls",
+      "girls-only",
+      "orthodox",
+      "summer",
+      "teen",
+      "volunteer",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8h63i00142wmzhls5v5j9",
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "existingTags": [
+      "anglo-only",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "post-grad",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmracewot000jb1mzl2e7x283",
+    "slug": "tikvah-israel-fellowship",
+    "name": "Tikvah Israel Fellowship",
+    "existingTags": [
+      "coed",
+      "israeli-anglo-mix",
+      "supplemental",
+      "zionism"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8h1lu00122wmzwc5xk9yh",
+    "slug": "israel-lacrosse-gap-year-program",
+    "name": "Israel Lacrosse Gap Year Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "secular",
+      "single-location",
+      "sports"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapcd210006bkmznam0fbox",
+    "slug": "bat-ayin-yeshiva",
+    "name": "Bat Ayin Yeshiva",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "gush-etzion",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qisxy001qrumz18e82noz",
+    "slug": "mechina-olamit-world-bnei-akiva",
+    "name": "Mechina Olamit (World Bnei Akiva)",
+    "existingTags": [
+      "bnei-akiva",
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "leadership",
+      "masa",
+      "mechina",
+      "modern-orthodox",
+      "orthodox",
+      "pre-army",
+      "religious-zionist",
+      "scholarships-available",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qj2jr001urumzi038f5im",
+    "slug": "mta-world-bnei-akiva",
+    "name": "MTA (World Bnei Akiva)",
+    "existingTags": [
+      "anglo-only",
+      "bnei-akiva",
+      "boys-only",
+      "gap-year",
+      "modern-orthodox",
+      "orthodox",
+      "religious-zionist",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgr330003vkmzf8x0h8tt",
+    "slug": "aardvark-israel",
+    "name": "Aardvark Israel",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "hebrew-ulpan",
+      "internship",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "secular",
+      "tel-aviv",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qclp60010jbmzrs23ryrp",
+    "slug": "alexander-muss-high-school-in-israel-amhsi",
+    "name": "Alexander Muss High School in Israel (AMHSI)",
+    "existingTags": [
+      "coed",
+      "high-school",
+      "hod-hasharon",
+      "pluralistic",
+      "reform",
+      "semester",
+      "teen"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgrp8002wvkmz50m5m72o",
+    "slug": "ramah-israel-seminar",
+    "name": "Ramah Israel Seminar",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "conservative",
+      "israel-trip",
+      "ramah",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrey001lvkmzvh6qo30w",
+    "slug": "yeshivat-migdal-hatorah",
+    "name": "Yeshivat Migdal HaTorah",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "mens-learning",
+      "modern-orthodox",
+      "modiin",
+      "orthodox",
+      "overseas-program",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgral0012vkmzddflmkpc",
+    "slug": "achvat-amim",
+    "name": "Achvat Amim",
+    "existingTags": [
+      "activism",
+      "arabic",
+      "coed",
+      "coexistence",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "secular",
+      "social-justice"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8bgrjd0024vkmznzjlhdjv",
+    "slug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+    "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+    "existingTags": [
+      "boys-only",
+      "haredi",
+      "litvish",
+      "orthodox",
+      "overseas-program",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo68z000uhdmzj7t3f7dz",
+    "slug": "technion-international-semesteryear-abroad",
+    "name": "Technion International - Semester/Year Abroad",
+    "existingTags": [
+      "academic",
+      "coed",
+      "engineering",
+      "israeli-anglo-mix",
+      "overseas-program",
+      "secular",
+      "semester",
+      "technion",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bgrbj0017vkmzcl6e0add",
+    "slug": "reichman-university-study-abroad",
+    "name": "Reichman University Study Abroad",
+    "existingTags": [
+      "academics",
+      "anglo-only",
+      "coed",
+      "herzliya",
+      "secular",
+      "semester",
+      "study-abroad",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6a60010hdmzh6oxpku3",
+    "slug": "sapir-international",
+    "name": "Sapir International",
+    "existingTags": [
+      "academic",
+      "coed",
+      "international-office",
+      "israeli-anglo-mix",
+      "negev",
+      "overseas-program",
+      "secular",
+      "semester",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo67r000nhdmzgm9wjym3",
+    "slug": "tau-international-study-abroad-semesteryear",
+    "name": "TAU International (Study Abroad Semester/Year)",
+    "existingTags": [
+      "academic",
+      "anglo-only",
+      "coed",
+      "overseas-program",
+      "secular",
+      "semester",
+      "study-abroad",
+      "tel-aviv",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo68g000rhdmzlh7kcbyb",
+    "slug": "israel-xp-bar-ilan-university-overseas-student-program",
+    "name": "Israel XP (Bar-Ilan University Overseas Student Program)",
+    "existingTags": [
+      "bar-ilan",
+      "coed",
+      "gap-year",
+      "hebrew-studies",
+      "masa-approved",
+      "overseas-program",
+      "pluralistic",
+      "university"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8bo6410009hdmzoldc864q",
+    "slug": "machon-maayan",
+    "name": "Machon Maayan",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "internship",
+      "modern-orthodox",
+      "orthodox",
+      "overseas-program",
+      "seminary",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qd0om0019jbmzuqitbz85",
+    "slug": "mayanot-post-high-school-program-men",
+    "name": "Mayanot Post-High-School Program (Men)",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "chabad",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "no-experience-required",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "haredi-ultra-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qb17g0004jbmzz9ulz38w",
+    "slug": "rimon-school-of-music-study-abroad-program",
+    "name": "Rimon School of Music - Study Abroad Program",
+    "existingTags": [
+      "anglo-only",
+      "arts",
+      "audition-required",
+      "coed",
+      "gap-year",
+      "music",
+      "overseas-program",
+      "ramat-hasharon",
+      "secular"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr8qbndx000gjbmzs4h960io",
+    "slug": "young-judaea-year-course-medical-track",
+    "name": "Young Judaea Year Course - Medical Track",
+    "existingTags": [
+      "coed",
+      "emt",
+      "gap-year",
+      "hebrew-required",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "mda",
+      "medical",
+      "pluralistic",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr8qcrmj0013jbmzcd3lw13q",
+    "slug": "nativ-track-aardvark-israel",
+    "name": "Nativ Track (Aardvark Israel)",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "gap-year",
+      "hebrew-ulpan",
+      "internship",
+      "jerusalem",
+      "masorti",
+      "recently-relaunched",
+      "secular",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "mixed-affiliation",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qeomk0008rumzd6377qs1",
+    "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+    "name": "Weizmann Institute – Kupcinet-Getz International Summer School",
+    "existingTags": [
+      "academic",
+      "coed",
+      "engineering",
+      "israeli-anglo-mix",
+      "secular",
+      "single-location",
+      "summer",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qevnc000crumzf9dp8a2o",
+    "slug": "sam-spiegel-jerusalem-international-film-lab",
+    "name": "Sam Spiegel Jerusalem International Film Lab",
+    "existingTags": [
+      "arts",
+      "coed",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "portfolio-required",
+      "secular",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr9qf5sn000grumz56mx43ag",
+    "slug": "tech2peace",
+    "name": "Tech2Peace",
+    "existingTags": [
+      "coed",
+      "coexistence",
+      "jerusalem",
+      "multi-city-touring",
+      "nomination-required",
+      "secular",
+      "short-term",
+      "tech"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship",
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qfkgt000krumzequ15gse",
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "internship",
+      "israeli-anglo-mix",
+      "masa",
+      "mens-learning",
+      "orthodox",
+      "single-location",
+      "tech",
+      "tel-aviv",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qfq5j000mrumz6ndn8x8c",
+    "slug": "project-ten-kibbutz-harduf",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "existingTags": [
+      "coed",
+      "coexistence",
+      "israeli-anglo-mix",
+      "masa",
+      "pluralistic",
+      "scholarships-available",
+      "service-learning",
+      "single-location",
+      "special-needs",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8ige3000a7fmzajdtdl0b",
+    "slug": "shnat-betar",
+    "name": "Shnat Betar",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "idf",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "leadership",
+      "multi-city-touring",
+      "secular"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmra8irf1000e7fmzc3xak3cy",
+    "slug": "shvilim-traveling-gap-year-program",
+    "name": "Shvilim Traveling Gap Year Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "multi-city-touring",
+      "pluralistic"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qg2ug000srumz8ejvele3",
+    "slug": "hadassah-medical-center-volunteer-program",
+    "name": "Hadassah Medical Center Volunteer Program",
+    "existingTags": [
+      "coed",
+      "healthcare",
+      "hospital",
+      "jerusalem",
+      "medical",
+      "secular",
+      "single-location",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qglg7000yrumz83jboc5v",
+    "slug": "mechinat-haemek",
+    "name": "Mechinat HaEmek",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "haifa",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qgrug0010rumzypq1gsa3",
+    "slug": "mechinat-meitzar",
+    "name": "Mechinat Meitzar",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qgxas0012rumzkffy7is9",
+    "slug": "mechinat-five-fingers-chamesh-etzbaot",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qh1an0014rumzxjqfcggf",
+    "slug": "mechinat-melach-haaretz",
+    "name": "Mechinat Melach HaAretz",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "girls-only",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmra8gnuc000v2wmz54uezgrk",
+    "slug": "shenkar-college-international-program",
+    "name": "Shenkar College International Program",
+    "existingTags": [
+      "arts",
+      "coed",
+      "college-credit",
+      "israeli-anglo-mix",
+      "scholarships-available",
+      "secular",
+      "semester",
+      "single-location",
+      "study-abroad",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qhdtf0018rumzb2cx0o3u",
+    "slug": "mechinat-amichai",
+    "name": "Mechinat Amichai",
+    "existingTags": [
+      "beer-sheva",
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "negev",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qhiqh001arumzvz2qltfk",
+    "slug": "mechinat-hannaton",
+    "name": "Mechinat Hannaton",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "haifa",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qho82001crumzws5gczx5",
+    "slug": "mechinat-rakia",
+    "name": "Mechinat Rakia",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "idf",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qhy4b001grumz1o8hc6wx",
+    "slug": "mechinat-beeri",
+    "name": "Mechinat Be'eri",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qi7uu001krumzk47gp02g",
+    "slug": "mechinat-tavor",
+    "name": "Mechinat Tavor",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "haifa",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qic99001mrumzm2f1a8mq",
+    "slug": "mechinat-haviva-reich",
+    "name": "Mechinat Haviva Reich",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmra8etzg00082wmzjf1idlth",
+    "slug": "fzy-year-course",
+    "name": "FZY Year Course",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "masa",
+      "multi-city-touring",
+      "pluralistic",
+      "scholarships-available",
+      "tel-aviv",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qje1g0020rumzzgpjot8q",
+    "slug": "ulpan-or-sabra-immersion-program",
+    "name": "Ulpan-Or Sabra Immersion Program",
+    "existingTags": [
+      "coed",
+      "hebrew-ulpan",
+      "jerusalem",
+      "secular",
+      "short-term",
+      "single-location",
+      "ulpan"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr9qjp8t0024rumzfwqqtqrs",
+    "slug": "neve-yerushalayim-machon-devorah",
+    "name": "Neve Yerushalayim – Machon Devorah",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary",
+      "single-location",
+      "torah-study",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qju1f0026rumz8m60dglt",
+    "slug": "ohr-somayach-derech-institute-for-torah-studies",
+    "name": "Ohr Somayach – Derech Institute for Torah Studies",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "orthodox",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qk0010028rumzkgh8qo64",
+    "slug": "aish-hatorah-aish-gesher",
+    "name": "Aish HaTorah – Aish Gesher",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "old-city",
+      "old-city-jerusalem",
+      "orthodox",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qk4qf002arumz9vhu26n1",
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah – Foundations Program",
+    "existingTags": [
+      "boys-only",
+      "jerusalem",
+      "old-city",
+      "old-city-jerusalem",
+      "orthodox",
+      "short-term",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qk96y002crumzgbiukcpa",
+    "slug": "shapells-yeshiva-darche-noam",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "jerusalem",
+      "mens-learning",
+      "orthodox",
+      "post-grad",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qkeee002erumz15j86us4",
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "orthodox",
+      "post-grad",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8faw6000e2wmzoyllelyd",
+    "slug": "maccabi-gap-year",
+    "name": "Maccabi Gap Year",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "idf",
+      "kibbutz",
+      "masa",
+      "multi-city-touring",
+      "secular",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qe84d0002rumz60jxa6st",
+    "slug": "ariel-university-international-program",
+    "name": "Ariel University International Program",
+    "existingTags": [
+      "ariel",
+      "coed",
+      "college-credit",
+      "hebrew-ulpan",
+      "israeli-anglo-mix",
+      "masa",
+      "secular",
+      "semester",
+      "single-location",
+      "study-abroad",
+      "university"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qf15c000erumzi1qwntt5",
+    "slug": "birthright-israel-excel-fellowship",
+    "name": "Birthright Israel Excel Fellowship",
+    "existingTags": [
+      "business",
+      "career",
+      "coed",
+      "fellowship",
+      "internship",
+      "israeli-anglo-mix",
+      "nomination-required",
+      "pluralistic",
+      "single-location",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qlezv002qrumz2nyhlhuv",
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "name": "Michlalah Jerusalem College – Machal (Overseas Students Program)",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "orthodox",
+      "seminary",
+      "single-location",
+      "torah-study",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qfcq5000irumz3dsujbv0",
+    "slug": "big-idea-gap-year",
+    "name": "Big Idea Gap Year",
+    "existingTags": [
+      "beer-sheva",
+      "career-development",
+      "coed",
+      "gap-year",
+      "internship",
+      "israeli-anglo-mix",
+      "masa",
+      "scholarships-available",
+      "secular",
+      "single-location",
+      "tech"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qkxzk002krumz0k379o8t",
+    "slug": "yeshivat-shaarei-mevaseret-zion",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "orthodox",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qlai0002orumz4wup9x3p",
+    "slug": "midreshet-amit",
+    "name": "Midreshet AMIT",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "religious-zionist",
+      "seminary",
+      "single-location",
+      "torah-study",
+      "volunteering",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmracdx1x0002b1mzk3ivo9w2",
+    "slug": "shnat-netzer",
+    "name": "Shnat Netzer",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "reform"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapchxg0008bkmzcud48s1x",
+    "slug": "yeshivat-simchat-shlomo",
+    "name": "Yeshivat Simchat Shlomo",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapcnfd000abkmzzffrvsml",
+    "slug": "dvar-yerushalayim",
+    "name": "Dvar Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qfxz8000qrumzep6r00zl",
+    "slug": "leket-israel-volunteer-program",
+    "name": "Leket Israel Volunteer Program",
+    "existingTags": [
+      "agriculture",
+      "coed",
+      "secular",
+      "short-term",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr9qg8ka000urumzr32g6rvk",
+    "slug": "mechinat-lachish",
+    "name": "Mechinat Lachish",
+    "existingTags": [
+      "arts",
+      "coed",
+      "environmental",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qh80x0016rumzew38iuxr",
+    "slug": "mechinat-aderet",
+    "name": "Mechinat Aderet",
+    "existingTags": [
+      "coed",
+      "environmental",
+      "gap-year",
+      "israeli-anglo-mix",
+      "leadership",
+      "mechina",
+      "pluralistic",
+      "pre-army",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qi31r001irumz1bjcnbb6",
+    "slug": "mechinat-dror",
+    "name": "Mechinat Dror",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "mechina",
+      "negev",
+      "pre-army",
+      "secular",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qik8n001orumz7f50tzu4",
+    "slug": "kadima-world-bnei-akiva",
+    "name": "Kadima (World Bnei Akiva)",
+    "existingTags": [
+      "bnei-akiva",
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "masa",
+      "mechina",
+      "modern-orthodox",
+      "multi-city-touring",
+      "orthodox",
+      "pre-army",
+      "religious-zionist",
+      "scholarships-available",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-travel",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmrapcrem000cbkmztgno83j8",
+    "slug": "chai-israel",
+    "name": "Chai Israel",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapcvd1000ebkmzta6g8naw",
+    "slug": "aish-hatorah-essentials-program",
+    "name": "Aish HaTorah – Essentials Program",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "old-city-jerusalem",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapd0hy000gbkmzyqq11pi0",
+    "slug": "yeshivat-shalom-rav",
+    "name": "Yeshivat Shalom Rav",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "orthodox",
+      "tzfat",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapd5sv000ibkmzlix352vg",
+    "slug": "yeshivat-toras-moshe-tomo",
+    "name": "Yeshivat Toras Moshe (TOMO)",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapdbmz000kbkmzt4xp3nap",
+    "slug": "heichal-yerushalayim",
+    "name": "Heichal Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qiyaz001srumzd42acihz",
+    "slug": "torani-world-bnei-akiva",
+    "name": "Torani (World Bnei Akiva)",
+    "existingTags": [
+      "bnei-akiva",
+      "gap-year",
+      "kibbutz",
+      "modern-orthodox",
+      "orthodox",
+      "religious-zionist",
+      "seminary",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qj6up001wrumze80az0by",
+    "slug": "ulpan-etzion",
+    "name": "Ulpan Etzion",
+    "existingTags": [
+      "aliyah",
+      "coed",
+      "haifa",
+      "hebrew-ulpan",
+      "jerusalem",
+      "secular",
+      "single-location",
+      "ulpan"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr9qja5n001yrumzrfaakkpq",
+    "slug": "kibbutz-ulpan",
+    "name": "Kibbutz Ulpan",
+    "existingTags": [
+      "coed",
+      "hebrew-ulpan",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "masa",
+      "scholarships-available",
+      "secular",
+      "single-location",
+      "ulpan"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmr9qjjyt0022rumzwpkxks6f",
+    "slug": "neve-yerushalayim-shalhevet-program",
+    "name": "Neve Yerushalayim – Shalhevet Program",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary",
+      "single-location",
+      "torah-study",
+      "womens-learning"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmr9qkt0g002irumzicfxeot9",
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "existingTags": [
+      "academics",
+      "boys-only",
+      "college-credit",
+      "gap-year",
+      "jerusalem",
+      "mens-learning",
+      "old-city",
+      "old-city-jerusalem",
+      "orthodox",
+      "scholarships-available",
+      "single-location",
+      "torah-study",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8gi58000t2wmzouh6us06",
+    "slug": "ono-academic-college-international-school",
+    "name": "Ono Academic College International School",
+    "existingTags": [
+      "academic",
+      "coed",
+      "college-credit",
+      "israeli-anglo-mix",
+      "secular",
+      "single-location",
+      "study-abroad"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrace6ph0006b1mzfzsr4r4y",
+    "slug": "darchei-binah",
+    "name": "Darchei Binah",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8hmkf00007fmz01bkw4q8",
+    "slug": "huc-jir-year-in-israel",
+    "name": "HUC-JIR Year-in-Israel",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "hebrew-ulpan",
+      "jerusalem",
+      "masa",
+      "pluralistic",
+      "post-grad",
+      "reform",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8ht4l00027fmzmzelhjni",
+    "slug": "jts-israel-year",
+    "name": "JTS Israel Year",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "gap-year",
+      "jerusalem",
+      "post-grad",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8hy0w00047fmzagqnb1q7",
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "post-grad",
+      "summer",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8i3y900067fmz9s72ps1v",
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "existingTags": [
+      "coed",
+      "post-grad",
+      "reconstructionist",
+      "scholarships-available",
+      "summer",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8i9pv00087fmz076cc5uu",
+    "slug": "hashomer-hatzair-shnat-hachshara",
+    "name": "Hashomer Hatzair Shnat Hachshara",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "secular",
+      "socialist-zionism"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8imcz000c7fmzglo0ybfy",
+    "slug": "limmud-world-bnei-akiva",
+    "name": "Limmud (World Bnei Akiva)",
+    "existingTags": [
+      "anglo-only",
+      "bnei-akiva",
+      "coed",
+      "gap-year",
+      "multi-city-touring",
+      "orthodox",
+      "religious-zionist",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmracej6e000cb1mzx5m3vapu",
+    "slug": "urj-heller-high",
+    "name": "URJ Heller High",
+    "existingTags": [
+      "coed",
+      "high-school",
+      "israeli-anglo-mix",
+      "reform",
+      "semester"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapdgxk000mbkmz5oh8a4u2",
+    "slug": "yeshivas-toras-chaim",
+    "name": "Yeshivas Toras Chaim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapdlfo000obkmzf7slm40r",
+    "slug": "yeshivat-ohr-yerushalayim",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8iyrk000g7fmzwpzbmp3l",
+    "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+    "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+    "existingTags": [
+      "advocacy",
+      "coed",
+      "jerusalem",
+      "kibbutz",
+      "leadership",
+      "multi-city-touring",
+      "secular",
+      "short-term",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmra8j5hc000i7fmzszyvne14",
+    "slug": "vertigo-international-dance-program-vidp",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "existingTags": [
+      "arts",
+      "audition-required",
+      "coed",
+      "dance",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "secular",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmra8e31i00002wmzris7ium7",
+    "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+    "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "jerusalem",
+      "masa",
+      "pluralistic",
+      "scholarships-available",
+      "semester",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8ea5j00022wmzlzjsqpjw",
+    "slug": "conservative-yeshiva",
+    "name": "Conservative Yeshiva",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "gap-year",
+      "jerusalem",
+      "masa",
+      "pluralistic",
+      "scholarships-available",
+      "single-location",
+      "torah-study"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "flexible",
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8ezyh000a2wmzgtrczjed",
+    "slug": "habonim-dror-uk-shnat",
+    "name": "Habonim Dror UK - Shnat",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "multi-city-touring",
+      "secular",
+      "socialist-zionism",
+      "volunteering"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmra8fm18000i2wmz13iwdc7h",
+    "slug": "israel-government-fellows-igf",
+    "name": "Israel Government Fellows (IGF)",
+    "existingTags": [
+      "career",
+      "coed",
+      "internship",
+      "jerusalem",
+      "leadership",
+      "masa",
+      "secular",
+      "single-location"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "non-affiliated",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmra8fy1j000n2wmzb83yu4hh",
+    "slug": "eli-gap-year-program",
+    "name": "ELI Gap Year Program",
+    "existingTags": [
+      "coed",
+      "college-credit",
+      "gap-year",
+      "israeli-anglo-mix",
+      "masa",
+      "pluralistic",
+      "scholarships-available",
+      "secular",
+      "single-location",
+      "tech",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "mixed-affiliation",
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrapdqq9000qbkmzb4k319uc",
+    "slug": "yeshivas-chofetz-chaim-yerushalayim",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmra8gxll000z2wmzj00u4yy8",
+    "slug": "buchmann-mehta-school-of-music-international-program",
+    "name": "Buchmann-Mehta School of Music International Program",
+    "existingTags": [
+      "arts",
+      "audition-required",
+      "coed",
+      "college-credit",
+      "israeli-anglo-mix",
+      "scholarships-available",
+      "secular",
+      "single-location",
+      "tel-aviv"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracesi0000gb1mzahk6l1y0",
+    "slug": "new-israel-fund-shatil-social-justice-fellowship",
+    "name": "New Israel Fund / Shatil Social Justice Fellowship",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "secular",
+      "social-justice",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracfgca000xb1mzdkx5s3pg",
+    "slug": "tel-shimron-excavations",
+    "name": "Tel Shimron Excavations",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracf186000lb1mzqpiihy0o",
+    "slug": "otzma",
+    "name": "OTZMA",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracfchn000ub1mzvxaxp91x",
+    "slug": "israel-free-spirit",
+    "name": "Israel Free Spirit",
+    "existingTags": [
+      "birthright",
+      "coed",
+      "disability-inclusion",
+      "israeli-anglo-mix"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmracf882000rb1mztb45oekp",
+    "slug": "yad-byad",
+    "name": "Yad B'Yad",
+    "existingTags": [
+      "coed",
+      "disability-inclusion",
+      "israeli-anglo-mix",
+      "summer-program"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracf4gx000nb1mzvfmcae8h",
+    "slug": "kibbutz-program-center-kpc",
+    "name": "Kibbutz Program Center (KPC)",
+    "existingTags": [
+      "coed",
+      "kibbutz",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrace2bv0004b1mzpdxp83a2",
+    "slug": "neveh-zion",
+    "name": "Neveh Zion",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmracef1w000ab1mzsbefnuvy",
+    "slug": "tichon-ramah-yerushalayim-try",
+    "name": "Tichon Ramah Yerushalayim (TRY)",
+    "existingTags": [
+      "coed",
+      "conservative",
+      "high-school",
+      "israeli-anglo-mix",
+      "jerusalem",
+      "semester"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "flexible",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmracend4000eb1mz266i7dhh",
+    "slug": "israel-tech-challenge-fellows-program",
+    "name": "Israel Tech Challenge Fellows Program",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "tech"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmracdrlp0000b1mzi1avvyft",
+    "slug": "habonim-dror-southern-africa-shnat",
+    "name": "Habonim Dror Southern Africa - Shnat",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "israeli-anglo-mix",
+      "kibbutz",
+      "secular",
+      "socialist-zionism",
+      "south"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": "non-affiliated",
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapduzv000sbkmzrualc897",
+    "slug": "yeshivat-maale-gilboa",
+    "name": "Yeshivat Ma'ale Gilboa",
+    "existingTags": [
+      "boys-only",
+      "gap-year",
+      "israeli-anglo-mix",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapdzz5000ubkmzyvui2ghy",
+    "slug": "yeshivas-nesivos-ahron",
+    "name": "Yeshivas Nesivos Ahron",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrape5ch000wbkmzioeif37x",
+    "slug": "yeshivas-zeev-hatorah",
+    "name": "Yeshivas Zeev Hatorah",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapeak8000ybkmzc70wx4ga",
+    "slug": "yeshivat-darchei-yonatan",
+    "name": "Yeshivat Darchei Yonatan",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "gush-etzion",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapefx40010bkmzw6wpri2p",
+    "slug": "yeshiva-gedolah-yagdil-torah",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapekc20012bkmz868az9t3",
+    "slug": "yeshivas-bais-yisroel",
+    "name": "Yeshivas Bais Yisroel",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapeprp0015bkmzythzz4yd",
+    "slug": "yeshivas-birchas-mordechai",
+    "name": "Yeshivas Birchas Mordechai",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "needs-verification",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapeujy0017bkmzu7riufez",
+    "slug": "chasedei-breslov-yeshiva",
+    "name": "Chasedei Breslov Yeshiva",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapezxa0019bkmzssjms4vt",
+    "slug": "yeshivat-ohr-david",
+    "name": "Yeshivat Ohr David",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "orthodox",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapf4hv001bbkmze99kqcym",
+    "slug": "shearim",
+    "name": "She'arim",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapf8zx001dbkmz6a077g00",
+    "slug": "baer-miriam",
+    "name": "Baer Miriam",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapfdei001fbkmzz1b89x77",
+    "slug": "tomer-devorah-seminary",
+    "name": "Tomer Devorah Seminary",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapfhtm001hbkmzoxfh389z",
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "gush-etzion",
+      "israeli-anglo-mix",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapflnw001jbkmz450zfenv",
+    "slug": "neve-yerushalayim-mechina-introductory-program",
+    "name": "Neve Yerushalayim – Mechina Introductory Program",
+    "existingTags": [
+      "anglo-only",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapfq2d001lbkmzvyjut35o",
+    "slug": "mayanot-womens-program",
+    "name": "Mayanot Women's Program",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapfz32001pbkmzxwfpa6ba",
+    "slug": "midreshet-ein-hanatziv",
+    "name": "Midreshet Ein Hanatziv",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "israeli-anglo-mix",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapg4rw001rbkmzbgf3ep5p",
+    "slug": "midreshet-berot-bat-ayin",
+    "name": "Midreshet B'erot Bat Ayin",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "gush-etzion",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapgauw001ubkmz81r6lh2s",
+    "slug": "machon-roni",
+    "name": "Machon Roni",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary",
+      "spanish-speaking"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapgfwz001wbkmzgl9uqv52",
+    "slug": "machon-raaya",
+    "name": "Machon Raaya",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapglrf001ybkmzqm5fqfoc",
+    "slug": "ateres-bnos-yerushalayim",
+    "name": "Ateres Bnos Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapgrfo0020bkmzp7sujzq8",
+    "slug": "chemdas-bais-yaakov",
+    "name": "Chemdas Bais Yaakov",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "needs-verification",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrapgw9e0022bkmzkje95713",
+    "slug": "machon-sara-yerushalayim-msy",
+    "name": "Machon Sara Yerushalayim (MSY)",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmraph18y0024bkmzm8nsey8s",
+    "slug": "bnos-sarah-seminary",
+    "name": "Bnos Sarah Seminary",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmraph64c0026bkmztwtvcrod",
+    "slug": "bnos-chava-seminary",
+    "name": "Bnos Chava Seminary",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmraphbpq0028bkmz9tkkamjk",
+    "slug": "rinas-bais-yaakov",
+    "name": "Rinas Bais Yaakov",
+    "existingTags": [
+      "anglo-only",
+      "gap-year",
+      "girls-only",
+      "jerusalem",
+      "orthodox",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmraphfsc002abkmzv04ijq2p",
+    "slug": "isralight",
+    "name": "Isralight",
+    "existingTags": [
+      "anglo-only",
+      "coed",
+      "old-city-jerusalem",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmraphjkv002cbkmzkiulhx8b",
+    "slug": "bnei-akiva-olamit-shalem",
+    "name": "Bnei Akiva Olamit: Shalem",
+    "existingTags": [
+      "gap-year",
+      "girls-only",
+      "israeli-anglo-mix",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmraphnsa002ebkmz473konda",
+    "slug": "jewel-for-women",
+    "name": "JEWEL for Women",
+    "existingTags": [
+      "anglo-only",
+      "girls-only",
+      "jerusalem",
+      "needs-verification",
+      "orthodox"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmraphrlx002gbkmz15avbteg",
+    "slug": "tel-megiddo-excavation",
+    "name": "Tel Megiddo Excavation",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmraphvg4002ibkmz2nrpu9cn",
+    "slug": "tel-abel-beth-maacah-excavation",
+    "name": "Tel Abel Beth Maacah Excavation",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmraphzp4002kbkmzi0enx4xc",
+    "slug": "tel-gezer-excavation",
+    "name": "Tel Gezer Excavation",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapi4ft002mbkmznpprc3n7",
+    "slug": "hazor-excavations",
+    "name": "Hazor Excavations",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapi8jq002obkmzoswkgqzk",
+    "slug": "shiloh-excavations",
+    "name": "Shiloh Excavations",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "shiloh",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapibvw002qbkmzqx2beee2",
+    "slug": "hippos-sussita-excavations",
+    "name": "Hippos-Sussita Excavations",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapih2x002sbkmzxeyvpjzr",
+    "slug": "tel-akko-total-archaeology-project",
+    "name": "Tel Akko Total Archaeology Project",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "summer-program",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrapilci002ubkmzr7k7i622",
+    "slug": "en-gedi-oasis-archaeological-project",
+    "name": "En-Gedi Oasis Archaeological Project",
+    "existingTags": [
+      "archaeology",
+      "coed",
+      "israeli-anglo-mix",
+      "volunteer"
+    ],
+    "proposed": {
+      "integration": "integration-medium",
+      "affiliation": null,
+      "essence": []
+    }
+  },
+  {
+    "id": "cmrbvijhq00002gmzly7zh57l",
+    "slug": "yeshivat-moreshet-yerushalayim",
+    "name": "Yeshivat Moreshet Yerushalayim",
+    "existingTags": [
+      "anglo-only",
+      "boys-only",
+      "gap-year",
+      "jerusalem",
+      "masa-approved",
+      "orthodox",
+      "sephardic",
+      "yeshiva"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-spiritual-growth"
+      ]
+    }
+  },
+  {
+    "id": "cmrbviqdr00022gmzciodqtvu",
+    "slug": "midreshet-lindenbaum-hadas-chul-midrashit-chul",
+    "name": "Midreshet Lindenbaum - Hadas Chu\"l / Midrashit Chu\"l",
+    "existingTags": [
+      "army",
+      "girls-only",
+      "hebrew-required",
+      "idf",
+      "jerusalem",
+      "lone-soldier",
+      "orthodox",
+      "religious-zionist",
+      "seminary"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": "rz-modern-orthodox",
+      "essence": [
+        "essence-spiritual-growth",
+        "essence-pre-military"
+      ]
+    }
+  },
+  {
+    "id": "cmrbviu7y00052gmz2i9txx6m",
+    "slug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+    "name": "Bar-Ilan University-Yeshiva University Summer Science Research Internship",
+    "existingTags": [
+      "anglo-only",
+      "bar-ilan",
+      "internship",
+      "science",
+      "summer-internship"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbviymp00082gmzvcp3k0f7",
+    "slug": "university-of-haifa-international-msc-in-marine-biology",
+    "name": "University of Haifa International MSc in Marine Biology",
+    "existingTags": [
+      "environmental",
+      "haifa",
+      "marine-science",
+      "post-grad",
+      "science",
+      "university"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbvj317000b2gmzeyt1g4ph",
+    "slug": "interuniversity-institute-for-marine-sciences-iui-eilat-intensive-courses",
+    "name": "Interuniversity Institute for Marine Sciences (IUI) Eilat - Intensive Courses",
+    "existingTags": [
+      "eilat",
+      "environmental",
+      "marine-science",
+      "science",
+      "short-term",
+      "university"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbvj7g7000d2gmzcujtujy1",
+    "slug": "yeshiva-university-summer-internship-masschallenge-israel",
+    "name": "Yeshiva University Summer Internship (MassChallenge-Israel)",
+    "existingTags": [
+      "anglo-only",
+      "business",
+      "internship",
+      "jerusalem",
+      "summer-internship",
+      "tech"
+    ],
+    "proposed": {
+      "integration": "integration-low",
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbvjb9y000g2gmzb3limvns",
+    "slug": "tel-aviv-university-mfa-in-documentary-cinema",
+    "name": "Tel Aviv University - MFA in Documentary Cinema",
+    "existingTags": [
+      "arts",
+      "film",
+      "post-grad",
+      "tel-aviv",
+      "university"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbvjgu6000i2gmz2vrlb7ed",
+    "slug": "habonim-dror-australia-shnat",
+    "name": "Habonim Dror Australia - Shnat",
+    "existingTags": [
+      "coed",
+      "gap-year",
+      "habonim-dror",
+      "kibbutz",
+      "masa-approved",
+      "multi-city-touring",
+      "socialist-zionism",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-travel"
+      ]
+    }
+  },
+  {
+    "id": "cmrbvwr2e0000fjmzhx3qlt08",
+    "slug": "ncsy-next-step-israel-internships",
+    "name": "NCSY Next Step (Israel Internships)",
+    "existingTags": [
+      "coed",
+      "internship",
+      "ncsy",
+      "orthodox",
+      "summer",
+      "teen",
+      "youth-movement"
+    ],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": [
+        "essence-academic-internship"
+      ]
+    }
+  },
+  {
+    "id": "cmrbzj0lg000004l1suya44wh",
+    "slug": "ohrsom",
+    "name": "Ohrsom",
+    "existingTags": [],
+    "proposed": {
+      "integration": null,
+      "affiliation": null,
+      "essence": []
+    }
+  }
+]
