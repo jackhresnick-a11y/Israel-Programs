@@ -30,9 +30,11 @@ export default async function ProgramsPage({
     tags,
     backgroundUrl,
     backgroundEnabled,
-    backgroundSize,
     backgroundOpacity,
-    backgroundOffsetY,
+    backgroundSizeDesktop,
+    backgroundOffsetYDesktop,
+    backgroundSizeMobile,
+    backgroundOffsetYMobile,
   ] = await Promise.all([
     listPrograms({
       q,
@@ -45,30 +47,48 @@ export default async function ProgramsPage({
     listAllTags(),
     getSiteContent("backgroundLogoUrl"),
     getSiteContent("backgroundLogoEnabled"),
-    getSiteContent("backgroundLogoSize"),
     getSiteContent("backgroundLogoOpacity"),
+    getSiteContent("backgroundLogoSize"),
     getSiteContent("backgroundLogoOffsetY"),
+    getSiteContent("backgroundLogoSizeMobile"),
+    getSiteContent("backgroundLogoOffsetYMobile"),
   ]);
-  const backgroundHeight = Number(backgroundSize) || 280;
   const backgroundOpacityValue = (Number(backgroundOpacity) || 5) / 100;
-  const backgroundOffset = Number(backgroundOffsetY) || 0;
+  const backgroundDesktopHeight = Number(backgroundSizeDesktop) || 280;
+  const backgroundDesktopOffset = Number(backgroundOffsetYDesktop) || 0;
+  const backgroundMobileHeight = Number(backgroundSizeMobile) || 150;
+  const backgroundMobileOffset = Number(backgroundOffsetYMobile) || 0;
 
   return (
     <PageContainer width="wide">
       <div className="relative overflow-hidden">
         {backgroundEnabled === "true" && backgroundUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={backgroundUrl}
-            alt=""
-            aria-hidden
-            style={{
-              height: `${backgroundHeight}px`,
-              opacity: backgroundOpacityValue,
-              transform: `translate(-50%, calc(-50% + ${backgroundOffset}px))`,
-            }}
-            className="pointer-events-none absolute left-1/2 top-1/2 w-auto max-w-none select-none"
-          />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={backgroundUrl}
+              alt=""
+              aria-hidden
+              style={{
+                height: `${backgroundMobileHeight}px`,
+                opacity: backgroundOpacityValue,
+                transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
+              }}
+              className="pointer-events-none absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={backgroundUrl}
+              alt=""
+              aria-hidden
+              style={{
+                height: `${backgroundDesktopHeight}px`,
+                opacity: backgroundOpacityValue,
+                transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
+              }}
+              className="pointer-events-none absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
+            />
+          </>
         )}
         <div className="relative flex flex-col gap-8">
           <PageHeader

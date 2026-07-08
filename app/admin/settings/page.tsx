@@ -15,17 +15,21 @@ export default async function AdminSettingsPage() {
     logoMode,
     backgroundUrl,
     backgroundEnabled,
-    backgroundSize,
     backgroundOpacity,
-    backgroundOffsetY,
+    backgroundSizeDesktop,
+    backgroundOffsetYDesktop,
+    backgroundSizeMobile,
+    backgroundOffsetYMobile,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
     getSiteContent("backgroundLogoUrl"),
     getSiteContent("backgroundLogoEnabled"),
-    getSiteContent("backgroundLogoSize"),
     getSiteContent("backgroundLogoOpacity"),
+    getSiteContent("backgroundLogoSize"),
     getSiteContent("backgroundLogoOffsetY"),
+    getSiteContent("backgroundLogoSizeMobile"),
+    getSiteContent("backgroundLogoOffsetYMobile"),
   ]);
 
   return (
@@ -54,9 +58,15 @@ export default async function AdminSettingsPage() {
         <BackgroundLogoForm
           currentUrl={backgroundUrl}
           currentEnabled={backgroundEnabled === "true"}
-          currentSize={Number(backgroundSize) || 280}
           currentOpacity={Number(backgroundOpacity) || 5}
-          currentOffsetY={Number(backgroundOffsetY) || 0}
+          currentDesktop={{
+            size: Number(backgroundSizeDesktop) || 280,
+            offsetY: Number(backgroundOffsetYDesktop) || 0,
+          }}
+          currentMobile={{
+            size: Number(backgroundSizeMobile) || 150,
+            offsetY: Number(backgroundOffsetYMobile) || 0,
+          }}
         />
       </section>
     </PageContainer>
