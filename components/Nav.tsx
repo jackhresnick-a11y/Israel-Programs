@@ -25,7 +25,7 @@ export default async function Nav() {
           {logoUrl && (
             // External Blob URL — plain img avoids next/image remotePatterns config.
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Israel Programs Wiki" className="h-8 w-auto" />
+            <img src={logoUrl} alt="Israel Programs Wiki" className="h-12 w-auto sm:h-14" />
           )}
           {showText && "Israel Programs Wiki"}
         </Link>

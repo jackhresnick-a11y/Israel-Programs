@@ -8,20 +8,18 @@ import { uploadSiteImage } from "@/components/uploadSiteImage";
 
 const ALLOWED_LOGO_TYPES = "image/png,image/jpeg,image/webp,image/svg+xml";
 
-type LogoMode = "replace" | "alongside";
-
-export default function SiteLogoForm({
-  currentLogoUrl,
-  currentMode,
+export default function BackgroundLogoForm({
+  currentUrl,
+  currentEnabled,
 }: {
-  currentLogoUrl: string | null;
-  currentMode: LogoMode | null;
+  currentUrl: string | null;
+  currentEnabled: boolean;
 }) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [mode, setMode] = useState<LogoMode>(currentMode ?? "replace");
   const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -36,18 +34,39 @@ export default function SiteLogoForm({
       const res = await fetch("/api/admin/logo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target: "header", url, mode }),
+        body: JSON.stringify({ target: "background", url }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to save site logo");
+        throw new Error(body.error ?? "Failed to save background logo");
       }
       setFile(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save site logo");
+      setError(err instanceof Error ? err.message : "Failed to save background logo");
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleToggle(enabled: boolean) {
+    setToggling(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/logo", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: "background", enabled }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to update background logo");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update background logo");
+    } finally {
+      setToggling(false);
     }
   }
 
@@ -55,14 +74,14 @@ export default function SiteLogoForm({
     setRemoving(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/logo?target=header", { method: "DELETE" });
+      const res = await fetch("/api/admin/logo?target=background", { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to remove site logo");
+        throw new Error(body.error ?? "Failed to remove background logo");
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove site logo");
+      setError(err instanceof Error ? err.message : "Failed to remove background logo");
     } finally {
       setRemoving(false);
     }
@@ -74,15 +93,21 @@ export default function SiteLogoForm({
         <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
-      {currentLogoUrl && (
+      {currentUrl && (
         <div className="flex items-center gap-4 rounded-xl border border-border p-4">
           {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={currentLogoUrl} alt="Current site logo" className="h-12 w-auto" />
-          <div className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground">
-              Current logo ({currentMode === "alongside" ? "shown alongside text" : "replaces text"})
-            </span>
+          <img src={currentUrl} alt="Current background logo" className="h-12 w-auto" />
+          <div className="flex flex-col gap-2 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={currentEnabled}
+                disabled={toggling}
+                onChange={(e) => handleToggle(e.target.checked)}
+              />
+              Show behind the browse page heading
+            </label>
             <Button
               type="button"
               variant="destructive"
@@ -91,7 +116,7 @@ export default function SiteLogoForm({
               disabled={removing}
               onClick={handleRemove}
             >
-              {removing ? "Removing..." : "Remove logo"}
+              {removing ? "Removing..." : "Remove background logo"}
             </Button>
           </div>
         </div>
@@ -99,7 +124,7 @@ export default function SiteLogoForm({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">Logo image</span>
+          <span className="font-medium text-foreground">Background logo image</span>
           <Input
             type="file"
             accept={ALLOWED_LOGO_TYPES}
@@ -107,32 +132,8 @@ export default function SiteLogoForm({
           />
         </label>
 
-        <fieldset className="flex flex-col gap-2 text-sm">
-          <legend className="font-medium text-foreground">Header display</legend>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="mode"
-              value="replace"
-              checked={mode === "replace"}
-              onChange={() => setMode("replace")}
-            />
-            Replace the site name text
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="mode"
-              value="alongside"
-              checked={mode === "alongside"}
-              onChange={() => setMode("alongside")}
-            />
-            Show alongside the site name text
-          </label>
-        </fieldset>
-
         <Button type="submit" disabled={!file || uploading} className="w-fit">
-          {uploading ? "Uploading..." : "Upload logo"}
+          {uploading ? "Uploading..." : "Upload background logo"}
         </Button>
       </form>
     </div>

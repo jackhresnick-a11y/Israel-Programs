@@ -1,5 +1,6 @@
 import { listPrograms, listAllTags } from "@/lib/programs";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
+import { getSiteContent } from "@/lib/siteContent";
 import ProgramCard from "@/components/ProgramCard";
 import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
@@ -24,7 +25,7 @@ export default async function ProgramsPage({
 }) {
   const { q, tags: tagsParam, duration, hasScholarship, hasCollegeCredit, travelType } =
     await searchParams;
-  const [programs, tags] = await Promise.all([
+  const [programs, tags, backgroundUrl, backgroundEnabled] = await Promise.all([
     listPrograms({
       q,
       tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
@@ -34,16 +35,31 @@ export default async function ProgramsPage({
       travelType: travelType as TravelType | undefined,
     }),
     listAllTags(),
+    getSiteContent("backgroundLogoUrl"),
+    getSiteContent("backgroundLogoEnabled"),
   ]);
 
   return (
     <PageContainer width="wide">
-      <PageHeader
-        title="Browse Programs"
-        description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
-      />
+      <div className="relative overflow-hidden">
+        {backgroundEnabled === "true" && backgroundUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={backgroundUrl}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[280px] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.05] dark:opacity-[0.08]"
+          />
+        )}
+        <div className="relative flex flex-col gap-8">
+          <PageHeader
+            title="Browse Programs"
+            description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
+          />
 
-      <SearchBar tags={tags} />
+          <SearchBar tags={tags} />
+        </div>
+      </div>
 
       {programs.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted">
