@@ -16,6 +16,11 @@ was true once, but per "Upload storage" below, video now uploads browser-direct 
 Vercel Blob; only logo is still local-disk (and still broken in production). Trust this
 file over the README for upload storage specifics.
 
+The README's "Notes" section is *also* stale on search — it still describes matching
+"exact tag (hashtag) filters," which predates both the Fuse.js fuzzy search and the
+current dropdown filter bar. See "Browse filters" and "Search ranking" below for what
+actually exists today.
+
 ## Commands
 
 ```bash
@@ -140,6 +145,48 @@ tiers get **real typed `Program` columns**, not tags — `hasScholarship`,
 used to be tags and that was the wrong shape. If a new attribute is genuinely a
 boolean/enum rather than a freeform identity/vibe descriptor, follow that precedent
 instead of adding another tag.
+
+### Browse filters: one dropdown per category; Region is a UI-only grouping, not a tag category
+`components/SearchBar.tsx` renders one dropdown per filter category via the shared
+`components/ui/FilterDropdown.tsx` multi-select popover — Duration, Gender, Religious
+affiliation, Participant mix, Region — instead of a flat pill cloud. All filter state
+still lives in the URL (`q`, `tags`, `duration`); there's no client-side filtering.
+Selecting anything does `router.push` to a new `/programs?...` URL, which re-runs the
+`app/programs/page.tsx` server component and re-queries via `lib/programs.ts`.
+
+Gender / Religious affiliation / Participant mix are driven directly by `Tag.category`,
+same as before. **Region is different: it's a pure UI-layer grouping, not a new
+`Tag.category`.** `lib/regions.ts`'s `REGION_TO_SLUGS` maps each of the 6 regions
+(North / South / Jerusalem / Judea / Samaria / Coast) to a subset of the existing
+`location`-category tag slugs; toggling a region just adds/removes all of that region's
+member slugs from the `tags` param at once, so it rides on the exact same
+`buildTagAndClauses` OR-within-category logic as any other location tag (no schema
+change, no new filter param). A newly-imported program's location tag won't surface
+under any region filter until it's added to `REGION_TO_SLUGS` — `samaria` currently maps
+to zero slugs for exactly this reason (no imported program has been placed there yet).
+
+Duration is also multi-select now (`DurationType[]`, Prisma `{ in: [...] }`), matching
+the other dropdowns — its URL `duration` param is comma-joined like `tags`.
+
+### Search ranking: Postgres filters, then Fuse.js fuzzy rank, then a relevance-tier pass
+`lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR
+clauses, `durationType`, `hasScholarship`, `hasCollegeCredit`, `travelType`) as one
+Postgres query, then — only if a free-text `q` term is present — fuzzy-ranks that
+already-filtered set in memory with Fuse.js (`SEARCH_KEYS`: name/organization/tags
+weighted highest, location/goodFor/description weighted low, `threshold: 0.35`). At the
+current program count this in-memory pass is effectively free and avoids a
+`pg_trgm`/`tsvector` migration; `docs/PRODUCT_SPEC.md` §9 describes that as the eventual
+V2 direction, not something built yet.
+
+Fuse's own weighted multi-key score doesn't guarantee "closest match first" on its
+own — a program matching several low-weight fields fuzzily can otherwise outscore one
+with a single literal name/tag hit. `relevanceTier` layers a deterministic tier on top
+of Fuse's candidate set (0 = exact name/tag, 1 = name/org prefix, 2 = word-boundary match
+or tag-slug prefix, 3 = substring, 4 = fuzzy-only), and results are sorted by
+`(tier, then Fuse score)` — a literal match always surfaces above a fuzzy one, while
+Fuse's score still breaks ties within a tier and typo-tolerance is preserved. Both
+`app/programs/page.tsx` and the JSON API (`app/api/programs/route.ts`) go through this
+same `listPrograms`, so they always rank identically.
 
 ### Upload storage: video is on Vercel Blob, logo is not (and is still broken)
 The two upload surfaces do **not** share an implementation, and it's important not to
