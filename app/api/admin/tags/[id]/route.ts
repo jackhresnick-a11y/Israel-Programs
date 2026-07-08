@@ -7,9 +7,10 @@ const patchBodySchema = z
   .object({
     name: z.string().trim().min(1).max(60).optional(),
     category: z.string().trim().min(1).nullable().optional(),
+    order: z.number().int().optional(),
   })
   .refine(
-    (b) => b.name !== undefined || b.category !== undefined,
+    (b) => b.name !== undefined || b.category !== undefined || b.order !== undefined,
     "No changes provided"
   );
 

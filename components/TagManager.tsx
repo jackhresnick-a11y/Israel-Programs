@@ -7,7 +7,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 
-export type TagRow = { id: string; name: string; slug: string; category: string | null };
+export type TagRow = { id: string; name: string; slug: string; category: string | null; order: number };
 export type CategoryOption = { slug: string; label: string };
 
 const UNCATEGORIZED = "__none__";
@@ -103,6 +103,17 @@ export default function TagManager({
     withBusy(tag.id, () => api(`/api/admin/tags/${tag.id}`, "DELETE"));
   }
 
+  function handleMove(rows: TagRow[], index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= rows.length) return;
+    const a = rows[index];
+    const b = rows[target];
+    withBusy(a.id, async () => {
+      await api(`/api/admin/tags/${a.id}`, "PATCH", { order: b.order });
+      await api(`/api/admin/tags/${b.id}`, "PATCH", { order: a.order });
+    });
+  }
+
   async function handleCreate() {
     if (!newName.trim()) return;
     setCreating(true);
@@ -138,9 +149,36 @@ export default function TagManager({
     }
   }
 
-  function renderRow(tag: TagRow) {
+  const reorderable = search.trim() === "";
+
+  function renderRow(rows: TagRow[], index: number) {
+    const tag = rows[index];
     return (
       <div key={tag.id} className="flex flex-wrap items-center gap-2 px-4 py-2">
+        {reorderable && (
+          <div className="flex flex-col gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-5 px-1 py-0"
+              disabled={index === 0 || busyId === tag.id}
+              onClick={() => handleMove(rows, index, -1)}
+            >
+              ↑
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-5 px-1 py-0"
+              disabled={index === rows.length - 1 || busyId === tag.id}
+              onClick={() => handleMove(rows, index, 1)}
+            >
+              ↓
+            </Button>
+          </div>
+        )}
         <Input
           defaultValue={tag.name}
           className="max-w-56 text-sm"
@@ -196,7 +234,7 @@ export default function TagManager({
               <p className="px-4 py-2 text-xs text-muted">No tags in this category yet.</p>
             ) : (
               <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
-                {rows.map(renderRow)}
+                {rows.map((_, index) => renderRow(rows, index))}
               </div>
             )}
           </div>
@@ -207,7 +245,7 @@ export default function TagManager({
             Other / uncategorized ({groups.other.length})
           </h3>
           <div className="flex max-h-96 flex-col divide-y divide-border overflow-y-auto rounded-xl border border-border">
-            {groups.other.map(renderRow)}
+            {groups.other.map((_, index) => renderRow(groups.other, index))}
           </div>
         </div>
       </div>

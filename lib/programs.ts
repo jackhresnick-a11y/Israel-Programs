@@ -381,7 +381,7 @@ export function averageRating(reviews: { rating: number }[]) {
 }
 
 export async function listAllTags() {
-  return prisma.tag.findMany({ orderBy: { name: "asc" } });
+  return prisma.tag.findMany({ orderBy: [{ order: "asc" }, { name: "asc" }] });
 }
 
 /** Fetches published programs by slug, preserving the input order. */

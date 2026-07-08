@@ -14,7 +14,7 @@ export async function listTagCategories() {
 export async function getTagsGroupedByCategory() {
   const [categories, tags] = await Promise.all([
     listTagCategories(),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ orderBy: [{ order: "asc" }, { name: "asc" }] }),
   ]);
 
   const byCategory = new Map<string, typeof tags>();
@@ -83,17 +83,28 @@ export async function deleteTagCategory(id: string) {
 
 export async function createTag(input: { name: string; category: string | null }) {
   const slug = slugifyValue(input.name);
+  // New tags land at the end of their category's display order (or the general pool's,
+  // if uncategorized) rather than defaulting to 0, so they don't jump ahead of tags an
+  // admin has already ordered.
+  const maxOrder = await prisma.tag.aggregate({
+    where: { category: input.category },
+    _max: { order: true },
+  });
   return prisma.tag.create({
-    data: { name: input.name, slug, category: input.category },
+    data: { name: input.name, slug, category: input.category, order: (maxOrder._max.order ?? -1) + 1 },
   });
 }
 
-export async function updateTag(id: string, input: Partial<{ name: string; category: string | null }>) {
+export async function updateTag(
+  id: string,
+  input: Partial<{ name: string; category: string | null; order: number }>
+) {
   return prisma.tag.update({
     where: { id },
     data: {
       ...(input.name !== undefined ? { name: input.name, slug: slugifyValue(input.name) } : {}),
       ...(input.category !== undefined ? { category: input.category } : {}),
+      ...(input.order !== undefined ? { order: input.order } : {}),
     },
   });
 }

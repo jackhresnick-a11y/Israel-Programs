@@ -119,6 +119,10 @@ model Tag {
   name     String
   slug     String    @unique
   category String?
+  /// Display order within its category (ascending), for both the filter-bar dropdowns
+  /// and the program-form tag picker. Ties (e.g. the default 0 most tags are created
+  /// with) break by name -- see listAllTags's orderBy.
+  order    Int       @default(0)
   programs Program[] @relation("ProgramTags")
 }
 
