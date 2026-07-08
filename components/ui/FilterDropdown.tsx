@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export type FilterDropdownTint = "accent" | "info" | "success" | "warning" | "danger";
@@ -61,8 +61,21 @@ export default function FilterDropdown({
   tint,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
+  const [flip, setFlip] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const tone = TINTS[tint];
+
+  // Popovers default to anchoring on the left edge of their trigger. On narrow
+  // (mobile) viewports a dropdown positioned near the right side of the wrapped
+  // filter row can overflow past the screen edge -- flip to right-anchored
+  // whenever that would happen. A callback ref measures as soon as the popover
+  // mounts (on open) rather than in an effect, so there's no extra render pass
+  // and no flash of the un-flipped position.
+  const measurePopover = useCallback((el: HTMLDivElement | null) => {
+    if (el) {
+      setFlip(el.getBoundingClientRect().right > window.innerWidth);
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -124,7 +137,13 @@ export default function FilterDropdown({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 min-w-48 rounded-lg border border-border bg-surface p-1.5 shadow-sm">
+        <div
+          ref={measurePopover}
+          className={cn(
+            "absolute top-full z-20 mt-1 min-w-48 rounded-lg border border-border bg-surface p-1.5 shadow-sm",
+            flip ? "right-0" : "left-0"
+          )}
+        >
           {options.map((option) => (
             <label
               key={option.value}

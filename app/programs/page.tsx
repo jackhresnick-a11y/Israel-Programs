@@ -61,34 +61,36 @@ export default async function ProgramsPage({
 
   return (
     <PageContainer width="wide">
-      <div className="relative overflow-hidden">
+      <div className="relative">
         {backgroundEnabled === "true" && backgroundUrl && (
-          <>
+          // Clipping lives on this decorative-only layer, not on the content
+          // below -- an ancestor with overflow-hidden would also clip the
+          // FilterDropdown popovers in SearchBar, since their position:absolute
+          // menus don't contribute to a normal-flow ancestor's height.
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={backgroundUrl}
               alt=""
-              aria-hidden
               style={{
                 height: `${backgroundMobileHeight}px`,
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
               }}
-              className="pointer-events-none absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
+              className="absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={backgroundUrl}
               alt=""
-              aria-hidden
               style={{
                 height: `${backgroundDesktopHeight}px`,
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
               }}
-              className="pointer-events-none absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
+              className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
             />
-          </>
+          </div>
         )}
         <div className="relative flex flex-col gap-8">
           <PageHeader
