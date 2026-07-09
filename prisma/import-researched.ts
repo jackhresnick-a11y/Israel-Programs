@@ -4,6 +4,7 @@ import slugify from "slugify";
 import { PrismaClient, DurationType } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { recordProgramForExport } from "@/lib/programExport";
+import { resolveTagsByName } from "@/lib/tags";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
@@ -28,21 +29,6 @@ type ResearchedProgram = {
 
 function slugFor(name: string): string {
   return slugify(name, { lower: true, strict: true });
-}
-
-async function upsertTags(names: string[]) {
-  const tags = [];
-  for (const name of names) {
-    const slug = slugify(name, { lower: true, strict: true });
-    tags.push(
-      await prisma.tag.upsert({
-        where: { slug },
-        update: {},
-        create: { name, slug },
-      })
-    );
-  }
-  return tags;
 }
 
 async function main() {
@@ -81,7 +67,7 @@ async function main() {
       continue;
     }
 
-    const tags = await upsertTags(p.tags);
+    const tags = await resolveTagsByName(p.tags);
     const program = await prisma.program.create({
       data: {
         name: p.name,
@@ -99,7 +85,7 @@ async function main() {
         contactWebsite: p.contactWebsite || undefined,
         status: "PUBLISHED",
         createdById: IMPORT_USER_ID,
-        tags: { connect: tags.map((t) => ({ id: t.id })) },
+        tags: { connect: tags },
       },
     });
     await recordProgramForExport(program.id, program.name);

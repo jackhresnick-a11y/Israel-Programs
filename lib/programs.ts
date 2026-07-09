@@ -4,6 +4,7 @@ import Fuse from "fuse.js";
 import { prisma } from "@/lib/prisma";
 import { DurationType, Prisma, ProgramStatus, TravelType } from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
+import { resolveTagsByName } from "@/lib/tags";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -66,29 +67,24 @@ export function parseProgramFormData(formData: FormData): ProgramInput {
   };
 }
 
+/** Splits/dedupes the comma-or-hashtag-separated tag box into display names,
+ * case-insensitively but preserving each name's typed casing (the first occurrence
+ * wins) -- lowercasing here used to be what fed slugify(name) in tagConnections/
+ * resolveTagsByName, and for a tag whose canonical slug isn't slugify(its own name)
+ * (see lib/tags.ts's matchTag) that's irrelevant to matching, but the original casing
+ * is still what a newly-created tag's Tag.name ends up as. */
 export function parseTags(raw: string): string[] {
-  return Array.from(
-    new Set(
-      raw
-        .split(/[,#]/)
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean)
-    )
-  );
-}
-
-async function tagConnections(tagNames: string[]) {
-  return Promise.all(
-    tagNames.map(async (name) => {
-      const slug = slugify(name, { lower: true, strict: true });
-      const tag = await prisma.tag.upsert({
-        where: { slug },
-        update: {},
-        create: { name, slug },
-      });
-      return { id: tag.id };
-    })
-  );
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const part of raw.split(/[,#]/)) {
+    const name = part.trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(name);
+  }
+  return result;
 }
 
 export async function createProgram(
@@ -97,7 +93,7 @@ export async function createProgram(
   status: ProgramStatus
 ) {
   const slug = await uniqueSlug(input.name);
-  const tags = await tagConnections(input.tags);
+  const tags = await resolveTagsByName(input.tags);
   const program = await prisma.program.create({
     data: {
       name: input.name,
@@ -185,7 +181,7 @@ export async function rejectEdit(editId: string) {
 }
 
 export async function updateProgram(id: string, input: ProgramInput) {
-  const tags = await tagConnections(input.tags);
+  const tags = await resolveTagsByName(input.tags);
   return prisma.program.update({
     where: { id },
     data: {

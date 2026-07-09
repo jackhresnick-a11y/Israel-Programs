@@ -1,8 +1,8 @@
-import slugify from "slugify";
 import { prisma } from "@/lib/prisma";
 import type { ProgramInput } from "@/lib/programs";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import { getDurationLabelMap } from "@/lib/duration";
+import { resolveTagsByName, findExistingTagIds } from "@/lib/tags";
 
 const TAG_ADDED_PREFIX = "tag:added:";
 const TAG_REMOVED_PREFIX = "tag:removed:";
@@ -112,16 +112,10 @@ export async function applyReviewDecisions(editId: string, decisions: ReviewDeci
     }
   }
 
-  const connectTags = await Promise.all(
-    tagsToConnectNames.map(async (name) => {
-      const slug = slugify(name, { lower: true, strict: true });
-      const tag = await prisma.tag.upsert({ where: { slug }, update: {}, create: { name, slug } });
-      return { id: tag.id };
-    })
-  );
-  const disconnectTags = tagsToDisconnectNames.map((name) => ({
-    slug: slugify(name, { lower: true, strict: true }),
-  }));
+  const [connectTags, disconnectTags] = await Promise.all([
+    resolveTagsByName(tagsToConnectNames),
+    findExistingTagIds(tagsToDisconnectNames),
+  ]);
 
   if (Object.keys(data).length > 0 || connectTags.length > 0 || disconnectTags.length > 0) {
     await prisma.program.update({

@@ -42,6 +42,71 @@ function slugifyValue(value: string) {
   return slugify(value, { lower: true, strict: true });
 }
 
+type TagRow = Awaited<ReturnType<typeof prisma.tag.findMany>>[number];
+
+/** Loads every tag once so a batch of name lookups (program create/update, edit review)
+ * doesn't run one query per name. Small table (~100 rows) -- a full scan is cheaper and
+ * simpler than a per-name findMany with an OR/insensitive-mode filter. */
+async function tagLookupMaps() {
+  const allTags = await prisma.tag.findMany();
+  const byLowerName = new Map(allTags.map((t) => [t.name.toLowerCase(), t]));
+  const bySlug = new Map(allTags.map((t) => [t.slug, t]));
+  return { allTags, byLowerName, bySlug };
+}
+
+/** A typed-in name matches an existing tag by case-insensitive exact name first, then
+ * by slug (slugify(name)) -- never fuzzily. The slug fallback exists because several
+ * admin-seeded taxonomy tags (e.g. slug `integration-low`, name "Low integration") have
+ * a slug that doesn't equal slugify(their own name); without it, saving a program
+ * through the form would silently mint an uncategorized duplicate tag instead of
+ * reattaching the canonical one -- that duplication is exactly what broke the browse
+ * filter (see prisma/audit-tags.ts). */
+function matchTag(name: string, byLowerName: Map<string, TagRow>, bySlug: Map<string, TagRow>) {
+  return byLowerName.get(name.toLowerCase()) ?? bySlug.get(slugifyValue(name));
+}
+
+/** Resolves typed-in tag names to Tag ids for a program's `tags: { connect }`, creating
+ * a genuinely new tag only when no existing tag matches by name or slug (see matchTag).
+ * Used by createProgram/updateProgram (lib/programs.ts) and the moderated-edit apply
+ * path (lib/programEdits.ts) so both write paths share one resolution rule. */
+export async function resolveTagsByName(names: string[]): Promise<{ id: string }[]> {
+  if (names.length === 0) return [];
+  const { byLowerName, bySlug } = await tagLookupMaps();
+
+  const results: { id: string }[] = [];
+  for (const rawName of names) {
+    const name = rawName.trim();
+    if (!name) continue;
+    const existing = matchTag(name, byLowerName, bySlug);
+    if (existing) {
+      results.push({ id: existing.id });
+      continue;
+    }
+    const slug = slugifyValue(name);
+    const created = await prisma.tag.create({ data: { name, slug } });
+    results.push({ id: created.id });
+    byLowerName.set(created.name.toLowerCase(), created);
+    bySlug.set(created.slug, created);
+  }
+  return results;
+}
+
+/** Resolves typed-in tag names to *existing* Tag ids only, for a program's
+ * `tags: { disconnect }` -- a name matching no tag is silently skipped (there is
+ * nothing to disconnect if the tag never existed) rather than creating one. */
+export async function findExistingTagIds(names: string[]): Promise<{ id: string }[]> {
+  if (names.length === 0) return [];
+  const { byLowerName, bySlug } = await tagLookupMaps();
+  const results: { id: string }[] = [];
+  for (const rawName of names) {
+    const name = rawName.trim();
+    if (!name) continue;
+    const existing = matchTag(name, byLowerName, bySlug);
+    if (existing) results.push({ id: existing.id });
+  }
+  return results;
+}
+
 export async function createTagCategory(input: { label: string; tint: string; showInFilter: boolean }) {
   const slug = slugifyValue(input.label);
   const maxOrder = await prisma.tagCategory.aggregate({ _max: { order: true } });

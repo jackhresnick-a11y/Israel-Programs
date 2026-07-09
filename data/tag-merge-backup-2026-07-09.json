@@ -1,0 +1,275 @@
+{
+  "mergedTags": [
+    {
+      "id": "cmrdd45hf000004l7jn6c242l",
+      "name": "high integration",
+      "slug": "high-integration",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr8bo6c3001ahdmz9uoz6g1b",
+        "cmr9qi7uu001krumzk47gp02g",
+        "cmrbviqdr00022gmzciodqtvu",
+        "cmrdh24jd000004l5vzmnb27q"
+      ]
+    },
+    {
+      "id": "cmrd2ilgq000004ldy38qzum0",
+      "name": "medium integration",
+      "slug": "medium-integration",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bgre4001ivkmzczk9sstb",
+        "cmrapfz32001pbkmzxwfpa6ba",
+        "cmr8bo63c0007hdmzgsw9pcj4"
+      ]
+    },
+    {
+      "id": "cmrd6lpui000004l80wwdzqjt",
+      "name": "low integration",
+      "slug": "low-integration",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo62g0003hdmzzsikwaa7",
+        "cmr8bo63o0008hdmzpllsjq2y",
+        "cmr8bo6410009hdmzoldc864q"
+      ]
+    },
+    {
+      "id": "cmrck8vat000204juar8es990",
+      "name": "religious zionism/modern orthodox",
+      "slug": "religious-zionismmodern-orthodox",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo63c0007hdmzgsw9pcj4",
+        "cmr8bo63o0008hdmzpllsjq2y",
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr8bo6cm001dhdmzapy541kf",
+        "cmrbviqdr00022gmzciodqtvu",
+        "cmr8bgre4001ivkmzczk9sstb",
+        "cmrapfz32001pbkmzxwfpa6ba",
+        "cmr8bo62g0003hdmzzsikwaa7",
+        "cmr8bo6410009hdmzoldc864q"
+      ]
+    },
+    {
+      "id": "cmrck8vau000304jussd66dpz",
+      "name": "spiritual growth",
+      "slug": "spiritual-growth",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo63c0007hdmzgsw9pcj4",
+        "cmr8bo63o0008hdmzpllsjq2y",
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr8bo6cm001dhdmzapy541kf",
+        "cmrbviqdr00022gmzciodqtvu",
+        "cmr8bgre4001ivkmzczk9sstb",
+        "cmrapfz32001pbkmzxwfpa6ba",
+        "cmr8bo62g0003hdmzzsikwaa7",
+        "cmr8bo6410009hdmzoldc864q"
+      ]
+    },
+    {
+      "id": "cmrd6lpui000104l89yf95xu5",
+      "name": "academic/internship",
+      "slug": "academicinternship",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo6410009hdmzoldc864q"
+      ]
+    },
+    {
+      "id": "cmrck8vao000104jubyarvxhw",
+      "name": "pre-military",
+      "slug": "pre-military",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bo6cm001dhdmzapy541kf",
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr8bo6c3001ahdmz9uoz6g1b",
+        "cmr9qi7uu001krumzk47gp02g"
+      ]
+    },
+    {
+      "id": "cmr8bgr3r0006vkmz4734q9vj",
+      "name": "travel",
+      "slug": "travel",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bgr470008vkmz0r7653ff",
+        "cmrbzj0lg000004l1suya44wh"
+      ]
+    },
+    {
+      "id": "cmrdx8usm000004l95tstzk6j",
+      "name": "gap year (post-high school)",
+      "slug": "gap-year-post-high-school",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmrdh24jd000004l5vzmnb27q"
+      ]
+    }
+  ],
+  "recategorizedTags": [
+    {
+      "id": "cmrcjcpmg000404k3no3hy61o",
+      "name": "northern israel",
+      "slug": "northern-israel",
+      "category": null,
+      "order": 4,
+      "programIds": [
+        "cmr9qklz6002grumz0g518rfa",
+        "cmr8bo69s000yhdmzbiwbj04h",
+        "cmr8qd57r001bjbmzbsbpk3h2",
+        "cmra8g5cy000p2wmzu38px90o",
+        "cmr9qglg7000yrumz83jboc5v",
+        "cmr9qhiqh001arumzvz2qltfk",
+        "cmr9qi7uu001krumzk47gp02g",
+        "cmrapd0hy000gbkmzyqq11pi0",
+        "cmr9qj6up001wrumze80az0by",
+        "cmrbviymp00082gmzvcp3k0f7"
+      ]
+    },
+    {
+      "id": "cmrcij22w000004k3djsxf5ql",
+      "name": "Southern israel",
+      "slug": "southern-israel",
+      "category": null,
+      "order": 2,
+      "programIds": [
+        "cmr8bgrkb0028vkmzp9yvzamj",
+        "cmr9qhsqj001erumzr9myf0d1",
+        "cmr8bo69f000whdmz9tq77hml",
+        "cmr8qcbeq000wjbmzwfornwop",
+        "cmr8qbrzt000jjbmzrmtsl0ux",
+        "cmr8qc69d000tjbmzgb9bswu3",
+        "cmr8bo6a60010hdmzh6oxpku3",
+        "cmr9qhdtf0018rumzb2cx0o3u",
+        "cmr9qfcq5000irumz3dsujbv0",
+        "cmr9qi31r001irumz1bjcnbb6",
+        "cmracdrlp0000b1mzi1avvyft",
+        "cmrbvj317000b2gmzeyt1g4ph"
+      ]
+    },
+    {
+      "id": "cmrcje3ny000904k3987pl5m6",
+      "name": "Coastal israel",
+      "slug": "coastal-israel",
+      "category": null,
+      "order": 7,
+      "programIds": [
+        "cmr8bgr6h000ivkmzvwx0mi4v",
+        "cmr8bgr4y000bvkmzq5pd8b0n",
+        "cmr8bgr7j000nvkmznxsrizid",
+        "cmr9qgffw000wrumz3ok3qf8x",
+        "cmra8em5m00062wmz2o0hxd5u",
+        "cmr8bo6dz001lhdmzbodherzq",
+        "cmr8qbwix000kjbmzcbaa4q1w",
+        "cmr8qbcdd000bjbmz0jpqs95c",
+        "cmr8bgr330003vkmzf8x0h8tt",
+        "cmr8bgrbj0017vkmzcl6e0add",
+        "cmr8bo67r000nhdmzgm9wjym3",
+        "cmr8qbndx000gjbmzs4h960io",
+        "cmr8qcrmj0013jbmzcd3lw13q",
+        "cmr9qfkgt000krumzequ15gse",
+        "cmra8gnuc000v2wmz54uezgrk",
+        "cmra8etzg00082wmzjf1idlth",
+        "cmra8faw6000e2wmzoyllelyd",
+        "cmr9qf15c000erumzi1qwntt5",
+        "cmra8iyrk000g7fmzwpzbmp3l",
+        "cmra8fy1j000n2wmzb83yu4hh",
+        "cmra8gxll000z2wmzj00u4yy8",
+        "cmrbvjb9y000g2gmzb3limvns"
+      ]
+    },
+    {
+      "id": "cmrcjdlc8000704k3fuu30bb9",
+      "name": "Samaria",
+      "slug": "samaria",
+      "category": null,
+      "order": 6,
+      "programIds": [
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr9qe84d0002rumz60jxa6st",
+        "cmrapi8jq002obkmzoswkgqzk"
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "slug": "north",
+      "before": [
+        "haifa",
+        "tzfat"
+      ],
+      "after": [
+        "northern-israel"
+      ]
+    },
+    {
+      "slug": "south",
+      "before": [
+        "negev",
+        "beer-sheva",
+        "arava-valley",
+        "south"
+      ],
+      "after": [
+        "southern-israel"
+      ]
+    },
+    {
+      "slug": "jerusalem",
+      "before": [
+        "jerusalem",
+        "old-city",
+        "old-city-jerusalem"
+      ],
+      "after": [
+        "jerusalem"
+      ]
+    },
+    {
+      "slug": "judea",
+      "before": [
+        "gush-etzion",
+        "hebron"
+      ],
+      "after": []
+    },
+    {
+      "slug": "samaria",
+      "before": [
+        "eli",
+        "ariel",
+        "shiloh"
+      ],
+      "after": [
+        "samaria"
+      ]
+    },
+    {
+      "slug": "coast",
+      "before": [
+        "tel-aviv",
+        "herzliya",
+        "ramat-hasharon",
+        "hod-hasharon",
+        "modiin"
+      ],
+      "after": [
+        "coastal-israel",
+        "ramat-hasharon"
+      ]
+    }
+  ]
+}
