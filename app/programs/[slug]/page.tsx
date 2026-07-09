@@ -3,7 +3,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SignInButton, Show } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
-import { getProgramBySlug, DURATION_LABELS, averageRating } from "@/lib/programs";
+import { getProgramBySlug, averageRating } from "@/lib/programs";
+import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import ReviewForm from "@/components/ReviewForm";
@@ -27,11 +28,12 @@ export default async function ProgramDetailPage({
   searchParams: Promise<{ created?: string }>;
 }) {
   const { slug } = await params;
-  const [program, role, { userId }, query] = await Promise.all([
+  const [program, role, { userId }, query, durationLabelMap] = await Promise.all([
     getProgramBySlug(slug),
     getCurrentRole(),
     auth(),
     searchParams,
+    getDurationLabelMap(),
   ]);
   if (!program) notFound();
 
@@ -141,7 +143,7 @@ export default async function ProgramDetailPage({
         <div>
           <dt className="font-medium text-muted">Duration</dt>
           <dd>
-            {DURATION_LABELS[program.durationType]}
+            {durationLabelMap[program.durationType]}
             {program.durationText ? ` — ${program.durationText}` : ""}
           </dd>
         </div>

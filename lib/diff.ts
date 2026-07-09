@@ -1,5 +1,4 @@
 import slugify from "slugify";
-import { DURATION_LABELS } from "@/lib/duration";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import type { ProgramInput } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/enums";
@@ -113,7 +112,8 @@ export const FIELD_LABELS: Record<string, string> = Object.fromEntries([
 
 export function buildFieldDiffs(
   original: OriginalProgram,
-  proposed: ProgramInput
+  proposed: ProgramInput,
+  durationLabelMap: Record<DurationType, string>
 ): FieldDiff[] {
   const diffs: FieldDiff[] = [];
 
@@ -128,7 +128,7 @@ export function buildFieldDiffs(
     diffs.push({
       field: "durationType",
       label: "Duration Type",
-      tokens: wordDiff(DURATION_LABELS[original.durationType], DURATION_LABELS[proposed.durationType]),
+      tokens: wordDiff(durationLabelMap[original.durationType], durationLabelMap[proposed.durationType]),
     });
   }
 

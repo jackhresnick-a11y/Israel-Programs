@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DURATION_LABELS } from "@/lib/duration";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import Input from "@/components/ui/Input";
@@ -75,10 +74,14 @@ export default function ProgramForm({
   initial,
   allTags,
   categories,
+  durationOptions,
 }: {
   initial?: ProgramFormValues;
   allTags: TagOption[];
   categories: TagCategoryOption[];
+  /** Ordered, admin-editable duration options (see lib/duration.ts's listDurationOptions)
+   * -- rendered in this order so an admin's reordering in app/admin/tags applies here too. */
+  durationOptions: { value: DurationType; label: string }[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -213,7 +216,7 @@ export default function ProgramForm({
               set("durationType", e.target.value as DurationType)
             }
           >
-            {Object.entries(DURATION_LABELS).map(([value, label]) => (
+            {durationOptions.map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}
               </option>

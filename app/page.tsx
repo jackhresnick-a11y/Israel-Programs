@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listPrograms } from "@/lib/programs";
+import { getDurationLabelMap } from "@/lib/duration";
 import { listRecentReviews } from "@/lib/reviews";
 import ProgramCard from "@/components/ProgramCard";
 import FeaturedProgramCard from "@/components/FeaturedProgramCard";
@@ -19,6 +20,7 @@ export default async function Home() {
   const [
     featured,
     recentReviews,
+    durationLabelMap,
     homeUrl,
     homeEnabled,
     homeSizeDesktop,
@@ -39,6 +41,7 @@ export default async function Home() {
           )
         ),
     listRecentReviews(3),
+    getDurationLabelMap(),
     getSiteContent("homeLogoUrl"),
     getSiteContent("homeLogoEnabled"),
     getSiteContent("homeLogoSize"),
@@ -184,10 +187,10 @@ export default async function Home() {
             {featured.map(({ program, video }) =>
               video ? (
                 <div key={program.slug} className="sm:col-span-2 lg:col-span-3">
-                  <FeaturedProgramCard program={program} video={video} />
+                  <FeaturedProgramCard program={program} durationLabelMap={durationLabelMap} video={video} />
                 </div>
               ) : (
-                <ProgramCard key={program.slug} program={program} />
+                <ProgramCard key={program.slug} program={program} durationLabelMap={durationLabelMap} />
               )
             )}
           </div>

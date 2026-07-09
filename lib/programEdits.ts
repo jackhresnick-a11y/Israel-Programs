@@ -2,6 +2,7 @@ import slugify from "slugify";
 import { prisma } from "@/lib/prisma";
 import type { ProgramInput } from "@/lib/programs";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
+import { getDurationLabelMap } from "@/lib/duration";
 
 const TAG_ADDED_PREFIX = "tag:added:";
 const TAG_REMOVED_PREFIX = "tag:removed:";
@@ -21,13 +22,16 @@ export async function seedFieldDecisions(editId: string) {
   const existing = await prisma.programEditFieldDecision.count({ where: { editId } });
   if (existing > 0) return;
 
-  const edit = await prisma.programEdit.findUniqueOrThrow({
-    where: { id: editId },
-    include: { program: { include: { tags: true } } },
-  });
+  const [edit, durationLabelMap] = await Promise.all([
+    prisma.programEdit.findUniqueOrThrow({
+      where: { id: editId },
+      include: { program: { include: { tags: true } } },
+    }),
+    getDurationLabelMap(),
+  ]);
   const proposed = JSON.parse(edit.payload) as ProgramInput;
 
-  const fieldDiffs = buildFieldDiffs(edit.program, proposed);
+  const fieldDiffs = buildFieldDiffs(edit.program, proposed, durationLabelMap);
   const tagDiff = buildTagDiff(edit.program.tags, proposed.tags);
 
   const rows: { fieldName: string; proposedValue: string }[] = fieldDiffs.map((diff) => ({

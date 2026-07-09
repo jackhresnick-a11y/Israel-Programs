@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentRole } from "@/lib/roles";
 import { getEditForReview } from "@/lib/programEdits";
 import { getUsersByIds } from "@/lib/clerkUsers";
+import { listDurationOptions } from "@/lib/duration";
 import EditReviewForm from "@/components/EditReviewForm";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
@@ -19,7 +20,10 @@ export default async function EditReviewPage({
   const edit = await getEditForReview(id).catch(() => null);
   if (!edit) notFound();
 
-  const submitters = await getUsersByIds([edit.submittedById]);
+  const [submitters, durationOptions] = await Promise.all([
+    getUsersByIds([edit.submittedById]),
+    listDurationOptions(),
+  ]);
   const submitter = submitters.get(edit.submittedById);
 
   return (
@@ -61,6 +65,7 @@ export default async function EditReviewPage({
           }))}
           submitterId={edit.submittedById}
           submitterName={submitter?.name ?? "this user"}
+          durationOptions={durationOptions}
         />
       )}
     </PageContainer>

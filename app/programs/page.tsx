@@ -1,5 +1,7 @@
 import { listPrograms, listAllTags } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
+import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
+import { listRegions } from "@/lib/regions";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import { getSiteContent } from "@/lib/siteContent";
 import ProgramCard from "@/components/ProgramCard";
@@ -30,6 +32,8 @@ export default async function ProgramsPage({
     programs,
     tags,
     categories,
+    durationOptions,
+    regions,
     backgroundUrl,
     backgroundEnabled,
     backgroundOpacity,
@@ -38,6 +42,12 @@ export default async function ProgramsPage({
     backgroundSizeMobile,
     backgroundOffsetYMobile,
     backgroundUrlDark,
+    durationFilterLabel,
+    durationFilterTint,
+    durationFilterShow,
+    regionFilterLabel,
+    regionFilterTint,
+    regionFilterShow,
   ] = await Promise.all([
     listPrograms({
       q,
@@ -49,6 +59,8 @@ export default async function ProgramsPage({
     }),
     listAllTags(),
     listTagCategories(),
+    listDurationOptions(),
+    listRegions(),
     getSiteContent("backgroundLogoUrl"),
     getSiteContent("backgroundLogoEnabled"),
     getSiteContent("backgroundLogoOpacity"),
@@ -57,12 +69,29 @@ export default async function ProgramsPage({
     getSiteContent("backgroundLogoSizeMobile"),
     getSiteContent("backgroundLogoOffsetYMobile"),
     getSiteContent("backgroundLogoUrlDark"),
+    getSiteContent("durationFilterLabel"),
+    getSiteContent("durationFilterTint"),
+    getSiteContent("durationFilterShow"),
+    getSiteContent("regionFilterLabel"),
+    getSiteContent("regionFilterTint"),
+    getSiteContent("regionFilterShow"),
   ]);
   const backgroundOpacityValue = (Number(backgroundOpacity) || 5) / 100;
   const backgroundDesktopHeight = Number(backgroundSizeDesktop) || 280;
   const backgroundDesktopOffset = Number(backgroundOffsetYDesktop) || 0;
   const backgroundMobileHeight = Number(backgroundSizeMobile) || 150;
   const backgroundMobileOffset = Number(backgroundOffsetYMobile) || 0;
+  const durationFilter = {
+    label: durationFilterLabel ?? "Duration",
+    tint: durationFilterTint ?? "accent",
+    show: durationFilterShow !== "false",
+  };
+  const regionFilter = {
+    label: regionFilterLabel ?? "Region",
+    tint: regionFilterTint ?? "danger",
+    show: regionFilterShow !== "false",
+  };
+  const durationLabelMap = durationLabelMapFromOptions(durationOptions);
 
   return (
     <PageContainer width="wide">
@@ -129,7 +158,14 @@ export default async function ProgramsPage({
             description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
           />
 
-          <SearchBar tags={tags} categories={categories} />
+          <SearchBar
+            tags={tags}
+            categories={categories}
+            durationOptions={durationOptions}
+            regions={regions}
+            durationFilter={durationFilter}
+            regionFilter={regionFilter}
+          />
         </div>
       </div>
 
@@ -144,6 +180,7 @@ export default async function ProgramsPage({
               <ProgramCard
                 key={program.slug}
                 program={program}
+                durationLabelMap={durationLabelMap}
                 action={<CompareCheckbox slug={program.slug} name={program.name} />}
               />
             ))}

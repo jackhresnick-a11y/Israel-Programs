@@ -2,15 +2,17 @@ import { SignInButton, Show } from "@clerk/nextjs";
 import { getCurrentRole } from "@/lib/roles";
 import { listAllTags } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
+import { listDurationOptions } from "@/lib/duration";
 import ProgramForm from "@/components/ProgramForm";
 import PageContainer from "@/components/ui/PageContainer";
 import { buttonVariants } from "@/components/ui/Button";
 
 export default async function NewProgramPage() {
-  const [role, allTags, categories] = await Promise.all([
+  const [role, allTags, categories, durationOptions] = await Promise.all([
     getCurrentRole(),
     listAllTags(),
     listTagCategories(),
+    listDurationOptions(),
   ]);
   const isModerator = role === "moderator" || role === "admin";
 
@@ -37,7 +39,7 @@ export default async function NewProgramPage() {
           </SignInButton>
         }
       >
-        <ProgramForm allTags={allTags} categories={categories} />
+        <ProgramForm allTags={allTags} categories={categories} durationOptions={durationOptions} />
       </Show>
     </PageContainer>
   );

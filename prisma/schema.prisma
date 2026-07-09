@@ -133,7 +133,8 @@ model Tag {
 /// keep working unchanged even for a category that has since been renamed or removed.
 /// Duration and Region are NOT rows here -- Duration is a real Program column
 /// (durationType) and Region is a pure UI-layer grouping over `location`-category tags
-/// (see lib/regions.ts) -- neither is a Tag category.
+/// (see lib/regions.ts) -- neither is a Tag category. They have their own admin-editable
+/// tables below (DurationOption, Region) instead.
 model TagCategory {
   id           String  @id @default(cuid())
   slug         String  @unique
@@ -141,6 +142,35 @@ model TagCategory {
   order        Int     @default(0)
   tint         String  @default("accent")
   showInFilter Boolean @default(true)
+}
+
+/// Admin-editable display config + order + filter visibility for each DurationType enum
+/// value. The enum itself stays the source of truth for *which* durations exist and for
+/// Program.durationType; this table only overrides label/order/visibility. `label` here is
+/// the single source of truth for how a duration renders everywhere once seeded (see
+/// lib/duration.ts's getDurationLabelMap) -- the static DURATION_LABELS map becomes the
+/// seed default + fallback for any value missing a row.
+model DurationOption {
+  id           String       @id @default(cuid())
+  value        DurationType @unique
+  label        String
+  order        Int          @default(0)
+  showInFilter Boolean      @default(true)
+}
+
+/// Admin-editable replacement for lib/regions.ts's hardcoded REGION_TO_SLUGS. A region is
+/// a named grouping of existing `location`-category Tag slugs; selecting it in the browse
+/// filter bar toggles all of memberSlugs in the `tags` param, riding the same
+/// buildTagAndClauses OR-within-category logic as any other location tag (no new filter
+/// param, no Program schema change). memberSlugs is a soft reference to Tag.slug, same
+/// spirit as TagCategory.slug -- not a foreign key, so a deleted/renamed tag just drops
+/// silently out of the region rather than blocking the delete.
+model Region {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  label       String
+  order       Int      @default(0)
+  memberSlugs String[]
 }
 
 model Video {

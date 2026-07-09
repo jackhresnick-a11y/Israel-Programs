@@ -2,6 +2,7 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import { ProgramCardInfo, type ProgramCardProgram } from "@/components/ProgramCard";
 import { VideoPlayer } from "@/components/VideoList";
+import type { DurationType } from "@/app/generated/prisma/client";
 
 /**
  * Used for manual "Recently added" entries that have a video attached.
@@ -12,9 +13,11 @@ import { VideoPlayer } from "@/components/VideoList";
  */
 export default function FeaturedProgramCard({
   program,
+  durationLabelMap,
   video,
 }: {
   program: ProgramCardProgram;
+  durationLabelMap: Record<DurationType, string>;
   video: { id: string; url: string };
 }) {
   return (
@@ -26,7 +29,7 @@ export default function FeaturedProgramCard({
         href={`/programs/${program.slug}`}
         className="flex flex-col md:basis-2/5 md:shrink-0"
       >
-        <ProgramCardInfo program={program} gap="tight" />
+        <ProgramCardInfo program={program} durationLabelMap={durationLabelMap} gap="tight" />
       </Link>
       <div className="flex items-center md:basis-3/5">
         <VideoPlayer url={video.url} />

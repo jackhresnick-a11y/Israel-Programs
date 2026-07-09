@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DURATION_LABELS } from "@/lib/duration";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 import { FIELD_LABELS } from "@/lib/diff";
+import type { DurationType } from "@/app/generated/prisma/enums";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
@@ -24,8 +24,12 @@ function humanizeFieldName(fieldName: string): string {
   return FIELD_LABELS[fieldName] ?? fieldName;
 }
 
-function displayValue(fieldName: string, value: string): string {
-  if (fieldName === "durationType") return DURATION_LABELS[value as keyof typeof DURATION_LABELS] ?? value;
+function displayValue(
+  fieldName: string,
+  value: string,
+  durationLabelMap: Record<string, string>
+): string {
+  if (fieldName === "durationType") return durationLabelMap[value] ?? value;
   if (fieldName === "travelType") return TRAVEL_TYPE_LABELS[value] ?? "Not specified";
   if (fieldName === "hasScholarship" || fieldName === "hasCollegeCredit") return value === "true" ? "Yes" : "No";
   return value;
@@ -35,18 +39,22 @@ function ValueEditor({
   fieldName,
   value,
   onChange,
+  durationOptions,
+  durationLabelMap,
 }: {
   fieldName: string;
   value: string;
   onChange: (v: string) => void;
+  durationOptions: { value: DurationType; label: string }[];
+  durationLabelMap: Record<string, string>;
 }) {
   if (fieldName.startsWith("tag:")) {
-    return <p className="text-sm">{displayValue(fieldName, value)}</p>;
+    return <p className="text-sm">{displayValue(fieldName, value, durationLabelMap)}</p>;
   }
   if (fieldName === "durationType") {
     return (
       <Select className="w-full" value={value} onChange={(e) => onChange(e.target.value)}>
-        {Object.entries(DURATION_LABELS).map(([v, label]) => (
+        {durationOptions.map(({ value: v, label }) => (
           <option key={v} value={v}>
             {label}
           </option>
@@ -90,14 +98,18 @@ export default function EditReviewForm({
   decisions,
   submitterId,
   submitterName,
+  durationOptions,
 }: {
   editId: string;
   programSlug: string;
   decisions: Decision[];
   submitterId: string;
   submitterName: string;
+  /** Ordered, admin-editable duration options (see lib/duration.ts's listDurationOptions). */
+  durationOptions: { value: DurationType; label: string }[];
 }) {
   const router = useRouter();
+  const durationLabelMap = Object.fromEntries(durationOptions.map((o) => [o.value, o.label]));
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
     Object.fromEntries(
       decisions.map((d) => [
@@ -174,12 +186,14 @@ export default function EditReviewForm({
                   {humanizeFieldName(d.fieldName)}
                 </p>
                 <p className="text-xs text-muted/80">
-                  proposed: {displayValue(d.fieldName, d.proposedValue ?? "")}
+                  proposed: {displayValue(d.fieldName, d.proposedValue ?? "", durationLabelMap)}
                 </p>
                 <div className="mt-1">
                   <ValueEditor
                     fieldName={d.fieldName}
                     value={row.finalValue}
+                    durationOptions={durationOptions}
+                    durationLabelMap={durationLabelMap}
                     onChange={(v) => setRow(d.fieldName, { finalValue: v })}
                   />
                 </div>

@@ -3,8 +3,9 @@ import {
   getProgramsBySlugs,
   listPublishedProgramNames,
   averageRating,
-  DURATION_LABELS,
 } from "@/lib/programs";
+import { getDurationLabelMap } from "@/lib/duration";
+import type { DurationType } from "@/app/generated/prisma/enums";
 import { MAX_COMPARE } from "@/lib/compare";
 import CompareAddControl from "@/components/CompareAddControl";
 import BackButton from "@/components/BackButton";
@@ -18,44 +19,49 @@ type Row = {
   render: (program: Awaited<ReturnType<typeof getProgramsBySlugs>>[number]) => React.ReactNode;
 };
 
-const ROWS: Row[] = [
-  {
-    label: "Location",
-    render: (p) => p.location || "Not listed",
-  },
-  {
-    label: "Duration",
-    render: (p) =>
-      `${DURATION_LABELS[p.durationType]}${p.durationText ? ` — ${p.durationText}` : ""}`,
-  },
-  {
-    label: "Rating",
-    render: (p) => {
-      const rating = averageRating(p.reviews);
-      if (rating === null) return "No reviews yet";
-      return `★ ${rating.toFixed(1)} (${p.reviews.length} review${p.reviews.length === 1 ? "" : "s"})`;
+// Duration is built from the resolved label map (admin-editable, see
+// lib/duration.ts's getDurationLabelMap) rather than a hardcoded row, so ROWS is a
+// function of that map instead of a plain module-scope constant.
+function buildRows(durationLabelMap: Record<DurationType, string>): Row[] {
+  return [
+    {
+      label: "Location",
+      render: (p) => p.location || "Not listed",
     },
-  },
-  {
-    label: "Tags",
-    render: (p) =>
-      p.tags.length === 0 ? (
-        "Not listed"
-      ) : (
-        <div className="flex flex-wrap gap-1">
-          {p.tags.map((tag) => (
-            <Badge key={tag.id} tone="tag">
-              #{tag.slug}
-            </Badge>
-          ))}
-        </div>
-      ),
-  },
-  {
-    label: "How to sign up",
-    render: (p) => p.signupInstructions || "Contact the program directly.",
-  },
-];
+    {
+      label: "Duration",
+      render: (p) =>
+        `${durationLabelMap[p.durationType]}${p.durationText ? ` — ${p.durationText}` : ""}`,
+    },
+    {
+      label: "Rating",
+      render: (p) => {
+        const rating = averageRating(p.reviews);
+        if (rating === null) return "No reviews yet";
+        return `★ ${rating.toFixed(1)} (${p.reviews.length} review${p.reviews.length === 1 ? "" : "s"})`;
+      },
+    },
+    {
+      label: "Tags",
+      render: (p) =>
+        p.tags.length === 0 ? (
+          "Not listed"
+        ) : (
+          <div className="flex flex-wrap gap-1">
+            {p.tags.map((tag) => (
+              <Badge key={tag.id} tone="tag">
+                #{tag.slug}
+              </Badge>
+            ))}
+          </div>
+        ),
+    },
+    {
+      label: "How to sign up",
+      render: (p) => p.signupInstructions || "Contact the program directly.",
+    },
+  ];
+}
 
 export default async function ComparePage({
   searchParams,
@@ -67,12 +73,14 @@ export default async function ComparePage({
     new Set((slugsParam ?? "").split(",").map((s) => s.trim()).filter(Boolean))
   ).slice(0, MAX_COMPARE);
 
-  const [programs, allProgramNames] = await Promise.all([
+  const [programs, allProgramNames, durationLabelMap] = await Promise.all([
     getProgramsBySlugs(requestedSlugs),
     listPublishedProgramNames(),
+    getDurationLabelMap(),
   ]);
 
   const currentSlugs = programs.map((p) => p.slug);
+  const rows = buildRows(durationLabelMap);
 
   return (
     <PageContainer width="wide" className="gap-6">
@@ -128,7 +136,7 @@ export default async function ComparePage({
                 );
               })}
 
-              {ROWS.map((row) => (
+              {rows.map((row) => (
                 <div key={row.label} className="contents">
                   <div className="self-start text-sm font-medium text-muted">
                     {row.label}

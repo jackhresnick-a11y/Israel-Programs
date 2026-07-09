@@ -6,6 +6,7 @@ import { listPendingPrograms, listPendingEdits, listRecentPrograms } from "@/lib
 import { listPendingReferences } from "@/lib/references";
 import { listRecentReviews } from "@/lib/reviews";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
+import { getDurationLabelMap } from "@/lib/duration";
 import { getUsersByIds } from "@/lib/clerkUsers";
 import RoleSelect from "@/components/RoleSelect";
 import QueueActions from "@/components/QueueActions";
@@ -22,13 +23,14 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "moderator" && role !== "admin") redirect("/");
 
-  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews] =
+  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews, durationLabelMap] =
     await Promise.all([
       listPendingPrograms(),
       listPendingEdits(),
       listPendingReferences(),
       role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
       role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
+      getDurationLabelMap(),
     ]);
 
   const submitters = await getUsersByIds([
@@ -181,7 +183,7 @@ export default async function AdminPage() {
           <div className="flex flex-col gap-4">
             {pendingEdits.map((edit) => {
               const proposed = JSON.parse(edit.payload) as ProgramInput;
-              const fieldDiffs = buildFieldDiffs(edit.program, proposed);
+              const fieldDiffs = buildFieldDiffs(edit.program, proposed, durationLabelMap);
               const tagDiff = buildTagDiff(edit.program.tags, proposed.tags);
               return (
                 <div

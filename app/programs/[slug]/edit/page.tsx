@@ -4,6 +4,7 @@ import { SignInButton, Show } from "@clerk/nextjs";
 import { getCurrentRole } from "@/lib/roles";
 import { getProgramBySlug, listAllTags } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
+import { listDurationOptions } from "@/lib/duration";
 import ProgramForm from "@/components/ProgramForm";
 import PageContainer from "@/components/ui/PageContainer";
 import { buttonVariants } from "@/components/ui/Button";
@@ -14,12 +15,13 @@ export default async function EditProgramPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [program, role, { userId }, allTags, categories] = await Promise.all([
+  const [program, role, { userId }, allTags, categories, durationOptions] = await Promise.all([
     getProgramBySlug(slug),
     getCurrentRole(),
     auth(),
     listAllTags(),
     listTagCategories(),
+    listDurationOptions(),
   ]);
   if (!program) notFound();
 
@@ -74,6 +76,7 @@ export default async function EditProgramPage({
           }}
           allTags={allTags}
           categories={categories}
+          durationOptions={durationOptions}
         />
       </Show>
     </PageContainer>

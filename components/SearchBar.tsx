@@ -3,19 +3,32 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { DURATION_LABELS } from "@/lib/duration";
-import { REGION_LABELS, REGION_ORDER, REGION_TO_SLUGS } from "@/lib/regions";
 import { coerceTint } from "@/lib/tagTints";
 import Input from "@/components/ui/Input";
 import { buttonVariants } from "@/components/ui/Button";
 import FilterDropdown from "@/components/ui/FilterDropdown";
 
+type DurationOptionRow = { value: string; label: string; order: number; showInFilter: boolean };
+type RegionRow = { slug: string; label: string; order: number; memberSlugs: string[] };
+type FilterHeaderConfig = { label: string; tint: string; show: boolean };
+
 type SearchBarProps = {
   tags: { slug: string; name: string; category: string | null }[];
   categories: { slug: string; label: string; tint: string; order: number; showInFilter: boolean }[];
+  durationOptions: DurationOptionRow[];
+  regions: RegionRow[];
+  durationFilter: FilterHeaderConfig;
+  regionFilter: FilterHeaderConfig;
 };
 
-export default function SearchBar({ tags, categories }: SearchBarProps) {
+export default function SearchBar({
+  tags,
+  categories,
+  durationOptions,
+  regions,
+  durationFilter,
+  regionFilter,
+}: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(searchParams.get("q") ?? "");
@@ -59,25 +72,29 @@ export default function SearchBar({ tags, categories }: SearchBarProps) {
     else byCategory.set(tag.category, [tag]);
   }
 
-  const durationOptions = Object.entries(DURATION_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
+  // Duration and Region are admin-editable (app/admin/tags -> DurationManager /
+  // RegionManager) but still special-cased here rather than flowing through the
+  // generic categoryDropdowns loop below -- Duration is a Program column
+  // (durationType), not a tag, and Region is a UI-only grouping over `location`-category
+  // tags (see lib/regions.ts), not a real Tag.category. Their own header label/tint/
+  // visibility comes from SiteContent (durationFilter/regionFilter props); their
+  // individual options come from DurationOption/Region DB rows instead of the old
+  // hardcoded DURATION_LABELS/REGION_TO_SLUGS constants.
+  const durationDropdownOptions = durationOptions
+    .filter((o) => o.showInFilter)
+    .map((o) => ({ value: o.value, label: o.label }));
 
-  const regionOptions = REGION_ORDER
-    .filter((region) => REGION_TO_SLUGS[region].length > 0)
-    .map((region) => ({
-      value: region,
-      label: REGION_LABELS[region],
-    }));
-  const activeRegions = REGION_ORDER.filter((region) =>
-    REGION_TO_SLUGS[region].some((slug) => activeTags.includes(slug))
-  );
+  const regionBySlug = new Map(regions.map((r) => [r.slug, r]));
+  const regionOptions = regions
+    .filter((r) => r.memberSlugs.length > 0)
+    .map((r) => ({ value: r.slug, label: r.label }));
+  const activeRegions = regions
+    .filter((r) => r.memberSlugs.some((slug) => activeTags.includes(slug)))
+    .map((r) => r.slug);
 
   // Tag-backed dropdowns are entirely data-driven off TagCategory rows (admin-editable,
   // see app/admin/tags) instead of a hardcoded per-category block -- a new category
-  // shows up here with zero code changes. Duration (a Program column, not a tag) and
-  // Region (a UI-only grouping over `location` tags, see lib/regions.ts) stay special-cased.
+  // shows up here with zero code changes.
   const categoryDropdowns = categories
     .filter((c) => c.showInFilter)
     .sort((a, b) => a.order - b.order)
@@ -113,13 +130,15 @@ export default function SearchBar({ tags, categories }: SearchBarProps) {
       </form>
 
       <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown
-          label="Duration"
-          options={durationOptions}
-          selected={activeDurations}
-          onToggle={toggleDuration}
-          tint="accent"
-        />
+        {durationFilter.show && (
+          <FilterDropdown
+            label={durationFilter.label}
+            options={durationDropdownOptions}
+            selected={activeDurations}
+            onToggle={toggleDuration}
+            tint={coerceTint(durationFilter.tint)}
+          />
+        )}
         {categoryDropdowns.map(({ category, options, selected }) => (
           <FilterDropdown
             key={category.slug}
@@ -130,13 +149,15 @@ export default function SearchBar({ tags, categories }: SearchBarProps) {
             tint={coerceTint(category.tint)}
           />
         ))}
-        <FilterDropdown
-          label="Region"
-          options={regionOptions}
-          selected={activeRegions}
-          onToggle={(region) => toggleSlugs(REGION_TO_SLUGS[region])}
-          tint="danger"
-        />
+        {regionFilter.show && (
+          <FilterDropdown
+            label={regionFilter.label}
+            options={regionOptions}
+            selected={activeRegions}
+            onToggle={(regionSlug) => toggleSlugs(regionBySlug.get(regionSlug)?.memberSlugs ?? [])}
+            tint={coerceTint(regionFilter.tint)}
+          />
+        )}
 
         <Link
           href="/programs/new"
