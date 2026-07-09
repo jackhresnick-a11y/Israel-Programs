@@ -8,11 +8,19 @@ import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getSiteContent } from "@/lib/siteContent";
+import { getCurrentRole } from "@/lib/roles";
+import HomeIntro from "@/components/HomeIntro";
 import {
   getRecentlyAddedConfig,
   resolveManualItems,
   type ResolvedRecentlyAddedItem,
 } from "@/lib/recentlyAdded";
+
+const DEFAULT_HOME_INTRO =
+  "Every year, thousands of Jews set out to explore, live, volunteer, " +
+  "serve, or study in Israel — but finding the right program can be " +
+  "overwhelming. This is a living, community-built directory to help " +
+  "you find what actually fits you.";
 
 export default async function Home() {
   const recentlyAdded = await getRecentlyAddedConfig();
@@ -32,6 +40,8 @@ export default async function Home() {
     homeOffsetYMobile,
     homeLayerMobile,
     homeUrlDark,
+    homeIntro,
+    role,
   ] = await Promise.all([
     recentlyAdded.mode === "manual"
       ? resolveManualItems(recentlyAdded.items)
@@ -53,6 +63,8 @@ export default async function Home() {
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
     getSiteContent("homeLogoUrlDark"),
+    getSiteContent("homeIntro"),
+    getCurrentRole(),
   ]);
 
   const homeDesktopHeight = Number(homeSizeDesktop) || 320;
@@ -127,12 +139,10 @@ export default async function Home() {
           <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Welcome to Israel Programs Wiki
           </h1>
-          <p className="max-w-2xl text-foreground/70">
-            Every year, thousands of Jews set out to explore, live, volunteer,
-            serve, or study in Israel — but finding the right program can be
-            overwhelming. This is a living, community-built directory to help
-            you find what actually fits you.
-          </p>
+          <HomeIntro
+            text={homeIntro ?? DEFAULT_HOME_INTRO}
+            isAdmin={role === "admin"}
+          />
 
           <details className="group max-w-2xl text-left">
             <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden dark:text-accent dark:hover:text-accent-hover">
