@@ -17,7 +17,7 @@ export default function CompareCheckbox({
   return (
     <label
       className={cn(
-        "absolute right-2 top-2 z-10 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs shadow-sm backdrop-blur",
+        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs shadow-sm backdrop-blur",
         checked
           ? "border-accent bg-accent font-medium text-accent-foreground"
           : "border-border bg-surface/90 text-muted",

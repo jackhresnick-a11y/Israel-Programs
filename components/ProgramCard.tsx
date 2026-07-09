@@ -4,6 +4,7 @@ import { DURATION_LABELS, averageRating } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
+import { cn } from "@/lib/cn";
 
 export type ProgramCardProgram = {
   slug: string;
@@ -21,16 +22,19 @@ export type ProgramCardProgram = {
 export function ProgramCardInfo({
   program,
   gap = "normal",
+  reserveActionSpace = false,
 }: {
   program: ProgramCardProgram;
   /** "tight" is used by the featured card's condensed desktop info column. */
   gap?: "normal" | "tight";
+  /** Leaves room on the right of the title/duration row for an overlaid action (e.g. the Compare pill). */
+  reserveActionSpace?: boolean;
 }) {
   const rating = averageRating(program.reviews);
 
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
-      <div className="flex items-center gap-3">
+      <div className={cn("flex items-center gap-3", reserveActionSpace && "pr-20")}>
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-muted">
           {program.logoUrl ? (
             <Image
@@ -50,10 +54,12 @@ export function ProgramCardInfo({
           <h3 className="font-serif font-semibold leading-tight text-foreground">
             {program.name}
           </h3>
-          <p className="text-xs text-muted">
-            {DURATION_LABELS[program.durationType]}
-            {program.location ? ` · ${program.location}` : ""}
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <Badge tone="neutral">{DURATION_LABELS[program.durationType]}</Badge>
+            {program.location && (
+              <span className="text-xs text-muted">{program.location}</span>
+            )}
+          </div>
         </div>
       </div>
       <p className="line-clamp-3 text-sm text-foreground/80">
@@ -74,18 +80,23 @@ export function ProgramCardInfo({
           </span>
         )}
       </div>
-      {program.cost && (
-        <p className="text-xs font-medium text-muted">{program.cost}</p>
-      )}
     </div>
   );
 }
 
-export default function ProgramCard({ program }: { program: ProgramCardProgram }) {
+export default function ProgramCard({
+  program,
+  action,
+}: {
+  program: ProgramCardProgram;
+  /** Rendered as an overlay in the card's top-right corner, outside the title link (e.g. the Compare pill). */
+  action?: React.ReactNode;
+}) {
   return (
-    <Card interactive className="flex flex-col gap-3 p-5">
+    <Card interactive className="relative flex flex-col gap-3 p-5">
+      {action && <div className="absolute right-3 top-3 z-10">{action}</div>}
       <Link href={`/programs/${program.slug}`} className="flex flex-col gap-3">
-        <ProgramCardInfo program={program} />
+        <ProgramCardInfo program={program} reserveActionSpace={Boolean(action)} />
       </Link>
       <Link
         href={`/programs/${program.slug}/edit`}

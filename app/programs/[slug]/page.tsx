@@ -24,7 +24,7 @@ export default async function ProgramDetailPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ created?: string; editPending?: string }>;
+  searchParams: Promise<{ created?: string }>;
 }) {
   const { slug } = await params;
   const [program, role, { userId }, query] = await Promise.all([
@@ -47,13 +47,11 @@ export default async function ProgramDetailPage({
   const banner =
     query.created === "pending"
       ? { tone: "info" as const, text: "Thanks! Your submission is awaiting moderator approval." }
-      : query.editPending === "1"
-        ? { tone: "info" as const, text: "Thanks! Your proposed edit is awaiting moderator approval." }
-        : program.status === "PENDING"
-          ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn't public yet." }
-          : program.status === "REJECTED"
-            ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn't public." }
-            : null;
+      : program.status === "PENDING"
+        ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn't public yet." }
+        : program.status === "REJECTED"
+          ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn't public." }
+          : null;
 
   const bannerClass = {
     info: "bg-info-bg text-info",
@@ -146,10 +144,6 @@ export default async function ProgramDetailPage({
             {DURATION_LABELS[program.durationType]}
             {program.durationText ? ` — ${program.durationText}` : ""}
           </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-muted">Cost</dt>
-          <dd>{program.cost || "Not listed"}</dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="font-medium text-muted">

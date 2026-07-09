@@ -1,0 +1,2717 @@
+[
+  {
+    "slug": "apf-medical-and-nursing-volunteer-program",
+    "name": "APF Medical & Nursing Volunteer Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "apfmed.org (English site) confirms placements are healthcare students/professionals volunteering directly inside Israeli hospital and clinic settings, but doesn't quantify the Israeli-to-overseas participant ratio."
+  },
+  {
+    "slug": "aardvark-israel",
+    "name": "Aardvark Israel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "aardvarkisrael.com confirms an English-language, international 17-21 year-old population living together in Israeli cities with internships/ulpan, but does not detail how much daily mixing occurs with Israelis."
+  },
+  {
+    "slug": "achvat-amim",
+    "name": "Achvat Amim",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "achvatamim.org (English site) describes participants \"working directly with Palestinians and Israelis\" and studying Hebrew/Arabic, indicating real but partial local engagement rather than full immersion."
+  },
+  {
+    "slug": "aish-hatorah-aish-gesher",
+    "name": "Aish HaTorah \u2013 Aish Gesher",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "aish.com's homepage gave no program-specific detail; description indicates a traditional Old City yeshiva track for overseas young men from public-school backgrounds with no stated Israeli peer mixing."
+  },
+  {
+    "slug": "aish-hatorah-essentials-program",
+    "name": "Aish HaTorah \u2013 Essentials Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "The israel.aish.com/essentials fetch failed (certificate mismatch); relying on the description of a 28-day all-inclusive introductory program for ages 18-29 aimed at overseas newcomers to Judaism."
+  },
+  {
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah \u2013 Foundations Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "aish.com's homepage did not surface Foundations-specific detail; description depicts an overseas gap-year/semester-break audience studying Jewish texts with no mention of Israeli integration."
+  },
+  {
+    "slug": "alexander-muss-high-school-in-israel-amhsi",
+    "name": "Alexander Muss High School in Israel (AMHSI)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "amhsi.org (English site) confirms an American high-school study-abroad audience and college-prep framing, with no mention of Israeli student peers or Hebrew instruction."
+  },
+  {
+    "slug": "arava-institute-for-environmental-studies",
+    "name": "Arava Institute for Environmental Studies",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "arava.org (English/Hebrew/Arabic site) confirms its mission of \"preparing future leaders from Israel, Palestine, Jordan, and around the world\" studying together, matching the description's cross-border cohort."
+  },
+  {
+    "slug": "arevim-masa-year-of-service",
+    "name": "Arevim - Masa Year of Service",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "hholamit.org.il confirms participants live \"like a local,\" volunteer 4 days/week inside Israeli hospitals and schools, and \"exchange daily adventures with Israelis,\" a clear 40-80% mixed-integration pattern."
+  },
+  {
+    "slug": "ariel-university-international-program",
+    "name": "Ariel University International Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "ariel.ac.il/wp/en returned no usable content on this fetch; classification rests on the description's statement that students \"live and study alongside Israeli peers\" on the Ariel campus dorms."
+  },
+  {
+    "slug": "artzi",
+    "name": "Artzi",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "artzigap.org failed to resolve (DNS error); classification relies on the description's explicit statement that participants live alongside Israeli students from the Ruach Nachon academy, building Hebrew fluency and Israeli friendships."
+  },
+  {
+    "slug": "ateres-bnos-yerushalayim",
+    "name": "Ateres Bnos Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite exists for this program; classification is based solely on the description of an English-oriented girls' seminary participating in Touro's Israel Option."
+  },
+  {
+    "slug": "bbyo-passport-israel-journey",
+    "name": "BBYO Passport: Israel Journey",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "bbyosummer.org redirects to bbyo.org/summer, a general BBYO teen-programs page; description confirms a guided 22-day teen tour (grades 8-12) that \"engages with\" but doesn't embed with Israeli communities."
+  },
+  {
+    "slug": "bbyo-passport-israel-trek",
+    "name": "BBYO Passport: Israel Trek",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "Same BBYO summer site as the Journey trip; description depicts an active touring/adventure itinerary (hiking, rafting, Gadna) rather than social integration with Israeli peers."
+  },
+  {
+    "slug": "bina-gap-year",
+    "name": "BINA Gap Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "bina.org.il/en confirms a program built around understanding \"Israeli society from the inside\" through communal living and volunteering, matching the description's Israeli-peer immersion."
+  },
+  {
+    "slug": "baer-miriam",
+    "name": "Baer Miriam",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "baermiriam.com shows testimonials from Anglo students (e.g., Miami, FL) and MASA gap-year references, consistent with an English-speaking seminary population."
+  },
+  {
+    "slug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+    "name": "Bar-Ilan University-Yeshiva University Summer Science Research Internship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "biu.ac.il was blocked by a bot-protection redirect; classification relies on the description that Yeshiva/Stern College undergrads are placed directly into Bar-Ilan University Israeli research labs."
+  },
+  {
+    "slug": "bat-ayin-yeshiva",
+    "name": "Bat Ayin Yeshiva",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "batayin.org has been shut down by its host; classification relies on the description of an English-speaking Breslov-influenced yeshiva/smicha track for men roughly mid-20s to early-30s."
+  },
+  {
+    "slug": "beit-chana-seminary-tzfat-chul-program",
+    "name": "Beit Chana Seminary (Tzfat) \u2013 Chul Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "beitchana.org is primarily Hebrew and lists the Chul (overseas) program as a distinct registration track from the Israeli seminar track, but requires strong Hebrew proficiency and a shared Limudei Kodesh curriculum."
+  },
+  {
+    "slug": "bezalel-academy-of-arts-and-design-student-exchange-program",
+    "name": "Bezalel Academy of Arts and Design - Student Exchange Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "bezalel.ac.il/en offers Hebrew/English/Arabic toggles and lists an incoming student-exchange track; combined with the description's Hebrew-or-English coursework and Hebrew University dorm housing, this points to real campus mixing with Israeli students."
+  },
+  {
+    "slug": "big-idea-gap-year",
+    "name": "Big Idea Gap Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "aardvarkisrael.com/big-idea confirmed the parent org's 17-21 age range but had no Big Idea-specific detail; description's internship placement at real Be'er Sheva tech companies (Wix, PayPal) alongside Hebrew study supports medium integration."
+  },
+  {
+    "slug": "birthright-israel",
+    "name": "Birthright Israel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "No contactWebsite was provided; classification relies on the well-documented Birthright format (ages 18-32) which typically includes an Israeli-peer \"mifgash\" segment alongside the touring itinerary."
+  },
+  {
+    "slug": "birthright-israel-excel-fellowship",
+    "name": "Birthright Israel Excel Fellowship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "birthrightisraelexcel.com redirected to taglitisrael.co.il/excel (not re-fetched); description of a competitive 10-week Tel Aviv internship at Israeli startups/firms for high-achieving Jewish college students supports workplace-level integration."
+  },
+  {
+    "slug": "bnei-akiva-olamit-shalem",
+    "name": "Bnei Akiva Olamit: Shalem",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "worldbneiakiva.org's homepage (English/Hebrew mix) did not contain Shalem-specific content; classification relies on the description of national-service placements at Israeli institutions (Beit Meir Hospital, ALUT) for overseas girls."
+  },
+  {
+    "slug": "bnei-david-eli",
+    "name": "Bnei David (Eli)",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "bneidavid.org is entirely in Hebrew and serves as a mainstream Israeli religious-Zionist mechina/yeshiva network; the description confirms overseas students simply integrate into the standard, overwhelmingly Israeli, pre-army programs."
+  },
+  {
+    "slug": "bnos-chava-seminary",
+    "name": "Bnos Chava Seminary",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Only a Facebook page is listed as contactWebsite (not fetched); classification is based on the description of a one-year teacher-training program for recent Bais Yaakov (Anglo) high school graduates."
+  },
+  {
+    "slug": "bnos-sarah-seminary",
+    "name": "Bnos Sarah Seminary",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "masaisrael.org/program/bnos-sarah confirms the seminary \"exclusively serves English-speaking overseas students\" from North America/Europe, ages 17-19, despite 80% of classes being taught in Hebrew."
+  },
+  {
+    "slug": "buchmann-mehta-school-of-music-international-program",
+    "name": "Buchmann-Mehta School of Music International Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "en-arts.tau.ac.il/Music/Inter-Prog confirms an international student body (30+ countries) at Bachelor's/Master's/Artist Diploma levels studying at Tel Aviv University under Israeli (IPO) mentors and in bilingual Hebrew/English productions."
+  },
+  {
+    "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+    "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "cameraoncampus.org confirms a college-student fellowship/advocacy focus across 80+ campuses; description shows a guided two-week lecture-and-touring mission rather than social integration with Israelis."
+  },
+  {
+    "slug": "cteen-summer-heritage-quest-poland-israel",
+    "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "cteensummer.com confirms an American-teen customer base (testimonials from US cities) on a guided Poland-Israel heritage trip, with no mention of Israeli peer interaction."
+  },
+  {
+    "slug": "career-israel",
+    "name": "Career Israel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "careerisrael.com confirms interns are placed directly at real Israeli companies (WalkMe, Strauss, Mobile ODT, BDO Ziv Haft) while living in a \"tight-knit\" international young-professional community."
+  },
+  {
+    "slug": "chai-israel",
+    "name": "Chai Israel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school",
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "chaiisrael.com failed to resolve (DNS error); classification relies on the description of a 17-19 year-old program combining classes, volunteering, and touring with no stated Israeli-peer mixing."
+  },
+  {
+    "slug": "chasedei-breslov-yeshiva",
+    "name": "Chasedei Breslov Yeshiva",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "breslov.com/Yeshiva (English site) advertises an \"International Remote Study Program,\" consistent with the description's English-speaking kollel/yeshiva serving overseas students since 1987."
+  },
+  {
+    "slug": "chemdas-bais-yaakov",
+    "name": "Chemdas Bais Yaakov",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite exists; classification is based solely on the description of a Jerusalem seminary in Touro's Israel Option, a track historically serving Anglo students."
+  },
+  {
+    "slug": "chevron-yeshiva-knesset-yisrael",
+    "name": "Chevron Yeshiva (Knesset Yisrael)",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "chevronyeshiva.org is a placeholder \"under construction\" page with minimal detail, but the description of a ~1,400-student, predominantly Israeli-student, Hebrew-speaking Litvish yeshiva with no formal overseas track strongly supports high integration."
+  },
+  {
+    "slug": "conservative-yeshiva",
+    "name": "Conservative Yeshiva",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "fuchsbergcenter.org confirms a Jerusalem beit midrash \"welcoming leaders and seekers from around the world\" of \"all ages,\" from school/college-age through older adults, matching the description's egalitarian, all-backgrounds Masorti framing."
+  },
+  {
+    "slug": "darchei-binah",
+    "name": "Darchei Binah",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "darcheibinah.org's homepage gave no demographic detail; classification relies on the description of a women's seminary offering a gap year plus an optional accredited second year with secular college coursework via Touro/Daemen partnerships."
+  },
+  {
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva \u2013 Gap Year Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "diasporayeshiva.com confirms a Mount Zion yeshiva for male high-school graduates with a Yeshiva-B.A. gap-year track, serving an English-speaking overseas population with no stated Israeli-peer mixing."
+  },
+  {
+    "slug": "diller-teen-fellows-israel-summer-seminar",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "dillerteenfellows.org confirms Israeli teens from cities like Ashkelon, Be'er Sheva, Haifa, and Tel Aviv are full partner-community fellows alongside diaspora teens at the Global Diller Congress, not just background locals."
+  },
+  {
+    "slug": "dvar-yerushalayim",
+    "name": "Dvar Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "dvar.org.il confirms it serves \"Jews from all over the world\" with a Beginners Program and Hebrew Ulpan aimed at those with minimal prior background, consistent with an English-speaking overseas population."
+  },
+  {
+    "slug": "eli-gap-year-program",
+    "name": "ELI Gap Year Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "TAU's ELI page states it is for 'recent high school graduates from any country' with English-taught coursework and mentorship from Israeli entrepreneurs, indicating a diaspora cohort with meaningful but partial contact with Israeli academic/business figures."
+  },
+  {
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Aish.com's homepage gave no program-specific detail, but the description targets unaffiliated, college-educated English-speaking women ages 22-30 exploring observance, an overwhelmingly non-Israeli English-speaking cohort."
+  },
+  {
+    "slug": "eco-israel-program",
+    "name": "Eco-Israel Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "The website (ecoisrael.org.il) failed to resolve in multiple attempts; the description describes an English-speaking 18-24 cohort on a permaculture farm with no explicit Israeli-student mixing mentioned."
+  },
+  {
+    "slug": "ein-prat-academy-for-leadership",
+    "name": "Ein Prat Academy for Leadership",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The site returned a 403 error, but the description explicitly confirms the academy is 'primarily Israeli-only and Hebrew-language' for Israeli high-school graduates before IDF service."
+  },
+  {
+    "slug": "emunah-college-faculty-of-arts-and-design",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The college's main site (emuna.emef.ac.il) is in Hebrew and describes preparing 'leading female creators in Israel,' indicating an Israeli-majority institution that the described English-support track for overseas women integrates into for an accredited Israeli degree."
+  },
+  {
+    "slug": "en-gedi-oasis-archaeological-project",
+    "name": "En-Gedi Oasis Archaeological Project",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "The dig's page describes participants generically with a stated minimum age of 16 and Hebrew University credit available, without clarifying nationality mix, so the existing medium tag typical of similar HUJI-run field schools was retained."
+  },
+  {
+    "slug": "fzy-year-course",
+    "name": "FZY Year Course",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "FZY's site describes serving '12-25 year olds' and 'university students' across UK and international programs, consistent with a mixed Anglo-cohort/Israeli-engagement gap year split between Jerusalem and Tel Aviv."
+  },
+  {
+    "slug": "garin-tzabar",
+    "name": "Garin Tzabar",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Garin Tzabar's site describes bringing overseas young Jewish adults to 'make Aliyah...and serve...in the IDF as Lone Soldiers,' meaning participants are fully embedded day-to-day in Israeli military units and host kibbutzim despite the cohort itself being overseas-recruited."
+  },
+  {
+    "slug": "ginsburg-ingerman-overseas-student-program-osp",
+    "name": "Ginsburg-Ingerman Overseas Student Program (OSP)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "BGU's study-abroad site explicitly promotes 'opportunities to connect with international and Israeli students' and describes Israeli dorm suitemates alongside its English-taught semester/year coursework."
+  },
+  {
+    "slug": "huc-jir-year-in-israel",
+    "name": "HUC-JIR Year-in-Israel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "HUC's site confirms a mandatory graduate Year-in-Israel for rabbinical/cantorial/Jewish-education students but does not describe mixed classes with Israeli students, matching a mostly-diaspora-cohort program with community-service-level local contact."
+  },
+  {
+    "slug": "habonim-dror-australia-shnat",
+    "name": "Habonim Dror Australia - Shnat",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The Shnat page refers to a 'Habonim Dror Shnat Hachshara Anglo' program for overseas English-speakers doing kibbutz and Jerusalem-based civil-society work, consistent with its sibling Shnat programs' medium-integration rating."
+  },
+  {
+    "slug": "habonim-dror-southern-africa-shnat",
+    "name": "Habonim Dror Southern Africa - Shnat",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The (redirected) Habonim Dror Southern Africa site describes the movement broadly for 'Jewish youth ages 9-24' without Shnat-specific detail, so the description's kibbutz-and-Jerusalem-training format was used to keep the medium rating consistent with sibling programs."
+  },
+  {
+    "slug": "habonim-dror-uk-shnat",
+    "name": "Habonim Dror UK - Shnat",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The UK site explicitly invites those 'finishing sixth form/college' to the 'Shnat Israel programme,' combining kibbutz time with volunteering, teaching English, and communal living in an Israeli city."
+  },
+  {
+    "slug": "habonim-dror-workshop",
+    "name": "Habonim Dror Workshop",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The North American site labels its offering 'For High School Graduates...A nine-month gap-year program...volunteering...and engagement with Israeli society,' including volunteering with an Israeli youth movement."
+  },
+  {
+    "slug": "hadassah-medical-center-volunteer-program",
+    "name": "Hadassah Medical Center Volunteer Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Hadassah International's general site had no volunteer-program section; the description states volunteers are placed 'alongside nursing staff' in Israeli hospitals, indicating real if staff-mediated daily contact with Israelis."
+  },
+  {
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The site describes bringing 'hundreds of students' from 'campuses throughout North America' (plus a High School Internship track) for meetings with Israeli figures, a short mission-style program rather than sustained daily mixing."
+  },
+  {
+    "slug": "hashomer-hatzair-shnat-hachshara",
+    "name": "Hashomer Hatzair Shnat Hachshara",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The org's page describes a diaspora movement 'present in dozens of countries'; the program description states participants live communally in Israel 'becoming part of Israeli society,' matching its Habonim-family peers' medium rating."
+  },
+  {
+    "slug": "hazor-excavations",
+    "name": "Hazor Excavations",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "The dig's site gave only a registration-open notice with no participant demographics, so the description's Kibbutz Kfar HaNassi field-school format (typical of similar HUJI-run digs) was used to assign medium integration."
+  },
+  {
+    "slug": "heichal-yerushalayim",
+    "name": "Heichal Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The site's tagline, 'Sephardic Community Yeshiva in Israel for Post High School Students,' targets overseas English-speaking students 'returning home to various communities,' indicating minimal local mixing."
+  },
+  {
+    "slug": "hevruta-gap-year-program",
+    "name": "Hevruta Gap-Year Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Both the Hartman Institute site and the description confirm the program is split '70...half from North America, half from Israel,' a near-even Anglo/Israeli mix."
+  },
+  {
+    "slug": "hippos-sussita-excavations",
+    "name": "Hippos-Sussita Excavations",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "The dig's site gave no participant demographics; medium integration was assigned by analogy to similar Israeli-university-run field schools at kibbutz-adjacent excavation sites."
+  },
+  {
+    "slug": "interuniversity-institute-for-marine-sciences-iui-eilat-intensive-courses",
+    "name": "Interuniversity Institute for Marine Sciences (IUI) Eilat - Intensive Courses",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "IUI's site explicitly invites 'students and researchers from around the world' while being 'open to all students from higher education institutions in Israel,' confirming a real Israeli/international mix in its courses."
+  },
+  {
+    "slug": "israel-free-spirit",
+    "name": "Israel Free Spirit",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The site describes Jewish young adults ages 18-32 departing from North American cities on a Birthright-style trip; the classic Birthright format and this program's Yachad/Yalla partnership typically include an Israeli-peer component."
+  },
+  {
+    "slug": "israel-government-fellows-igf",
+    "name": "Israel Government Fellows (IGF)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "The Begin Center site states IGF 'is the only existing program of its kind for non-Israelis,' with fellows working daily inside Israeli government ministries/NGOs alongside Israeli officials and in weekly seminars with policymakers."
+  },
+  {
+    "slug": "israel-lacrosse-gap-year-program",
+    "name": "Israel Lacrosse Gap Year Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "The Israel Lacrosse site states teams are 'comprised of native Israeli and North American based players,' a direct on-field mix of Israelis and overseas participants."
+  },
+  {
+    "slug": "israel-tech-challenge-fellows-program",
+    "name": "Israel Tech Challenge Fellows Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "The Masa tech-challenge URL and a follow-up search of masaisrael.org both failed to surface program specifics; the description's 10-month training with Israeli and multinational companies was used to keep the existing medium rating."
+  },
+  {
+    "slug": "israel-xp-bar-ilan-university-overseas-student-program",
+    "name": "Israel XP (Bar-Ilan University Overseas Student Program)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Bar-Ilan's Israel XP page describes the program for 'overseas students' and 'Jewish youth from abroad' in English-taught courses, without describing daily mixing with Israeli students."
+  },
+  {
+    "slug": "isralight",
+    "name": "Isralight",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Isralight's site gives only a general worldwide-Jewish-renaissance mission statement with no participant demographics; the description's short, flexible-length, English-language Old City learning format supported a low-integration, all-ages assignment."
+  },
+  {
+    "slug": "jewel-for-women",
+    "name": "JEWEL for Women",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite was available; the description states the program is 'taught in English with no Hebrew required' for ages 19-31, a hallmark of a low-integration English-speaking bubble."
+  },
+  {
+    "slug": "jts-israel-year",
+    "name": "JTS Israel Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "JTS's Israel page describes a required year for rabbinical/graduate students 'to engage with Israeli society, history and politics' at the Israeli Schechter Institute, indicating meaningful but institution-mediated local engagement."
+  },
+  {
+    "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+    "name": "Jerusalem Academy of Music and Dance \u2013 DanceJerusalem",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "JAMD's site references 'international students' financial aid within its Bachelor's/Master's dance degree; as a mainstream Israeli conservatory, technical dance training is presumed to occur alongside Israeli majors even though the Rothberg Israel-studies coursework is international-only."
+  },
+  {
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "JCT's page names it the 'International English Speakers Program,' with Torah study and a CS/Business degree both delivered in English mornings/afternoons, run separately from the college's Hebrew-track Israeli students."
+  },
+  {
+    "slug": "kadima-world-bnei-akiva",
+    "name": "Kadima (World Bnei Akiva)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "World Bnei Akiva's general site did not detail Kadima specifically; the description's internships, kibbutz living, Magen David Adom training and a taste of Marva IDF prep imply real day-to-day contact with Israeli institutions and staff."
+  },
+  {
+    "slug": "kibbutz-lotan-green-apprenticeship",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "Kibbutzlotan.com (in Hebrew) describes the kibbutz as home to new immigrants, Israeli soldiers, and 'volunteers arriving from around the world,' suggesting the apprenticeship has genuine contact with the kibbutz's Israeli membership, though the fetched page was general rather than apprenticeship-specific."
+  },
+  {
+    "slug": "kibbutz-program-center-kpc",
+    "name": "Kibbutz Program Center (KPC)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "KPC's site explicitly promises volunteers the chance to 'live and work with both Israeli youngsters as well as with other kibbutz volunteers,' a direct mixed-population claim."
+  },
+  {
+    "slug": "kibbutz-ulpan",
+    "name": "Kibbutz Ulpan",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "The Kibbutz Ulpan site states 'Olim live alongside tourists' and describes 'living and working alongside locals on a kibbutz' while studying Hebrew, confirming real day-to-day contact with Israelis."
+  },
+  {
+    "slug": "kivunim",
+    "name": "Kivunim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Kivunim's site confirms a high-school-graduate gap year with heavy multi-country travel; consistent with the description's academic/travel focus rather than deep local-Israeli mixing, the existing low rating was kept."
+  },
+  {
+    "slug": "kol-ami-mechina",
+    "name": "Kol Ami Mechina",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Kol Ami's site states the program is for 'ISRAELI & INTERNATIONAL HIGH SCHOOL GRADUATES' who 'CONNECT' for a 6-9 month gap year, confirming a direct, roughly balanced Israeli/overseas mix."
+  },
+  {
+    "slug": "leket-israel-volunteer-program",
+    "name": "Leket Israel Volunteer Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Leket's site returned a 403 error; the description describes flexible, no-experience volunteer sessions (gleaning, food rescue, sandwich-packing) without specifying an Israeli-participant mix, so a low rating was assigned with low confidence."
+  },
+  {
+    "slug": "limmud-world-bnei-akiva",
+    "name": "Limmud (World Bnei Akiva)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "World Bnei Akiva's general site did not mention the Limmud track specifically; the description's focus on internal Torah study and personal-growth programming, without kibbutz/internship/MDA components like its sibling Kadima, supported keeping the existing low integration rating."
+  },
+  {
+    "slug": "livnot",
+    "name": "Livnot U'Lehibanot",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite was available; description describes an English-speaking Jewish-identity/volunteering program in Tzfat and Jerusalem with no mention of Israeli co-participants, so classified from description alone."
+  },
+  {
+    "slug": "mda-overseas-volunteers-program",
+    "name": "MDA Overseas Volunteers Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (afmda.org) confirms international volunteers ages 18-40 work real ambulance shifts alongside Israeli paramedics/EMTs, a meaningful but not full immersion into Israeli society."
+  },
+  {
+    "slug": "mmy-michlelet-mevaseret-yerushalayim",
+    "name": "MMY (Michlelet Mevaseret Yerushalayim)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (mevaseret.org) is in English, targets North American post-high-school women (alumnae from Teaneck, Queens, etc.) with no mention of Israeli student integration."
+  },
+  {
+    "slug": "mta-world-bnei-akiva",
+    "name": "MTA (World Bnei Akiva)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Description states MTA is geared specifically to Anglo (Australia/NZ/South Africa) participants for immersive Beit Midrash learning, with no stated Israeli-participant mixing; worldbneiakiva.org homepage fetch did not surface MTA-specific details."
+  },
+  {
+    "slug": "maccabi-gap-year",
+    "name": "Maccabi Gap Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch was blocked (403); description's kibbutz living/work, taste of IDF Marva training, and MDA EMS training imply regular contact with Israelis even though the program itself is Anglo/movement-run."
+  },
+  {
+    "slug": "mach-hach-baaretz",
+    "name": "Mach Hach BaAretz",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (machhachbaaretz.org) confirms an English-language summer tour for '10th-grade graduates' with 600+ participants each summer from the Bnei Akiva movement, with no described Israeli-participant mixing."
+  },
+  {
+    "slug": "machaneh-bonim-bisrael-mbi",
+    "name": "Machaneh Bonim B'Israel (MBI)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (hdnaisrael.org) confirms MBI is an English-language program 'for rising 11th graders' drawing from Habonim Dror North America camps; 'engagement with Israeli society' is touring-based, not co-living/studying with Israeli peers."
+  },
+  {
+    "slug": "machon-alte-seminary-chaya-mushka",
+    "name": "Machon Alte - Seminary Chaya Mushka",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (machonalte.com) is in English, markets to women 'from 6 continents' ages 18-29 (plus a 45-65 track) and mentions some Israeli participants, but the overall framing and testimonials (Binghamton, Montreal, Florida) are overwhelmingly Anglo/international."
+  },
+  {
+    "slug": "machon-maayan",
+    "name": "Machon Maayan",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (machonmaayan.org) is in English for gap-year women, and description notes Israeli internships and a shared Israeli campus (gym/pool/track), indicating regular contact with Israeli society beyond a purely Anglo bubble."
+  },
+  {
+    "slug": "machon-meir",
+    "name": "Machon Meir",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (machonmeir.net) explicitly says 'Learn in English in an authentic Israeli yeshiva' serving 'students from around the world,' with no stated Israeli-student integration beyond a Hebrew ulpan component."
+  },
+  {
+    "slug": "machon-raaya",
+    "name": "Machon Raaya",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite was available; description identifies it as a Har Nof seminary participating in Touro/Hebrew Theological College's Israel Option programs, i.e. an Anglo post-high-school women's seminary track."
+  },
+  {
+    "slug": "machon-roni",
+    "name": "Machon Roni",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Diaspora Yeshiva site fetch was in English (with Hebrew/Yiddish phrases) but had no Machon Roni-specific detail; description describes English- and Spanish-language tracks for conversion candidates with no Israeli-participant mixing described."
+  },
+  {
+    "slug": "machon-sara-yerushalayim-msy",
+    "name": "Machon Sara Yerushalayim (MSY)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (machonsara.org) confirms an international, English/Hebrew-mixed seminary with a NY recruiting office, consistent with a Bais Yaakov-track Anglo post-high-school women's program."
+  },
+  {
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (machonshlomo.org) states verbatim: 'We serve Jewish, English-speaking college graduates in their 20s and 30s' pausing careers for Torah study, with no mention of Israeli participants."
+  },
+  {
+    "slug": "machon-yaakov",
+    "name": "Machon Yaakov",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (machonyaakov.org) is in English with Anglo testimonials (Ezra G., Denes B., Mike R.); description confirms a highly selective Har Nof yeshiva for ages 21-30."
+  },
+  {
+    "slug": "masa-israel-teaching-fellows-mitf",
+    "name": "Masa Israel Teaching Fellows (MITF)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (masaisrael.org) is in English and includes an alumnus testimonial noting it is 'one of the only programs where you actually live with Israelis,' corroborating placement as English-teaching assistants in Israeli public schools."
+  },
+  {
+    "slug": "mayanot-post-high-school-program-men",
+    "name": "Mayanot Post-High-School Program (Men)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (mayanot.edu) confirms in English that the 'Post High School Learning Program targets 18-19 year olds' from 'diverse Jewish backgrounds' with no mention of Israeli-participant integration."
+  },
+  {
+    "slug": "mayanot-womens-program",
+    "name": "Mayanot Women's Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Live site (mayanot.edu) is in English, describing 'women from all over the world'; description gives explicit ages 20-29 for this Judaic-studies track with no Israeli-participant mixing noted."
+  },
+  {
+    "slug": "mechina-olamit-world-bnei-akiva",
+    "name": "Mechina Olamit (World Bnei Akiva)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Description explicitly states 'shared living with Israeli peers' at a co-ed international mechina campus; worldbneiakiva.org homepage fetch did not surface program-specific corroboration."
+  },
+  {
+    "slug": "mechinat-aderet",
+    "name": "Mechinat Aderet",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "mechinot.org.il/en homepage fetch confirms the JCM network recruits students from other countries into these Hebrew-based Israeli mechinot alongside the primarily-Israeli cohort, consistent with a mixed population."
+  },
+  {
+    "slug": "mechinat-amichai",
+    "name": "Mechinat Amichai",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network as other mechinot (mechinot.org.il/en) which recruits some overseas students into a primarily-Israeli Hebrew-speaking mechina cohort."
+  },
+  {
+    "slug": "mechinat-arava",
+    "name": "Mechinat Arava",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting overseas students into a mixed cohort deliberately open to all Jewish denominations."
+  },
+  {
+    "slug": "mechinat-beeri",
+    "name": "Mechinat Be'eri",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting overseas students into a mixed, primarily-Israeli mechina cohort."
+  },
+  {
+    "slug": "mechinat-beit-yisrael-big",
+    "name": "Mechinat Beit Yisrael (Big)",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (reut.org.il) confirms about 70 Israeli high-school graduates from across the country attend, with no international track mentioned, matching the description's 'Israeli-only, Hebrew-language program with no overseas track.'"
+  },
+  {
+    "slug": "mechinat-bnei-david-eli",
+    "name": "Mechinat Bnei David (Eli)",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (bneidavid.org) is entirely in Hebrew and Israeli-army-focused, confirming the description's 'Israeli-only, Hebrew-language program with no overseas track.'"
+  },
+  {
+    "slug": "mechinat-dror",
+    "name": "Mechinat Dror",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort in the western Negev."
+  },
+  {
+    "slug": "mechinat-five-fingers-chamesh-etzbaot",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort."
+  },
+  {
+    "slug": "mechinat-haemek",
+    "name": "Mechinat HaEmek",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en); description explicitly emphasizes 'building bridges across different sectors of Israeli society,' consistent with a mixed cohort."
+  },
+  {
+    "slug": "mechinat-hannaton",
+    "name": "Mechinat Hannaton",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort in the Yizrael Valley."
+  },
+  {
+    "slug": "mechinat-haviva-reich",
+    "name": "Mechinat Haviva Reich",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort preparing for IDF service."
+  },
+  {
+    "slug": "mechinat-lachish",
+    "name": "Mechinat Lachish",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort."
+  },
+  {
+    "slug": "mechinat-meitzar",
+    "name": "Mechinat Meitzar",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort on the Golan Heights."
+  },
+  {
+    "slug": "mechinat-melach-haaretz",
+    "name": "Mechinat Melach HaAretz",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort across its two single-gender Dead Sea campuses."
+  },
+  {
+    "slug": "mechinat-nachshon",
+    "name": "Mechinat Nachshon",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch failed (connection reset); description explicitly states it 'runs in Hebrew and is primarily for Israelis,' with overseas participants only joining in small numbers through Yachad."
+  },
+  {
+    "slug": "mechinat-rabin",
+    "name": "Mechinat Rabin",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch failed (DNS error); description explicitly states it 'has a dedicated international track welcoming non-Israeli participants ages 18-19 to study alongside Israeli peers,' indicating a genuine mixed cohort."
+  },
+  {
+    "slug": "mechinat-rakia",
+    "name": "Mechinat Rakia",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort in Harish."
+  },
+  {
+    "slug": "mechinat-tavor",
+    "name": "Mechinat Tavor",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en) recruiting some overseas students into a mixed, primarily-Israeli mechina cohort spanning northern Israel communities."
+  },
+  {
+    "slug": "mechinat-telem",
+    "name": "Mechinat Telem",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same JCM network (mechinot.org.il/en); description emphasizes coexistence work within Tel Aviv-Jaffa's diverse Jewish and Arab communities, consistent with a mixed cohort."
+  },
+  {
+    "slug": "medical-school-for-international-health-msih",
+    "name": "Medical School for International Health (MSIH)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch failed (DNS error); description confirms an English-taught, North American-style M.D. program requiring a prior bachelor's degree and MCAT/GAMSAT, with Medical Hebrew study but a fourth year completed at Columbia, indicating limited but real exposure to Israeli campus life."
+  },
+  {
+    "slug": "meorot-yerushalayim",
+    "name": "Meorot Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (gomeorot.com) is in English and explicitly frames itself as a gap-year seminary ('Before college - you need college for your soul'), for women from public school/non-observant backgrounds, with no Israeli-participant integration mentioned."
+  },
+  {
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "name": "Michlalah Jerusalem College \u2013 Machal (Overseas Students Program)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live site (michlalahmachal.com) calls it 'The Linda Pinsky School for Overseas Students' with students from '30 high schools world-wide' and no mention of Israeli peer integration."
+  },
+  {
+    "slug": "midreshet-amit",
+    "name": "Midreshet AMIT",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (midreshetamit.org) is English-language with North American testimonials and no stated Israeli-student integration; chesed work is with Israeli children, not peer students, matching the typical anglo-seminary pattern."
+  },
+  {
+    "slug": "midreshet-amudim",
+    "name": "Midreshet Amudim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Site (amudimisrael.org) explicitly describes it as 'An Israel Gap Year Seminary Program for Post High School Modern Orthodox Jewish Women' with no mention of Israeli students or local integration."
+  },
+  {
+    "slug": "midreshet-berot-bat-ayin",
+    "name": "Midreshet B'erot Bat Ayin",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (berotbatayin.org) is English-only, welcomes 'women of all ages and nationality,' with no stated Israeli-student mixing; broad age range covers gap-year through older baalot teshuva/conversion candidates."
+  },
+  {
+    "slug": "midreshet-ein-hanatziv",
+    "name": "Midreshet Ein Hanatziv",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Description states overseas students are 'fully immersed with 60-80 Israeli students living on the same schedule' on a working kibbutz, indicating a genuine anglo/Israeli mix rather than a segregated overseas bubble."
+  },
+  {
+    "slug": "midreshet-eshel",
+    "name": "Midreshet Eshel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "English-language site (sephardicseminary.org) gives no explicit population breakdown; description and legacy tag both point to a typical anglo overseas seminary near the Kotel."
+  },
+  {
+    "slug": "midreshet-harova",
+    "name": "Midreshet HaRova",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch was blocked (403); description's emphasis on 'overseas program' with a focus on Aliyah/connection to Israel, not on Israeli peers, matches the existing low-integration tag."
+  },
+  {
+    "slug": "midreshet-lindenbaum",
+    "name": "Midreshet Lindenbaum",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (midreshet-lindenbaum.org.il) lists 'Israeli Integration' as a named program feature alongside a separate Hebrew-language 'Israeli programs' section, suggesting a real (if partial) mix beyond a purely overseas track."
+  },
+  {
+    "slug": "midreshet-lindenbaum-hadas-chul-midrashit-chul",
+    "name": "Midreshet Lindenbaum",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Same institution/site as Midreshet Lindenbaum above, which advertises 'Israeli Integration' as a program feature alongside its overseas tracks."
+  },
+  {
+    "slug": "midreshet-moriah",
+    "name": "Midreshet Moriah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (midreshetmoriah.org) testimonials are exclusively from North American cities (Chicago, Brooklyn, London, etc.) with no mention of Israeli peers."
+  },
+  {
+    "slug": "midreshet-rachel-vchaya",
+    "name": "Midreshet Rachel v'Chaya",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description explicitly targets 'English-speaking Orthodox women in their 20s and 30s (college graduates and professionals)'; site (darchenoam.org) gives no indication of Israeli-student integration."
+  },
+  {
+    "slug": "midreshet-tehillah",
+    "name": "Midreshet Tehillah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (midreshettehillah.com) references 'Shana Alef/Bet' and a gap-year recruitment page for 'recent high school graduates' with no stated Israeli-student mixing."
+  },
+  {
+    "slug": "midreshet-torat-chessed",
+    "name": "Midreshet Torat Chessed",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Site (toratchessed.com) testimonials are all from American day schools (Yavneh Manchester, HAFTR NY, Maayanot NJ, etc.) with no mention of Israeli students; chesed work is with at-risk children, not integration with Israeli peers."
+  },
+  {
+    "slug": "migdal-oz-ska-beit-midrash-for-women",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Site (skamigdaloz.org) pairs 'an authentic Israeli experience and a friendly English-speaking peer group,' with a testimonial saying 'I have so many Israeli friends and I'm surrounded by Israelis all the time' and learning 'in Hebrew with Israelis,' matching the description's ~130 fully-integrated overseas-and-Israeli shana aleph cohort."
+  },
+  {
+    "slug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+    "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (themir.org) confirms students from 28 countries but does not describe daily mixing between the large American/overseas division and the predominantly Israeli/Haredi core beit midrash, consistent with the description's framing of a separate overseas division for English speakers."
+  },
+  {
+    "slug": "musrara-international-residency-program",
+    "name": "Musrara International Residency Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Description explicitly states the juried residency selects 'five interdisciplinary artists from Israel and abroad,' a direct mix of Israeli and overseas participants working alongside each other in Jerusalem."
+  },
+  {
+    "slug": "ncsy-give-girls-israel-volunteer-experience",
+    "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "Website (give.ncsy.org / ncsy.org) gave no population details; description's volunteering (soup kitchens, kibbutz work) is service-oriented touring for American teens rather than sustained integration with Israeli peers."
+  },
+  {
+    "slug": "ncsy-kollel",
+    "name": "NCSY Kollel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (kollel.ncsy.org) gave no population breakdown; description centers on Torah learning, sports leagues, and touring among the American teen cohort with no mention of Israeli integration."
+  },
+  {
+    "slug": "ncsy-next-step-israel-internships",
+    "name": "NCSY Next Step (Israel Internships)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "Description has teens working 'four days a week with Jerusalem-area companies and organizations,' implying real workplace exposure to Israeli colleagues, though the site (nextstep.ncsy.org) did not confirm specifics."
+  },
+  {
+    "slug": "nativ",
+    "name": "Nativ College Leadership Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite available; description's inclusion of army service (Marva) alongside Israel study suggests meaningful contact with Israeli soldiers/society, though this is inferred from text alone."
+  },
+  {
+    "slug": "nativ-track-aardvark-israel",
+    "name": "Nativ Track (Aardvark Israel)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Site (aardvarkisrael.com/nativ) describes Hebrew ulpan, 'Live Like a Local' housing in Jerusalem/Tel Aviv neighborhoods, and internships at Israeli media outlets and startups -- a real, if partial, mix with Israeli society."
+  },
+  {
+    "slug": "nesiya-kehillah-summer-program",
+    "name": "Nesiya Kehillah Summer Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "The nesiya.org domain now appears to be defunct/parked (fetch redirected to an unrelated site), so classification relies on the description's explicit statement that 'Israeli and North American participants travel together.'"
+  },
+  {
+    "slug": "neve-yerushalayim-machon-devorah",
+    "name": "Neve Yerushalayim \u2013 Machon Devorah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Parent site (nevey.org) targets 'Jewish women 20 to 33 years old' across English-language program tracks, with no mention of Israeli-student integration for this specific track."
+  },
+  {
+    "slug": "neve-yerushalayim-mechina-introductory-program",
+    "name": "Neve Yerushalayim \u2013 Mechina Introductory Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description states ages 19-35 for this 6-week introductory track; parent site (nevey.org) is English-only and targets 'Jewish women 20 to 33' with no Israeli-integration component mentioned."
+  },
+  {
+    "slug": "neve-yerushalayim-shalhevet-program",
+    "name": "Neve Yerushalayim \u2013 Shalhevet Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Parent site (nevey.org) targets 'Jewish women 20 to 33 years old' seeking foundational Jewish knowledge (baalot teshuva focus), with no stated Israeli-student mixing."
+  },
+  {
+    "slug": "neveh-zion",
+    "name": "Neveh Zion",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (nevehzion.org) is entirely English-language and describes learning, trips, music and rebbeim mentorship for the cohort itself, with no mention of Israeli student integration despite the legacy 'medium' tag."
+  },
+  {
+    "slug": "new-israel-fund-shatil-social-justice-fellowship",
+    "name": "New Israel Fund / Shatil Social Justice Fellowship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description requires 'strong Hebrew' for fellows interning '32 hours a week' embedded at an individually-selected Israeli NGO alongside Israeli staff; website fetch was blocked (403) so this rests on the description."
+  },
+  {
+    "slug": "nishmat-alisa-flatow-program",
+    "name": "Nishmat - Alisa Flatow Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (nishmat.net) distinguishes the English-speaking overseas 'Alisa Flatow' tracks (Shana Ba'Aretz and Post-College) from a separate 'Israeli Midrasha' for women who completed IDF/National Service, indicating the overseas track itself is not substantially mixed with Israeli students."
+  },
+  {
+    "slug": "noar-hadash-israel-program",
+    "name": "No'ar Hadash Israel Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "The noarhadash.org domain appears to be defunct (fetch redirected to an unrelated site); classification relies on the description's explicit statement that participants do 'tikkun olam projects with Israeli peers.'"
+  },
+  {
+    "slug": "noam-drachim-gap-year",
+    "name": "Noam - Drachim Gap Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch was blocked (403); description situates the program at 'Kibbutz Hannaton's Education Center,' a real Israeli community, suggesting meaningful local contact beyond an all-overseas bubble."
+  },
+  {
+    "slug": "otzma",
+    "name": "OTZMA",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Website unreachable (DNS failure); description has fellows doing Hebrew ulpan, full-time service in a development town, and a final stretch on a kibbutz, in the army, or an internship -- deep embedding in Israeli communities even though the fellowship cohort itself is all overseas."
+  },
+  {
+    "slug": "ohr-avraham",
+    "name": "Ohr Avraham",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (ohravraham.com) is a bare 'coming soon' placeholder with no content; description explicitly frames it as a 'gap-year yeshiva ... for English-speaking post-high-school men' with no Israeli-integration mention."
+  },
+  {
+    "slug": "ohr-somayach-derech-institute-for-torah-studies",
+    "name": "Ohr Somayach \u2013 Derech Institute for Torah Studies",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch was blocked (403); description frames it as a baal-teshuva-oriented program for 'motivated post-high-school students' building independent text-study skills, with no mention of Israeli-student mixing."
+  },
+  {
+    "slug": "ohrsom",
+    "name": "Ohrsom",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "Site (ohrsomstudent.com.au) confirms an exclusively Australian population ('young Jewish Australians,' Melbourne/Sydney student centres) with no mention of Israeli participants; explicitly 'for post high school students,' with university students eligible for shorter trips."
+  },
+  {
+    "slug": "ono-academic-college-international-school",
+    "name": "Ono Academic College International School",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Site (ono.ac.il) states students 'study alongside Hebrew-speaking cohorts ... fully participating in campus life with their Israeli peers,' while the International School itself is 'designed for English-speaking and new Olim students,' spanning undergraduate (LLB) through graduate (MBA) programs."
+  },
+  {
+    "slug": "onward-israel",
+    "name": "Onward Israel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite available; description of a 'summer or semester internship' for 'college-age young adults' implies workplace exposure to Israeli colleagues, consistent with the legacy medium tag, but this is inferred from text alone."
+  },
+  {
+    "slug": "otzem-overseas-program",
+    "name": "Otzem Overseas Program",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Site (otzem.org.il) states overseas participants do it 'together with your Israeli peers' in an integrated setting (not a separate cohort), giving 'up-close and personal' experiences with Israeli mechina students preparing for military service."
+  },
+  {
+    "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+    "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (pardes.org.il) testimonials come from Philadelphia, Strasbourg, Berlin and San Francisco with no mention of Israeli students; program is explicitly aimed at 'university graduates.'"
+  },
+  {
+    "slug": "ponevezh-yeshiva",
+    "name": "Ponevezh Yeshiva",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Description explicitly states it is 'Israeli/Haredi-students-only with no formal overseas program'; the bilingual site (ponevez.co.il) confirms an Israeli institutional base (Bnei Brak) with no international-student track described."
+  },
+  {
+    "slug": "project-ten-kibbutz-harduf",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site (jewishagency.org/project-ten) says the program brings together 'Israeli and diaspora volunteers' working 'in full collaboration with local organizations,' matching the description's coexistence sessions and Hebrew/Arabic classes."
+  },
+  {
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "RRC's site (fetched) had no page specific to this required rabbinical-student summer term, so classification relies on the description of coursework/experiential learning about Israel for RRC's own graduate students with no mention of Israeli student mixing."
+  },
+  {
+    "slug": "ramah-israel-seminar",
+    "name": "Ramah Israel Seminar",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "The program's own site describes it as being for 'rising 12th graders from the Ramah overnight camps in North America,' noting participants sometimes connect with Israeli teens but the core cohort is American."
+  },
+  {
+    "slug": "reichman-university-study-abroad",
+    "name": "Reichman University Study Abroad",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Reichman's own international-school site describes a large separate international student body (2,500 students from 90 countries, one-third of enrollment) without describing integrated classes with Israeli undergraduates."
+  },
+  {
+    "slug": "rimon-school-of-music-study-abroad-program",
+    "name": "Rimon School of Music - Study Abroad Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description notes this is a separate English-language study-abroad track on a commuter campus with no on-site housing, distinct from Rimon's Hebrew-taught full majors, indicating limited mixing with Israeli students."
+  },
+  {
+    "slug": "rinas-bais-yaakov",
+    "name": "Rinas Bais Yaakov",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The seminary's own site highlights a dedicated U.S. (Brooklyn) alumnae base and describes overseas American students, consistent with a post-high-school gap-year seminary with no described Israeli integration."
+  },
+  {
+    "slug": "rothberg-international-school",
+    "name": "Rothberg International School",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Rothberg's own site frames itself as Hebrew University's dedicated school for international/overseas students in English-taught study-abroad and exchange tracks, without describing integration into Israeli undergraduate classes."
+  },
+  {
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "YU's own program page (fetched) confirms gap-year students immerse at 40+ partner Israeli yeshivot/seminarot of varying character, so the Israeli-integration level likely varies by placement rather than being uniform."
+  },
+  {
+    "slug": "sam-spiegel-jerusalem-international-film-lab",
+    "name": "Sam Spiegel Jerusalem International Film Lab",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The description explicitly says the lab brings together a small cohort of 'local and international emerging filmmakers,' indicating a genuine mix of Israeli and overseas participants."
+  },
+  {
+    "slug": "sapir-international",
+    "name": "Sapir International",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "The description explicitly states overseas students take these English-taught courses 'studying alongside Israeli peers.'"
+  },
+  {
+    "slug": "sar-el-volunteers-for-israel",
+    "name": "Sar-El (Volunteers for Israel)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Volunteers 'live and work on military bases' doing shared logistical tasks directly alongside Israeli soldiers, open to ages 17 and up with no stated upper limit."
+  },
+  {
+    "slug": "save-a-childs-heart-volunteer-program",
+    "name": "Save a Child's Heart Volunteer Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Volunteers (18+) support non-Israeli patient families from developing countries at an Israeli hospital in Holon; the site (fetched) gave no detail on the extent of interaction with Israeli staff or society."
+  },
+  {
+    "slug": "shaalvim-for-women-sfw",
+    "name": "Sha'alvim for Women (SFW)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "SFW's English-language site and typical Shabbatonim/tiyulim structure indicate an overseas gap-year seminary population with no described mixing with Israeli students."
+  },
+  {
+    "slug": "shapells-yeshiva-darche-noam",
+    "name": "Shapell's / Yeshiva Darch\u00e9 Noam",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The yeshiva's own site confirms it serves English-speaking college graduates and young professionals from overseas, with no mention of integrated Israeli students."
+  },
+  {
+    "slug": "sharfmans-bnot-torah-institute",
+    "name": "Sharfman's / Bnot Torah Institute",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The seminary's own site lists testimonials from students across North American cities (Manhattan, Toronto, Los Angeles, etc.), confirming a post-high-school gap-year population of overseas women with no Israeli-student mixing described."
+  },
+  {
+    "slug": "shearim",
+    "name": "She'arim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The site's U.S. contact number and description of students being 'away from home' for the first time indicate an overseas, English-speaking gap-year population."
+  },
+  {
+    "slug": "shenkar-college-international-program",
+    "name": "Shenkar College International Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "Description notes hands-on workshops are 'conducted in simplified Hebrew,' implying some contact with the Hebrew-speaking campus environment beyond English-taught core courses; the site itself could not be fetched (expired SSL certificate)."
+  },
+  {
+    "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+    "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Israeli National Service placements are overwhelmingly staffed and filled by Israeli volunteers; Nefesh B'Nefesh's role is to place English-speaking olim/lone volunteers (ages 17-24) into that predominantly Israeli system, though the specific program page returned a 404 on fetch."
+  },
+  {
+    "slug": "shiloh-excavations",
+    "name": "Shiloh Excavations",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Run by the American nonprofit Associates for Biblical Research and open to volunteers of any experience level in flexible short blocks, typical of field schools drawing mostly overseas volunteers; the site (fetched) gave no participant breakdown."
+  },
+  {
+    "slug": "shnat-betar",
+    "name": "Shnat Betar",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Description centers on '100+ young people from other youth movements worldwide' training together plus a Marva IDF taste-course and touring; Betar's own site is Hebrew-only (fetched), suggesting an Israeli-run framework, but the actual Israeli-participant ratio in this specific overseas track is unclear."
+  },
+  {
+    "slug": "shnat-netzer",
+    "name": "Shnat Netzer",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Netzer Olami's own page (fetched) describes 'hundreds of participants from all over the world' programming 'alongside Netzerniks from Australia, UK, South Africa,' with no mention of Israeli participants in the cohort."
+  },
+  {
+    "slug": "shvilim-traveling-gap-year-program",
+    "name": "Shvilim Traveling Gap Year Program",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The program is explicitly described as open to '18-22-year-old European, Israeli and American Jews,' and the hosting site (fetched) notes a companion program on the same platform that is roughly half Israeli, half international."
+  },
+  {
+    "slug": "tamid-israel-fellowship",
+    "name": "TAMID Israel Fellowship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "TAMID's own site (fetched) confirms fellows are college students who work hands-on inside Israeli companies collaborating directly with Israeli teams."
+  },
+  {
+    "slug": "tau-international-study-abroad-semesteryear",
+    "name": "TAU International (Study Abroad Semester/Year)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "TAU International's own site (fetched) markets this as an undergraduate study-abroad track for international students with English-taught courses, structurally a separate track from Israeli degree students despite shared campus life."
+  },
+  {
+    "slug": "tech2peace",
+    "name": "Tech2Peace",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The program (site fetched) is built around bringing together young Israelis and Palestinians ages 20-30 directly for tech training and dialogue, putting Israeli participants at roughly half the cohort."
+  },
+  {
+    "slug": "technion-american-medical-school-teams",
+    "name": "Technion American Medical School (TeAMS)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "TeAMS is an English-language M.D. track for US/Canadian pre-med graduates preparing to practice in North America; clinical years bring some exposure to Israeli medical centers but the program and curriculum remain a separate American track (site fetched gave no further detail)."
+  },
+  {
+    "slug": "technion-international-semesteryear-abroad",
+    "name": "Technion International - Semester/Year Abroad",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "Description states students live on campus 'with Israeli and international students,' directly confirming meaningful mixing."
+  },
+  {
+    "slug": "tel-abel-beth-maacah-excavation",
+    "name": "Tel Abel Beth Maacah Excavation",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "A Hebrew University-directed field school open for the 'field experience alone' or Rothberg International School credit, typical of digs that draw mostly overseas student volunteers; the site (fetched) gave no participant breakdown."
+  },
+  {
+    "slug": "tel-akko-total-archaeology-project",
+    "name": "Tel Akko Total Archaeology Project",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The project's own site (fetched) states its team includes 'students from the United States, Israel, Europe and Asia,' explicitly confirming an Israeli component in the mixed international dig team."
+  },
+  {
+    "slug": "tel-aviv-university-mfa-in-documentary-cinema",
+    "name": "Tel Aviv University - MFA in Documentary Cinema",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The MFA is described as open to 'graduates of TAU and other institutions, including from abroad,' implying Israeli TAU graduates study alongside international students in the same cohort."
+  },
+  {
+    "slug": "tel-aviv-university-ny-stateamerican-program-sackler-gray-faculty-of-medicine",
+    "name": "Tel Aviv University NY State/American Program (Sackler / Gray Faculty of Medicine)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "This is an English-language, American-chartered M.D. track for US/Canadian citizens; some Hebrew competency is required only for clinical years, indicating limited but real exposure to Israeli hospital settings (not independently fetched)."
+  },
+  {
+    "slug": "tel-gezer-excavation",
+    "name": "Tel Gezer Excavation",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Run through a consortium of sponsoring university programs with fees/credit varying by school (site fetched); no participant demographic details were available."
+  },
+  {
+    "slug": "tel-megiddo-excavation",
+    "name": "Tel Megiddo Excavation",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "This is Tel Aviv University's own excavation with TAU academic credit available, so Israeli TAU archaeology students likely join alongside international volunteers, though this could not be confirmed since the program's only contact link is a Facebook page."
+  },
+  {
+    "slug": "tel-shimron-excavations",
+    "name": "Tel Shimron Excavations",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Open to undergraduates, graduate students, and general volunteers of any experience level; the site (fetched) provided no specifics on the Israeli vs. international composition of participants."
+  },
+  {
+    "slug": "the-anne-samson-jerusalem-journey-tjj",
+    "name": "The Anne Samson Jerusalem Journey (TJJ)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "TJJ's own site confirms it is for 'Current 9th, 10th, 11th, 12th' grade public-school students on a three-week guided tour, with no described program-run interaction with Israeli peers."
+  },
+  {
+    "slug": "tichon-ramah-yerushalayim-try",
+    "name": "Tichon Ramah Yerushalayim (TRY)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "low",
+    "evidence": "TRY's own site confirms grades 10-12 and describes the cohort as 'Ramahniks and friends from all over North America' studying within the existing Ramah Jerusalem High School, but does not clarify how much class time is shared with Israeli students at that school."
+  },
+  {
+    "slug": "tikkun-olam-tel-aviv-jaffa",
+    "name": "Tikkun Olam Tel Aviv-Jaffa",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "The program's own site confirms participants (ages 21-30) 'interact significantly with Israeli communities,' with the Coexistence track specifically volunteering in Jaffa organizations alongside Arab and Jewish Israelis."
+  },
+  {
+    "slug": "tikvah-israel-fellowship",
+    "name": "Tikvah Israel Fellowship",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Tikvah's own site describes a fellowship bringing together students from 20+ overseas shana ba'aretz (gap year) programs to study Zionist history together, with no mention of Israeli student participation."
+  },
+  {
+    "slug": "tomer-devorah-seminary",
+    "name": "Tomer Devorah Seminary",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The seminary's own site describes an overseas (mostly American) 'shana alef/bet' gap-year student body with no mention of integrated Israeli students."
+  },
+  {
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Torah Tech's own site confirms interns work inside 'Israel's leading startups' (e.g. Powtoon, AutoFleet), giving gap-year participants direct daily contact with Israeli colleagues."
+  },
+  {
+    "slug": "torani-world-bnei-akiva",
+    "name": "Torani (World Bnei Akiva)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Description says the track layers on 'a wider Israel-wide peer community' via World Bnei Akiva's kibbutz stay and seminars, a movement with a large Israeli membership base, though the fetched site did not confirm the specific mixing ratio."
+  },
+  {
+    "slug": "urj-heller-high",
+    "name": "URJ Heller High",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "low",
+    "evidence": "Program serves Reform teens in grades 10-12 on a home-school-equivalent English curriculum; the fetched site describes immersion in Israel but never mentions Israeli classmates or peers, so it reads as an overwhelmingly diaspora-only cohort."
+  },
+  {
+    "slug": "ulpan-etzion",
+    "name": "Ulpan Etzion",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The fetched Jewish Agency page confirms this is an intensive Hebrew-immersion ulpan for olim aged 22-35 with a college degree, combined with kibbutz living and preparation for IDF service/Israeli employment, i.e. deep immersion into Israeli life."
+  },
+  {
+    "slug": "ulpan-or-sabra-immersion-program",
+    "name": "Ulpan-Or Sabra Immersion Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Website fetch failed (403 Forbidden); per description this is one-on-one private Hebrew tutoring 'for anyone,' with minimal peer-group interaction with Israelis beyond the individual tutor, and no stated age restriction."
+  },
+  {
+    "slug": "university-of-haifa-international-msc-in-marine-biology",
+    "name": "University of Haifa International MSc in Marine Biology",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description states Israeli and international students study together over two years; fetch confirms it is an English-taught, thesis-track MSc requiring a prior BSc degree (3.4+ GPA)."
+  },
+  {
+    "slug": "university-of-haifa-international-school-semesteryear-abroad",
+    "name": "University of Haifa International School - Semester/Year Abroad",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms English-taught courses for current BA students/recent graduates from 4-year institutions; description notes students live alongside Israeli students on Mount Carmel."
+  },
+  {
+    "slug": "vois-volunteer-in-israel",
+    "name": "VOIS - Volunteer in Israel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "Site fetch returned 403 Forbidden; per description, overseas volunteers from 51+ countries are embedded day-to-day in Israeli welfare institutions working alongside Israeli staff and clients, though the volunteer cohort itself is entirely international."
+  },
+  {
+    "slug": "vertigo-international-dance-program-vidp",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "Description explicitly states the program trains dancers 18-28 (men) / 18-25 (women) 'from Israel and around the world' at an Israeli-Ministry-of-Culture-recognized dance company; fetch confirmed the bilingual Hebrew/English site."
+  },
+  {
+    "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+    "name": "Weizmann Institute - Kupcinet-Getz International Summer School",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch failed (connection reset); per description, individual undergraduates are placed into a working Weizmann lab under an Israeli research scientist and team for 7 weeks, implying daily embedding among Israeli researchers rather than isolation."
+  },
+  {
+    "slug": "yachad-gap-year",
+    "name": "Yachad Gap Year",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Live fetch confirms: 'your Israel experience will be more up-close and personal...because you'll be doing it with your Israeli peers at the Mechina,' directly describing diaspora participants integrated with Israeli gap-year peers."
+  },
+  {
+    "slug": "yad-byad",
+    "name": "Yad B'Yad",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "low",
+    "evidence": "Fetch returned only contact/navigation info; per description this is a 5-week touring and Jewish-learning trip pairing typical American high schoolers with Yachad members with disabilities, with no mention of Israeli peer participants."
+  },
+  {
+    "slug": "yahel-social-change-fellowship",
+    "name": "Yahel Social Change Fellowship",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms 'a diverse cohort of fellows from around the world' embedded in grassroots volunteering within Israeli communities; description specifies ages 22-32 doing ~30 hrs/week of local volunteering plus Hebrew ulpan."
+  },
+  {
+    "slug": "yallah-israel-nfty-in-israel-adventure",
+    "name": "Yallah! Israel (NFTY in Israel - Adventure)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "low",
+    "evidence": "Fetch of the NFTY homepage did not surface program-specific detail; per description this is a 4-week touring/hiking/social-justice summer trip for Reform teens in grades 10-12 with no mention of Israeli-student mixing."
+  },
+  {
+    "slug": "yeshiva-gedolah-yagdil-torah",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Website fetch returned content about a Crown Heights (Brooklyn) community rather than the Jerusalem yeshiva described, so classification relies on the description of a Jerusalem yeshiva for post-high-school men with no stated Israeli integration."
+  },
+  {
+    "slug": "yeshiva-university-summer-internship-masschallenge-israel",
+    "name": "Yeshiva University Summer Internship (MassChallenge-Israel)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms YU students are placed directly into Israeli companies via MassChallenge-Israel with pitch nights, company visits, and mentoring, indicating real day-to-day interaction with Israeli colleagues despite an all-American student cohort."
+  },
+  {
+    "slug": "yeshivas-bais-yisroel",
+    "name": "Yeshivas Bais Yisroel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low",
+    "evidence": "Fetch confirms an English-language Jerusalem yeshiva with US and Israel offices and multi-year tracks (first/second/third year); no mention of integration with Israeli students."
+  },
+  {
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms the yeshiva combines 'post high-school talmidim' with 'avreichim, semicha students and professionals' in an English-language Old City institution, with no stated Israeli-student integration."
+  },
+  {
+    "slug": "yeshivas-birchas-mordechai",
+    "name": "Yeshivas Birchas Mordechai",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No website is available and the description gives only 'a yeshiva in Beitar led by Rav Yaakov Friedman,' so classification defaults to the existing low-integration tag with low confidence."
+  },
+  {
+    "slug": "yeshivas-brisk",
+    "name": "Yeshivas Brisk",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "No website exists; description states it 'serves Israeli/Haredi students almost exclusively with no dedicated overseas program,' directly matching the overwhelmingly-Israeli rule for high integration."
+  },
+  {
+    "slug": "yeshivas-chofetz-chaim-yerushalayim",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Site fetch returned 403 Forbidden; description mentions only Torah/mussar instruction in the Slabodka tradition with no population detail, so classification defaults to a typical English-speaking post-high-school yeshiva."
+  },
+  {
+    "slug": "yeshivas-nesivos-ahron",
+    "name": "Yeshivas Nesivos Ahron",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Site redirected to nesivosyeshiva.com and was not further queried; description says only that it was founded in 2008 'to provide motivated young men with the foundations of Torah,' with no Israeli-integration detail."
+  },
+  {
+    "slug": "yeshivas-orchos-chaim",
+    "name": "Yeshivas Orchos Chaim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Site fetch timed out, but the description explicitly labels it 'A gap-year yeshiva in Jerusalem for English-speaking post-high-school men,' directly indicating a low-integration, English-only cohort."
+  },
+  {
+    "slug": "yeshivas-toras-chaim",
+    "name": "Yeshivas Toras Chaim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms an English-language yeshiva; description specifies it was founded 'for overseas students who intend to complete their undergraduate degree' with college-credit coordination, implying an overseas, low-integration population."
+  },
+  {
+    "slug": "yeshivas-zeev-hatorah",
+    "name": "Yeshivas Zeev Hatorah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms an English-language site with US (CA/NY) and Israel offices recruiting overseas students to study in Israel, with no mention of Israeli-student integration."
+  },
+  {
+    "slug": "yeshivat-ashreinu",
+    "name": "Yeshivat Ashreinu",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Fetch confirms talmidim come from 'across the United States...Canada, the UK and Europe' in a Shana Alef/Bet gap-year structure, with no mention of Israeli-student integration."
+  },
+  {
+    "slug": "yeshivat-ateret-yerushalayim",
+    "name": "Yeshivat Ateret Yerushalayim",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site fetch failed (403 Forbidden); description states it is 'Israeli-student focused with no widely-advertised overseas program,' matching the overwhelmingly-Israeli rule."
+  },
+  {
+    "slug": "yeshivat-beit-el",
+    "name": "Yeshivat Beit El",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "No fetch attempted (generic aggregator site); description notes this 250+-student Hesder yeshiva 'maintains a modest overseas program, less prominent than at peer Hesder yeshivot,' implying overseas participants are a small minority immersed in an overwhelmingly Israeli institution."
+  },
+  {
+    "slug": "yeshivat-birkat-moshe-maale-adumim",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirmed a Hebrew-primary site but no program detail; description notes it 'runs a dedicated program for overseas students with its own rabbi, director, and madrichim,' indicating a structured but partly separate Anglo track alongside the mostly-Israeli hesder body."
+  },
+  {
+    "slug": "yeshivat-darchei-yonatan",
+    "name": "Yeshivat Darchei Yonatan",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Live fetch states the yeshiva serves 'students from abroad, released IDF volunteers, students entering Shana Bet or beyond, or any Yeshiva student considering Aliyah,' directly indicating a genuine mix of overseas and Israeli/IDF-veteran participants."
+  },
+  {
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "Description states overseas students are 'about a third of the cohort' and are 'fully integrated with Israeli students in a Hebrew-speaking environment'; fetch confirms it is a one-year program for 'highly motivated, post-high school women.'"
+  },
+  {
+    "slug": "yeshivat-eretz-hatzvi",
+    "name": "Yeshivat Eretz HaTzvi",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch lists alumni exclusively from overseas cities (Perth, London, Johannesburg, Los Angeles, Montreal, etc.), describing 'people coming together from all over the world' with no mention of Israeli students."
+  },
+  {
+    "slug": "yeshivat-hakotel",
+    "name": "Yeshivat Hakotel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description explicitly says the yeshiva enables students 'to integrate with Hakotel's Israeli program and student body' and to 'draft with Hakotel Israelis as well as many like-minded foreigners' via its Machal-hesder track, indicating a genuine Israeli/overseas mix."
+  },
+  {
+    "slug": "yeshivat-har-etzion-the-gush",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Site fetch failed (403 Forbidden); description states its Dr. William Major Overseas Students Program 'integrates English-speaking students into the main beit midrash,' i.e. a substantial overseas contingent studying alongside the majority-Israeli hesder body."
+  },
+  {
+    "slug": "yeshivat-hesder-sderot",
+    "name": "Yeshivat Hesder Sderot",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch of the affiliated Friends of Sderot site gave minimal detail; description notes it is 'the largest Hesder yeshiva in Israel with 800+ Israeli students' with 'no dedicated formal overseas learning track,' matching the overwhelmingly-Israeli rule."
+  },
+  {
+    "slug": "yeshivat-kerem-byavneh",
+    "name": "Yeshivat Kerem B'Yavneh",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirmed an English/Hebrew bilingual site with overseas partnerships (MASA, Touro); description characterizes it as 'a mostly Hebrew-language beit midrash' offering 'deeper immersion than a typical Anglo yeshiva,' matching the Hebrew-heavy high-integration rule."
+  },
+  {
+    "slug": "yeshivat-kol-torah",
+    "name": "Yeshivat Kol Torah",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "No website exists; description states it serves 'Israeli/Haredi students only, no overseas program,' directly matching the overwhelmingly-Israeli high-integration rule."
+  },
+  {
+    "slug": "yeshivat-lev-hatorah",
+    "name": "Yeshivat Lev HaTorah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms alumni testimonials from North American high schools (YULA, TABC, Beren Academy, etc.); description calls it 'a Religious Zionist gap-year yeshiva for overseas young men,' indicating an overwhelmingly overseas cohort."
+  },
+  {
+    "slug": "yeshivat-maale-gilboa",
+    "name": "Yeshivat Ma'ale Gilboa",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Description explicitly states 'its overseas program is fully integrated with the Israeli program, adding English-language classes on top of the Hebrew ones' and draws 'post-high-school and post-college students,' indicating real integration with the Israeli cohort (Facebook page not fetched)."
+  },
+  {
+    "slug": "yeshivat-merkaz-harav",
+    "name": "Yeshivat Merkaz HaRav",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "Live fetch confirms the site is primarily in Hebrew; description states it is 'Israeli-students-only in practice with no dedicated overseas program,' matching both the Hebrew-language and overwhelmingly-Israeli high-integration rules."
+  },
+  {
+    "slug": "yeshivat-migdal-hatorah",
+    "name": "Yeshivat Migdal HaTorah",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms it targets 'post yeshiva high school students' with ties to YU's Israel Program and MASA; description says it was 'built primarily for overseas students' with an English-language curriculum, indicating minimal Israeli integration."
+  },
+  {
+    "slug": "yeshivat-mitzpe-yericho",
+    "name": "Yeshivat Mitzpe Yericho",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Fetch confirms a dedicated 'Overseas Program' with its own head staff member; description specifies it runs 'a dedicated overseas program for American high-school graduates,' indicating an overwhelmingly overseas, low-integration cohort."
+  },
+  {
+    "slug": "yeshivat-moreshet-yerushalayim",
+    "name": "Yeshivat Moreshet Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The live site is entirely in English and describes itself as a Sephardic post-high-school yeshiva recruiting from a US office in New York, with no mention of Israeli student integration."
+  },
+  {
+    "slug": "yeshivat-netiv-aryeh",
+    "name": "Yeshivat Netiv Aryeh",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The site (yna.edu) centers on English-language One Year/Shana Bet/British programs for overseas students; a separate 'Service Route' mentions Israeli students but the core overseas program is not described as integrated with them."
+  },
+  {
+    "slug": "yeshivat-nir-kiryat-arba",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "integrationTag": "integration-high",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high",
+    "evidence": "The yeshiva's website is presented in Hebrew with only a minimal English option and describes an Israeli Hesder/Torah student body with no overseas program mentioned."
+  },
+  {
+    "slug": "yeshivat-ohr-david",
+    "name": "Yeshivat Ohr David",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The English-language site says students are drawn from communities around the United States via a USA office, with no mention of Israeli integration."
+  },
+  {
+    "slug": "yeshivat-ohr-yerushalayim",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The site is in English and explicitly targets 'English-speaking men from the US and other Anglo countries,' with no stated Israeli student population."
+  },
+  {
+    "slug": "yeshivat-orayta",
+    "name": "Yeshivat Orayta",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high",
+    "evidence": "The English-language site confirms both a post-high-school gap-year track and a separate 'College/Post-College Program' (CPC), with no mention of Israeli students in the yeshiva."
+  },
+  {
+    "slug": "yeshivat-otniel",
+    "name": "Yeshivat Otniel",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch was blocked (403 Forbidden), so classification relies on the description: a ~350-student Hesder yeshiva (majority Israeli) running a dedicated English Speakers Program with 'immersion, mentorship, and dedicated classes' inside the larger Israeli hesder body, matching the medium-integration pattern used for similar overseas institutes embedded in Israeli yeshivas."
+  },
+  {
+    "slug": "yeshivat-reishit-yerushalayim",
+    "name": "Yeshivat Reishit Yerushalayim",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The site shows a British Programme, American office, and Ulpan support for internationals, but describes a 'dedicated' NCSY-partnered overseas track rather than integration with native Israeli yeshiva students."
+  },
+  {
+    "slug": "yeshivat-shaalvim",
+    "name": "Yeshivat Sha'alvim",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The homepage fetch returned only navigation links, so classification relies on the description, which explicitly states the Moty Hornstein Institute for Overseas Students 'brings English-speaking students into the yeshiva alongside Israelis.'"
+  },
+  {
+    "slug": "yeshivat-shaarei-mevaseret-zion",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "high",
+    "evidence": "The English-language site (ysmz.org) lists a US phone number and describes recruiting post-high-school boys from North America, the UK, South America and Australia, with no mention of Israeli integration."
+  },
+  {
+    "slug": "yeshivat-shalom-rav",
+    "name": "Yeshivat Shalom Rav",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "Only the Facebook page URL was available and returned no usable content, so classification is a best-effort default from the brief description of a small Tzfat yeshiva with no stated overseas/Israeli population or age details."
+  },
+  {
+    "slug": "yeshivat-simchat-shlomo",
+    "name": "Yeshivat Simchat Shlomo",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium",
+    "evidence": "The site (English with Hebrew terms) describes co-ed and women's tracks in Nachlaot but gives no explicit statement on Israeli student mixing or exact age eligibility, so the age range is inferred from its 'full and part-time' community-program structure."
+  },
+  {
+    "slug": "yeshivat-toras-moshe-tomo",
+    "name": "Yeshivat Toras Moshe (TOMO)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The website was inaccessible (account suspended), so classification relies on the description of an English-speaking Litvish yeshiva for 'serious advanced Talmud students from English-speaking countries' with no mention of Israeli integration."
+  },
+  {
+    "slug": "yeshivat-torat-shraga",
+    "name": "Yeshivat Torat Shraga",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "Website fetch returned ambiguous/inconsistent signals, so classification relies on the description of a North American gap-year yeshiva in a Modern Orthodox framework with no mention of Israeli student integration."
+  },
+  {
+    "slug": "young-judaea-gesher-israel",
+    "name": "Young Judaea Gesher Israel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "The program site describes recruiting Jewish teens aged 16-17 (grades 10-11) from North America 'from all backgrounds' with no mention of structured interaction with Israeli teens."
+  },
+  {
+    "slug": "young-judaea-horizon-israel",
+    "name": "Young Judaea Horizon Israel",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "high",
+    "evidence": "The site confirms it is for Jewish teens entering grades 11-12 and mentions 'time spent with Israeli teens' as one touring component, but participants are overwhelmingly American Diaspora teens rather than a substantial Israeli-enrollee mix."
+  },
+  {
+    "slug": "young-judaea-year-course",
+    "name": "Young Judaea Year Course",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "low",
+    "evidence": "No contactWebsite was available; the description of a nine-month gap year combining volunteering, touring, 'a taste of army,' and academics gives no explicit Israeli-integration ratio."
+  },
+  {
+    "slug": "young-judaea-year-course-medical-track",
+    "name": "Young Judaea Year Course - Medical Track",
+    "integrationTag": "integration-medium",
+    "ageTags": [
+      "age-gap-year"
+    ],
+    "confidence": "medium",
+    "evidence": "The specialty-track page returned a 404, but the description explicitly states participants volunteer 'alongside Israeli paramedics' and must pass a conversational Hebrew test, indicating substantial (though not majority-Israeli) mixing."
+  },
+  {
+    "slug": "yuval-yisrael-usy-israel-pilgrimage",
+    "name": "Yuval Yisrael (USY Israel Pilgrimage)",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-high-school"
+    ],
+    "confidence": "medium",
+    "evidence": "The general USY site (the specific pilgrimage sub-page could not be found) describes serving North American Jewish teens; the description confirms a month-long high-school program (grades 10-12) with no stated Israeli-integration detail."
+  },
+  {
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "integrationTag": "integration-low",
+    "ageTags": [
+      "age-post-college"
+    ],
+    "confidence": "low",
+    "evidence": "The AJU site fetch found no program-specific detail; based on the description, this is an intensive summer immersion required for enrolled Ziegler rabbinical (post-college graduate) students with no stated ratio of Israeli integration."
+  }
+]

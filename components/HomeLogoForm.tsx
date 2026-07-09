@@ -360,8 +360,8 @@ export default function HomeLogoForm({
         <div>
           <span className="text-sm font-medium text-foreground">Dark-mode version</span>
           <p className="text-xs text-muted">
-            Optional. Shown instead of the homepage logo above when a visitor&rsquo;s
-            device is in dark mode (same size/position settings as above). Falls back to
+            Optional. Shown instead of the homepage logo above when the site is in
+            dark mode (same size/position settings as above). Falls back to
             the logo above if not set.
           </p>
         </div>

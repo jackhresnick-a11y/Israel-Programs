@@ -4,24 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import EmblemDefault from "@/components/EmblemDefault";
 import { uploadSiteImage } from "@/components/uploadSiteImage";
 
 const ALLOWED_LOGO_TYPES = "image/png,image/jpeg,image/webp,image/svg+xml";
 
-type LogoMode = "replace" | "alongside";
-
-export default function SiteLogoForm({
-  currentLogoUrl,
-  currentMode,
-  currentDarkLogoUrl,
+export default function EmblemLogoForm({
+  currentEmblemUrl,
+  currentDarkEmblemUrl,
 }: {
-  currentLogoUrl: string | null;
-  currentMode: LogoMode | null;
-  currentDarkLogoUrl: string | null;
+  currentEmblemUrl: string | null;
+  currentDarkEmblemUrl: string | null;
 }) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [mode, setMode] = useState<LogoMode>(currentMode ?? "replace");
   const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,23 +31,21 @@ export default function SiteLogoForm({
     if (!file) return;
     setUploading(true);
     setError(null);
-
     try {
       const url = await uploadSiteImage(file);
-
       const res = await fetch("/api/admin/logo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target: "header", url, mode }),
+        body: JSON.stringify({ target: "emblem", url }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to save site logo");
+        throw new Error(body.error ?? "Failed to save emblem");
       }
       setFile(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save site logo");
+      setError(err instanceof Error ? err.message : "Failed to save emblem");
     } finally {
       setUploading(false);
     }
@@ -61,14 +55,14 @@ export default function SiteLogoForm({
     setRemoving(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/logo?target=header", { method: "DELETE" });
+      const res = await fetch("/api/admin/logo?target=emblem", { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to remove site logo");
+        throw new Error(body.error ?? "Failed to remove emblem");
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove site logo");
+      setError(err instanceof Error ? err.message : "Failed to remove emblem");
     } finally {
       setRemoving(false);
     }
@@ -84,16 +78,16 @@ export default function SiteLogoForm({
       const res = await fetch("/api/admin/logo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target: "header", url, variant: "dark" }),
+        body: JSON.stringify({ target: "emblem", url, variant: "dark" }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to save dark-mode logo");
+        throw new Error(body.error ?? "Failed to save dark-mode emblem");
       }
       setDarkFile(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save dark-mode logo");
+      setError(err instanceof Error ? err.message : "Failed to save dark-mode emblem");
     } finally {
       setUploadingDark(false);
     }
@@ -103,14 +97,14 @@ export default function SiteLogoForm({
     setRemovingDark(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/logo?target=header&variant=dark", { method: "DELETE" });
+      const res = await fetch("/api/admin/logo?target=emblem&variant=dark", { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to remove dark-mode logo");
+        throw new Error(body.error ?? "Failed to remove dark-mode emblem");
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove dark-mode logo");
+      setError(err instanceof Error ? err.message : "Failed to remove dark-mode emblem");
     } finally {
       setRemovingDark(false);
     }
@@ -122,15 +116,18 @@ export default function SiteLogoForm({
         <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
-      {currentLogoUrl && (
-        <div className="flex items-center gap-4 rounded-xl border border-border p-4">
-          {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={currentLogoUrl} alt="Current site logo" className="h-12 w-auto" />
-          <div className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground">
-              Current logo ({currentMode === "alongside" ? "shown alongside text" : "replaces text"})
-            </span>
+      <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+        {currentEmblemUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentEmblemUrl} alt="Current emblem" className="h-24 w-24" />
+        ) : (
+          <EmblemDefault className="h-24 w-24" />
+        )}
+        <div className="flex flex-col gap-1 text-sm">
+          <span className="text-foreground">
+            {currentEmblemUrl ? "Current emblem" : "Default emblem (used when nothing is uploaded)"}
+          </span>
+          {currentEmblemUrl && (
             <Button
               type="button"
               variant="destructive"
@@ -139,48 +136,23 @@ export default function SiteLogoForm({
               disabled={removing}
               onClick={handleRemove}
             >
-              {removing ? "Removing..." : "Remove logo"}
+              {removing ? "Removing..." : "Remove emblem"}
             </Button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">Logo image</span>
+          <span className="font-medium text-foreground">Emblem image</span>
           <Input
             type="file"
             accept={ALLOWED_LOGO_TYPES}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </label>
-
-        <fieldset className="flex flex-col gap-2 text-sm">
-          <legend className="font-medium text-foreground">Header display</legend>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="mode"
-              value="replace"
-              checked={mode === "replace"}
-              onChange={() => setMode("replace")}
-            />
-            Replace the site name text
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="mode"
-              value="alongside"
-              checked={mode === "alongside"}
-              onChange={() => setMode("alongside")}
-            />
-            Show alongside the site name text
-          </label>
-        </fieldset>
-
         <Button type="submit" disabled={!file || uploading} className="w-fit">
-          {uploading ? "Uploading..." : "Upload logo"}
+          {uploading ? "Uploading..." : "Upload emblem"}
         </Button>
       </form>
 
@@ -188,15 +160,15 @@ export default function SiteLogoForm({
         <div>
           <span className="text-sm font-medium text-foreground">Dark-mode version</span>
           <p className="text-xs text-muted">
-            Optional. Shown instead of the logo above when the site is in dark
-            mode. Falls back to the logo above if not set.
+            Optional. Shown instead of the emblem above when the site is in dark
+            mode. Falls back to the emblem above (or the default) if not set.
           </p>
         </div>
 
-        {currentDarkLogoUrl && (
+        {currentDarkEmblemUrl && (
           <div className="flex items-center gap-4 rounded-xl border border-border bg-primary p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={currentDarkLogoUrl} alt="Current dark-mode logo" className="h-12 w-auto" />
+            <img src={currentDarkEmblemUrl} alt="Current dark-mode emblem" className="h-24 w-24" />
             <Button
               type="button"
               variant="destructive"
@@ -204,7 +176,7 @@ export default function SiteLogoForm({
               disabled={removingDark}
               onClick={handleRemoveDark}
             >
-              {removingDark ? "Removing..." : "Remove dark-mode logo"}
+              {removingDark ? "Removing..." : "Remove dark-mode emblem"}
             </Button>
           </div>
         )}
@@ -216,7 +188,7 @@ export default function SiteLogoForm({
             onChange={(e) => setDarkFile(e.target.files?.[0] ?? null)}
           />
           <Button type="submit" variant="secondary" size="sm" disabled={!darkFile || uploadingDark} className="w-fit">
-            {uploadingDark ? "Uploading..." : "Upload dark-mode logo"}
+            {uploadingDark ? "Uploading..." : "Upload dark-mode emblem"}
           </Button>
         </form>
       </div>

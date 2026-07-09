@@ -37,6 +37,9 @@ const HOME_OFFSET_Y_MOBILE_KEY = "homeLogoOffsetYMobile";
 const HOME_LAYER_DESKTOP_KEY = "homeLogoLayer";
 const HOME_LAYER_MOBILE_KEY = "homeLogoLayerMobile";
 
+const EMBLEM_URL_KEY = "emblemLogoUrl";
+const EMBLEM_URL_DARK_KEY = "emblemLogoUrlDark";
+
 const DEFAULT_HOME_SIZE_DESKTOP = 320; // px height
 const DEFAULT_HOME_SIZE_MOBILE = 160; // px height, smaller for narrow screens
 const DEFAULT_HOME_OFFSET = 0; // px, relative to centered anchor
@@ -56,6 +59,11 @@ const postBodySchema = z.discriminatedUnion("target", [
   }),
   z.object({
     target: z.literal("home"),
+    url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
+    variant: z.enum(["light", "dark"]).default("light"),
+  }),
+  z.object({
+    target: z.literal("emblem"),
     url: z.string().refine(isVercelBlobUrl, "Invalid logo URL"),
     variant: z.enum(["light", "dark"]).default("light"),
   }),
@@ -133,6 +141,15 @@ export async function POST(request: Request) {
         }
       }
       return NextResponse.json({ url: body.url, enabled: true });
+    }
+
+    if (body.target === "emblem") {
+      if (body.variant === "dark") {
+        await upsertSiteContent(EMBLEM_URL_DARK_KEY, body.url);
+        return NextResponse.json({ url: body.url, variant: "dark" });
+      }
+      await upsertSiteContent(EMBLEM_URL_KEY, body.url);
+      return NextResponse.json({ url: body.url });
     }
 
     if (body.variant === "dark") {
@@ -257,11 +274,29 @@ export async function DELETE(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const targetParam = searchParams.get("target");
-  const target = targetParam === "background" ? "background" : targetParam === "home" ? "home" : "header";
+  const target =
+    targetParam === "background"
+      ? "background"
+      : targetParam === "home"
+        ? "home"
+        : targetParam === "emblem"
+          ? "emblem"
+          : "header";
   const variant = searchParams.get("variant") === "dark" ? "dark" : "light";
-  const urlKey = target === "header" ? HEADER_URL_KEY : target === "background" ? BACKGROUND_URL_KEY : HOME_URL_KEY;
-  const darkUrlKey =
-    target === "header" ? HEADER_URL_DARK_KEY : target === "background" ? BACKGROUND_URL_DARK_KEY : HOME_URL_DARK_KEY;
+  const URL_KEYS = {
+    header: HEADER_URL_KEY,
+    background: BACKGROUND_URL_KEY,
+    home: HOME_URL_KEY,
+    emblem: EMBLEM_URL_KEY,
+  } as const;
+  const DARK_URL_KEYS = {
+    header: HEADER_URL_DARK_KEY,
+    background: BACKGROUND_URL_DARK_KEY,
+    home: HOME_URL_DARK_KEY,
+    emblem: EMBLEM_URL_DARK_KEY,
+  } as const;
+  const urlKey = URL_KEYS[target];
+  const darkUrlKey = DARK_URL_KEYS[target];
 
   async function deleteBlobFor(key: string) {
     const existingUrl = await getSiteContent(key);
@@ -297,7 +332,7 @@ export async function DELETE(request: Request) {
       await deleteSiteContent(BACKGROUND_SIZE_MOBILE_KEY);
       await deleteSiteContent(BACKGROUND_OFFSET_Y_DESKTOP_KEY);
       await deleteSiteContent(BACKGROUND_OFFSET_Y_MOBILE_KEY);
-    } else {
+    } else if (target === "home") {
       await deleteSiteContent(HOME_URL_KEY);
       await deleteSiteContent(HOME_ENABLED_KEY);
       await deleteSiteContent(HOME_SIZE_DESKTOP_KEY);
@@ -308,6 +343,8 @@ export async function DELETE(request: Request) {
       await deleteSiteContent(HOME_OFFSET_Y_MOBILE_KEY);
       await deleteSiteContent(HOME_LAYER_DESKTOP_KEY);
       await deleteSiteContent(HOME_LAYER_MOBILE_KEY);
+    } else {
+      await deleteSiteContent(EMBLEM_URL_KEY);
     }
     return NextResponse.json({ ok: true });
   } catch (err) {

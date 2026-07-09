@@ -349,8 +349,8 @@ export default function BackgroundLogoForm({
         <div>
           <span className="text-sm font-medium text-foreground">Dark-mode version</span>
           <p className="text-xs text-muted">
-            Optional. Shown instead of the background logo above when a visitor&rsquo;s
-            device is in dark mode (same opacity/size/position settings as above). Falls
+            Optional. Shown instead of the background logo above when the site is in
+            dark mode (same opacity/size/position settings as above). Falls
             back to the logo above if not set.
           </p>
         </div>

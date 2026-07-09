@@ -29,10 +29,6 @@ const ROWS: Row[] = [
       `${DURATION_LABELS[p.durationType]}${p.durationText ? ` — ${p.durationText}` : ""}`,
   },
   {
-    label: "Cost",
-    render: (p) => p.cost || "Not listed",
-  },
-  {
     label: "Rating",
     render: (p) => {
       const rating = averageRating(p.reviews);

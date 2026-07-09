@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getCurrentRole, normalizeRole } from "@/lib/roles";
-import { listPendingPrograms, listPendingEdits } from "@/lib/programs";
+import { listPendingPrograms, listPendingEdits, listRecentPrograms } from "@/lib/programs";
 import { listPendingReferences } from "@/lib/references";
+import { listRecentReviews } from "@/lib/reviews";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import { getUsersByIds } from "@/lib/clerkUsers";
 import RoleSelect from "@/components/RoleSelect";
@@ -11,18 +12,24 @@ import QueueActions from "@/components/QueueActions";
 import EditDiffView from "@/components/EditDiffView";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
+import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 import type { ProgramInput } from "@/lib/programs";
+
+const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger" } as const;
 
 export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "moderator" && role !== "admin") redirect("/");
 
-  const [pendingPrograms, pendingEdits, pendingReferences] = await Promise.all([
-    listPendingPrograms(),
-    listPendingEdits(),
-    listPendingReferences(),
-  ]);
+  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews] =
+    await Promise.all([
+      listPendingPrograms(),
+      listPendingEdits(),
+      listPendingReferences(),
+      role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
+      role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
+    ]);
 
   const submitters = await getUsersByIds([
     ...pendingPrograms.map((p) => p.createdById),
@@ -52,9 +59,77 @@ export default async function AdminPage() {
             >
               Tags & categories
             </Link>
+            <Link
+              href="/admin/emails"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Contact emails
+            </Link>
           </div>
         )}
       </PageHeader>
+
+      {role === "admin" && (
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="flex flex-col gap-3">
+            <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+              Recently added programs
+            </h2>
+            {recentPrograms.length === 0 ? (
+              <p className="text-sm text-muted">No programs yet.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+                {recentPrograms.map((program) => (
+                  <div key={program.id} className="flex items-center justify-between gap-4 px-4 py-3">
+                    <div>
+                      <Link
+                        href={`/programs/${program.slug}`}
+                        className="text-sm font-medium text-foreground hover:underline"
+                      >
+                        {program.name}
+                      </Link>
+                      <p className="text-xs text-muted">
+                        {new Date(program.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <Badge tone={STATUS_TONE[program.status]}>{program.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-3">
+            <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+              Recently added reviews
+            </h2>
+            {recentReviews.length === 0 ? (
+              <p className="text-sm text-muted">No reviews yet.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+                {recentReviews.map((review) => (
+                  <div key={review.id} className="flex flex-col gap-1 px-4 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <Link
+                        href={`/programs/${review.program.slug}`}
+                        className="text-sm font-medium text-foreground hover:underline"
+                      >
+                        {review.program.name}
+                      </Link>
+                      <span className="whitespace-nowrap text-xs text-accent">
+                        {"★".repeat(review.rating)}
+                      </span>
+                    </div>
+                    <p className="line-clamp-1 text-xs text-foreground/70">{review.text}</p>
+                    <p className="text-xs text-muted">
+                      {review.reviewerName} · {new Date(review.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">

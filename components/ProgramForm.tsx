@@ -10,6 +10,7 @@ import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
+import { useToast } from "@/components/ui/Toast";
 
 export type ProgramFormValues = {
   id?: string;
@@ -80,6 +81,7 @@ export default function ProgramForm({
   categories: TagCategoryOption[];
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [values, setValues] = useState<ProgramFormValues>(initial ?? EMPTY);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -136,8 +138,10 @@ export default function ProgramForm({
       if (isEdit) {
         // PATCH returns { pending, program } (moderator, applied immediately)
         // or { pending, slug } (queued for review — nothing changed yet).
-        const suffix = body.pending ? "?editPending=1" : "";
-        router.push(`/programs/${initial!.slug}${suffix}`);
+        if (body.pending) {
+          toast("Your edits have been sent for review and will show up after moderator approval");
+        }
+        router.push(`/programs/${initial!.slug}`);
       } else {
         // POST returns the created program directly (status PENDING or PUBLISHED).
         const suffix = body.status === "PENDING" ? "?created=pending" : "";
@@ -201,7 +205,7 @@ export default function ProgramForm({
         </Field>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Duration type">
           <Select
             value={values.durationType}
@@ -221,13 +225,6 @@ export default function ProgramForm({
             placeholder="e.g. 10 days"
             value={values.durationText}
             onChange={(e) => set("durationText", e.target.value)}
-          />
-        </Field>
-        <Field label="Cost">
-          <Input
-            placeholder="e.g. Free, or $30,000"
-            value={values.cost}
-            onChange={(e) => set("cost", e.target.value)}
           />
         </Field>
       </div>

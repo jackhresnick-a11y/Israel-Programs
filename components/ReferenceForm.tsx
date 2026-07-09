@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ReferenceForm({ programId }: { programId: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [attendedText, setAttendedText] = useState("");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,21 +31,13 @@ export default function ReferenceForm({ programId }: { programId: string }) {
       }
       setAttendedText("");
       setNote("");
-      setSubmitted(true);
+      toast("Your request to be a reference for this program has been sent");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit");
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (submitted) {
-    return (
-      <p className="rounded-lg bg-info-bg px-3 py-2 text-sm text-info">
-        Thanks! Your reference listing is awaiting moderator approval.
-      </p>
-    );
   }
 
   return (

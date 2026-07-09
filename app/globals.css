@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
   --background: #fbf8f2;
   --surface: #ffffff;
   --surface-muted: #f4efe6;
@@ -56,29 +59,29 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #14110b;
-    --surface: #201b12;
-    --surface-muted: #2a2318;
-    --foreground: #f3ecdd;
-    --accent: #e0ac4a;
-    --accent-hover: #ebbb5e;
-    --accent-foreground: #14110b;
-    --muted: #a79e8b;
-    --border: #37301f;
+.dark {
+  color-scheme: dark;
 
-    --info: #8fb6e8;
-    --info-bg: #1c2a3d;
-    --success: #8bc9a0;
-    --success-bg: #1b3024;
-    --warning: #e0ac4a;
-    --warning-bg: #332512;
-    --danger: #e5a08f;
-    --danger-bg: #3a201a;
-    --violet: #b79ce8;
-    --violet-bg: #2a2140;
-  }
+  --background: #14110b;
+  --surface: #201b12;
+  --surface-muted: #2a2318;
+  --foreground: #f3ecdd;
+  --accent: #e0ac4a;
+  --accent-hover: #ebbb5e;
+  --accent-foreground: #14110b;
+  --muted: #a79e8b;
+  --border: #37301f;
+
+  --info: #8fb6e8;
+  --info-bg: #1c2a3d;
+  --success: #8bc9a0;
+  --success-bg: #1b3024;
+  --warning: #e0ac4a;
+  --warning-bg: #332512;
+  --danger: #e5a08f;
+  --danger-bg: #3a201a;
+  --violet: #b79ce8;
+  --violet-bg: #2a2140;
 }
 
 body {

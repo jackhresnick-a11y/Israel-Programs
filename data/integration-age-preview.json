@@ -1,0 +1,2457 @@
+[
+  {
+    "slug": "apf-medical-and-nursing-volunteer-program",
+    "name": "APF Medical & Nursing Volunteer Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "aardvark-israel",
+    "name": "Aardvark Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "achvat-amim",
+    "name": "Achvat Amim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "aish-hatorah-aish-gesher",
+    "name": "Aish HaTorah – Aish Gesher",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "aish-hatorah-essentials-program",
+    "name": "Aish HaTorah – Essentials Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah – Foundations Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "alexander-muss-high-school-in-israel-amhsi",
+    "name": "Alexander Muss High School in Israel (AMHSI)",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "arava-institute-for-environmental-studies",
+    "name": "Arava Institute for Environmental Studies",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "arevim-masa-year-of-service",
+    "name": "Arevim - Masa Year of Service",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "ariel-university-international-program",
+    "name": "Ariel University International Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "artzi",
+    "name": "Artzi",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "ateres-bnos-yerushalayim",
+    "name": "Ateres Bnos Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "bbyo-passport-israel-journey",
+    "name": "BBYO Passport: Israel Journey",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "bbyo-passport-israel-trek",
+    "name": "BBYO Passport: Israel Trek",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "bina-gap-year",
+    "name": "BINA Gap Year",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "baer-miriam",
+    "name": "Baer Miriam",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+    "name": "Bar-Ilan University-Yeshiva University Summer Science Research Internship",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "bat-ayin-yeshiva",
+    "name": "Bat Ayin Yeshiva",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "beit-chana-seminary-tzfat-chul-program",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "bezalel-academy-of-arts-and-design-student-exchange-program",
+    "name": "Bezalel Academy of Arts and Design - Student Exchange Program",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "big-idea-gap-year",
+    "name": "Big Idea Gap Year",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "birthright-israel",
+    "name": "Birthright Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "birthright-israel-excel-fellowship",
+    "name": "Birthright Israel Excel Fellowship",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "bnei-akiva-olamit-shalem",
+    "name": "Bnei Akiva Olamit: Shalem",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "bnei-david-eli",
+    "name": "Bnei David (Eli)",
+    "integrationChange": "(none) -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "bnos-chava-seminary",
+    "name": "Bnos Chava Seminary",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "bnos-sarah-seminary",
+    "name": "Bnos Sarah Seminary",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "buchmann-mehta-school-of-music-international-program",
+    "name": "Buchmann-Mehta School of Music International Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+    "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "cteen-summer-heritage-quest-poland-israel",
+    "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "career-israel",
+    "name": "Career Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "chai-israel",
+    "name": "Chai Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "chasedei-breslov-yeshiva",
+    "name": "Chasedei Breslov Yeshiva",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "chemdas-bais-yaakov",
+    "name": "Chemdas Bais Yaakov",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "chevron-yeshiva-knesset-yisrael",
+    "name": "Chevron Yeshiva (Knesset Yisrael)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "conservative-yeshiva",
+    "name": "Conservative Yeshiva",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "darchei-binah",
+    "name": "Darchei Binah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "diller-teen-fellows-israel-summer-seminar",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "dvar-yerushalayim",
+    "name": "Dvar Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "eli-gap-year-program",
+    "name": "ELI Gap Year Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "eco-israel-program",
+    "name": "Eco-Israel Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "ein-prat-academy-for-leadership",
+    "name": "Ein Prat Academy for Leadership",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "emunah-college-faculty-of-arts-and-design",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "integrationChange": "(none) -> integration-high",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "en-gedi-oasis-archaeological-project",
+    "name": "En-Gedi Oasis Archaeological Project",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "fzy-year-course",
+    "name": "FZY Year Course",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "garin-tzabar",
+    "name": "Garin Tzabar",
+    "integrationChange": "integration-medium -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ginsburg-ingerman-overseas-student-program-osp",
+    "name": "Ginsburg-Ingerman Overseas Student Program (OSP)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "huc-jir-year-in-israel",
+    "name": "HUC-JIR Year-in-Israel",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "habonim-dror-australia-shnat",
+    "name": "Habonim Dror Australia - Shnat",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "habonim-dror-southern-africa-shnat",
+    "name": "Habonim Dror Southern Africa - Shnat",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "habonim-dror-uk-shnat",
+    "name": "Habonim Dror UK - Shnat",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "habonim-dror-workshop",
+    "name": "Habonim Dror Workshop",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "hadassah-medical-center-volunteer-program",
+    "name": "Hadassah Medical Center Volunteer Program",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "hashomer-hatzair-shnat-hachshara",
+    "name": "Hashomer Hatzair Shnat Hachshara",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "hazor-excavations",
+    "name": "Hazor Excavations",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "heichal-yerushalayim",
+    "name": "Heichal Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "hevruta-gap-year-program",
+    "name": "Hevruta Gap-Year Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "hippos-sussita-excavations",
+    "name": "Hippos-Sussita Excavations",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "interuniversity-institute-for-marine-sciences-iui-eilat-intensive-courses",
+    "name": "Interuniversity Institute for Marine Sciences (IUI) Eilat - Intensive Courses",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "israel-free-spirit",
+    "name": "Israel Free Spirit",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "israel-government-fellows-igf",
+    "name": "Israel Government Fellows (IGF)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "israel-lacrosse-gap-year-program",
+    "name": "Israel Lacrosse Gap Year Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "israel-tech-challenge-fellows-program",
+    "name": "Israel Tech Challenge Fellows Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "israel-xp-bar-ilan-university-overseas-student-program",
+    "name": "Israel XP (Bar-Ilan University Overseas Student Program)",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "isralight",
+    "name": "Isralight",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "jewel-for-women",
+    "name": "JEWEL for Women",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "jts-israel-year",
+    "name": "JTS Israel Year",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+    "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "kadima-world-bnei-akiva",
+    "name": "Kadima (World Bnei Akiva)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "kibbutz-lotan-green-apprenticeship",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "kibbutz-program-center-kpc",
+    "name": "Kibbutz Program Center (KPC)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "kibbutz-ulpan",
+    "name": "Kibbutz Ulpan",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "kivunim",
+    "name": "Kivunim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "kol-ami-mechina",
+    "name": "Kol Ami Mechina",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "leket-israel-volunteer-program",
+    "name": "Leket Israel Volunteer Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "limmud-world-bnei-akiva",
+    "name": "Limmud (World Bnei Akiva)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "livnot",
+    "name": "Livnot U'Lehibanot",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "mda-overseas-volunteers-program",
+    "name": "MDA Overseas Volunteers Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mmy-michlelet-mevaseret-yerushalayim",
+    "name": "MMY (Michlelet Mevaseret Yerushalayim)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mta-world-bnei-akiva",
+    "name": "MTA (World Bnei Akiva)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "maccabi-gap-year",
+    "name": "Maccabi Gap Year",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mach-hach-baaretz",
+    "name": "Mach Hach BaAretz",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "machaneh-bonim-bisrael-mbi",
+    "name": "Machaneh Bonim B'Israel (MBI)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "machon-alte-seminary-chaya-mushka",
+    "name": "Machon Alte - Seminary Chaya Mushka",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "machon-maayan",
+    "name": "Machon Maayan",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "machon-meir",
+    "name": "Machon Meir",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "machon-raaya",
+    "name": "Machon Raaya",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "machon-roni",
+    "name": "Machon Roni",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "machon-sara-yerushalayim-msy",
+    "name": "Machon Sara Yerushalayim (MSY)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "machon-yaakov",
+    "name": "Machon Yaakov",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "masa-israel-teaching-fellows-mitf",
+    "name": "Masa Israel Teaching Fellows (MITF)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mayanot-post-high-school-program-men",
+    "name": "Mayanot Post-High-School Program (Men)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mayanot-womens-program",
+    "name": "Mayanot Women's Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechina-olamit-world-bnei-akiva",
+    "name": "Mechina Olamit (World Bnei Akiva)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-aderet",
+    "name": "Mechinat Aderet",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-amichai",
+    "name": "Mechinat Amichai",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-arava",
+    "name": "Mechinat Arava",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-beeri",
+    "name": "Mechinat Be'eri",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-beit-yisrael-big",
+    "name": "Mechinat Beit Yisrael (Big)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mechinat-bnei-david-eli",
+    "name": "Mechinat Bnei David (Eli)",
+    "integrationChange": "(none) -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mechinat-dror",
+    "name": "Mechinat Dror",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-five-fingers-chamesh-etzbaot",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-haemek",
+    "name": "Mechinat HaEmek",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-hannaton",
+    "name": "Mechinat Hannaton",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-haviva-reich",
+    "name": "Mechinat Haviva Reich",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-lachish",
+    "name": "Mechinat Lachish",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-meitzar",
+    "name": "Mechinat Meitzar",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-melach-haaretz",
+    "name": "Mechinat Melach HaAretz",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-nachshon",
+    "name": "Mechinat Nachshon",
+    "integrationChange": "(none) -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-rabin",
+    "name": "Mechinat Rabin",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-rakia",
+    "name": "Mechinat Rakia",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-tavor",
+    "name": "Mechinat Tavor",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "mechinat-telem",
+    "name": "Mechinat Telem",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "medical-school-for-international-health-msih",
+    "name": "Medical School for International Health (MSIH)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "meorot-yerushalayim",
+    "name": "Meorot Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "name": "Michlalah Jerusalem College – Machal (Overseas Students Program)",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "midreshet-amit",
+    "name": "Midreshet AMIT",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-amudim",
+    "name": "Midreshet Amudim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "midreshet-berot-bat-ayin",
+    "name": "Midreshet B'erot Bat Ayin",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-ein-hanatziv",
+    "name": "Midreshet Ein Hanatziv",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-eshel",
+    "name": "Midreshet Eshel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "midreshet-harova",
+    "name": "Midreshet HaRova",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-lindenbaum",
+    "name": "Midreshet Lindenbaum",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-lindenbaum-hadas-chul-midrashit-chul",
+    "name": "Midreshet Lindenbaum",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-moriah",
+    "name": "Midreshet Moriah",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-rachel-vchaya",
+    "name": "Midreshet Rachel v'Chaya",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-tehillah",
+    "name": "Midreshet Tehillah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "midreshet-torat-chessed",
+    "name": "Midreshet Torat Chessed",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "migdal-oz-ska-beit-midrash-for-women",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+    "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "musrara-international-residency-program",
+    "name": "Musrara International Residency Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "ncsy-give-girls-israel-volunteer-experience",
+    "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ncsy-kollel",
+    "name": "NCSY Kollel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ncsy-next-step-israel-internships",
+    "name": "NCSY Next Step (Israel Internships)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "nativ",
+    "name": "Nativ College Leadership Program",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "nativ-track-aardvark-israel",
+    "name": "Nativ Track (Aardvark Israel)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "nesiya-kehillah-summer-program",
+    "name": "Nesiya Kehillah Summer Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "neve-yerushalayim-machon-devorah",
+    "name": "Neve Yerushalayim – Machon Devorah",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "neve-yerushalayim-mechina-introductory-program",
+    "name": "Neve Yerushalayim – Mechina Introductory Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "neve-yerushalayim-shalhevet-program",
+    "name": "Neve Yerushalayim – Shalhevet Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "neveh-zion",
+    "name": "Neveh Zion",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "new-israel-fund-shatil-social-justice-fellowship",
+    "name": "New Israel Fund / Shatil Social Justice Fellowship",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "nishmat-alisa-flatow-program",
+    "name": "Nishmat - Alisa Flatow Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "noar-hadash-israel-program",
+    "name": "No'ar Hadash Israel Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "noam-drachim-gap-year",
+    "name": "Noam - Drachim Gap Year",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "otzma",
+    "name": "OTZMA",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ohr-avraham",
+    "name": "Ohr Avraham",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ohr-somayach-derech-institute-for-torah-studies",
+    "name": "Ohr Somayach – Derech Institute for Torah Studies",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ohrsom",
+    "name": "Ohrsom",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "ono-academic-college-international-school",
+    "name": "Ono Academic College International School",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "onward-israel",
+    "name": "Onward Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "otzem-overseas-program",
+    "name": "Otzem Overseas Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+    "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ponevezh-yeshiva",
+    "name": "Ponevezh Yeshiva",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "project-ten-kibbutz-harduf",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "ramah-israel-seminar",
+    "name": "Ramah Israel Seminar",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "reichman-university-study-abroad",
+    "name": "Reichman University Study Abroad",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "rimon-school-of-music-study-abroad-program",
+    "name": "Rimon School of Music - Study Abroad Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "rinas-bais-yaakov",
+    "name": "Rinas Bais Yaakov",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "rothberg-international-school",
+    "name": "Rothberg International School",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "sam-spiegel-jerusalem-international-film-lab",
+    "name": "Sam Spiegel Jerusalem International Film Lab",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "sapir-international",
+    "name": "Sapir International",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "sar-el-volunteers-for-israel",
+    "name": "Sar-El (Volunteers for Israel)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school",
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "save-a-childs-heart-volunteer-program",
+    "name": "Save a Child's Heart Volunteer Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "shaalvim-for-women-sfw",
+    "name": "Sha'alvim for Women (SFW)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "shapells-yeshiva-darche-noam",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "sharfmans-bnot-torah-institute",
+    "name": "Sharfman's / Bnot Torah Institute",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "shearim",
+    "name": "She'arim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "shenkar-college-international-program",
+    "name": "Shenkar College International Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+    "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+    "integrationChange": "integration-medium -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "shiloh-excavations",
+    "name": "Shiloh Excavations",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "shnat-betar",
+    "name": "Shnat Betar",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "shnat-netzer",
+    "name": "Shnat Netzer",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "shvilim-traveling-gap-year-program",
+    "name": "Shvilim Traveling Gap Year Program",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tamid-israel-fellowship",
+    "name": "TAMID Israel Fellowship",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tau-international-study-abroad-semesteryear",
+    "name": "TAU International (Study Abroad Semester/Year)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tech2peace",
+    "name": "Tech2Peace",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "technion-american-medical-school-teams",
+    "name": "Technion American Medical School (TeAMS)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "technion-international-semesteryear-abroad",
+    "name": "Technion International - Semester/Year Abroad",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "tel-abel-beth-maacah-excavation",
+    "name": "Tel Abel Beth Maacah Excavation",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "tel-akko-total-archaeology-project",
+    "name": "Tel Akko Total Archaeology Project",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tel-aviv-university-mfa-in-documentary-cinema",
+    "name": "Tel Aviv University - MFA in Documentary Cinema",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tel-aviv-university-ny-stateamerican-program-sackler-gray-faculty-of-medicine",
+    "name": "Tel Aviv University NY State/American Program (Sackler / Gray Faculty of Medicine)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tel-gezer-excavation",
+    "name": "Tel Gezer Excavation",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "tel-megiddo-excavation",
+    "name": "Tel Megiddo Excavation",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "tel-shimron-excavations",
+    "name": "Tel Shimron Excavations",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "the-anne-samson-jerusalem-journey-tjj",
+    "name": "The Anne Samson Jerusalem Journey (TJJ)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "tichon-ramah-yerushalayim-try",
+    "name": "Tichon Ramah Yerushalayim (TRY)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "tikkun-olam-tel-aviv-jaffa",
+    "name": "Tikkun Olam Tel Aviv-Jaffa",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "tikvah-israel-fellowship",
+    "name": "Tikvah Israel Fellowship",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "tomer-devorah-seminary",
+    "name": "Tomer Devorah Seminary",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "torani-world-bnei-akiva",
+    "name": "Torani (World Bnei Akiva)",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "urj-heller-high",
+    "name": "URJ Heller High",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "ulpan-etzion",
+    "name": "Ulpan Etzion",
+    "integrationChange": "(none) -> integration-high",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ulpan-or-sabra-immersion-program",
+    "name": "Ulpan-Or Sabra Immersion Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "university-of-haifa-international-msc-in-marine-biology",
+    "name": "University of Haifa International MSc in Marine Biology",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "university-of-haifa-international-school-semesteryear-abroad",
+    "name": "University of Haifa International School - Semester/Year Abroad",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "vois-volunteer-in-israel",
+    "name": "VOIS - Volunteer in Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "vertigo-international-dance-program-vidp",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+    "name": "Weizmann Institute - Kupcinet-Getz International Summer School",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yachad-gap-year",
+    "name": "Yachad Gap Year",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yad-byad",
+    "name": "Yad B'Yad",
+    "integrationChange": "integration-medium -> integration-low",
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yahel-social-change-fellowship",
+    "name": "Yahel Social Change Fellowship",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yallah-israel-nfty-in-israel-adventure",
+    "name": "Yallah! Israel (NFTY in Israel - Adventure)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshiva-gedolah-yagdil-torah",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshiva-university-summer-internship-masschallenge-israel",
+    "name": "Yeshiva University Summer Internship (MassChallenge-Israel)",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivas-bais-yisroel",
+    "name": "Yeshivas Bais Yisroel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivas-birchas-mordechai",
+    "name": "Yeshivas Birchas Mordechai",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshivas-brisk",
+    "name": "Yeshivas Brisk",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivas-chofetz-chaim-yerushalayim",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshivas-nesivos-ahron",
+    "name": "Yeshivas Nesivos Ahron",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshivas-orchos-chaim",
+    "name": "Yeshivas Orchos Chaim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivas-toras-chaim",
+    "name": "Yeshivas Toras Chaim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivas-zeev-hatorah",
+    "name": "Yeshivas Zeev Hatorah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-ashreinu",
+    "name": "Yeshivat Ashreinu",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-ateret-yerushalayim",
+    "name": "Yeshivat Ateret Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-beit-el",
+    "name": "Yeshivat Beit El",
+    "integrationChange": "integration-low -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-birkat-moshe-maale-adumim",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-darchei-yonatan",
+    "name": "Yeshivat Darchei Yonatan",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-eretz-hatzvi",
+    "name": "Yeshivat Eretz HaTzvi",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-hakotel",
+    "name": "Yeshivat Hakotel",
+    "integrationChange": "(none) -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-har-etzion-the-gush",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-hesder-sderot",
+    "name": "Yeshivat Hesder Sderot",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-kerem-byavneh",
+    "name": "Yeshivat Kerem B'Yavneh",
+    "integrationChange": "integration-low -> integration-high",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-kol-torah",
+    "name": "Yeshivat Kol Torah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-lev-hatorah",
+    "name": "Yeshivat Lev HaTorah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-maale-gilboa",
+    "name": "Yeshivat Ma'ale Gilboa",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-merkaz-harav",
+    "name": "Yeshivat Merkaz HaRav",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-migdal-hatorah",
+    "name": "Yeshivat Migdal HaTorah",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-mitzpe-yericho",
+    "name": "Yeshivat Mitzpe Yericho",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-moreshet-yerushalayim",
+    "name": "Yeshivat Moreshet Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-netiv-aryeh",
+    "name": "Yeshivat Netiv Aryeh",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-nir-kiryat-arba",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-ohr-david",
+    "name": "Yeshivat Ohr David",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-ohr-yerushalayim",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-orayta",
+    "name": "Yeshivat Orayta",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college",
+      "age-post-college"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-otniel",
+    "name": "Yeshivat Otniel",
+    "integrationChange": "integration-low -> integration-medium",
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-reishit-yerushalayim",
+    "name": "Yeshivat Reishit Yerushalayim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-shaalvim",
+    "name": "Yeshivat Sha'alvim",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-shaarei-mevaseret-zion",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "yeshivat-shalom-rav",
+    "name": "Yeshivat Shalom Rav",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "yeshivat-simchat-shlomo",
+    "name": "Yeshivat Simchat Shlomo",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year",
+      "age-post-college"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-toras-moshe-tomo",
+    "name": "Yeshivat Toras Moshe (TOMO)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yeshivat-torat-shraga",
+    "name": "Yeshivat Torat Shraga",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "young-judaea-gesher-israel",
+    "name": "Young Judaea Gesher Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "young-judaea-horizon-israel",
+    "name": "Young Judaea Horizon Israel",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "high"
+  },
+  {
+    "slug": "young-judaea-year-course",
+    "name": "Young Judaea Year Course",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "low"
+  },
+  {
+    "slug": "young-judaea-year-course-medical-track",
+    "name": "Young Judaea Year Course - Medical Track",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-gap-year"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "yuval-yisrael-usy-israel-pilgrimage",
+    "name": "Yuval Yisrael (USY Israel Pilgrimage)",
+    "integrationChange": null,
+    "ageTagsAdded": [
+      "age-high-school"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "integrationChange": "(none) -> integration-low",
+    "ageTagsAdded": [
+      "age-post-college"
+    ],
+    "confidence": "low"
+  }
+]

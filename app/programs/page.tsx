@@ -141,10 +141,11 @@ export default async function ProgramsPage({
         <CompareProvider>
           <div className="grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
             {programs.map((program) => (
-              <div key={program.slug} className="relative">
-                <CompareCheckbox slug={program.slug} name={program.name} />
-                <ProgramCard program={program} />
-              </div>
+              <ProgramCard
+                key={program.slug}
+                program={program}
+                action={<CompareCheckbox slug={program.slug} name={program.name} />}
+              />
             ))}
           </div>
           <CompareBar />

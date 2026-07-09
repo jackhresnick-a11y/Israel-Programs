@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { buttonVariants } from "@/components/ui/Button";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default async function Nav() {
   const [role, { userId }, logoUrl, logoMode, logoUrlDark] = await Promise.all([
@@ -49,7 +50,7 @@ export default async function Nav() {
             Browse
           </Link>
           <Link href="/mission" className="hover:text-accent">
-            Mission
+            Background
           </Link>
           <Link href="/programs/new" className="hover:text-accent">
             Add Program
@@ -64,6 +65,7 @@ export default async function Nav() {
               Admin
             </Link>
           )}
+          <ThemeToggle />
           <Show when="signed-out">
             <SignInButton mode="modal">
               <button className={buttonVariants({ variant: "onDark", size: "sm" })}>

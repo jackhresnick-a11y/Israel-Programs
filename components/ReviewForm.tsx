@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ReviewForm({ programId }: { programId: string }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -29,6 +31,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
       }
       setText("");
       setRating(5);
+      toast("Your review has been submitted into the database");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit review");

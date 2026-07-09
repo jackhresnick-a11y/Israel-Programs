@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { listPrograms } from "@/lib/programs";
+import { listRecentReviews } from "@/lib/reviews";
 import ProgramCard from "@/components/ProgramCard";
 import FeaturedProgramCard from "@/components/FeaturedProgramCard";
+import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getSiteContent } from "@/lib/siteContent";
@@ -16,6 +18,7 @@ export default async function Home() {
 
   const [
     featured,
+    recentReviews,
     homeUrl,
     homeEnabled,
     homeSizeDesktop,
@@ -35,6 +38,7 @@ export default async function Home() {
             (program): ResolvedRecentlyAddedItem => ({ program, video: null })
           )
         ),
+    listRecentReviews(3),
     getSiteContent("homeLogoUrl"),
     getSiteContent("homeLogoEnabled"),
     getSiteContent("homeLogoSize"),
@@ -186,6 +190,34 @@ export default async function Home() {
                 <ProgramCard key={program.slug} program={program} />
               )
             )}
+          </div>
+        </div>
+      )}
+
+      {recentReviews.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+            Latest reviews
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {recentReviews.map((review) => (
+              <Card key={review.id} className="flex flex-col gap-2 p-5">
+                <span className="text-accent" aria-label={`${review.rating} out of 5 stars`}>
+                  {"★".repeat(review.rating)}
+                  <span className="text-border">{"★".repeat(5 - review.rating)}</span>
+                </span>
+                <p className="line-clamp-3 text-sm text-foreground/80">{review.text}</p>
+                <p className="mt-auto text-xs text-muted">
+                  {review.reviewerName} · {new Date(review.createdAt).toLocaleDateString()}
+                </p>
+                <Link
+                  href={`/programs/${review.program.slug}`}
+                  className="text-sm font-medium text-accent-hover hover:underline dark:text-accent"
+                >
+                  {review.program.name}
+                </Link>
+              </Card>
+            ))}
           </div>
         </div>
       )}

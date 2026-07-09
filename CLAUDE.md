@@ -168,25 +168,36 @@ to zero slugs for exactly this reason (no imported program has been placed there
 Duration is also multi-select now (`DurationType[]`, Prisma `{ in: [...] }`), matching
 the other dropdowns — its URL `duration` param is comma-joined like `tags`.
 
-### Search ranking: Postgres filters, then Fuse.js fuzzy rank, then a relevance-tier pass
+### Search ranking: Postgres filters, then a tokenized-match ∪ Fuse.js union, then a relevance-tier pass
 `lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR
 clauses, `durationType`, `hasScholarship`, `hasCollegeCredit`, `travelType`) as one
-Postgres query, then — only if a free-text `q` term is present — fuzzy-ranks that
-already-filtered set in memory with Fuse.js (`SEARCH_KEYS`: name/organization/tags
-weighted highest, location/goodFor/description weighted low, `threshold: 0.35`). At the
-current program count this in-memory pass is effectively free and avoids a
-`pg_trgm`/`tsvector` migration; `docs/PRODUCT_SPEC.md` §9 describes that as the eventual
-V2 direction, not something built yet.
+Postgres query, then — only if a free-text `q` term is present — ranks that
+already-filtered set in memory. At the current program count this in-memory pass is
+effectively free and avoids a `pg_trgm`/`tsvector` migration; `docs/PRODUCT_SPEC.md` §9
+describes that as the eventual V2 direction, not something built yet.
 
-Fuse's own weighted multi-key score doesn't guarantee "closest match first" on its
-own — a program matching several low-weight fields fuzzily can otherwise outscore one
-with a single literal name/tag hit. `relevanceTier` layers a deterministic tier on top
-of Fuse's candidate set (0 = exact name/tag, 1 = name/org prefix, 2 = word-boundary match
-or tag-slug prefix, 3 = substring, 4 = fuzzy-only), and results are sorted by
-`(tier, then Fuse score)` — a literal match always surfaces above a fuzzy one, while
-Fuse's score still breaks ties within a tier and typo-tolerance is preserved. Both
-`app/programs/page.tsx` and the JSON API (`app/api/programs/route.ts`) go through this
-same `listPrograms`, so they always rank identically.
+**Candidate selection is a union of two independent passes, not Fuse alone.** Fuse.js
+bitap-matches the *entire* query string as one pattern per field (`SEARCH_KEYS`:
+name/organization/tags weighted highest, location/goodFor/description weighted low,
+`threshold: 0.35`) — it never splits a multi-word query into tokens. That means a
+program whose *tags collectively* cover every query word (e.g. `yeshiva` + `gap-year` +
+`modern-orthodox` as three separate tags, no single field containing the whole phrase)
+was silently dropped by Fuse alone, even though every word genuinely matched somewhere —
+this was a real, reported bug (Yeshivat Hakotel not appearing for tag-spanning queries).
+`tokenize()` splits the query into words and `matchesAllTokens()` requires each token to
+substring-match *some* field (not necessarily the same one); the candidate set returned
+to `relevanceTier` is `Fuse's fuzzy matches ∪ matchesAllTokens matches`, so typo tolerance
+(Fuse) and multi-field-word coverage (tokens) both contribute recall.
+
+Neither pass guarantees "closest match first" on its own. `relevanceTier` layers a
+deterministic, token-aware tier on top of the unioned candidate set (0 = exact name/tag,
+1 = name/org prefix or every token word-boundary in name, 2 = every token covered across
+name/org/tags, 3 = every token covered anywhere including description/location/goodFor,
+4 = fuzzy-only/typo), and results are sorted by `(tier, then Fuse score, then name)` — a
+literal or token-complete match always surfaces above a fuzzy-only one, while Fuse's
+score still breaks ties within a tier. Both `app/programs/page.tsx` and the JSON API
+(`app/api/programs/route.ts`) go through this same `listPrograms`, so they always rank
+identically.
 
 ### Upload storage: video is on Vercel Blob, logo is not (and is still broken)
 The two upload surfaces do **not** share an implementation, and it's important not to

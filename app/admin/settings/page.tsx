@@ -6,6 +6,7 @@ import { getRecentlyAddedConfig, listVideoOptionsByProgramSlug } from "@/lib/rec
 import SiteLogoForm from "@/components/SiteLogoForm";
 import BackgroundLogoForm from "@/components/BackgroundLogoForm";
 import HomeLogoForm from "@/components/HomeLogoForm";
+import EmblemLogoForm from "@/components/EmblemLogoForm";
 import RecentlyAddedForm from "@/components/RecentlyAddedForm";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
@@ -37,6 +38,8 @@ export default async function AdminSettingsPage() {
     homeOffsetYMobile,
     homeLayerMobile,
     homeUrlDark,
+    emblemUrl,
+    emblemUrlDark,
     recentlyAdded,
     programOptions,
     videosBySlug,
@@ -63,6 +66,8 @@ export default async function AdminSettingsPage() {
     getSiteContent("homeLogoOffsetYMobile"),
     getSiteContent("homeLogoLayerMobile"),
     getSiteContent("homeLogoUrlDark"),
+    getSiteContent("emblemLogoUrl"),
+    getSiteContent("emblemLogoUrlDark"),
     getRecentlyAddedConfig(),
     listPublishedProgramNames(),
     listVideoOptionsByProgramSlug(),
@@ -132,6 +137,17 @@ export default async function AdminSettingsPage() {
           }}
           currentDarkUrl={homeUrlDark}
         />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Mission Emblem
+        </h2>
+        <p className="text-sm text-muted">
+          Shown at the top of the Background page. This is a separate image from the
+          header, background, and homepage logos above. Falls back to the built-in
+          emblem if nothing is uploaded.
+        </p>
+        <EmblemLogoForm currentEmblemUrl={emblemUrl} currentDarkEmblemUrl={emblemUrlDark} />
       </section>
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">

@@ -160,6 +160,15 @@ export async function listPendingEdits() {
   });
 }
 
+/** Newest programs of any status, for the admin recent-activity feed. */
+export async function listRecentPrograms(limit = 8) {
+  return prisma.program.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: { id: true, name: true, slug: true, status: true, createdAt: true },
+  });
+}
+
 export async function approveProgram(id: string) {
   return prisma.program.update({ where: { id }, data: { status: "PUBLISHED" } });
 }
@@ -269,6 +278,48 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+type Searchable = {
+  name: string;
+  organization: string | null;
+  location: string | null;
+  goodFor: string | null;
+  description: string;
+  tags: { name: string; slug: string }[];
+};
+
+// Fuse bitap-matches the *entire* query string as a single pattern against
+// each field -- it never splits "modern orthodox gap year" into words. A
+// program whose TAGS collectively cover every word (e.g. yeshiva + gap-year +
+// modern-orthodox as three separate tags) has no single field containing the
+// whole phrase, so Fuse drops it even though every word is genuinely present
+// somewhere on the program. Tokenizing the query and requiring each token to
+// match *some* field (not all in the same field) fixes that without giving up
+// Fuse's typo tolerance, which still runs in parallel for fuzzy recall.
+function tokenize(term: string): string[] {
+  return term
+    .toLowerCase()
+    .split(/\s+/)
+    .map((t) => t.replace(/^#/, ""))
+    .filter((t) => t.length >= 2);
+}
+
+function haystacks(program: Searchable): string[] {
+  return [
+    program.name,
+    program.organization ?? "",
+    program.location ?? "",
+    program.goodFor ?? "",
+    program.description,
+    ...program.tags.flatMap((t) => [t.name, t.slug]),
+  ].map((s) => s.toLowerCase());
+}
+
+/** Every token substring-matches at least one field (not necessarily the same field). */
+function matchesAllTokens(program: Searchable, tokens: string[]): boolean {
+  const hay = haystacks(program);
+  return tokens.every((tok) => hay.some((h) => h.includes(tok)));
+}
+
 // Fuse's weighted multi-key blend can let a program that matches several
 // low-weight fields fuzzily outrank one with a single strong, literal match --
 // there's no "closest match wins" guarantee from field weights alone. This
@@ -276,8 +327,9 @@ function escapeRegExp(value: string) {
 // literal/near-literal match always sorts above a fuzzy-only one, while Fuse's
 // own score still breaks ties within a tier and keeps typo-tolerant recall.
 function relevanceTier(
-  program: { name: string; organization: string | null; tags: { name: string; slug: string }[] },
-  termLower: string
+  program: Searchable,
+  termLower: string,
+  tokens: string[]
 ): number {
   const name = program.name.toLowerCase();
   const org = program.organization?.toLowerCase() ?? "";
@@ -288,7 +340,27 @@ function relevanceTier(
     return 0; // exact name or exact tag match
   }
   if (name.startsWith(termLower) || org.startsWith(termLower)) {
-    return 1; // name/org starts with the term
+    return 1; // name/org starts with the whole term
+  }
+  if (tokens.length > 0) {
+    const tokenInNameOrOrg = (tok: string) => {
+      const wb = new RegExp(`\\b${escapeRegExp(tok)}`);
+      return wb.test(name) || wb.test(org);
+    };
+    if (tokens.every(tokenInNameOrOrg)) {
+      return 1; // every word appears (word-boundary) in the name/org
+    }
+    const tokenInNameOrgOrTags = (tok: string) =>
+      tokenInNameOrOrg(tok) ||
+      tagSlugs.some((slug) => slug.startsWith(tok) || slug.includes(tok)) ||
+      tagNames.some((n) => n.includes(tok));
+    if (tokens.every(tokenInNameOrgOrTags)) {
+      return 2; // every word is covered by name/org/tags (not necessarily the same field)
+    }
+    if (matchesAllTokens(program, tokens)) {
+      return 3; // every word is covered somewhere (including location/goodFor/description)
+    }
+    return 4; // fuzzy-only match (typo-distance)
   }
   const wordBoundary = new RegExp(`\\b${escapeRegExp(termLower)}`);
   if (
@@ -337,13 +409,15 @@ export async function listPrograms(filters: ProgramFilters) {
   if (!term) return programs;
 
   // Structured filters (status/tags/duration/etc.) run in Postgres above;
-  // the free-text term is fuzzy-ranked here in memory. At ~183 published
-  // programs this is effectively free and avoids a pg_trgm migration +
-  // raw SQL for a dataset this size. Fuse selects the fuzzy candidate set;
-  // relevanceTier then re-sorts so the closest match always surfaces first
-  // (see relevanceTier above), with Fuse's own score breaking ties within a
-  // tier -- fuzzy recall is preserved, but a literal hit is never buried
-  // under several weak fuzzy ones.
+  // the free-text term is ranked here in memory. At ~183 published programs
+  // this is effectively free and avoids a pg_trgm migration + raw SQL for a
+  // dataset this size. The candidate set is the UNION of Fuse's fuzzy matches
+  // (typo tolerance) and a deterministic per-token substring match (so a
+  // program whose tags collectively cover every query word is never dropped
+  // just because no single field contains the whole phrase -- see
+  // matchesAllTokens above). relevanceTier then ranks the union so the
+  // closest match always surfaces first, with Fuse's own score breaking ties
+  // within a tier.
   const fuse = new Fuse(programs, {
     keys: SEARCH_KEYS,
     threshold: 0.35,
@@ -353,14 +427,20 @@ export async function listPrograms(filters: ProgramFilters) {
   });
 
   const termLower = term.toLowerCase();
-  return fuse
-    .search(term)
-    .map((result) => ({
-      item: result.item,
-      tier: relevanceTier(result.item, termLower),
-      score: result.score ?? 1,
+  const tokens = tokenize(term);
+  const fuseScores = new Map(fuse.search(term).map((r) => [r.item.id, r.score ?? 1]));
+
+  const candidates = programs.filter(
+    (p) => fuseScores.has(p.id) || (tokens.length > 0 && matchesAllTokens(p, tokens))
+  );
+
+  return candidates
+    .map((item) => ({
+      item,
+      tier: relevanceTier(item, termLower, tokens),
+      score: fuseScores.get(item.id) ?? 1,
     }))
-    .sort((a, b) => a.tier - b.tier || a.score - b.score)
+    .sort((a, b) => a.tier - b.tier || a.score - b.score || a.item.name.localeCompare(b.item.name))
     .map((result) => result.item);
 }
 
@@ -401,4 +481,16 @@ export async function listPublishedProgramNames() {
     select: { slug: true, name: true },
     orderBy: { name: "asc" },
   });
+}
+
+export type ProgramContactEmail = { id: string; name: string; contactEmail: string | null };
+
+/** Every published program's contact email, for the admin bulk-email tab. Queried live so the list grows automatically as programs are added. */
+export async function listProgramContactEmails(): Promise<ProgramContactEmail[]> {
+  const rows = await prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: { id: true, name: true, contactEmail: true },
+    orderBy: { name: "asc" },
+  });
+  return rows.map((r) => ({ ...r, contactEmail: r.contactEmail?.trim() || null }));
 }
