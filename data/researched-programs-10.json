@@ -1,0 +1,50 @@
+{
+  "_note": "Batch 10: 3 additional academic programs at universities already represented in the DB. Candidate research (Step 2) covered a much wider net -- TAU Summer Institute, HUJI InnovNation, WUJS Israel, BINA Secular Yeshiva/Gap Year, Ben-Gurion/Bar-Ilan/Reichman extra tracks, Ariel University summer schools -- but every other lead was excluded on verification: several were already in the DB under existing rows (ELI Gap Year, BINA Gap Year, BINA Tikkun Olam), one was a third-party program delivered through an existing entry's own infrastructure rather than a distinct official program (HUJI InnovNation, delivered via the existing Rothberg International School), one was out of scope entirely (WUJS's 'programs' are conferences/advocacy events, not enrollable academic programs), and a few could not be confirmed with a solid official URL (Ariel University's Summer Business School / Middle Eastern Summer School were mentioned only by aggregators). No academic gap-year/pre-college strand candidates survived scrutiny at all. Per explicit user policy: every field sourced from each program's own official site only; no price/tuition; no specific session dates -- durationText is length-only ('~2 months', '1 month'), with all specific calendar dates (e.g. TAU's June 3-July 30 2026, Technion's July 1-31 2026) deliberately omitted even though stated on the official pages. University of Haifa's official site structure has been in flux (the old overseas.haifa.ac.il domain is dead/unreachable, uhaifa.org is the current live domain matching what the existing Haifa International School DB row already uses) -- duration/hours-per-week claims from third-party aggregators (e.g. '25 hours/week') were deliberately NOT included since they could not be independently confirmed on the current official page.",
+  "university_programs": [
+    {
+      "name": "TAU Summer Internship Program",
+      "organization": "Tel Aviv University",
+      "location": "Tel Aviv, Israel",
+      "description": "A credit-bearing summer internship program placing international students in customized internships in Tel Aviv across sectors including technology, business, political science, NGOs, product management, public relations, marketing, film and media, and government, alongside a career-strategy workshop and a dedicated internship coordinator. Distinct from TAU International's semester/year study-abroad track.",
+      "durationType": "SUMMER",
+      "durationText": "~2 months",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://international.tau.ac.il/apply-to-international-programs-at-tel-aviv-university",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://international.tau.ac.il/Summer_Internship_Program",
+      "tags": ["Academic/Internship"]
+    },
+    {
+      "name": "Technion Summer Research Program in Science and Engineering",
+      "organization": "Technion - Israel Institute of Technology",
+      "location": "Haifa, Israel",
+      "description": "A one-month research placement for outstanding undergraduate students at Technion laboratories, working under the personal guidance of faculty members on a research project, concluding with a presentation of findings to the research group and faculty, alongside a social and cultural program in Haifa and around Israel. Distinct from Technion International's semester/year abroad track.",
+      "durationType": "SUMMER",
+      "durationText": "1 month",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://regint.web.technion.ac.il/",
+      "contactEmail": "apply@int.technion.ac.il",
+      "contactPhone": "",
+      "contactWebsite": "https://int.technion.ac.il/programs/summer-research-program-in-science-and-engineering/",
+      "tags": ["Academic/Internship", "engineering", "science"]
+    },
+    {
+      "name": "University of Haifa Intensive Hebrew Summer Ulpan",
+      "organization": "University of Haifa",
+      "location": "Haifa, Israel",
+      "description": "An intensive Hebrew-language summer program at the University of Haifa, offered from beginner to advanced levels, listed as a distinct offering in the university's international program menu alongside (and separate from) the Study Abroad, BA, and Master's programs.",
+      "durationType": "SUMMER",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://uhaifa.org/program/language-programs/",
+      "contactEmail": "",
+      "contactPhone": "",
+      "contactWebsite": "https://uhaifa.org/program/language-programs/",
+      "tags": ["ulpan"]
+    }
+  ]
+}
