@@ -49,49 +49,69 @@ enum FieldDecisionStatus {
 }
 
 model Program {
-  id                  String        @id @default(cuid())
-  name                String
-  slug                String        @unique
-  description         String
-  goodFor             String?
-  logoUrl             String?
-  organization        String?
-  location            String?
-  durationType        DurationType
-  durationText        String?
-  cost                String?
-  signupInstructions  String?
-  signupUrl           String?
-  contactEmail        String?
-  contactPhone        String?
-  contactWebsite      String?
-  hasScholarship      Boolean?
-  hasCollegeCredit    Boolean?
-  travelType          TravelType?
-  status              ProgramStatus @default(PENDING)
-  createdById         String
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  tags                Tag[]         @relation("ProgramTags")
-  videos              Video[]
-  reviews             Review[]
-  edits               ProgramEdit[]
-  references          Reference[]
+  id                     String        @id @default(cuid())
+  name                   String
+  slug                   String        @unique
+  description            String
+  goodFor                String?
+  logoUrl                String?
+  organization           String?
+  organizationId         String?
+  organizationRef        Organization? @relation(fields: [organizationId], references: [id])
+  location               String?
+  durationType           DurationType
+  durationText           String?
+  cost                   String?
+  signupInstructions     String?
+  signupUrl              String?
+  contactEmail           String?
+  contactEmailSource     String?
+  contactEmailVerifiedAt DateTime?
+  contactPhone           String?
+  contactWebsite         String?
+  hasScholarship         Boolean?
+  hasCollegeCredit       Boolean?
+  travelType             TravelType?
+  status                 ProgramStatus @default(PENDING)
+  createdById            String
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  tags                   Tag[]         @relation("ProgramTags")
+  videos                 Video[]
+  reviews                Review[]
+  edits                  ProgramEdit[]
+  references             Reference[]
 
   @@index([durationType])
   @@index([status])
+  @@index([organizationId])
+}
+
+/// Umbrella organization contact info, distinct from Program.organization (a free-text
+/// display label). Only populated for organizations whose own contact address is shared
+/// across multiple, otherwise-distinct programs (e.g. several Mechinat-* programs all
+/// pointing at the Joint Council of Pre-Military Academies' front desk) -- writing that
+/// same address onto every Program.contactEmail row would look like duplicated/broken
+/// data and isn't a program-specific contact. Program.contactEmail stays null for any
+/// program whose only known email is here.
+model Organization {
+  id                 String    @id @default(cuid())
+  name               String    @unique
+  contactEmail       String?
+  contactEmailSource String?
+  programs           Program[]
 }
 
 model ProgramEdit {
-  id              String                     @id @default(cuid())
-  programId       String
-  program         Program                    @relation(fields: [programId], references: [id], onDelete: Cascade)
-  payload         String
-  submittedById   String
-  status          EditStatus                 @default(PENDING)
-  createdAt       DateTime                   @default(now())
-  reviewedAt      DateTime?
-  fieldDecisions  ProgramEditFieldDecision[]
+  id             String                     @id @default(cuid())
+  programId      String
+  program        Program                    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  payload        String
+  submittedById  String
+  status         EditStatus                 @default(PENDING)
+  createdAt      DateTime                   @default(now())
+  reviewedAt     DateTime?
+  fieldDecisions ProgramEditFieldDecision[]
 
   @@index([programId])
   @@index([status])
