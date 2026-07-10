@@ -181,7 +181,14 @@ export async function rejectEdit(editId: string) {
 }
 
 export async function updateProgram(id: string, input: ProgramInput) {
-  const tags = await resolveTagsByName(input.tags);
+  const [tags, existing] = await Promise.all([
+    resolveTagsByName(input.tags),
+    prisma.program.findUniqueOrThrow({ where: { id }, select: { contactEmail: true } }),
+  ]);
+  // A changed contactEmail is unverified by definition -- drop any prior
+  // verification status/timestamp so the address re-enters the queue.
+  const emailChanged = (existing.contactEmail ?? "") !== (input.contactEmail ?? "");
+
   return prisma.program.update({
     where: { id },
     data: {
@@ -202,6 +209,7 @@ export async function updateProgram(id: string, input: ProgramInput) {
       hasCollegeCredit: input.hasCollegeCredit,
       travelType: input.travelType,
       ...(input.logoUrl ? { logoUrl: input.logoUrl } : {}),
+      ...(emailChanged ? { contactEmailStatus: null, contactEmailVerifiedAt: null } : {}),
       tags: { set: [], connect: tags },
     },
   });

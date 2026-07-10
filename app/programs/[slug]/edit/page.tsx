@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton, Show } from "@clerk/nextjs";
@@ -8,6 +9,18 @@ import { listDurationOptions } from "@/lib/duration";
 import ProgramForm from "@/components/ProgramForm";
 import PageContainer from "@/components/ui/PageContainer";
 import { buttonVariants } from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+
+const STATUS_LABELS = {
+  VERIFIED: "Verified",
+  BOUNCED: "Bounced",
+  WRONG_CONTACT: "Reached wrong contact",
+} as const;
+const STATUS_TONES = {
+  VERIFIED: "success",
+  BOUNCED: "danger",
+  WRONG_CONTACT: "warning",
+} as const;
 
 export default async function EditProgramPage({
   params,
@@ -38,6 +51,22 @@ export default async function EditProgramPage({
         {!isModerator && (
           <p className="mt-2 text-sm text-muted">
             Your changes will be reviewed by a moderator before they go live.
+          </p>
+        )}
+        {isModerator && program.contactEmail && (
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted">
+            Contact email:
+            <Badge tone={program.contactEmailStatus ? STATUS_TONES[program.contactEmailStatus] : "neutral"}>
+              {program.contactEmailStatus ? STATUS_LABELS[program.contactEmailStatus] : "Not yet verified"}
+            </Badge>
+            {program.contactEmailVerifiedAt && (
+              <span>as of {program.contactEmailVerifiedAt.toLocaleDateString()}</span>
+            )}
+            {role === "admin" && (
+              <Link href="/admin/email-verification" className="underline hover:text-foreground">
+                verification queue
+              </Link>
+            )}
           </p>
         )}
       </div>

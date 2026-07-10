@@ -117,6 +117,21 @@ export async function applyReviewDecisions(editId: string, decisions: ReviewDeci
     findExistingTagIds(tagsToDisconnectNames),
   ]);
 
+  // A changed contactEmail is unverified by definition -- drop any prior
+  // verification status/timestamp so the address re-enters the queue.
+  // contactEmailStatus itself is never proposable content, so it can only
+  // ever be reset here, never set to a moderator-chosen value.
+  if ("contactEmail" in data) {
+    const current = await prisma.program.findUniqueOrThrow({
+      where: { id: edit.programId },
+      select: { contactEmail: true },
+    });
+    if ((current.contactEmail ?? "") !== (data.contactEmail as string)) {
+      data.contactEmailStatus = null;
+      data.contactEmailVerifiedAt = null;
+    }
+  }
+
   if (Object.keys(data).length > 0 || connectTags.length > 0 || disconnectTags.length > 0) {
     await prisma.program.update({
       where: { id: edit.programId },

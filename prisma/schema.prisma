@@ -48,16 +48,22 @@ enum FieldDecisionStatus {
   REJECTED
 }
 
+enum EmailVerificationStatus {
+  VERIFIED
+  BOUNCED
+  WRONG_CONTACT
+}
+
 model Program {
-  id                     String        @id @default(cuid())
+  id                     String                     @id @default(cuid())
   name                   String
-  slug                   String        @unique
+  slug                   String                     @unique
   description            String
   goodFor                String?
   logoUrl                String?
   organization           String?
   organizationId         String?
-  organizationRef        Organization? @relation(fields: [organizationId], references: [id])
+  organizationRef        Organization?              @relation(fields: [organizationId], references: [id])
   location               String?
   durationType           DurationType
   durationText           String?
@@ -67,24 +73,50 @@ model Program {
   contactEmail           String?
   contactEmailSource     String?
   contactEmailVerifiedAt DateTime?
+  /// Current verification state of contactEmail. Null means never checked (or reset
+  /// because contactEmail's value changed since the last check) -- see
+  /// ContactEmailVerification for the append-only history and lib/emailVerification.ts
+  /// for the queue/staleness logic. This field is a workflow/QA signal, not proposable
+  /// program content -- it's deliberately excluded from the ProgramEdit field-decision
+  /// pipeline (NULLABLE_ENUM_FIELDS in lib/programEdits.ts) and only ever written by the
+  /// admin-only email-verification action.
+  contactEmailStatus     EmailVerificationStatus?
   contactPhone           String?
   contactWebsite         String?
   hasScholarship         Boolean?
   hasCollegeCredit       Boolean?
   travelType             TravelType?
-  status                 ProgramStatus @default(PENDING)
+  status                 ProgramStatus              @default(PENDING)
   createdById            String
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-  tags                   Tag[]         @relation("ProgramTags")
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  tags                   Tag[]                      @relation("ProgramTags")
   videos                 Video[]
   reviews                Review[]
   edits                  ProgramEdit[]
   references             Reference[]
+  emailVerifications     ContactEmailVerification[]
 
   @@index([durationType])
   @@index([status])
   @@index([organizationId])
+}
+
+/// Append-only log of human verification actions on Program.contactEmail. Snapshots the
+/// address as it was at check time, so a bounced/replaced address and its reason survive
+/// any later edit to Program.contactEmail. Cascade on program delete is fine here (unlike
+/// ProgramExportRow) -- history of a deleted program's email has no standalone value.
+model ContactEmailVerification {
+  id          String                  @id @default(cuid())
+  programId   String
+  program     Program                 @relation(fields: [programId], references: [id], onDelete: Cascade)
+  email       String
+  status      EmailVerificationStatus
+  note        String?
+  checkedById String
+  checkedAt   DateTime                @default(now())
+
+  @@index([programId])
 }
 
 /// Umbrella organization contact info, distinct from Program.organization (a free-text

@@ -7,6 +7,7 @@ import { getProgramBySlug, averageRating } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
+import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewList from "@/components/ReviewList";
 import VideoUploader from "@/components/VideoUploader";
@@ -38,6 +39,14 @@ export default async function ProgramDetailPage({
   if (!program) notFound();
 
   const isModerator = role === "moderator" || role === "admin";
+  // Known-bad addresses (bounced / reached the wrong person) are suppressed
+  // entirely -- showing a dead contact is worse than showing nothing. A
+  // never-checked (or stale-verified) address is still shown, just labeled,
+  // so the site doesn't lose every contact email on day one of the workflow.
+  const emailKnownBad = program.contactEmailStatus === "BOUNCED" || program.contactEmailStatus === "WRONG_CONTACT";
+  const emailVerifiedFresh =
+    program.contactEmailStatus === "VERIFIED" && isEmailVerificationFresh(program.contactEmailVerifiedAt);
+  const showContactEmail = Boolean(program.contactEmail) && !emailKnownBad;
   const isOwner = userId === program.createdById;
   if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
 
@@ -168,7 +177,16 @@ export default async function ProgramDetailPage({
         <div className="sm:col-span-2">
           <dt className="font-medium text-muted">Contact</dt>
           <dd className="flex flex-col gap-0.5">
-            {program.contactEmail && <span>{program.contactEmail}</span>}
+            {showContactEmail && (
+              <span className="flex flex-wrap items-center gap-1.5">
+                {program.contactEmail}
+                {emailVerifiedFresh ? (
+                  <Badge tone="success">Verified</Badge>
+                ) : (
+                  <Badge tone="neutral">Not yet verified</Badge>
+                )}
+              </span>
+            )}
             {program.contactPhone && <span>{program.contactPhone}</span>}
             {program.contactWebsite && (
               <a
@@ -180,7 +198,7 @@ export default async function ProgramDetailPage({
                 {program.contactWebsite}
               </a>
             )}
-            {!program.contactEmail && !program.contactPhone && !program.contactWebsite && (
+            {!showContactEmail && !program.contactPhone && !program.contactWebsite && (
               <span>Not listed</span>
             )}
           </dd>

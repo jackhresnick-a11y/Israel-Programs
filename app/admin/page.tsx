@@ -67,6 +67,12 @@ export default async function AdminPage() {
             >
               Contact emails
             </Link>
+            <Link
+              href="/admin/email-verification"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Email verification queue
+            </Link>
           </div>
         )}
       </PageHeader>
