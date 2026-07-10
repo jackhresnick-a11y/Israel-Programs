@@ -133,11 +133,17 @@ just another value), plus a separate **moderator-accessible** `POST
 role route, since it can only ever set `"banned"`, never promote someone.
 
 ### Tags: flat model, optional category, principled split from structured attributes
-`Tag` has an optional `category` (`location` / `affiliation` / `population` / `gender`
-today; most tags are uncategorized/general). Multi-select filtering in
-`lib/programs.ts` groups selected tag slugs by category and **ORs within a category,
-ANDs across categories** (e.g. two "location" tags match either; a "location" tag plus
-a "gender" tag requires both) — see the category-grouping helper in `listPrograms`.
+`Tag` has an optional `category` (`gender` / `affiliation` / `israeli-integration` /
+`essence` / `age` / `location` today, plus a dormant, UI-less `language`; most tags —
+the general ~140-tag pool — are uncategorized). `population` and the old `affiliation`
+set (`orthodox`/`secular`/`pluralistic`/etc.) were retired to `category: null` when the
+newer taxonomy replaced them (`prisma/seed-new-taxonomy-tags.ts`) but the tag rows
+themselves were kept, not deleted — they're read as the confidence signal by
+`prisma/retag-taxonomy.ts`, a historical one-time migration script, not one to re-run.
+Multi-select filtering in `lib/programs.ts` groups selected tag slugs by category and
+**ORs within a category, ANDs across categories** (e.g. two "location" tags match
+either; a "location" tag plus a "gender" tag requires both) — see the category-grouping
+helper in `listPrograms`.
 
 Deliberate modeling principle: attributes that are booleans or a small fixed set of
 tiers get **real typed `Program` columns**, not tags — `hasScholarship`,
@@ -146,27 +152,61 @@ used to be tags and that was the wrong shape. If a new attribute is genuinely a
 boolean/enum rather than a freeform identity/vibe descriptor, follow that precedent
 instead of adding another tag.
 
-### Browse filters: one dropdown per category; Region is a UI-only grouping, not a tag category
+**Every write path resolves typed-in tag names through one shared resolver — never
+slugify-and-upsert inline.** `lib/tags.ts`'s `resolveTagsByName` (connect) and
+`findExistingTagIds` (disconnect) match a name to an existing tag by case-insensitive
+name first, then by `slug`, and only create a new tag if neither matches — never
+fuzzily. `createProgram`/`updateProgram` (`lib/programs.ts`), the moderated-edit apply
+path (`lib/programEdits.ts`), and `prisma/import-researched.ts` all go through this.
+This matters because several admin-seeded taxonomy tags have a `slug` that isn't
+`slugify(their own name)` (e.g. slug `integration-low`, name "Low integration") — a
+bare `prisma.tag.upsert({ where: { slug: slugify(name) }, ... })` on one of these
+silently mints a fresh **uncategorized duplicate** instead of reattaching the canonical
+tag, and the browse-filter dropdown (which filters on the canonical slug) then misses
+every program re-saved that way. This exact bug shipped and was repaired once already
+(9 duplicate tags merged, `Region.memberSlugs` fixed to point at live tags) — run
+`prisma/audit-tags.ts` (read-only) any time to check for name/slug twin pairs or dead
+`Region.memberSlugs` before assuming the data is clean; `prisma/merge-duplicate-tags.ts`
+is the hand-reviewed repair template if it recurs.
+
+### Browse filters: one dropdown per category, all config admin-editable via DB tables
 `components/SearchBar.tsx` renders one dropdown per filter category via the shared
 `components/ui/FilterDropdown.tsx` multi-select popover — Duration, Gender, Religious
-affiliation, Participant mix, Region — instead of a flat pill cloud. All filter state
-still lives in the URL (`q`, `tags`, `duration`); there's no client-side filtering.
-Selecting anything does `router.push` to a new `/programs?...` URL, which re-runs the
-`app/programs/page.tsx` server component and re-queries via `lib/programs.ts`.
+affiliation, Participant mix, Age, Essence, Region — instead of a flat pill cloud. All
+filter state still lives in the URL (`q`, `tags`, `duration`); there's no client-side
+filtering. Selecting anything does `router.push` to a new `/programs?...` URL, which
+re-runs the `app/programs/page.tsx` server component and re-queries via `lib/programs.ts`.
 
-Gender / Religious affiliation / Participant mix are driven directly by `Tag.category`,
-same as before. **Region is different: it's a pure UI-layer grouping, not a new
-`Tag.category`.** `lib/regions.ts`'s `REGION_TO_SLUGS` maps each of the 6 regions
-(North / South / Jerusalem / Judea / Samaria / Coast) to a subset of the existing
-`location`-category tag slugs; toggling a region just adds/removes all of that region's
-member slugs from the `tags` param at once, so it rides on the exact same
-`buildTagAndClauses` OR-within-category logic as any other location tag (no schema
-change, no new filter param). A newly-imported program's location tag won't surface
-under any region filter until it's added to `REGION_TO_SLUGS` — `samaria` currently maps
-to zero slugs for exactly this reason (no imported program has been placed there yet).
+Gender / Religious affiliation / Participant mix / Age / Essence dropdowns are driven
+directly by `TagCategory` rows (`showInFilter`, `order`, `tint`) and their member `Tag`
+rows — a new category shows up with zero code changes (see `lib/tags.ts`'s
+`listTagCategories`/`getTagsGroupedByCategory`, managed via `app/admin/tags`'s
+`TagCategoryManager`/`TagManager`).
 
-Duration is also multi-select now (`DurationType[]`, Prisma `{ in: [...] }`), matching
-the other dropdowns — its URL `duration` param is comma-joined like `tags`.
+**Duration and Region are *not* `Tag`/`TagCategory` rows** — they're their own
+admin-editable tables (`DurationOption`, `Region` in `schema.prisma`), managed via
+`app/admin/tags`'s `DurationManager`/`RegionManager` components, with their filter
+header label/tint/visibility stored as `SiteContent` keys
+(`durationFilterLabel`/`Tint`/`Show`, `regionFilterLabel`/`Tint`/`Show` — see
+`app/programs/page.tsx`). Duration is a real `Program` column (`durationType`), not a
+tag; `DurationOption` only overrides its display label/order/filter-visibility per
+value, with the static `DURATION_LABELS` map (`lib/duration.ts`) as seed default and
+fallback. **Region is a pure UI-layer grouping over `location`-category tags, not a new
+`Tag.category`** — each `Region` row's `memberSlugs` (a `String[]`, softly referencing
+`Tag.slug`, not a foreign key) is a subset of existing location-tag slugs; toggling a
+region in the UI just adds/removes all of that region's member slugs from the `tags`
+URL param at once, riding the exact same `buildTagAndClauses` OR-within-category logic
+as any other location tag (no schema change, no new filter param). `lib/regions.ts`'s
+`REGION_TO_SLUGS`/`REGION_LABELS`/`REGION_ORDER` are **only the one-time seed defaults**
+for `prisma/seed-duration-region.ts` — at request time `SearchBar` receives the live
+`Region`/`DurationOption` rows as props from `app/programs/page.tsx` (via
+`listRegions()`/`listDurationOptions()`), never importing those constants directly. A
+newly-imported program's location tag won't surface under any region filter until an
+admin adds it to that Region's `memberSlugs` (via `RegionManager`) — an empty
+`memberSlugs` array is a valid, deliberate state (a region with no members yet), not a bug.
+
+Duration is also multi-select (`DurationType[]`, Prisma `{ in: [...] }`), matching the
+other dropdowns — its URL `duration` param is comma-joined like `tags`.
 
 ### Search ranking: Postgres filters, then a tokenized-match ∪ Fuse.js union, then a relevance-tier pass
 `lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR
