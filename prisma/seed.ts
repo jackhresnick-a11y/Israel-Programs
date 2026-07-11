@@ -1,5 +1,6 @@
 import { PrismaClient, DurationType } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { assertNoImportedContactFields } from "@/lib/importGuards";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
@@ -35,7 +36,6 @@ async function main() {
       cost: "Free (flights, lodging, and most meals included)",
       signupInstructions: "Apply online through an approved trip provider once eligibility is confirmed.",
       signupUrl: "https://www.birthrightisrael.com",
-      contactEmail: "info@birthrightisrael.com",
       tags: ["free", "10-day", "young-adults", "history", "culture"],
     },
     {
@@ -50,7 +50,6 @@ async function main() {
       cost: "Program fee varies; scholarships available",
       signupInstructions: "Apply online, select an internship track, and complete an interview.",
       signupUrl: "https://onwardisrael.org",
-      contactEmail: "info@onwardisrael.org",
       tags: ["internship", "summer", "career", "academic"],
     },
     {
@@ -65,7 +64,6 @@ async function main() {
       cost: "~$30,000 (financial aid available)",
       signupInstructions: "Submit an online application and complete an admissions interview.",
       signupUrl: "https://yearcourse.org",
-      contactEmail: "admissions@youngjudaea.org",
       tags: ["gap-year", "volunteering", "army", "zionism"],
     },
     {
@@ -80,7 +78,6 @@ async function main() {
       cost: "~$28,000 (financial aid available)",
       signupInstructions: "Apply online through the USY Nativ website.",
       signupUrl: "https://nativcollegeleadership.org",
-      contactEmail: "nativ@uscj.org",
       tags: ["gap-year", "leadership", "army", "conservative-movement"],
     },
     {
@@ -95,7 +92,6 @@ async function main() {
       cost: "$1,500-$3,000 depending on session",
       signupInstructions: "Apply through the Livnot website; rolling admissions.",
       signupUrl: "https://livnot.org",
-      contactEmail: "info@livnot.org",
       tags: ["short-term", "hiking", "identity", "volunteering"],
     },
   ];
@@ -103,24 +99,26 @@ async function main() {
   for (const p of programs) {
     const { tags: tagNames, ...data } = p;
     const tags = await upsertTags(tagNames);
+    const programData = {
+      ...data,
+      status: "PUBLISHED" as const,
+      createdById: SEED_USER_ID,
+      tags: { connect: tags.map((t) => ({ id: t.id })) },
+      reviews: {
+        create: [
+          {
+            rating: 5,
+            text: `${p.name} completely changed how I see my connection to Israel. Highly recommend to anyone considering it.`,
+            reviewerName: "Sample Alum",
+          },
+        ],
+      },
+    };
+    assertNoImportedContactFields(programData);
     await prisma.program.upsert({
       where: { slug: p.slug },
       update: {},
-      create: {
-        ...data,
-        status: "PUBLISHED",
-        createdById: SEED_USER_ID,
-        tags: { connect: tags.map((t) => ({ id: t.id })) },
-        reviews: {
-          create: [
-            {
-              rating: 5,
-              text: `${p.name} completely changed how I see my connection to Israel. Highly recommend to anyone considering it.`,
-              reviewerName: "Sample Alum",
-            },
-          ],
-        },
-      },
+      create: programData,
     });
   }
 

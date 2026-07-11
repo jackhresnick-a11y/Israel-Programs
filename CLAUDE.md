@@ -4,6 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Standing rules (the contract — read every session)
+
+### Database writes
+- Never write to production without explicit approval in the current session. "Plan first" means no writes, no migrations, no `--commit` until approval is given for that specific change.
+- Before any write, classify it and act accordingly:
+  - **(a) relation edit** — snapshot affected links to JSON, proceed after approval.
+  - **(b) field overwrite** — snapshot prior values to JSON, print row count, proceed after approval.
+  - **(c) row delete or schema change** — stop, report, wait. Cut a Neon branch first.
+- Never bundle a judgment call into an approved commit. If you decide a value is *wrong* rather than *duplicated*, that is a separate decision — print it and wait.
+
+### Data provenance
+- `contactEmail` and `contactEmailSource` are owned exclusively by the contact-verification workflow. Import, seed, and batch-research code never writes them (enforced by `lib/importGuards.ts` — do not remove or bypass).
+- Never guess, infer, construct, or pattern-match email addresses, URLs, or any contact data. Observed-on-official-page or null. Null is correct; a plausible guess is a failure.
+- Tags: never introduce new tag values, casing variants, or spellings. Propose from the existing set; flag gaps and ask.
+- Program descriptions are public-facing. Research caveats, verification notes, and meta-commentary go in `adminNote`, never in `description`.
+
+### Verification
+- Verifying your own work means re-reading the result for coherence, not grepping for the absence of a removed string.
+- After any bulk change, print expected vs. actual row counts.
+
+### Neon
+- List and create branches freely. Never delete a branch or project without written approval naming the branch.
+
 `docs/PRODUCT_SPEC.md` is the product roadmap ("Living document," currently v0.1) —
 check it for target-state product direction beyond what's already built. Its own
 "Current State" section (§0) is partially stale (it still says "Prisma + SQLite"; the
@@ -131,6 +154,55 @@ The ban action itself reuses the existing admin role-update route (`role: "banne
 just another value), plus a separate **moderator-accessible** `POST
 /api/admin/users/[id]/ban` route — deliberately narrower than the admin-only general
 role route, since it can only ever set `"banned"`, never promote someone.
+
+### Contact email: Organization model, provenance, and human verification
+`Program.contactEmail` is only ever a program's *own* address. `Organization`
+(`id, name @unique, contactEmail, contactEmailSource, programs`) exists
+separately for umbrella bodies whose contact is shared across otherwise-
+distinct programs (e.g. several Mechinat-* programs all pointing at the
+Joint Council of Pre-Military Academies' front desk) — `Program.organizationId`
+is set, and `Program.contactEmail` left null, only when a program's *sole*
+known contact is that umbrella address; merely sharing a parent brand doesn't
+qualify. `Program.contactEmailSource` (nullable URL) records where a
+researched email was observed — distinct from `contactEmailVerifiedAt` (see
+below), which means "a human confirmed this is live," not "we know where it
+came from."
+
+No email is ever considered verified just because it was scraped from an
+official site. `lib/emailVerification.ts` implements a human-in-the-loop
+verification workflow: `Program.contactEmailStatus`
+(`VERIFIED`/`BOUNCED`/`WRONG_CONTACT`, nullable) is the current state, and
+`ContactEmailVerification` is an append-only audit log (one row per admin
+action, snapshotting the email + status + an optional note) so a bounced
+address and the reason it failed survive even after `Program.contactEmail`
+is later edited to something else. Admins work the queue at
+`/admin/email-verification` (`listEmailVerificationQueue` — every program
+with a non-null `contactEmail` whose status is null, or whose `VERIFIED`
+status is older than `STALE_AFTER_MONTHS` (18)). Staleness is computed at
+query time from that one constant, never stored, so the queue and the public
+page's "is this still trustworthy" check can't drift apart. The three
+actions (`recordEmailVerification`) run as a single Prisma transaction
+behind `POST /api/admin/programs/[id]/email-verification` (admin-gated). A
+CSV export (`GET /api/admin/email-verification-queue.csv`) exists for manual
+outreach — there is deliberately no send integration, following the
+existing `/admin/emails` Gmail-BCC tool's precedent of leaving the actual
+sending to the admin's own mail client.
+
+**`contactEmailStatus`/`contactEmailVerifiedAt` are never backfilled and
+never proposable content.** Both `updateProgram` (`lib/programs.ts`) and
+`applyReviewDecisions` (`lib/programEdits.ts`) reset them to null the moment
+`contactEmail`'s value changes (a changed address is unverified by
+definition), but neither path — nor the `ProgramEdit` field-decision UI —
+ever lets a non-admin or an automated import set them to anything else. The
+only write path that can set `VERIFIED`/`BOUNCED`/`WRONG_CONTACT` is an admin
+clicking a button in the queue. Public display
+(`app/programs/[slug]/page.tsx`) follows a "label, don't hide" rule: a
+never-checked or stale-verified email still renders, with a muted "not yet
+verified" badge; a fresh `VERIFIED` email renders with a "Verified" badge;
+`BOUNCED`/`WRONG_CONTACT` are suppressed from the public page entirely
+(known-bad is exactly the case hiding is for), though the address itself
+stays on the Program row so an admin can still see/replace it via the
+normal edit flow.
 
 ### Tags: flat model, optional category, principled split from structured attributes
 `Tag` has an optional `category` (`gender` / `affiliation` / `israeli-integration` /
