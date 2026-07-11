@@ -1,0 +1,652 @@
+[
+  {
+    "slug": "apf-medical-and-nursing-volunteer-program",
+    "contactEmail": "info@apfmed.org",
+    "updatedAt": "2026-07-06T10:12:46.030Z"
+  },
+  {
+    "slug": "arava-institute-for-environmental-studies",
+    "contactEmail": "admissions@arava.org",
+    "updatedAt": "2026-07-06T10:12:46.502Z"
+  },
+  {
+    "slug": "artzi",
+    "contactEmail": "gapartzi@gmail.com",
+    "updatedAt": "2026-07-06T10:12:52.808Z"
+  },
+  {
+    "slug": "ateres-bnos-yerushalayim",
+    "contactEmail": "office@ateresby.org",
+    "updatedAt": "2026-07-07T13:49:20.043Z"
+  },
+  {
+    "slug": "beit-midrash-reuta-carmel",
+    "contactEmail": "yreuta3@gmail.com",
+    "updatedAt": "2026-07-10T09:00:01.643Z"
+  },
+  {
+    "slug": "bezalel-academy-of-arts-and-design-student-exchange-program",
+    "contactEmail": "exchange.program@bezalel.ac.il",
+    "updatedAt": "2026-07-06T10:12:46.658Z"
+  },
+  {
+    "slug": "bina-gap-year",
+    "contactEmail": "gapyear@bina.org.il",
+    "updatedAt": "2026-07-06T10:12:36.631Z"
+  },
+  {
+    "slug": "birthright-israel",
+    "contactEmail": "info@birthrightisrael.com",
+    "updatedAt": "2026-07-10T09:45:59.639Z"
+  },
+  {
+    "slug": "bnei-david-eli",
+    "contactEmail": "talmidim@bneidavid.org",
+    "updatedAt": "2026-07-09T19:50:34.031Z"
+  },
+  {
+    "slug": "bnos-chava-seminary",
+    "contactEmail": "office@bnoschava.net",
+    "updatedAt": "2026-07-07T13:49:46.428Z"
+  },
+  {
+    "slug": "derech-eretz",
+    "contactEmail": "development@derecheretz.org.il",
+    "updatedAt": "2026-07-10T07:29:44.336Z"
+  },
+  {
+    "slug": "diller-teen-fellows-israel-summer-seminar",
+    "contactEmail": "info@dillerteenfellows.org",
+    "updatedAt": "2026-07-06T10:12:51.867Z"
+  },
+  {
+    "slug": "eco-israel-program",
+    "contactEmail": "ecoisrael@havaveadam.org",
+    "updatedAt": "2026-07-06T10:12:45.872Z"
+  },
+  {
+    "slug": "eli-gap-year-program",
+    "contactEmail": "gapintl@tauex.tau.ac.il",
+    "updatedAt": "2026-07-07T05:57:30.125Z"
+  },
+  {
+    "slug": "en-gedi-oasis-archaeological-project",
+    "contactEmail": "avi.mashiach@mail.huji.ac.il",
+    "updatedAt": "2026-07-07T13:50:52.818Z"
+  },
+  {
+    "slug": "garin-tzabar",
+    "contactEmail": "garintzabar@israelscouts.org",
+    "updatedAt": "2026-07-06T10:12:44.608Z"
+  },
+  {
+    "slug": "ginsburg-ingerman-overseas-student-program-osp",
+    "contactEmail": "lailap@bgu.ac.il",
+    "updatedAt": "2026-07-06T10:12:44.452Z"
+  },
+  {
+    "slug": "habonim-dror-uk-shnat",
+    "contactEmail": "leche@habodror.org.uk",
+    "updatedAt": "2026-07-07T05:57:26.989Z"
+  },
+  {
+    "slug": "hadassah-medical-center-volunteer-program",
+    "contactEmail": "rosebatsheva@gmail.com",
+    "updatedAt": "2026-07-07T05:48:42.130Z"
+  },
+  {
+    "slug": "hesder-yeshiva-akko",
+    "contactEmail": "boaz.yakko@gmail.com",
+    "updatedAt": "2026-07-10T08:59:51.573Z"
+  },
+  {
+    "slug": "interuniversity-institute-for-marine-sciences-iui-eilat-intensive-courses",
+    "contactEmail": "educ-iui@savion.huji.ac.il",
+    "updatedAt": "2026-07-08T09:26:59.611Z"
+  },
+  {
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "contactEmail": "esp@jct.ac.il",
+    "updatedAt": "2026-07-07T05:57:31.011Z"
+  },
+  {
+    "slug": "kivunim",
+    "contactEmail": "admissions@kivunim.org",
+    "updatedAt": "2026-07-06T10:12:50.761Z"
+  },
+  {
+    "slug": "leket-israel-volunteer-program",
+    "contactEmail": "michelle@leket.org",
+    "updatedAt": "2026-07-07T05:48:41.627Z"
+  },
+  {
+    "slug": "livnot",
+    "contactEmail": "info@livnot.org",
+    "updatedAt": "2026-07-06T10:12:36.946Z"
+  },
+  {
+    "slug": "machaneh-bonim-bisrael-mbi",
+    "contactEmail": "finance@habonimdror.org",
+    "updatedAt": "2026-07-06T10:12:53.437Z"
+  },
+  {
+    "slug": "machon-maayan",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T17:42:37.526Z"
+  },
+  {
+    "slug": "mayanot-post-high-school-program-men",
+    "contactEmail": "admin@mayanot.edu",
+    "updatedAt": "2026-07-06T10:12:47.284Z"
+  },
+  {
+    "slug": "mechinat-ami-chai",
+    "contactEmail": "amichaimkdz@gmail.com",
+    "updatedAt": "2026-07-10T07:30:00.001Z"
+  },
+  {
+    "slug": "mechinat-arzei-halevanon",
+    "contactEmail": "mechinatarzey@gmail.com",
+    "updatedAt": "2026-07-10T07:29:08.753Z"
+  },
+  {
+    "slug": "mechinat-beit-yatir",
+    "contactEmail": "office@yatir.org.il",
+    "updatedAt": "2026-07-10T07:29:10.102Z"
+  },
+  {
+    "slug": "mechinat-beit-yisrael-big",
+    "contactEmail": "beitisrael.gius@gmail.com",
+    "updatedAt": "2026-07-06T10:12:43.670Z"
+  },
+  {
+    "slug": "mechinat-bnei-david-eli",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T16:57:37.391Z"
+  },
+  {
+    "slug": "mechinat-bnot-hamidbar",
+    "contactEmail": "melach.aretz@gmail.com",
+    "updatedAt": "2026-07-10T07:29:40.955Z"
+  },
+  {
+    "slug": "mechinat-chemdat-yehuda",
+    "contactEmail": "b.m.chemdat@gmail.com",
+    "updatedAt": "2026-07-10T07:29:13.353Z"
+  },
+  {
+    "slug": "mechinat-echad-vachat-mishelanu",
+    "contactEmail": "info@one-of-us.org.il",
+    "updatedAt": "2026-07-10T07:29:37.652Z"
+  },
+  {
+    "slug": "mechinat-elisha",
+    "contactEmail": "mechinatelisha2@gmail.com",
+    "updatedAt": "2026-07-10T07:29:07.258Z"
+  },
+  {
+    "slug": "mechinat-kerem-el",
+    "contactEmail": "kerem_el_lishka@walla.com",
+    "updatedAt": "2026-07-10T07:29:52.413Z"
+  },
+  {
+    "slug": "mechinat-keshet-yehuda",
+    "contactEmail": "office@keshetyehuda.org",
+    "updatedAt": "2026-07-10T07:29:31.974Z"
+  },
+  {
+    "slug": "mechinat-lapidot-emuna",
+    "contactEmail": "mechinatlapidot@gmail.com",
+    "updatedAt": "2026-07-10T07:29:21.441Z"
+  },
+  {
+    "slug": "mechinat-lavi",
+    "contactEmail": "mechina@mechina.org.il",
+    "updatedAt": "2026-07-10T07:29:36.306Z"
+  },
+  {
+    "slug": "mechinat-magen-shaul-nokdim",
+    "contactEmail": "mechina@mnokdim.org",
+    "updatedAt": "2026-07-10T07:29:22.787Z"
+  },
+  {
+    "slug": "mechinat-maoz-lod",
+    "contactEmail": "mechinatmaoz@gmail.com",
+    "updatedAt": "2026-07-10T07:29:24.571Z"
+  },
+  {
+    "slug": "mechinat-mashahiyot-maskyot",
+    "contactEmail": "maskyot@gmail.com",
+    "updatedAt": "2026-07-10T07:29:26.115Z"
+  },
+  {
+    "slug": "mechinat-migdalor",
+    "contactEmail": "contact@mymigdalor.co.il",
+    "updatedAt": "2026-07-10T07:29:53.758Z"
+  },
+  {
+    "slug": "mechinat-nachshon",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T10:27:02.303Z"
+  },
+  {
+    "slug": "mechinat-ruach-nachon",
+    "contactEmail": "run.harshama@gmail.com",
+    "updatedAt": "2026-07-10T07:30:01.836Z"
+  },
+  {
+    "slug": "mechinat-shuvu-achim",
+    "contactEmail": "mehinarehovot@gmail.com",
+    "updatedAt": "2026-07-10T07:29:29.049Z"
+  },
+  {
+    "slug": "mechinat-tamir",
+    "contactEmail": "info@tammir.org.il",
+    "updatedAt": "2026-07-10T07:29:33.465Z"
+  },
+  {
+    "slug": "mechinat-tavor",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T10:27:39.276Z"
+  },
+  {
+    "slug": "mechinat-tzahali",
+    "contactEmail": "office@tzahali.co.il",
+    "updatedAt": "2026-07-10T07:29:30.629Z"
+  },
+  {
+    "slug": "mechinat-yedidya",
+    "contactEmail": "office@m-yedidya.org",
+    "updatedAt": "2026-07-10T07:29:14.838Z"
+  },
+  {
+    "slug": "mechinat-yemin-orde",
+    "contactEmail": "nurit@derechkfar.org.il",
+    "updatedAt": "2026-07-10T07:29:49.434Z"
+  },
+  {
+    "slug": "mechinat-yesodot",
+    "contactEmail": "yesodot@yesodot.org.il",
+    "updatedAt": "2026-07-10T07:30:06.309Z"
+  },
+  {
+    "slug": "medical-school-for-international-health-msih",
+    "contactEmail": "msihadmissions@post.bgu.ac.il",
+    "updatedAt": "2026-07-06T10:12:45.554Z"
+  },
+  {
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "contactEmail": "machal@michlalah.edu",
+    "updatedAt": "2026-07-07T05:49:01.029Z"
+  },
+  {
+    "slug": "midreshet-amudim",
+    "contactEmail": "info@amudimisrael.org",
+    "updatedAt": "2026-07-06T10:12:41.078Z"
+  },
+  {
+    "slug": "midreshet-ein-hanatziv",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T17:25:40.036Z"
+  },
+  {
+    "slug": "midreshet-eshel",
+    "contactEmail": "office@midresheteshel.org",
+    "updatedAt": "2026-07-06T10:12:42.087Z"
+  },
+  {
+    "slug": "midreshet-harova",
+    "contactEmail": "office@harova.org",
+    "updatedAt": "2026-07-06T10:12:42.292Z"
+  },
+  {
+    "slug": "midreshet-hashiluv-natur",
+    "contactEmail": "midreshet.shiluv@gmail.com",
+    "updatedAt": "2026-07-10T07:29:55.542Z"
+  },
+  {
+    "slug": "midreshet-lev",
+    "contactEmail": "office@midreshetlev.org",
+    "updatedAt": "2026-07-10T07:29:01.574Z"
+  },
+  {
+    "slug": "midreshet-lindenbaum",
+    "contactEmail": "info@lindenbaum.org.il",
+    "updatedAt": "2026-07-06T10:12:41.237Z"
+  },
+  {
+    "slug": "midreshet-lindenbaum-hadas-chul-midrashit-chul",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T17:24:33.831Z"
+  },
+  {
+    "slug": "midreshet-moriah",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T17:30:13.707Z"
+  },
+  {
+    "slug": "midreshet-rachel-vchaya",
+    "contactEmail": "dni@darchenoam.org",
+    "updatedAt": "2026-07-06T10:12:47.599Z"
+  },
+  {
+    "slug": "midreshet-tehillah",
+    "contactEmail": "mtehillah@nevey.org",
+    "updatedAt": "2026-07-06T10:12:42.496Z"
+  },
+  {
+    "slug": "midreshet-torat-chessed",
+    "contactEmail": "office@mtcstaff.com",
+    "updatedAt": "2026-07-06T10:12:47.756Z"
+  },
+  {
+    "slug": "migdal-oz-ska-beit-midrash-for-women",
+    "contactEmail": "migdaloz@haretzion.org.il",
+    "updatedAt": "2026-07-09T17:32:56.436Z"
+  },
+  {
+    "slug": "nativ",
+    "contactEmail": "nativ@uscj.org",
+    "updatedAt": "2026-07-06T10:36:50.411Z"
+  },
+  {
+    "slug": "nishmat-alisa-flatow-program",
+    "contactEmail": "nishmat@nishmat.net",
+    "updatedAt": "2026-07-09T17:35:09.234Z"
+  },
+  {
+    "slug": "ohrsom",
+    "contactEmail": "admin@ohrsomstudent.com.au",
+    "updatedAt": "2026-07-08T21:14:18.801Z"
+  },
+  {
+    "slug": "onward-israel",
+    "contactEmail": "info@onwardisrael.org",
+    "updatedAt": "2026-07-06T10:12:37.263Z"
+  },
+  {
+    "slug": "otzem-overseas-program",
+    "contactEmail": "office@otzem.org.il",
+    "updatedAt": "2026-07-09T08:50:43.113Z"
+  },
+  {
+    "slug": "ramah-israel-seminar",
+    "contactEmail": "info@ramah.co.il",
+    "updatedAt": "2026-07-06T10:12:53.754Z"
+  },
+  {
+    "slug": "rimon-school-of-music-study-abroad-program",
+    "contactEmail": "admissions@rimonschool.co.il",
+    "updatedAt": "2026-07-06T10:12:48.073Z"
+  },
+  {
+    "slug": "rinas-bais-yaakov",
+    "contactEmail": "office@rinasby.org",
+    "updatedAt": "2026-07-07T13:49:53.678Z"
+  },
+  {
+    "slug": "rothberg-international-school",
+    "contactEmail": "contactus@mail.huji.ac.il",
+    "updatedAt": "2026-07-06T10:12:41.882Z"
+  },
+  {
+    "slug": "sapir-international",
+    "contactEmail": "limorf@sapir.ac.il",
+    "updatedAt": "2026-07-06T10:12:49.497Z"
+  },
+  {
+    "slug": "sar-el-volunteers-for-israel",
+    "contactEmail": "info@sar-el.org",
+    "updatedAt": "2026-07-06T10:12:48.233Z"
+  },
+  {
+    "slug": "save-a-childs-heart-volunteer-program",
+    "contactEmail": "ylcoordinator@saveachildsheart.com",
+    "updatedAt": "2026-07-07T05:48:41.164Z"
+  },
+  {
+    "slug": "shaalvim-for-women-sfw",
+    "contactEmail": "sfw.shaalvim@gmail.com",
+    "updatedAt": "2026-07-06T10:12:42.907Z"
+  },
+  {
+    "slug": "sharfmans-bnot-torah-institute",
+    "contactEmail": "info@bnottorah.com",
+    "updatedAt": "2026-07-06T10:12:43.112Z"
+  },
+  {
+    "slug": "tamid-israel-fellowship",
+    "contactEmail": "summerfellowship@tamidgroup.org",
+    "updatedAt": "2026-07-06T10:12:37.103Z"
+  },
+  {
+    "slug": "tau-international-study-abroad-semesteryear",
+    "contactEmail": "study@tau.ac.il",
+    "updatedAt": "2026-07-06T10:12:49.656Z"
+  },
+  {
+    "slug": "technion-ignite-international-high-school-summer-program",
+    "contactEmail": "apply@int.technion.ac.il",
+    "updatedAt": "2026-07-10T08:59:36.796Z"
+  },
+  {
+    "slug": "technion-international-semesteryear-abroad",
+    "contactEmail": "apply@int.technion.ac.il",
+    "updatedAt": "2026-07-06T10:12:42.686Z"
+  },
+  {
+    "slug": "technion-summer-research-program-in-science-and-engineering",
+    "contactEmail": "apply@int.technion.ac.il",
+    "updatedAt": "2026-07-10T08:17:29.534Z"
+  },
+  {
+    "slug": "tikkun-olam-tel-aviv-jaffa",
+    "contactEmail": "kalis@bina.org.il",
+    "updatedAt": "2026-07-06T10:12:45.237Z"
+  },
+  {
+    "slug": "tikvah-israel-fellowship",
+    "contactEmail": "Iselter@tikvah.org",
+    "updatedAt": "2026-07-07T07:44:05.885Z"
+  },
+  {
+    "slug": "university-of-haifa-international-msc-in-marine-biology",
+    "contactEmail": "infograd@univ.haifa.ac.il",
+    "updatedAt": "2026-07-08T09:26:53.905Z"
+  },
+  {
+    "slug": "university-of-haifa-international-school-semesteryear-abroad",
+    "contactEmail": "asonegoko@univ.haifa.ac.il",
+    "updatedAt": "2026-07-06T10:12:43.511Z"
+  },
+  {
+    "slug": "yallah-israel-nfty-in-israel-adventure",
+    "contactEmail": "yallahisrael@urj.org",
+    "updatedAt": "2026-07-06T10:12:51.549Z"
+  },
+  {
+    "slug": "yeshiva-gevoha-itamar",
+    "contactEmail": "gvohaitamar@gmail.com",
+    "updatedAt": "2026-07-10T09:00:11.449Z"
+  },
+  {
+    "slug": "yeshiva-university-summer-internship-masschallenge-israel",
+    "contactEmail": "gabi.sackett@yu.edu",
+    "updatedAt": "2026-07-08T09:27:05.335Z"
+  },
+  {
+    "slug": "yeshivat-ashreinu",
+    "contactEmail": "ravyudin@ashreinu.org.il",
+    "updatedAt": "2026-07-06T10:12:39.328Z"
+  },
+  {
+    "slug": "yeshivat-ayelet-hashachar-eilat",
+    "contactEmail": "office@yeilat.org",
+    "updatedAt": "2026-07-10T08:59:40.128Z"
+  },
+  {
+    "slug": "yeshivat-birkat-moshe-maale-adumim",
+    "contactEmail": "office@ybm.org.il",
+    "updatedAt": "2026-07-06T10:12:40.448Z"
+  },
+  {
+    "slug": "yeshivat-birkat-yosef-alon-moreh",
+    "contactEmail": "office@yelonmoreh.co.il",
+    "updatedAt": "2026-07-10T09:00:12.769Z"
+  },
+  {
+    "slug": "yeshivat-derech-chaim-kiryat-gat",
+    "contactEmail": "yeshivatderechaim@gmail.com",
+    "updatedAt": "2026-07-10T09:00:25.946Z"
+  },
+  {
+    "slug": "yeshivat-eretz-hatzvi",
+    "contactEmail": "office@yehatzvi.org",
+    "updatedAt": "2026-07-06T10:12:39.657Z"
+  },
+  {
+    "slug": "yeshivat-hagolan",
+    "contactEmail": "maz@ygolan.org",
+    "updatedAt": "2026-07-10T08:59:41.439Z"
+  },
+  {
+    "slug": "yeshivat-hahesder-ramat-hasharon",
+    "contactEmail": "yrhasharon@gmail.com",
+    "updatedAt": "2026-07-10T09:00:32.804Z"
+  },
+  {
+    "slug": "yeshivat-hahesder-ramla",
+    "contactEmail": "shayke.rotfeld@gmail.com",
+    "updatedAt": "2026-07-10T09:00:31.490Z"
+  },
+  {
+    "slug": "yeshivat-hakotel",
+    "contactEmail": "",
+    "updatedAt": "2026-07-09T16:59:05.459Z"
+  },
+  {
+    "slug": "yeshivat-hameiri-kiryat-moshe",
+    "contactEmail": "yhm@lif.ac.il",
+    "updatedAt": "2026-07-10T09:00:18.792Z"
+  },
+  {
+    "slug": "yeshivat-har-bracha",
+    "contactEmail": "office@yhb.org.il",
+    "updatedAt": "2026-07-10T08:59:42.918Z"
+  },
+  {
+    "slug": "yeshivat-haseder-gavoha-kiryat-gat",
+    "contactEmail": "yeshivakg@gmail.com",
+    "updatedAt": "2026-07-10T09:00:37.036Z"
+  },
+  {
+    "slug": "yeshivat-haseder-nof-hagalil",
+    "contactEmail": "office@ynh.org.il",
+    "updatedAt": "2026-07-10T08:59:50.108Z"
+  },
+  {
+    "slug": "yeshivat-hesder-maalot-yaakov",
+    "contactEmail": "office@yesmalot.co.il",
+    "updatedAt": "2026-07-10T08:59:46.013Z"
+  },
+  {
+    "slug": "yeshivat-kerem-byavneh",
+    "contactEmail": "il@kby.org.il",
+    "updatedAt": "2026-07-06T10:12:47.441Z"
+  },
+  {
+    "slug": "yeshivat-kiryat-shmona",
+    "contactEmail": "office@yk8.org.il",
+    "updatedAt": "2026-07-10T08:59:55.663Z"
+  },
+  {
+    "slug": "yeshivat-migdal-hatorah",
+    "contactEmail": "info@migdalhatorah.org",
+    "updatedAt": "2026-07-06T10:12:48.551Z"
+  },
+  {
+    "slug": "yeshivat-mitzpe-yericho",
+    "contactEmail": "office@ymy.org.il",
+    "updatedAt": "2026-07-06T10:12:40.131Z"
+  },
+  {
+    "slug": "yeshivat-moreshet-yerushalayim",
+    "contactEmail": "office@moreshetyerushalayim.com",
+    "updatedAt": "2026-07-08T09:26:34.286Z"
+  },
+  {
+    "slug": "yeshivat-nachalat-yosef-shavei-shomron",
+    "contactEmail": "y.nachalatyosef@gmail.com",
+    "updatedAt": "2026-07-10T09:00:34.265Z"
+  },
+  {
+    "slug": "yeshivat-netzer-matai-ariel",
+    "contactEmail": "office@ynetzarim.org",
+    "updatedAt": "2026-07-10T08:59:47.331Z"
+  },
+  {
+    "slug": "yeshivat-nir-kiryat-arba",
+    "contactEmail": "nirkiryat4hevron@gmail.com",
+    "updatedAt": "2026-07-06T10:12:40.764Z"
+  },
+  {
+    "slug": "yeshivat-ohr-david",
+    "contactEmail": "info@ohrdavid.org",
+    "updatedAt": "2026-07-07T13:48:05.086Z"
+  },
+  {
+    "slug": "yeshivat-or-akiva",
+    "contactEmail": "yeshiva.ok@gmail.com",
+    "updatedAt": "2026-07-10T09:00:07.213Z"
+  },
+  {
+    "slug": "yeshivat-or-etzion",
+    "contactEmail": "office@oretzion.com",
+    "updatedAt": "2026-07-10T08:59:38.444Z"
+  },
+  {
+    "slug": "yeshivat-or-veyeshua-haifa",
+    "contactEmail": "secretary@orvishua.org.il",
+    "updatedAt": "2026-07-10T09:00:20.405Z"
+  },
+  {
+    "slug": "yeshivat-orot-shaul-tel-aviv",
+    "contactEmail": "orot.shaul@gmail.com",
+    "updatedAt": "2026-07-10T09:00:09.992Z"
+  },
+  {
+    "slug": "yeshivat-ramat-gan",
+    "contactEmail": "mazkirutrg@gmail.com",
+    "updatedAt": "2026-07-10T08:59:59.965Z"
+  },
+  {
+    "slug": "yeshivat-sderot",
+    "contactEmail": "ester@sderot.org",
+    "updatedAt": "2026-07-10T09:00:35.577Z"
+  },
+  {
+    "slug": "yeshivat-shirat-moshe-meirim-beyafo",
+    "contactEmail": "office@yafo.org.il",
+    "updatedAt": "2026-07-10T08:59:48.795Z"
+  },
+  {
+    "slug": "yeshivat-tekoa",
+    "contactEmail": "office@yeshivatekoa.org",
+    "updatedAt": "2026-07-10T08:59:57.122Z"
+  },
+  {
+    "slug": "yeshivat-yishrei-lev",
+    "contactEmail": "office@yishrei.org",
+    "updatedAt": "2026-07-10T07:29:00.218Z"
+  },
+  {
+    "slug": "young-judaea-gesher-israel",
+    "contactEmail": "gesher@youngjudaea.org",
+    "updatedAt": "2026-07-06T10:12:52.182Z"
+  },
+  {
+    "slug": "young-judaea-year-course",
+    "contactEmail": "admissions@youngjudaea.org",
+    "updatedAt": "2026-07-06T10:12:50.602Z"
+  }
+]

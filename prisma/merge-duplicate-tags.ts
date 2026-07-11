@@ -34,10 +34,36 @@
  * --dry-run is the default if neither flag is passed. Safe to re-run: a source tag,
  * recategorize target, or Region already fixed by a prior run is skipped, not
  * re-applied or errored on.
+ *
+ * PRE_MERGE_DISCONNECTS handles a second, unrelated class of duplicate: the legacy
+ * freeform "gap-year" tag and the categorized "age-gap-year" tag both mean the same
+ * thing on ~135 programs (135 carry both), but that same-name merge would be wrong for
+ * 6 grad/professional programs (HUC-JIR Year-in-Israel, JTS Israel Year, Israel Tech
+ * Challenge Fellows, New Israel Fund/Shatil Fellowship, OTZMA, Pardes Year/Semester)
+ * that were never gap-year programs in the first place -- they get "gap-year"
+ * disconnected outright, not converted to "age-gap-year", before the general merge
+ * below runs. The remaining 4 programs that carry "gap-year" without "age-gap-year"
+ * (Bat Ayin Yeshiva, Machon Shlomo, Machon Yaakov, Mayanot Women's Program) genuinely
+ * are gap-year programs and need no special handling -- the merge naturally adds
+ * "age-gap-year" to them like everyone else still holding "gap-year".
  */
 import { writeFileSync } from "node:fs";
 import { prisma } from "../lib/prisma";
 import { mergeTags } from "../lib/tags";
+
+const PRE_MERGE_DISCONNECTS: { tagSlug: string; programSlugs: string[] }[] = [
+  {
+    tagSlug: "gap-year",
+    programSlugs: [
+      "huc-jir-year-in-israel",
+      "jts-israel-year",
+      "israel-tech-challenge-fellows-program",
+      "new-israel-fund-shatil-social-justice-fellowship",
+      "otzma",
+      "pardes-institute-of-jewish-studies-yearsemester-program",
+    ],
+  },
+];
 
 const TAG_MERGES: { source: string; target: string }[] = [
   { source: "high-integration", target: "integration-high" },
@@ -49,6 +75,11 @@ const TAG_MERGES: { source: string; target: string }[] = [
   { source: "pre-military", target: "essence-pre-military" },
   { source: "travel", target: "essence-travel" },
   { source: "gap-year-post-high-school", target: "age-gap-year" },
+  { source: "gap-year", target: "age-gap-year" },
+  { source: "high-school", target: "age-high-school" },
+  { source: "girls", target: "girls-only" },
+  { source: "gap-year-after-highschool", target: "age-gap-year" },
+  { source: "11th-grade", target: "age-high-school" },
 ];
 
 // Existing general (uncategorized) tags to recategorize -- the live geography
@@ -81,6 +112,31 @@ async function main() {
   const commit = args.includes("--commit");
 
   // --- Gather phase: read everything, mutate nothing yet. ---
+  const disconnectPlan: { tagId: string; tagSlug: string; programId: string; programSlug: string }[] = [];
+  const skippedDisconnects: string[] = [];
+  for (const { tagSlug, programSlugs } of PRE_MERGE_DISCONNECTS) {
+    const tag = await prisma.tag.findUnique({ where: { slug: tagSlug } });
+    if (!tag) {
+      skippedDisconnects.push(`"${tagSlug}": tag not found (already merged?)`);
+      continue;
+    }
+    for (const programSlug of programSlugs) {
+      const program = await prisma.program.findUnique({
+        where: { slug: programSlug },
+        select: { id: true, tags: { select: { slug: true } } },
+      });
+      if (!program) {
+        skippedDisconnects.push(`"${programSlug}": program not found`);
+        continue;
+      }
+      if (!program.tags.some((t) => t.slug === tagSlug)) {
+        skippedDisconnects.push(`"${programSlug}": doesn't carry "${tagSlug}" (already fixed?)`);
+        continue;
+      }
+      disconnectPlan.push({ tagId: tag.id, tagSlug, programId: program.id, programSlug });
+    }
+  }
+
   const mergePlan: { source: TagBackupRow; targetId: string; targetSlug: string }[] = [];
   const skippedMerges: string[] = [];
 
@@ -144,6 +200,10 @@ async function main() {
   }
 
   // --- Report ---
+  console.log(`\n=== Pre-merge disconnects (wrongly-tagged programs losing a tag outright) ===`);
+  for (const d of disconnectPlan) console.log(`  "${d.programSlug}": remove "${d.tagSlug}"`);
+  for (const s of skippedDisconnects) console.log(`  [skip] ${s}`);
+
   console.log(`\n=== Tag merges (${commit ? "COMMIT" : "dry run"}) ===`);
   for (const m of mergePlan) {
     console.log(
@@ -164,7 +224,11 @@ async function main() {
   const backupPath = `data/tag-merge-backup-${new Date().toISOString().slice(0, 10)}.json`;
   writeFileSync(
     backupPath,
-    JSON.stringify({ mergedTags: mergePlan.map((m) => m.source), recategorizedTags: recategorizePlan, regions: regionPlan }, null, 2)
+    JSON.stringify(
+      { disconnects: disconnectPlan, mergedTags: mergePlan.map((m) => m.source), recategorizedTags: recategorizePlan, regions: regionPlan },
+      null,
+      2
+    )
   );
   console.log(`\nPre-change state written to ${backupPath}`);
 
@@ -175,6 +239,12 @@ async function main() {
 
   // --- Mutate phase ---
   console.log("\nApplying...");
+  // Disconnects must run before the merges below -- gap-year's merge reassigns
+  // age-gap-year onto every program still carrying gap-year, so the 6 wrongly-tagged
+  // programs need it removed first, not converted.
+  for (const d of disconnectPlan) {
+    await prisma.program.update({ where: { id: d.programId }, data: { tags: { disconnect: { id: d.tagId } } } });
+  }
   for (const m of mergePlan) {
     await mergeTags(m.source.id, m.targetId);
   }
@@ -185,7 +255,7 @@ async function main() {
     await prisma.region.update({ where: { slug: r.slug }, data: { memberSlugs: r.after } });
   }
   console.log(
-    `Done. Merged ${mergePlan.length} tags, recategorized ${recategorizePlan.length} tags, repaired ${regionPlan.length} regions.`
+    `Done. Disconnected ${disconnectPlan.length} tag links, merged ${mergePlan.length} tags, recategorized ${recategorizePlan.length} tags, repaired ${regionPlan.length} regions.`
   );
 }
 

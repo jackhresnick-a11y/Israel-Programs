@@ -1,23 +1,55 @@
 /**
- * Read-only audit for the tag-integrity drift that broke the browse-filter dropdown
- * (see prisma/merge-duplicate-tags.ts for the one-time repair). Detects two classes of
- * problem so they can be caught before they cause another silent "tag exists on the
- * program page but the dropdown never surfaces it" bug:
+ * Read-only audit for tag-integrity drift. Detects three classes of problem so they can
+ * be caught before they cause another silent "tag exists on the program page but the
+ * dropdown never surfaces it" bug, or a duplicate-meaning filter option:
  *
  *   1. "Twin" pairs -- two Tag rows sharing the same name (case-insensitively) but
  *      different slugs. This is the exact fingerprint of the write-path bug that
  *      minted an uncategorized duplicate whenever a canonical tag's hand-assigned slug
  *      didn't equal slugify(its own name). lib/tags.ts's resolveTagsByName/matchTag now
  *      prevents new ones; this flags any that still exist (a merge missed, or a new
- *      taxonomy tag seeded with a custom slug before this check was run).
+ *      taxonomy tag seeded with a custom slug before this check was run). See
+ *      prisma/merge-duplicate-tags.ts for the one-time repair template.
  *   2. Region.memberSlugs entries that don't match any live Tag row -- a region with a
  *      dead member silently returns nothing for that slug.
+ *   3. "Near-duplicate" pairs -- a categorized taxonomy tag (e.g. `age-gap-year`,
+ *      category `age`) and an uncategorized legacy tag whose slug is the same string
+ *      once a category prefix/suffix is stripped (e.g. `gap-year`). Unlike twins, these
+ *      have *different* names, so the twin detector above never sees them -- this is
+ *      exactly the class of bug that let `gap-year`/`age-gap-year` (135-program
+ *      overlap) and `high-school`/`age-high-school` sit undetected for weeks after the
+ *      twin-pair fix shipped (see prisma/merge-duplicate-tags.ts's PRE_MERGE_DISCONNECTS
+ *      and the gap-year/high-school/girls/11th-grade entries in TAG_MERGES). This is a
+ *      string heuristic, not semantic matching -- it won't catch synonym pairs with no
+ *      shared substring (e.g. `special-needs`/`disability-inclusion`); those still need
+ *      a human skimming the full tag list.
  *
  * Makes no changes. Run any time:
  *
  *   set -a && source .env && source .env.local && set +a && npx tsx prisma/audit-tags.ts
  */
 import { prisma } from "../lib/prisma";
+
+// Extra non-category affixes seen in the live tag set that don't come from a
+// TagCategory slug (e.g. "girls" / "girls-only").
+const EXTRA_SUFFIXES = ["-only"];
+
+function stripAffixes(slug: string, categoryPrefixes: string[]): string {
+  let core = slug;
+  for (const prefix of categoryPrefixes) {
+    if (core.startsWith(prefix)) {
+      core = core.slice(prefix.length);
+      break;
+    }
+  }
+  for (const suffix of EXTRA_SUFFIXES) {
+    if (core.endsWith(suffix)) {
+      core = core.slice(0, -suffix.length);
+      break;
+    }
+  }
+  return core;
+}
 
 async function main() {
   const [tags, categories, regions, statusCounts] = await Promise.all([
@@ -52,6 +84,25 @@ async function main() {
       console.log(
         `    ${t.slug}  (${t._count.programs} programs, category=${t.category ?? "none"}, dropdown-reachable=${inDropdown(t)})`
       );
+    }
+  }
+
+  const categoryPrefixes = categories.map((c) => `${c.slug}-`);
+  const byCore = new Map<string, typeof tags>();
+  for (const t of tags) {
+    const core = stripAffixes(t.slug, categoryPrefixes);
+    const bucket = byCore.get(core);
+    if (bucket) bucket.push(t);
+    else byCore.set(core, [t]);
+  }
+  const nearDupGroups = Array.from(byCore.values()).filter((group) => group.length > 1);
+
+  console.log(`\n=== Near-duplicate pairs: same core after stripping category prefix/suffix (${nearDupGroups.length}) ===`);
+  if (nearDupGroups.length === 0) console.log("  none");
+  for (const group of nearDupGroups) {
+    console.log(`  core "${stripAffixes(group[0].slug, categoryPrefixes)}":`);
+    for (const t of group) {
+      console.log(`    ${t.slug}  (name="${t.name}", ${t._count.programs} programs, category=${t.category ?? "none"})`);
     }
   }
 

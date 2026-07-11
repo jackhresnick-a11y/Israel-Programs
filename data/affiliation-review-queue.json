@@ -1,0 +1,277 @@
+[
+  {
+    "slug": "aish-hatorah-aish-gesher",
+    "name": "Aish HaTorah – Aish Gesher",
+    "description": "A year-long post-high-school program in Jerusalem's Old City for young men graduating from public high schools who want a traditional yeshiva experience, studying Jewish texts at a serious level alongside leadership development, located in Aish's Old City campus with classrooms, a dining hall and gym."
+  },
+  {
+    "slug": "aish-hatorah-essentials-program",
+    "name": "Aish HaTorah – Essentials Program",
+    "description": "A 28-day introductory-to-Judaism program in the Old City for ages 18-29, covering topics like practical spirituality and Genesis alongside science, priced as an all-inclusive package with round-trip airfare from New York, meals, housing, and classes; a shorter, more affordable track distinct from Aish HaTorah's longer Aish Gesher and Foundations programs."
+  },
+  {
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah – Foundations Program",
+    "description": "A flexible-length program for college students on a gap year or semester break exploring Judaism with no background assumed, offering three hours of morning and three hours of afternoon classes covering Jewish philosophy, personal growth, history and text study, with optional evening programming."
+  },
+  {
+    "slug": "ateres-bnos-yerushalayim",
+    "name": "Ateres Bnos Yerushalayim",
+    "description": "A seminary founded 24 years ago by Rabbi Hillel Belsky, located near the Kosel, drawing on his decades of experience in girls' chinuch; a participating seminary in Touro's Israel Option."
+  },
+  {
+    "slug": "baer-miriam",
+    "name": "Baer Miriam",
+    "description": "A Har Nof seminary for women at all learning levels, with personal teacher involvement and challenging classes."
+  },
+  {
+    "slug": "bnos-chava-seminary",
+    "name": "Bnos Chava Seminary",
+    "description": "A one-year teacher-training program for recent Bais Yaakov high school graduates."
+  },
+  {
+    "slug": "bnos-sarah-seminary",
+    "name": "Bnos Sarah Seminary",
+    "description": "A one-year teacher-training program for recent English-speaking Bais Yaakov high school graduates with strong halachic observance and academics; students average above an 86% GPA and come mostly from North America and Europe, with 80% of classes taught in Hebrew to build language skills."
+  },
+  {
+    "slug": "chai-israel",
+    "name": "Chai Israel",
+    "description": "A program for 17-19 year olds combining thought-provoking classes, volunteering, touring, and Israeli culture, over a full nine-month academic year or a one-semester option."
+  },
+  {
+    "slug": "chemdas-bais-yaakov",
+    "name": "Chemdas Bais Yaakov",
+    "description": "A Jerusalem seminary and participating school in Touro's Israel Option."
+  },
+  {
+    "slug": "darchei-binah",
+    "name": "Darchei Binah",
+    "description": "A women's seminary founded in 1995 offering a gap year of intensive Judaic studies with an optional fully-accredited second year, including secular college coursework on campus and a trip to Poland exploring the history of Torah scholarship there; Darchei Binah is a recognized partner seminary for overseas college-credit programs through Touro University, Daemen University, and others."
+  },
+  {
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "description": "A gap-year program for male high school graduates on Mount Zion combining two to three daily sedarim of Torah/Talmud study tailored to each student's level with the option to earn an accredited Bachelor of Arts degree within a year, located minutes from the Western Wall."
+  },
+  {
+    "slug": "dvar-yerushalayim",
+    "name": "Dvar Yerushalayim",
+    "description": "A Har Nof yeshiva teaching Jewish philosophy, ethics, Bible, and Hebrew from introductory through advanced levels, accepting students with minimal prior Jewish background."
+  },
+  {
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "description": "A full-time college for advanced Jewish learning aimed at unaffiliated, college-educated and professional English-speaking women ages 22-30, founded in 1984, offering multi-level classes in Jewish philosophy, history, prayer, Chumash and Rabbi Noah Weinberg's '48 Ways to Wisdom' curriculum; most students are exploring becoming more observant."
+  },
+  {
+    "slug": "emunah-college-faculty-of-arts-and-design",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "description": "An accredited arts and design degree program for religious women, covering visual art, visual communication and drama, with ESL/EPIC (English for Purposes of International Communication) coursework supporting the English proficiency required for an Israeli academic degree."
+  },
+  {
+    "slug": "isralight",
+    "name": "Isralight",
+    "description": "A flexible-length Jewish learning program in the Old City for all ages, running anywhere from half a day to a few weeks."
+  },
+  {
+    "slug": "jewel-for-women",
+    "name": "JEWEL for Women",
+    "description": "A short, inexpensive introduction to Judaism in Jerusalem for ages 19-31, with airfare, room, board, classes, and field trips included; taught in English with no Hebrew required. A short, inexpensive introduction to Judaism in Jerusalem for ages 19-31, with airfare, room, board, classes, and field trips included; taught in English with no Hebrew required."
+  },
+  {
+    "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "description": "A hybrid program letting English-speaking students combine a post-high-school yeshiva experience with a real academic degree: Torah/yeshiva studies in English in the morning, and English-taught coursework toward a Computer Science or Business Administration degree in the afternoon, with optional Hebrew ulpan."
+  },
+  {
+    "slug": "machon-raaya",
+    "name": "Machon Raaya",
+    "description": "A Har Nof seminary known for being warm and accepting of every student, with rigorous, intellectually in-depth learning; a participating seminary in Touro's and Hebrew Theological College's Israel Option programs."
+  },
+  {
+    "slug": "machon-roni",
+    "name": "Machon Roni",
+    "description": "A women's Torah institute affiliated with Diaspora Yeshiva, teaching women seeking conversion to Judaism, with a track conducted primarily in Spanish for Spanish-speaking conversion candidates alongside its general English-language track."
+  },
+  {
+    "slug": "machon-sara-yerushalayim-msy",
+    "name": "Machon Sara Yerushalayim (MSY)",
+    "description": "A Bais Yaakov-track seminary for post-high-school women."
+  },
+  {
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "description": "A yeshiva founded in 1982 for Jewish, English-speaking college graduates and young professionals in their 20s and 30s pausing careers to spend a year or two on Torah learning, personal development and communal life, blending early-morning prayer, chevrusa study and lectures."
+  },
+  {
+    "slug": "machon-yaakov",
+    "name": "Machon Yaakov",
+    "description": "A highly selective yeshiva in Har Nof accepting only 18 students a year, ages 21-30, for one to two years of advanced, serious Torah study."
+  },
+  {
+    "slug": "mayanot-womens-program",
+    "name": "Mayanot Women's Program",
+    "description": "A Judaic Studies and Yeshiva track for women ages 20-29 with discussion-style classes, small class sizes, and no dress code or religious commitment required; the women's counterpart to Mayanot's men's post-high-school program."
+  },
+  {
+    "slug": "meorot-yerushalayim",
+    "name": "Meorot Yerushalayim",
+    "description": "The only gap-year seminary geared exclusively to women who attended public school or grew up in non-observant homes, run by Rabbi Yaakov Lynn with 20-30 students a year and individualized attention; about a quarter of graduates go on to Touro or Stern College."
+  },
+  {
+    "slug": "michlalah-jerusalem-college-machal-overseas-students-program",
+    "name": "Michlalah Jerusalem College – Machal (Overseas Students Program)",
+    "description": "The Linda Pinsky School for Overseas Students (Machal) at Michlalah Jerusalem College, founded in 1964 to train Israeli teachers and expanded in 1969 to serve students from abroad; around 140 international students per year study Tanach, Halacha, Mussar and Machshava in a Torah-growth curriculum focused on personal commitment to Torah life."
+  },
+  {
+    "slug": "midreshet-rachel-vchaya",
+    "name": "Midreshet Rachel v'Chaya",
+    "description": "A Jerusalem beit midrash for English-speaking Orthodox women in their 20s and 30s (college graduates and professionals) offering mature, independent-style learning in Chumash, Navi, Halacha, and Jewish thought; targets an older post-college demographic rather than students straight out of high school."
+  },
+  {
+    "slug": "ncsy-give-girls-israel-volunteer-experience",
+    "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+    "description": "A five-week volunteering and touring program for 10th-11th grade girls, featuring service work such as soup kitchens, kibbutz volunteering, and assisting children with disabilities alongside touring."
+  },
+  {
+    "slug": "ncsy-kollel",
+    "name": "NCSY Kollel",
+    "description": "A six-week program for 9th-12th grade boys combining intensive Torah/Talmud learning with competitive sports leagues and touring across Israel."
+  },
+  {
+    "slug": "ncsy-next-step-israel-internships",
+    "name": "NCSY Next Step (Israel Internships)",
+    "description": "A five-week internship program for 10th-12th grade teens, working four days a week with Jerusalem-area companies and organizations in their chosen field, with evenings spent on group workshops and Jewish learning and weekends spent touring Israel. Offers separate tracks for public-school and yeshiva day-school students."
+  },
+  {
+    "slug": "neve-yerushalayim-machon-devorah",
+    "name": "Neve Yerushalayim – Machon Devorah",
+    "description": "One of Neve Yerushalayim's eleven affiliated schools on its Har Nof campus, offering a dedicated seminary track for post-high-school and graduate-age women alongside the flagship Shalhevet program, part of the broader Neve network founded in 1970."
+  },
+  {
+    "slug": "neve-yerushalayim-mechina-introductory-program",
+    "name": "Neve Yerushalayim – Mechina Introductory Program",
+    "description": "A 6-week introductory track at Neve Yerushalayim for women ages 19-35, featuring prominent lecturers on philosophical and theological topics, private tutorials, campus tours, and dorm housing, with financial aid available; a shorter taste of Neve's curriculum distinct from the school's two longer programs."
+  },
+  {
+    "slug": "neve-yerushalayim-shalhevet-program",
+    "name": "Neve Yerushalayim – Shalhevet Program",
+    "description": "A one-year program at the world's oldest and largest college for Jewish women (35,000+ alumni since 1970), designed for women who want to deepen their Jewish knowledge, learning skills and spiritual growth in an environment built specifically for baalot teshuva."
+  },
+  {
+    "slug": "neveh-zion",
+    "name": "Neveh Zion",
+    "description": "A gap-year yeshiva for English-speaking young men who feel disengaged from Jewish life or have struggled in more conventional yeshiva settings, pairing Torah learning with trips, music, and relationship-driven mentorship from rebbeim; the affiliated Maalot program offers a fully accredited Bachelor of Arts pathway through Excelsior College."
+  },
+  {
+    "slug": "ohr-avraham",
+    "name": "Ohr Avraham",
+    "description": "A gap-year yeshiva in Beit Shemesh for English-speaking post-high-school men."
+  },
+  {
+    "slug": "ohr-somayach-derech-institute-for-torah-studies",
+    "name": "Ohr Somayach – Derech Institute for Torah Studies",
+    "description": "A program at the Jerusalem baal-teshuva yeshiva founded in 1970, designed for motivated post-high-school students who may lack a strong formal Jewish education but have the intellectual drive to independently study classical Jewish texts including Talmud and responsa, taught by faculty trained to teach from absolute zero."
+  },
+  {
+    "slug": "rinas-bais-yaakov",
+    "name": "Rinas Bais Yaakov",
+    "description": "A highly academic Bais Yaakov seminary with high-caliber, renowned teachers and an extensive schedule of trips and tours."
+  },
+  {
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "description": "A gap-year partnership between Yeshiva University and more than 40 yeshivot and seminaries across Israel, letting Orthodox gap-year students immerse in Torah learning at a partner institution of their choice while remaining fully enrolled YU undergraduates, with separate men's and women's school tracks."
+  },
+  {
+    "slug": "shapells-yeshiva-darche-noam",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "description": "A yeshiva for English-speaking college graduates and young professionals in their 20s and 30s, founded in 1978, offering long-term (6+ months), medium-term (3-6 months) and short-term (1-3 months) Torah study tracks in Gemara, Chumash, Halacha and Hashkafa alongside character development."
+  },
+  {
+    "slug": "shearim",
+    "name": "She'arim",
+    "description": "A Har Nof seminary founded in 1994 with about 50 students a year, offering morning one-on-one learning and afternoon lectures on Chumash, Navi, and tefilla, plus a short introductory \"Taste of Torah\" track for women new to their heritage."
+  },
+  {
+    "slug": "the-anne-samson-jerusalem-journey-tjj",
+    "name": "The Anne Samson Jerusalem Journey (TJJ)",
+    "description": "A three-week touring experience in Israel for public-school Jewish teens, combining hikes, historical/religious sites, and Jewish heritage programming."
+  },
+  {
+    "slug": "tomer-devorah-seminary",
+    "name": "Tomer Devorah Seminary",
+    "description": "A seminary opened in 2006 with a dual focus on building textual/learning skills and character, offering Bible, Prophets, Proverbs, Law, and Philosophy classes with dorm housing and mentoring."
+  },
+  {
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "description": "An elite gap-year program for young men combining a Rosh Yeshiva-led Beit Midrash focused on Torah study and business ethics with real internships at Tel Aviv startups, aiming to prepare talmidim for both a Torah-centered life and a career in the Startup Nation's tech industry."
+  },
+  {
+    "slug": "yeshiva-gedolah-yagdil-torah",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "description": "A Jerusalem yeshiva for post-high-school men, operating as a registered 501(c)(3) nonprofit."
+  },
+  {
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "description": "A yeshiva founded in 1989 just above the Cardo in the Old City's Jewish Quarter, offering full-time beginning, intermediate and advanced learning programs as well as intensive short-term programs for visitors from abroad, drawing students of all ages and Jewish backgrounds."
+  },
+  {
+    "slug": "yeshivas-birchas-mordechai",
+    "name": "Yeshivas Birchas Mordechai",
+    "description": "A yeshiva in Beitar led by Rav Yaakov Friedman."
+  },
+  {
+    "slug": "yeshivas-chofetz-chaim-yerushalayim",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "description": "A yeshiva teaching and inspiring students in Torah and mussar for over 55 years, carrying forward the mesorah of Slabodka."
+  },
+  {
+    "slug": "yeshivas-nesivos-ahron",
+    "name": "Yeshivas Nesivos Ahron",
+    "description": "A yeshiva founded in 2008 to provide motivated young men with the foundations of Torah and avodas Hashem."
+  },
+  {
+    "slug": "yeshivas-orchos-chaim",
+    "name": "Yeshivas Orchos Chaim",
+    "description": "A gap-year yeshiva in Jerusalem for English-speaking post-high-school men."
+  },
+  {
+    "slug": "yeshivas-toras-chaim",
+    "name": "Yeshivas Toras Chaim",
+    "description": "A yeshiva founded by the Kreiswirth family of Antwerp for overseas students who intend to complete their undergraduate degree, offering college-credit coordination including with Touro's Israel Option."
+  },
+  {
+    "slug": "yeshivas-zeev-hatorah",
+    "name": "Yeshivas Zeev Hatorah",
+    "description": "A yeshiva and learning community dedicated to Torah study alongside a heightened sense of individual and communal responsibility."
+  },
+  {
+    "slug": "yeshivat-darchei-yonatan",
+    "name": "Yeshivat Darchei Yonatan",
+    "description": "An academically-oriented yeshiva in Efrat named in memory of Rabbi Jonathan Sacks, former Chief Rabbi of the United Hebrew Congregations of the Commonwealth."
+  },
+  {
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "description": "A one-year program for highly motivated post-high-school women at the Drisha Institute's flagship Israel yeshiva (opened 2018, Shana Alef track added 2020), offering intensive Talmud Torah alongside advanced learners; overseas students, about a third of the cohort, are fully integrated with Israeli students in a Hebrew-speaking environment with English-speaking staff support."
+  },
+  {
+    "slug": "yeshivat-ohr-david",
+    "name": "Yeshivat Ohr David",
+    "description": "A yeshiva founded in 1980 by Rabbi Chaim Flom for growth-minded students, drawing from communities around the United States, with trips throughout Israel including the Golan Heights and Eilat."
+  },
+  {
+    "slug": "yeshivat-ohr-yerushalayim",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "description": "A Beit Midrash program on Moshav Beit Meir in the Judean hills for English-speaking men from the US and other Anglo countries wanting a year or more of intensive study."
+  },
+  {
+    "slug": "yeshivat-shalom-rav",
+    "name": "Yeshivat Shalom Rav",
+    "description": "A nurturing, spiritually-oriented yeshiva in Tzfat led by Rabbi Avshi Weingot."
+  }
+]

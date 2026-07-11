@@ -1,0 +1,377 @@
+{
+  "disconnects": [
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmra8hmkf00007fmz01bkw4q8",
+      "programSlug": "huc-jir-year-in-israel"
+    },
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmra8ht4l00027fmzmzelhjni",
+      "programSlug": "jts-israel-year"
+    },
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmracend4000eb1mz266i7dhh",
+      "programSlug": "israel-tech-challenge-fellows-program"
+    },
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmracesi0000gb1mzahk6l1y0",
+      "programSlug": "new-israel-fund-shatil-social-justice-fellowship"
+    },
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmracf186000lb1mzqpiihy0o",
+      "programSlug": "otzma"
+    },
+    {
+      "tagId": "cmr7sl7lu000dw9mzaga623nt",
+      "tagSlug": "gap-year",
+      "programId": "cmra8e31i00002wmzris7ium7",
+      "programSlug": "pardes-institute-of-jewish-studies-yearsemester-program"
+    }
+  ],
+  "mergedTags": [
+    {
+      "id": "cmr7sl7lu000dw9mzaga623nt",
+      "name": "gap-year",
+      "slug": "gap-year",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bgr8d000rvkmz0je8h5x8",
+        "cmr8bgr470008vkmz0r7653ff",
+        "cmr8bgr4y000bvkmzq5pd8b0n",
+        "cmr7sl7n4000lw9mzudhbeacz",
+        "cmr7sl7mh000hw9mz8902ii45",
+        "cmr8bgrci001cvkmzxsrf2b0k",
+        "cmr8bgrfm001nvkmzo2ulmlqg",
+        "cmr8bgrds001hvkmz8bbdr60b",
+        "cmr8bgrdc001fvkmzyjn5z8p0",
+        "cmr8bgree001jvkmzvmb184ch",
+        "cmr8bgrcu001dvkmz2f5znlsa",
+        "cmr8bgrf9001mvkmzlcmzzhrh",
+        "cmr8bgrkl0029vkmzw7yxp8gb",
+        "cmr8bgrg3001pvkmz0xmf5b7y",
+        "cmr8bgrgc001qvkmzygit9dgu",
+        "cmr8bgrhf001vvkmze799jt2s",
+        "cmr8bgrku002avkmzs1t3nngj",
+        "cmr8bo63c0007hdmzgsw9pcj4",
+        "cmr8bo63o0008hdmzpllsjq2y",
+        "cmr9qhsqj001erumzr9myf0d1",
+        "cmr8bo64e000ahdmzxdzyd2qs",
+        "cmr8bo6220002hdmzdwhympdk",
+        "cmr8bo65p000ehdmz21il1is0",
+        "cmr8bo675000khdmzlipstyet",
+        "cmr8bo65a000dhdmzebm1ozfr",
+        "cmr8bo661000fhdmzdn7px9dt",
+        "cmr8bo66p000ihdmz2l4ei1mb",
+        "cmrapfume001nbkmzsg4v7p9k",
+        "cmr8bo66g000hhdmzua8g06bh",
+        "cmr8bo6cz001fhdmzl9bjyiyv",
+        "cmr8bo6bf0017hdmza0gvenaq",
+        "cmra8em5m00062wmz2o0hxd5u",
+        "cmr8bo6di001ihdmzyzna575r",
+        "cmra8f54i000c2wmzdfkn2egc",
+        "cmr8qd57r001bjbmzbsbpk3h2",
+        "cmrace9xk0008b1mzus4rxruv",
+        "cmra8fg9l000g2wmzcv83erkn",
+        "cmr8qbcdd000bjbmz0jpqs95c",
+        "cmrapc3eo0002bkmz7bgveurw",
+        "cmrapc87k0004bkmzee77dlo4",
+        "cmr8bgr5t000fvkmz74kmfj5r",
+        "cmr8bgrh6001uvkmzxagd2tku",
+        "cmr8bo62v0005hdmzm3o9y5us",
+        "cmr8bgrlj002dvkmzz4ak1hys",
+        "cmra8h1lu00122wmzwc5xk9yh",
+        "cmrapcd210006bkmznam0fbox",
+        "cmr9qj2jr001urumzi038f5im",
+        "cmr9qisxy001qrumz18e82noz",
+        "cmr8bgr330003vkmzf8x0h8tt",
+        "cmr8bgrey001lvkmzvh6qo30w",
+        "cmr8bo68g000rhdmzlh7kcbyb",
+        "cmr8qd0om0019jbmzuqitbz85",
+        "cmr8qb17g0004jbmzz9ulz38w",
+        "cmr8qcrmj0013jbmzcd3lw13q",
+        "cmra8ige3000a7fmzajdtdl0b",
+        "cmra8irf1000e7fmzc3xak3cy",
+        "cmr9qfkgt000krumzequ15gse",
+        "cmr9qh1an0014rumzxjqfcggf",
+        "cmr9qglg7000yrumz83jboc5v",
+        "cmr9qgrug0010rumzypq1gsa3",
+        "cmr9qhy4b001grumz1o8hc6wx",
+        "cmr9qho82001crumzws5gczx5",
+        "cmr9qhiqh001arumzvz2qltfk",
+        "cmr9qhdtf0018rumzb2cx0o3u",
+        "cmra8etzg00082wmzjf1idlth",
+        "cmr9qi7uu001krumzk47gp02g",
+        "cmr9qkeee002erumz15j86us4",
+        "cmr9qju1f0026rumz8m60dglt",
+        "cmr9qjp8t0024rumzfwqqtqrs",
+        "cmra8faw6000e2wmzoyllelyd",
+        "cmr9qk0010028rumzkgh8qo64",
+        "cmr9qlezv002qrumz2nyhlhuv",
+        "cmr9qfcq5000irumz3dsujbv0",
+        "cmr9qlai0002orumz4wup9x3p",
+        "cmracdx1x0002b1mzk3ivo9w2",
+        "cmrapchxg0008bkmzcud48s1x",
+        "cmrapcnfd000abkmzzffrvsml",
+        "cmr9qi31r001irumz1bjcnbb6",
+        "cmr9qg8ka000urumzr32g6rvk",
+        "cmr9qh80x0016rumzew38iuxr",
+        "cmrapcrem000cbkmztgno83j8",
+        "cmrapd0hy000gbkmzyqq11pi0",
+        "cmrapd5sv000ibkmzlix352vg",
+        "cmrapdbmz000kbkmzt4xp3nap",
+        "cmr9qkt0g002irumzicfxeot9",
+        "cmr9qiyaz001srumzd42acihz",
+        "cmr9qjjyt0022rumzwpkxks6f",
+        "cmrace6ph0006b1mzfzsr4r4y",
+        "cmra8hmkf00007fmz01bkw4q8",
+        "cmra8i9pv00087fmz076cc5uu",
+        "cmrapdlfo000obkmzf7slm40r",
+        "cmrapdgxk000mbkmz5oh8a4u2",
+        "cmra8ht4l00027fmzmzelhjni",
+        "cmra8ezyh000a2wmzgtrczjed",
+        "cmra8fy1j000n2wmzb83yu4hh",
+        "cmra8e31i00002wmzris7ium7",
+        "cmrapdqq9000qbkmzb4k319uc",
+        "cmracesi0000gb1mzahk6l1y0",
+        "cmracf186000lb1mzqpiihy0o",
+        "cmracend4000eb1mz266i7dhh",
+        "cmracdrlp0000b1mzi1avvyft",
+        "cmrace2bv0004b1mzpdxp83a2",
+        "cmrapduzv000sbkmzrualc897",
+        "cmrapeak8000ybkmzc70wx4ga",
+        "cmrapekc20012bkmz868az9t3",
+        "cmrapeprp0015bkmzythzz4yd",
+        "cmrapeujy0017bkmzu7riufez",
+        "cmrapezxa0019bkmzssjms4vt",
+        "cmrapf8zx001dbkmz6a077g00",
+        "cmrapf4hv001bbkmze99kqcym",
+        "cmrapfdei001fbkmzz1b89x77",
+        "cmrapefx40010bkmzw6wpri2p",
+        "cmrapdzz5000ubkmzyvui2ghy",
+        "cmrape5ch000wbkmzioeif37x",
+        "cmrapgfwz001wbkmzgl9uqv52",
+        "cmrapglrf001ybkmzqm5fqfoc",
+        "cmraph18y0024bkmzm8nsey8s",
+        "cmraph64c0026bkmztwtvcrod",
+        "cmraphbpq0028bkmz9tkkamjk",
+        "cmraphjkv002cbkmzkiulhx8b",
+        "cmrapgauw001ubkmz81r6lh2s",
+        "cmrapgw9e0022bkmzkje95713",
+        "cmrapg4rw001rbkmzbgf3ep5p",
+        "cmrbvijhq00002gmzly7zh57l",
+        "cmrapgrfo0020bkmzp7sujzq8",
+        "cmrbviqdr00022gmzciodqtvu",
+        "cmrbvjgu6000i2gmz2vrlb7ed",
+        "cmr8bgre4001ivkmzczk9sstb",
+        "cmrapfz32001pbkmzxwfpa6ba",
+        "cmr8bo62g0003hdmzzsikwaa7",
+        "cmr8bo6410009hdmzoldc864q",
+        "cmra8imcz000c7fmzglo0ybfy",
+        "cmr9qik8n001orumz7f50tzu4",
+        "cmr9qgxas0012rumzkffy7is9",
+        "cmr9qic99001mrumzm2f1a8mq",
+        "cmr9qgffw000wrumz3ok3qf8x",
+        "cmr9qklz6002grumz0g518rfa",
+        "cmra8ea5j00022wmzlzjsqpjw",
+        "cmra8efae00042wmz60j4kdj3",
+        "cmr8bgrgw001tvkmz74jft5t2",
+        "cmrapbyrs0000bkmzx5os8otg",
+        "cmrapfhtm001hbkmzoxfh389z",
+        "cmr9qkxzk002krumz0k379o8t",
+        "cmr8qbndx000gjbmzs4h960io",
+        "cmrapfq2d001lbkmzvyjut35o"
+      ]
+    },
+    {
+      "id": "cmr8qci55000yjbmzozfx4ffr",
+      "name": "high-school",
+      "slug": "high-school",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8qclp60010jbmzrs23ryrp",
+        "cmracef1w000ab1mzsbefnuvy",
+        "cmracej6e000cb1mzx5m3vapu"
+      ]
+    },
+    {
+      "id": "cmr8bgrn0002lvkmzo35h0u5l",
+      "name": "girls",
+      "slug": "girls",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8bgrn5002mvkmz3wmtttf5"
+      ]
+    },
+    {
+      "id": "cmrcibhtr000004l5hrmreskb",
+      "name": "Gap year after highschool",
+      "slug": "gap-year-after-highschool",
+      "category": null,
+      "order": 1,
+      "programIds": [
+        "cmr8bgre4001ivkmzczk9sstb"
+      ]
+    },
+    {
+      "id": "cmr8qcvnz0016jbmzugw8f1yh",
+      "name": "11th-grade",
+      "slug": "11th-grade",
+      "category": null,
+      "order": 0,
+      "programIds": [
+        "cmr8qcw5n0017jbmzd1g8022z"
+      ]
+    }
+  ],
+  "recategorizedTags": [
+    {
+      "id": "cmrcjcpmg000404k3no3hy61o",
+      "name": "northern israel",
+      "slug": "northern-israel",
+      "category": "location",
+      "order": 4,
+      "programIds": [
+        "cmr8bo69s000yhdmzbiwbj04h",
+        "cmr8qd57r001bjbmzbsbpk3h2",
+        "cmr9qglg7000yrumz83jboc5v",
+        "cmr9qhiqh001arumzvz2qltfk",
+        "cmr9qi7uu001krumzk47gp02g",
+        "cmrapd0hy000gbkmzyqq11pi0",
+        "cmrbviymp00082gmzvcp3k0f7",
+        "cmr9qj6up001wrumze80az0by",
+        "cmr9qklz6002grumz0g518rfa",
+        "cmra8g5cy000p2wmzu38px90o"
+      ]
+    },
+    {
+      "id": "cmrcij22w000004k3djsxf5ql",
+      "name": "Southern israel",
+      "slug": "southern-israel",
+      "category": "location",
+      "order": 2,
+      "programIds": [
+        "cmr8bgrkb0028vkmzp9yvzamj",
+        "cmr9qhsqj001erumzr9myf0d1",
+        "cmr8bo69f000whdmz9tq77hml",
+        "cmr8qbrzt000jjbmzrmtsl0ux",
+        "cmr8qc69d000tjbmzgb9bswu3",
+        "cmr8bo6a60010hdmzh6oxpku3",
+        "cmr9qhdtf0018rumzb2cx0o3u",
+        "cmr9qfcq5000irumz3dsujbv0",
+        "cmr9qi31r001irumz1bjcnbb6",
+        "cmracdrlp0000b1mzi1avvyft",
+        "cmrbvj317000b2gmzeyt1g4ph",
+        "cmr8qcbeq000wjbmzwfornwop"
+      ]
+    },
+    {
+      "id": "cmrcje3ny000904k3987pl5m6",
+      "name": "Coastal israel",
+      "slug": "coastal-israel",
+      "category": "location",
+      "order": 7,
+      "programIds": [
+        "cmr8bgr4y000bvkmzq5pd8b0n",
+        "cmr8bgr7j000nvkmznxsrizid",
+        "cmra8em5m00062wmz2o0hxd5u",
+        "cmr8bo6dz001lhdmzbodherzq",
+        "cmr8qbwix000kjbmzcbaa4q1w",
+        "cmr8qbcdd000bjbmz0jpqs95c",
+        "cmr8bgr330003vkmzf8x0h8tt",
+        "cmr8bo67r000nhdmzgm9wjym3",
+        "cmr8bgrbj0017vkmzcl6e0add",
+        "cmr8qcrmj0013jbmzcd3lw13q",
+        "cmr9qfkgt000krumzequ15gse",
+        "cmra8gnuc000v2wmz54uezgrk",
+        "cmra8etzg00082wmzjf1idlth",
+        "cmra8faw6000e2wmzoyllelyd",
+        "cmr9qf15c000erumzi1qwntt5",
+        "cmra8iyrk000g7fmzwpzbmp3l",
+        "cmra8fy1j000n2wmzb83yu4hh",
+        "cmra8gxll000z2wmzj00u4yy8",
+        "cmrbvjb9y000g2gmzb3limvns",
+        "cmr9qgffw000wrumz3ok3qf8x",
+        "cmr8bgr6h000ivkmzvwx0mi4v",
+        "cmr8qbndx000gjbmzs4h960io"
+      ]
+    },
+    {
+      "id": "cmrcjdlc8000704k3fuu30bb9",
+      "name": "Samaria",
+      "slug": "samaria",
+      "category": "location",
+      "order": 6,
+      "programIds": [
+        "cmr8bo6ao0013hdmzbawf89co",
+        "cmr9qe84d0002rumz60jxa6st",
+        "cmrapi8jq002obkmzoswkgqzk"
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "slug": "north",
+      "before": [
+        "northern-israel"
+      ],
+      "after": [
+        "northern-israel"
+      ]
+    },
+    {
+      "slug": "south",
+      "before": [
+        "southern-israel"
+      ],
+      "after": [
+        "southern-israel"
+      ]
+    },
+    {
+      "slug": "jerusalem",
+      "before": [
+        "jerusalem"
+      ],
+      "after": [
+        "jerusalem"
+      ]
+    },
+    {
+      "slug": "judea",
+      "before": [],
+      "after": []
+    },
+    {
+      "slug": "samaria",
+      "before": [
+        "samaria"
+      ],
+      "after": [
+        "samaria"
+      ]
+    },
+    {
+      "slug": "coast",
+      "before": [
+        "coastal-israel",
+        "ramat-hasharon"
+      ],
+      "after": [
+        "coastal-israel",
+        "ramat-hasharon"
+      ]
+    }
+  ]
+}
