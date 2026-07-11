@@ -4,6 +4,7 @@ import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration
 import { listRegions } from "@/lib/regions";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import { getSiteContent } from "@/lib/siteContent";
+import { trackSearch, trackFilterUse } from "@/lib/analytics";
 import ProgramCard from "@/components/ProgramCard";
 import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
@@ -92,6 +93,15 @@ export default async function ProgramsPage({
     show: regionFilterShow !== "false",
   };
   const durationLabelMap = durationLabelMapFromOptions(durationOptions);
+
+  trackSearch(q, programs.length);
+  trackFilterUse({
+    tags: tagsParam ? tagsParam.split(",").filter(Boolean) : undefined,
+    duration: duration ? duration.split(",").filter(Boolean) : undefined,
+    hasScholarship: hasScholarship === "true" ? true : undefined,
+    hasCollegeCredit: hasCollegeCredit === "true" ? true : undefined,
+    travelType,
+  });
 
   return (
     <PageContainer width="wide">

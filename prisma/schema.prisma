@@ -305,3 +305,31 @@ model ProgramExportRow {
 
   @@index([createdAt])
 }
+
+/// Site-wide footer "ask us" submission. Anonymous by design -- no Clerk
+/// user relation, no IP stored. `path` is the page the visitor submitted
+/// from (display-only provenance for the admin list), not used for routing.
+model Lead {
+  id        String   @id @default(cuid())
+  email     String
+  message   String?
+  path      String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// Anonymous usage counters for the programs browse page -- which filter
+/// values get selected and what people search for (including zero-result
+/// queries). No userId, no IP, no cookies: this is a counter, not a
+/// per-visitor log. Written fire-and-forget via lib/analytics.ts's after()
+/// wrapper so a write failure never blocks or slows a page response.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([type, createdAt])
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import Disclaimer from "@/components/Disclaimer";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
@@ -50,6 +51,7 @@ export default function RootLayout({
           <ToastProvider>
             <Nav />
             <div className="flex flex-1 flex-col overflow-x-clip">{children}</div>
+            <Footer />
             <Disclaimer />
           </ToastProvider>
         </body>

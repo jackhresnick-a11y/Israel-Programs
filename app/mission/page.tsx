@@ -8,6 +8,7 @@ import EmblemDefault from "@/components/EmblemDefault";
 import MissionIcon from "@/components/MissionIcon";
 import FormattedText from "@/components/FormattedText";
 import { buttonVariants } from "@/components/ui/Button";
+import ContactForm from "@/components/ContactForm";
 
 export default async function MissionPage() {
   const [blocks, legacyBody, emblemUrl, emblemUrlDark, role] = await Promise.all([
@@ -90,6 +91,15 @@ export default async function MissionPage() {
       ) : (
         <p className="text-sm text-muted">No content has been set yet.</p>
       )}
+
+      <section className="flex flex-col gap-4">
+        <hr className="border-t border-accent/40" />
+        <h2 className="font-serif text-lg font-semibold text-foreground">Get in touch</h2>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          Questions, corrections, or a program we should know about? Send us a note.
+        </p>
+        <ContactForm />
+      </section>
     </PageContainer>
   );
 }

@@ -73,6 +73,18 @@ export default async function AdminPage() {
             >
               Email verification queue
             </Link>
+            <Link
+              href="/admin/leads"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Leads
+            </Link>
+            <Link
+              href="/admin/analytics"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Analytics
+            </Link>
           </div>
         )}
       </PageHeader>
