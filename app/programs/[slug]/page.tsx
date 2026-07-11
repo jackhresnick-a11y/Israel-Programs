@@ -179,7 +179,16 @@ export default async function ProgramDetailPage({
           <dd className="flex flex-col gap-0.5">
             {showContactEmail && (
               <span className="flex flex-wrap items-center gap-1.5">
-                {program.contactEmail}
+                <a
+                  href={`mailto:${program.contactEmail}?subject=${encodeURIComponent(
+                    `Inquiry about ${program.name} (via Israel Programs Wiki)`
+                  )}&body=${encodeURIComponent(
+                    `Hello,\n\nI found ${program.name} on the Israel Programs Wiki and would like to learn more about the program.\n\nThank you!`
+                  )}`}
+                  className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+                >
+                  {program.contactEmail}
+                </a>
                 {emailVerifiedFresh ? (
                   <Badge tone="success">Verified</Badge>
                 ) : (
