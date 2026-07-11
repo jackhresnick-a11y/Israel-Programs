@@ -1,0 +1,897 @@
+[
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "alexander-muss-high-school-in-israel-amhsi",
+    "programId": "cmr8qclp60010jbmzrs23ryrp"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "bbyo-passport-israel-journey",
+    "programId": "cmr8bgrq10030vkmzh537u67j"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "bbyo-passport-israel-trek",
+    "programId": "cmr8bgrq90031vkmzfwvlj14u"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "birthright-israel",
+    "programId": "cmr7sl7ko0005w9mz4offzxck"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "derech-eretz",
+    "programId": "cmrem7zww001srvmz61r5n7z9"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "israel-lacrosse-gap-year-program",
+    "programId": "cmra8h1lu00122wmzwc5xk9yh"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "masa-israel-teaching-fellows-mitf",
+    "programId": "cmr8bgr5t000fvkmz74kmfj5r"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-ami-chai",
+    "programId": "cmrem8c01002crvmzeezkw8dm"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-beer-ora",
+    "programId": "cmrem7vwo001mrvmzwnsf8pf8"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-hanegev-sde-boker",
+    "programId": "cmrem82oz001wrvmzjjv3ssky"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-keayal",
+    "programId": "cmrem7fg4000urvmzyiykua3c"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-melach-haaretz",
+    "programId": "cmr9qh1an0014rumzxjqfcggf"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-nachshon",
+    "programId": "cmr8bo6c3001ahdmz9uoz6g1b"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-nir-oz",
+    "programId": "cmrem8fu1002irvmz402uska8"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "mechinat-yonatan",
+    "programId": "cmrem7e70000srvmz3pa06495"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "midreshet-rina-shlomit",
+    "programId": "cmrem7grc000wrvmzbgwknowi"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "ncsy-hatzalah-rescue",
+    "programId": "cmre5v6zm000afmmzf3d36omn"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "ncsy-israel-id",
+    "programId": "cmre5v4sm0006fmmz94315lzq"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "ncsy-jolt-israel",
+    "programId": "cmre5v5u30008fmmztqfuf3d2"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "otzem-overseas-program",
+    "programId": "cmr8bo6cm001dhdmzapy541kf"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "the-anne-samson-jerusalem-journey-tjj",
+    "programId": "cmr8bgrmm002jvkmz0ap5fiq2"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-ahavat-israel-netivot",
+    "programId": "cmrepgott0022pdmzmn7q5kg6"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-ashkelon-orot-hatorah-vehachesed",
+    "programId": "cmrepgdoz001ipdmzakwsaz6b"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-ayelet-hashachar-eilat",
+    "programId": "cmrepfnc00006pdmzfllky9oz"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-derech-chaim-kiryat-gat",
+    "programId": "cmrepgmoq001ypdmz8da297sg"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-hahesder-dimona",
+    "programId": "cmrepglk9001wpdmzpygzxco0"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-haseder-gavoha-kiryat-gat",
+    "programId": "cmrepgv8s002epdmzac5tcik4"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-midbara-keeden-mitzpe-ramon",
+    "programId": "cmrepgjf8001spdmz9zdullpf"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yeshivat-sderot",
+    "programId": "cmrepgu49002cpdmzdkcryjcs"
+  },
+  {
+    "tagSlug": "southern-israel",
+    "programSlug": "yuval-yisrael-usy-israel-pilgrimage",
+    "programId": "cmr8bgro4002rvkmzil2jvlc3"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "alexander-muss-high-school-in-israel-amhsi",
+    "programId": "cmr8qclp60010jbmzrs23ryrp"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+    "programId": "cmrbviu7y00052gmz2i9txx6m"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "bbyo-passport-israel-journey",
+    "programId": "cmr8bgrq10030vkmzh537u67j"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "birthright-israel",
+    "programId": "cmr7sl7ko0005w9mz4offzxck"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "bnei-akiva-olamit-shalem",
+    "programId": "cmraphjkv002cbkmzkiulhx8b"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "eco-israel-program",
+    "programId": "cmr8qcgk5000xjbmzi0hxsr5v"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "habonim-dror-workshop",
+    "programId": "cmr8bgr8d000rvkmz0je8h5x8"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "israel-xp-bar-ilan-university-overseas-student-program",
+    "programId": "cmr8bo68g000rhdmzlh7kcbyb"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "masa-israel-teaching-fellows-mitf",
+    "programId": "cmr8bgr5t000fvkmz74kmfj5r"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "mda-overseas-volunteers-program",
+    "programId": "cmr8bo6g1001yhdmzh8xks4dm"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "mechinat-bina",
+    "programId": "cmrem8eor002grvmzvvsqg80w"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "mechinat-lavi",
+    "programId": "cmrem7tpu001irvmzt3pa1p60"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "mechinat-orot",
+    "programId": "cmrem7541000crvmzsyylfqxg"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "mechinat-shuvu-achim",
+    "programId": "cmrem7o490018rvmzme4yuetk"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "midreshet-torat-chessed",
+    "programId": "cmr8bo62v0005hdmzm3o9y5us"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "ncsy-israel-id",
+    "programId": "cmre5v4sm0006fmmz94315lzq"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "ncsy-next-step-israel-internships",
+    "programId": "cmrbvwr2e0000fjmzhx3qlt08"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "ono-academic-college-international-school",
+    "programId": "cmra8gi58000t2wmzouh6us06"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "onward-israel",
+    "programId": "cmr7sl7ln000bw9mzs5j52fku"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "ponevezh-yeshiva",
+    "programId": "cmr8bgriv0022vkmzxhr9ywp1"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "save-a-childs-heart-volunteer-program",
+    "programId": "cmr9qfufi000orumzg3pptk4r"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "tau-summer-internship-program",
+    "programId": "cmrenxdex0000l3mz4st9bqji"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "weizmann-institute-kupcinet-getz-international-summer-school",
+    "programId": "cmr9qeomk0008rumzd6377qs1"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yahel-social-change-fellowship",
+    "programId": "cmr8bgr95000vvkmzenbdg0r9"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-cholon",
+    "programId": "cmrepgnpa0020pdmzero0lseb"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-hahesder-ramla",
+    "programId": "cmrepgqyq0026pdmzvscyiqfo"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-hahesder-rishon-lezion",
+    "programId": "cmrepg1gi000wpdmzbsedyqyu"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-hesder-orot-yaakov-rehovot",
+    "programId": "cmrepg9da001apdmzvdiaabnf"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-kerem-byavneh",
+    "programId": "cmr8bgrh6001uvkmzxagd2tku"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-migdal-hatorah",
+    "programId": "cmr8bgrey001lvkmzvh6qo30w"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-orot-moshe-rosh-haayin",
+    "programId": "cmrepgpu50024pdmzto27k2dp"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-orot-shaul-tel-aviv",
+    "programId": "cmrepgadk001cpdmze51hhxka"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-ramat-gan",
+    "programId": "cmrepg2n1000ypdmz9im1gyys"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yeshivat-shirat-moshe-meirim-beyafo",
+    "programId": "cmrepfu0r000ipdmz46s0beqk"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "young-judaea-gesher-israel",
+    "programId": "cmr8bgrr90037vkmzh8t1lhn1"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "young-judaea-year-course",
+    "programId": "cmr7sl7mh000hw9mz8902ii45"
+  },
+  {
+    "tagSlug": "coastal-israel",
+    "programSlug": "yuval-yisrael-usy-israel-pilgrimage",
+    "programId": "cmr8bgro4002rvkmzil2jvlc3"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+    "programId": "cmrbviu7y00052gmz2i9txx6m"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "beit-orot-jerusalem",
+    "programId": "cmrepgfx0001mpdmz6ge4uo39"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "birthright-israel",
+    "programId": "cmr7sl7ko0005w9mz4offzxck"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "chevron-yeshiva-knesset-yisrael",
+    "programId": "cmr8bgrju0026vkmzh1qdxmby"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "eco-israel-program",
+    "programId": "cmr8qcgk5000xjbmzi0hxsr5v"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "habonim-dror-australia-shnat",
+    "programId": "cmrbvjgu6000i2gmz2vrlb7ed"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "habonim-dror-workshop",
+    "programId": "cmr8bgr8d000rvkmz0je8h5x8"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "kivunim",
+    "programId": "cmr8bgr470008vkmz0r7653ff"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "livnot",
+    "programId": "cmr7sl7nw000qw9mzugtq46bp"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "machon-meir",
+    "programId": "cmr8bgrgw001tvkmz74jft5t2"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "masa-israel-teaching-fellows-mitf",
+    "programId": "cmr8bgr5t000fvkmz74kmfj5r"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "mda-overseas-volunteers-program",
+    "programId": "cmr8bo6g1001yhdmzh8xks4dm"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "mechinat-beit-yisrael-big",
+    "programId": "cmr8bo6bu0019hdmzafo3av3d"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "mechinat-ruach-nachon",
+    "programId": "cmrem8df0002ervmz98gdc81m"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "mechinat-yedidya",
+    "programId": "cmrem7d5i000qrvmzoh6j6f05"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "midreshet-lev",
+    "programId": "cmrem72x20008rvmz4a5c73v8"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "midreshet-moriah",
+    "programId": "cmr8bo62g0003hdmzzsikwaa7"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+    "programId": "cmr8bgrjd0024vkmznzjlhdjv"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "nativ",
+    "programId": "cmr7sl7n4000lw9mzudhbeacz"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "ncsy-israel-id",
+    "programId": "cmre5v4sm0006fmmz94315lzq"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "ncsy-michlelet",
+    "programId": "cmre5v2le0002fmmznae8t0te"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "ncsy-next-step-israel-internships",
+    "programId": "cmrbvwr2e0000fjmzhx3qlt08"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "noar-hadash-israel-program",
+    "programId": "cmr8qcw5n0017jbmzd1g8022z"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "ohr-avraham",
+    "programId": "cmrapc3eo0002bkmz7bgveurw"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "onward-israel",
+    "programId": "cmr7sl7ln000bw9mzs5j52fku"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "ramah-israel-seminar",
+    "programId": "cmr8bgrp8002wvkmz50m5m72o"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "rothberg-international-school",
+    "programId": "cmr8bo67j000mhdmzprxr16zx"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "the-anne-samson-jerusalem-journey-tjj",
+    "programId": "cmr8bgrmm002jvkmz0ap5fiq2"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "the-jerusalem-preparatory-program-hayerushalmit",
+    "programId": "cmrem81hq001urvmzahuoguq7"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "vertigo-international-dance-program-vidp",
+    "programId": "cmra8j5hc000i7fmzszyvne14"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshiva-tiferet-tj",
+    "programId": "cmrem70pt0004rvmze0ncvvdl"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivas-brisk",
+    "programId": "cmr8bgrjm0025vkmznanlknr8"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-ashreinu",
+    "programId": "cmr8bgrg3001pvkmz0xmf5b7y"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-eretz-hatzvi",
+    "programId": "cmr8bgrgc001qvkmzygit9dgu"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-hameiri-kiryat-moshe",
+    "programId": "cmrepgh60001opdmzdkjtfsex"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-kol-torah",
+    "programId": "cmr8bgrls002evkmzce36g27m"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-lev-hatorah",
+    "programId": "cmr8bgrfm001nvkmzo2ulmlqg"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-merkaz-harav",
+    "programId": "cmr8bgri8001zvkmzmyo1obvh"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-ohr-yerushalayim",
+    "programId": "cmrapdlfo000obkmzf7slm40r"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-reishit-yerushalayim",
+    "programId": "cmr8bgrdc001fvkmzyjn5z8p0"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-torat-shraga",
+    "programId": "cmr8bgrf9001mvkmzlcmzzhrh"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yeshivat-yishrei-lev",
+    "programId": "cmrem71ve0006rvmzgb7f5m63"
+  },
+  {
+    "tagSlug": "jerusalem",
+    "programSlug": "yuval-yisrael-usy-israel-pilgrimage",
+    "programId": "cmr8bgro4002rvkmzil2jvlc3"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "bbyo-passport-israel-journey",
+    "programId": "cmr8bgrq10030vkmzh537u67j"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "bbyo-passport-israel-trek",
+    "programId": "cmr8bgrq90031vkmzfwvlj14u"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "birthright-israel",
+    "programId": "cmr7sl7ko0005w9mz4offzxck"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "habonim-dror-workshop",
+    "programId": "cmr8bgr8d000rvkmz0je8h5x8"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "hesder-yeshiva-akko",
+    "programId": "cmrepfw5x000mpdmzysp7abk1"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "hippos-sussita-excavations",
+    "programId": "cmrapibvw002qbkmzqx2beee2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "kibbutz-ulpan",
+    "programId": "cmr9qja5n001yrumzrfaakkpq"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "livnot",
+    "programId": "cmr7sl7nw000qw9mzugtq46bp"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "masa-israel-teaching-fellows-mitf",
+    "programId": "cmr8bgr5t000fvkmz74kmfj5r"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-avner-akko",
+    "programId": "cmrem742l000arvmzbwk227rf"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-chemdat-yehuda",
+    "programId": "cmrem7c09000orvmzgne5njlf"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-gal",
+    "programId": "cmrem7ylt001qrvmzyvzgobww"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-haviva-reich",
+    "programId": "cmr9qic99001mrumzm2f1a8mq"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-kerem-el",
+    "programId": "cmrem86590022rvmzg5ky1p8v"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-keshet-yehuda",
+    "programId": "cmrem7qdi001crvmzzauqvki8"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-mashahiyot-maskyot",
+    "programId": "cmrem7lur0014rvmzk5nq2nlv"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-meitzar",
+    "programId": "cmr9qgrug0010rumzypq1gsa3"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-minsharim-kalo",
+    "programId": "cmrem8aur002arvmzniyt8lwo"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-rabin",
+    "programId": "cmr8bo6bf0017hdmza0gvenaq"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-tamir",
+    "programId": "cmrem7rix001ervmz1i2nhlgq"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-yemin-orde",
+    "programId": "cmrem83ui001yrvmz43bwb5tv"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "mechinat-yiftach",
+    "programId": "cmrem84zn0020rvmz9h1ae1pz"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "midreshet-ein-hanatziv",
+    "programId": "cmrapfz32001pbkmzxwfpa6ba"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "midreshet-hashiluv-natur",
+    "programId": "cmrem88k60026rvmzf7vhz1xw"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "ncsy-hatzalah-rescue",
+    "programId": "cmre5v6zm000afmmzf3d36omn"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "ncsy-israel-id",
+    "programId": "cmre5v4sm0006fmmz94315lzq"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "ncsy-jolt-israel",
+    "programId": "cmre5v5u30008fmmztqfuf3d2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "ncsy-next-step-israel-internships",
+    "programId": "cmrbvwr2e0000fjmzhx3qlt08"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "noam-drachim-gap-year",
+    "programId": "cmra8f54i000c2wmzdfkn2egc"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "onward-israel",
+    "programId": "cmr7sl7ln000bw9mzs5j52fku"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "project-ten-kibbutz-harduf",
+    "programId": "cmr9qfq5j000mrumz6ndn8x8c"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "shnat-netzer",
+    "programId": "cmracdx1x0002b1mzk3ivo9w2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "shvilim-traveling-gap-year-program",
+    "programId": "cmra8irf1000e7fmzc3xak3cy"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "technion-ignite-international-high-school-summer-program",
+    "programId": "cmrepfkrg0002pdmzexw9f2dt"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "technion-international-semesteryear-abroad",
+    "programId": "cmr8bo68z000uhdmzj7t3f7dz"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "technion-summer-research-program-in-science-and-engineering",
+    "programId": "cmrenxepq0002l3mzi7sx2cc9"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "tel-abel-beth-maacah-excavation",
+    "programId": "cmraphvg4002ibkmz2nrpu9cn"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "tel-akko-total-archaeology-project",
+    "programId": "cmrapih2x002sbkmzxeyvpjzr"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "tel-megiddo-excavation",
+    "programId": "cmraphrlx002gbkmz15avbteg"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "tel-shimron-excavations",
+    "programId": "cmracfgca000xb1mzdkx5s3pg"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "the-anne-samson-jerusalem-journey-tjj",
+    "programId": "cmr8bgrmm002jvkmz0ap5fiq2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "university-of-haifa-intensive-hebrew-summer-ulpan",
+    "programId": "cmrenxfr10004l3mz225oyth2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yahel-social-change-fellowship",
+    "programId": "cmr8bgr95000vvkmzenbdg0r9"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-chiburim-afula",
+    "programId": "cmrepfyb0000qpdmzbfuh763x"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-chiburim-beit-shean",
+    "programId": "cmrepfx6i000opdmzujeens9b"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-givat-olga-hadera",
+    "programId": "cmrepgkjr001updmzcozvbq4y"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-habikah-sdemot-neriah",
+    "programId": "cmrepg52d0012pdmzjzu11xxw"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-hagolan",
+    "programId": "cmrepfocf0008pdmzv5h93g5l"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-haseder-nof-hagalil",
+    "programId": "cmrepfv18000kpdmzk4zg6ab2"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-hesder-maalot-yaakov",
+    "programId": "cmrepfrvh000epdmzw1vy1j9y"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-kiryat-shmona",
+    "programId": "cmrepfzbj000spdmz9v06dk49"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-maale-gilboa",
+    "programId": "cmrapduzv000sbkmzrualc897"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-or-akiva",
+    "programId": "cmrepg88d0018pdmzltk8pbm6"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-or-veyeshua-haifa",
+    "programId": "cmrepgiet001qpdmzejqj8tsw"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yeshivat-tfachot",
+    "programId": "cmrepfqmo000cpdmz6mgzcmzp"
+  },
+  {
+    "tagSlug": "northern-israel",
+    "programSlug": "yuval-yisrael-usy-israel-pilgrimage",
+    "programId": "cmr8bgro4002rvkmzil2jvlc3"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "bnei-david-eli",
+    "programId": "cmrdh24jd000004l5vzmnb27q"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "mechinat-arzei-halevanon",
+    "programId": "cmrem78gh000irvmz8hhrg951"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "mechinat-chosen-peduel",
+    "programId": "cmrem7asb000mrvmz97prdrs0"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "mechinat-elisha",
+    "programId": "cmrem77ay000grvmzdef78186"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshiva-gevoha-itamar",
+    "programId": "cmrepgbi1001epdmz6hg4jjc1"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-beit-el",
+    "programId": "cmr8bgrlj002dvkmzz4ak1hys"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-birkat-yosef-alon-moreh",
+    "programId": "cmrepgcip001gpdmzcgjvpcdh"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-har-bracha",
+    "programId": "cmrepfphi000apdmzgn5hlynk"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-karnei-shomron",
+    "programId": "cmrepg7740016pdmz74u0tcfu"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-nachalat-yosef-shavei-shomron",
+    "programId": "cmrepgt3t002apdmzcmj0jl28"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-netzer-matai-ariel",
+    "programId": "cmrepfsw3000gpdmzp16ivl4j"
+  },
+  {
+    "tagSlug": "samaria",
+    "programSlug": "yeshivat-shilo",
+    "programId": "cmrepges4001kpdmzsw0x31j2"
+  },
+  {
+    "tagSlug": "ramat-hasharon",
+    "programSlug": "yeshivat-hahesder-ramat-hasharon",
+    "programId": "cmrepgrz80028pdmzyf4639fh"
+  }
+]

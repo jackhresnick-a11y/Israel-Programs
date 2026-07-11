@@ -1,0 +1,407 @@
+[
+  {
+    "slug": "apf-medical-and-nursing-volunteer-program",
+    "name": "APF Medical & Nursing Volunteer Program",
+    "location": "Hospitals and community/primary-care clinics throughout Israel"
+  },
+  {
+    "slug": "bat-ayin-yeshiva",
+    "name": "Bat Ayin Yeshiva",
+    "location": "Bat Ayin, Gush Etzion"
+  },
+  {
+    "slug": "beit-midrash-reuta-carmel",
+    "name": "Beit Midrash Reuta (Carmel)",
+    "location": "Moshav Carmel, Hebron Hills, Israel"
+  },
+  {
+    "slug": "cteen-summer-heritage-quest-poland-israel",
+    "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+    "location": "Multiple cities (Poland, then Israel-wide)"
+  },
+  {
+    "slug": "diller-teen-fellows-israel-summer-seminar",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "ein-prat-academy-for-leadership",
+    "name": "Ein Prat Academy for Leadership",
+    "location": "Kfar Adumim, Nofei Prat, and Kibbutz Sufa"
+  },
+  {
+    "slug": "en-gedi-oasis-archaeological-project",
+    "name": "En-Gedi Oasis Archaeological Project",
+    "location": "Kibbutz En-Gedi"
+  },
+  {
+    "slug": "garin-tzabar",
+    "name": "Garin Tzabar",
+    "location": "Various absorption centers/kibbutzim across Israel"
+  },
+  {
+    "slug": "habonim-dror-uk-shnat",
+    "name": "Habonim Dror UK - Shnat",
+    "location": "Kibbutz (Shorashim phase) and an Israeli city (Anafim phase)"
+  },
+  {
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "location": "Israel (multi-site)"
+  },
+  {
+    "slug": "hashomer-hatzair-shnat-hachshara",
+    "name": "Hashomer Hatzair Shnat Hachshara",
+    "location": "Israel"
+  },
+  {
+    "slug": "hazor-excavations",
+    "name": "Hazor Excavations",
+    "location": "Kibbutz Kfar HaNassi, near Tel Hazor"
+  },
+  {
+    "slug": "israel-free-spirit",
+    "name": "Israel Free Spirit",
+    "location": "Israel-wide"
+  },
+  {
+    "slug": "israel-tech-challenge-fellows-program",
+    "name": "Israel Tech Challenge Fellows Program",
+    "location": "Various Israeli tech hubs"
+  },
+  {
+    "slug": "jcc-maccabi-israel-sports-tour",
+    "name": "JCC Maccabi Israel Sports Tour",
+    "location": null
+  },
+  {
+    "slug": "kadima-world-bnei-akiva",
+    "name": "Kadima (World Bnei Akiva)",
+    "location": "Multiple religious-Zionist locations across Israel"
+  },
+  {
+    "slug": "kibbutz-program-center-kpc",
+    "name": "Kibbutz Program Center (KPC)",
+    "location": "Various kibbutzim across Israel"
+  },
+  {
+    "slug": "kol-ami-mechina",
+    "name": "Kol Ami Mechina",
+    "location": "Israel (Jewish Agency-affiliated campus)"
+  },
+  {
+    "slug": "leket-israel-volunteer-program",
+    "name": "Leket Israel Volunteer Program",
+    "location": "Nationwide (fields, packing centers and partner NPOs across Israel)"
+  },
+  {
+    "slug": "limmud-world-bnei-akiva",
+    "name": "Limmud (World Bnei Akiva)",
+    "location": "Multiple religious-Zionist locations across Israel"
+  },
+  {
+    "slug": "mach-hach-baaretz",
+    "name": "Mach Hach BaAretz",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "machaneh-bonim-bisrael-mbi",
+    "name": "Machaneh Bonim B'Israel (MBI)",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "machon-maayan",
+    "name": "Machon Maayan",
+    "location": "Givat Washington"
+  },
+  {
+    "slug": "mechinat-aderet",
+    "name": "Mechinat Aderet",
+    "location": "Ayanot, Ben Shemen and Kfar Silver"
+  },
+  {
+    "slug": "mechinat-beeri",
+    "name": "Mechinat Be'eri",
+    "location": "Beit Berl and Kannot"
+  },
+  {
+    "slug": "mechinat-beit-yatir",
+    "name": "Mechinat Beit Yatir",
+    "location": "Beit Yatir, southern Mount Hebron, Israel"
+  },
+  {
+    "slug": "mechinat-bnot-hamidbar",
+    "name": "Mechinat Bnot HaMidbar",
+    "location": "Ein Gedi, Israel"
+  },
+  {
+    "slug": "mechinat-echad-vachat-mishelanu",
+    "name": "Mechinat Echad V'Achat Mishelanu",
+    "location": "Israel"
+  },
+  {
+    "slug": "mechinat-eitan",
+    "name": "Mechinat Eitan",
+    "location": "Ma'ale Adumim and Mevuot Jericho, Israel"
+  },
+  {
+    "slug": "mechinat-five-fingers-chamesh-etzbaot",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "location": "Zichron Ya'akov"
+  },
+  {
+    "slug": "mechinat-lachish",
+    "name": "Mechinat Lachish",
+    "location": "Judean foothills — campuses at Nahal Oz, Eliav and Kibbutz Beit Guvrin"
+  },
+  {
+    "slug": "mechinat-lapidot-emuna",
+    "name": "Mechinat Lapidot Emuna",
+    "location": "Israel"
+  },
+  {
+    "slug": "mechinat-magen-shaul-nokdim",
+    "name": "Mechinat Magen Shaul (Nokdim)",
+    "location": "Gush Etzion, Israel"
+  },
+  {
+    "slug": "mechinat-maoz-lod",
+    "name": "Mechinat Maoz (Lod)",
+    "location": "Ramat Eshkol, Lod, Israel"
+  },
+  {
+    "slug": "mechinat-meitarim-lachish",
+    "name": "Mechinat Meitarim Lachish",
+    "location": "Beit Guvrin, with branches at Dorot, Nachal Oz, and Gvim, Israel"
+  },
+  {
+    "slug": "mechinat-migdalor",
+    "name": "Mechinat Migdalor",
+    "location": "Beit Berl (boys) and Neve Hadassah/Tel Yitzhak (girls), Israel"
+  },
+  {
+    "slug": "mechinat-oz-shlomo",
+    "name": "Mechinat Oz Shlomo",
+    "location": "Merkaz Shapira, Israel"
+  },
+  {
+    "slug": "mechinat-rakia",
+    "name": "Mechinat Rakia",
+    "location": "Harish"
+  },
+  {
+    "slug": "mechinat-tzahali",
+    "name": "Mechinat Tzahali",
+    "location": "Ein Tzurim, with a branch at Kvutzat Yavneh, Israel"
+  },
+  {
+    "slug": "mechinat-uri",
+    "name": "Mechinat Uri",
+    "location": "Givat Washington, Israel"
+  },
+  {
+    "slug": "mechinat-yesodot",
+    "name": "Mechinat Yesodot",
+    "location": "Kibbutz Yad HaShmonah, Mateh Yehuda, Israel"
+  },
+  {
+    "slug": "midreshet-berot-bat-ayin",
+    "name": "Midreshet B'erot Bat Ayin",
+    "location": "Bat Ayin, Judean Hills"
+  },
+  {
+    "slug": "midreshet-torah-vavodah-mtva",
+    "name": "Midreshet Torah V'Avodah (MTVA)",
+    "location": null
+  },
+  {
+    "slug": "migdal-oz-ska-beit-midrash-for-women",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "location": "Kibbutz Migdal Oz, Gush Etzion"
+  },
+  {
+    "slug": "mta-world-bnei-akiva",
+    "name": "MTA (World Bnei Akiva)",
+    "location": "Four locations across Israel"
+  },
+  {
+    "slug": "ncsy-derech",
+    "name": "NCSY Derech",
+    "location": "Touring throughout Israel, north to south, with significant time at NCSY Kollel's campus"
+  },
+  {
+    "slug": "ncsy-euro-israel",
+    "name": "NCSY Euro Israel",
+    "location": "Two weeks touring Israel after a European leg (London, Paris, Belgium, Amsterdam)"
+  },
+  {
+    "slug": "ncsy-give-girls-israel-volunteer-experience",
+    "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "ncsy-kollel",
+    "name": "NCSY Kollel",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "ncsy-kollel-mechina-track",
+    "name": "NCSY Kollel Mechina Track",
+    "location": null
+  },
+  {
+    "slug": "ncsy-michlelet-mechina",
+    "name": "NCSY Michlelet Mechina",
+    "location": "Throughout Israel"
+  },
+  {
+    "slug": "new-israel-fund-shatil-social-justice-fellowship",
+    "name": "New Israel Fund / Shatil Social Justice Fellowship",
+    "location": "Israel-wide (NGO placements)"
+  },
+  {
+    "slug": "ohrsom",
+    "name": "Ohrsom",
+    "location": ""
+  },
+  {
+    "slug": "otzma",
+    "name": "OTZMA",
+    "location": "An absorption center, a development town, and a kibbutz or internship site, Israel-wide"
+  },
+  {
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "location": "Israel"
+  },
+  {
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "location": "40+ partner yeshivot and seminaries across Israel"
+  },
+  {
+    "slug": "sar-el-volunteers-for-israel",
+    "name": "Sar-El (Volunteers for Israel)",
+    "location": "IDF bases throughout Israel"
+  },
+  {
+    "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+    "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+    "location": "Placements nationwide in Israel"
+  },
+  {
+    "slug": "tel-gezer-excavation",
+    "name": "Tel Gezer Excavation",
+    "location": "Gezer"
+  },
+  {
+    "slug": "tikvah-israel-fellowship",
+    "name": "Tikvah Israel Fellowship",
+    "location": "Israel-wide"
+  },
+  {
+    "slug": "torani-world-bnei-akiva",
+    "name": "Torani (World Bnei Akiva)",
+    "location": "Multiple religious-Zionist locations across Israel"
+  },
+  {
+    "slug": "urj-heller-high",
+    "name": "URJ Heller High",
+    "location": "Israel (shares a campus with Alexander Muss High School in Israel as of 2023)"
+  },
+  {
+    "slug": "vois-volunteer-in-israel",
+    "name": "VOIS - Volunteer in Israel",
+    "location": "120+ welfare placements throughout Israel"
+  },
+  {
+    "slug": "yachad-gap-year",
+    "name": "Yachad Gap Year",
+    "location": "Various partner mechinot across Israel"
+  },
+  {
+    "slug": "yad-byad",
+    "name": "Yad B'Yad",
+    "location": "Israel-wide"
+  },
+  {
+    "slug": "yallah-israel-nfty-in-israel-adventure",
+    "name": "Yallah! Israel (NFTY in Israel - Adventure)",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "yeshivas-birchas-mordechai",
+    "name": "Yeshivas Birchas Mordechai",
+    "location": "Beitar"
+  },
+  {
+    "slug": "yeshivat-birkat-moshe-maale-adumim",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "location": "Ma'ale Adumim (Mitzpeh Nevo)"
+  },
+  {
+    "slug": "yeshivat-darchei-yonatan",
+    "name": "Yeshivat Darchei Yonatan",
+    "location": "Efrat, Gush Etzion"
+  },
+  {
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "location": "Kibbutz Kfar Etzion, Gush Etzion"
+  },
+  {
+    "slug": "yeshivat-har-etzion-the-gush",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "location": "Alon Shevut, Gush Etzion"
+  },
+  {
+    "slug": "yeshivat-mitzpe-yericho",
+    "name": "Yeshivat Mitzpe Yericho",
+    "location": "Mitzpe Yericho (Judean Desert)"
+  },
+  {
+    "slug": "yeshivat-nir-kiryat-arba",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "location": "Kiryat Arba"
+  },
+  {
+    "slug": "yeshivat-or-etzion",
+    "name": "Yeshivat Or Etzion",
+    "location": "Merkaz Shapira, Israel"
+  },
+  {
+    "slug": "yeshivat-otniel",
+    "name": "Yeshivat Otniel",
+    "location": "Otniel (Har Hevron)"
+  },
+  {
+    "slug": "yeshivat-sdot-negev-kfar-maimon",
+    "name": "Yeshivat Sdot Negev (Kfar Maimon)",
+    "location": "Kfar Maimon, Israel"
+  },
+  {
+    "slug": "yeshivat-shaalvim",
+    "name": "Yeshivat Sha'alvim",
+    "location": "Sha'alvim (Ayalon Valley)"
+  },
+  {
+    "slug": "yeshivat-tekoa",
+    "name": "Yeshivat Tekoa",
+    "location": "Tekoa, Gush Etzion, Israel"
+  },
+  {
+    "slug": "yeshivat-torah-vavodah-ytva",
+    "name": "Yeshivat Torah V'Avodah (YTVA)",
+    "location": null
+  },
+  {
+    "slug": "young-judaea-horizon-israel",
+    "name": "Young Judaea Horizon Israel",
+    "location": "Multiple cities (Israel-wide)"
+  },
+  {
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "location": "Israel"
+  }
+]
