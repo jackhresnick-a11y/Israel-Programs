@@ -1,0 +1,320 @@
+[
+  {
+    "slug": "aish-hatorah-foundations-program",
+    "name": "Aish HaTorah – Foundations Program",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": true
+  },
+  {
+    "slug": "beit-midrash-reuta-carmel",
+    "name": "Beit Midrash Reuta (Carmel)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "bnei-david-eli",
+    "name": "Bnei David (Eli)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "darchei-binah",
+    "name": "Darchei Binah",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": true
+  },
+  {
+    "slug": "eyaht-aish-hatorah-college-for-women",
+    "name": "EYAHT - Aish HaTorah College for Women",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": true
+  },
+  {
+    "slug": "hesder-yeshiva-akko",
+    "name": "Hesder Yeshiva Akko",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "isralight",
+    "name": "Isralight",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": true
+  },
+  {
+    "slug": "mechinat-ami-chai",
+    "name": "Mechinat Ami-Chai",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "mechinat-bina",
+    "name": "Mechinat Bina",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "mechinat-hanegev-sde-boker",
+    "name": "Mechinat HaNegev (Sde Boker)",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "mechinat-meitarim-lachish",
+    "name": "Mechinat Meitarim Lachish",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "mechinat-minsharim-kalo",
+    "name": "Mechinat Minsharim Kalo",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "mechinat-ruach-nachon",
+    "name": "Mechinat Ruach Nachon",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "midreshet-hashiluv-natur",
+    "name": "Midreshet HaShiluv Natur",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "midreshet-lev",
+    "name": "Midreshet Lev",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "shiloh-excavations",
+    "name": "Shiloh Excavations",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "tel-shimron-excavations",
+    "name": "Tel Shimron Excavations",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "the-jerusalem-preparatory-program-hayerushalmit",
+    "name": "The Jerusalem Preparatory Program (HaYerushalmit)",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-ahavat-israel-netivot",
+    "name": "Yeshivat Ahavat Israel (Netivot)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-ashkelon-orot-hatorah-vehachesed",
+    "name": "Yeshivat Ashkelon (Orot HaTorah VeHaChesed)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-ayelet-hashachar-eilat",
+    "name": "Yeshivat Ayelet HaShachar (Eilat)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-birkat-yosef-alon-moreh",
+    "name": "Yeshivat Birkat Yosef (Alon Moreh)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-chiburim-afula",
+    "name": "Yeshivat Chiburim Afula",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-chiburim-beit-shean",
+    "name": "Yeshivat Chiburim Beit Shean",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-cholon",
+    "name": "Yeshivat Cholon",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-derech-chaim-kiryat-gat",
+    "name": "Yeshivat Derech Chaim (Kiryat Gat)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-givat-olga-hadera",
+    "name": "Yeshivat Givat Olga (Hadera)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-habikah-sdemot-neriah",
+    "name": "Yeshivat HaBikah (Sdemot Neriah)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hagolan",
+    "name": "Yeshivat HaGolan",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hahesder-dimona",
+    "name": "Yeshivat HaHesder Dimona",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hahesder-ramat-hasharon",
+    "name": "Yeshivat HaHesder Ramat HaSharon",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hahesder-ramla",
+    "name": "Yeshivat HaHesder Ramla",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hahesder-rishon-lezion",
+    "name": "Yeshivat HaHesder Rishon LeZion",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hameiri-kiryat-moshe",
+    "name": "Yeshivat HaMeiri (Kiryat Moshe)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-har-bracha",
+    "name": "Yeshivat Har Bracha",
+    "proposedTag": "non-affiliated-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-haseder-gavoha-kiryat-gat",
+    "name": "Yeshivat HaSeder Gavoha Kiryat Gat",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-haseder-nof-hagalil",
+    "name": "Yeshivat HaSeder Nof HaGalil",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hesder-maalot-yaakov",
+    "name": "Yeshivat Hesder Maalot Yaakov",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-hesder-orot-yaakov-rehovot",
+    "name": "Yeshivat Hesder Orot Yaakov (Rehovot)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-karnei-shomron",
+    "name": "Yeshivat Karnei Shomron",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-kiryat-shmona",
+    "name": "Yeshivat Kiryat Shmona",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-midbara-keeden-mitzpe-ramon",
+    "name": "Yeshivat Midbara Ke'Eden (Mitzpe Ramon)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-nachalat-yosef-shavei-shomron",
+    "name": "Yeshivat Nachalat Yosef (Shavei Shomron)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-netzer-matai-ariel",
+    "name": "Yeshivat Netzer Matai (Ariel)",
+    "proposedTag": "flexible-religously",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-or-akiva",
+    "name": "Yeshivat Or Akiva",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-or-veyeshua-haifa",
+    "name": "Yeshivat Or VeYeshua (Haifa)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-orot-moshe-rosh-haayin",
+    "name": "Yeshivat Orot Moshe (Rosh HaAyin)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-orot-shaul-tel-aviv",
+    "name": "Yeshivat Orot Shaul (Tel Aviv)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-ramat-gan",
+    "name": "Yeshivat Ramat Gan",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-sderot",
+    "name": "Yeshivat Sderot",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-sdot-negev-kfar-maimon",
+    "name": "Yeshivat Sdot Negev (Kfar Maimon)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-tfachot",
+    "name": "Yeshivat Tfachot",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  },
+  {
+    "slug": "yeshivat-torah-vavodah-ytva",
+    "name": "Yeshivat Torah V'Avodah (YTVA)",
+    "proposedTag": "rz-modern-orthodox",
+    "alreadyInReviewQueue": false
+  }
+]
