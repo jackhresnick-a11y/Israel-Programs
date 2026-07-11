@@ -69,6 +69,11 @@ export default async function EditProgramPage({
             )}
           </p>
         )}
+        {isModerator && program.adminNote && (
+          <p className="mt-2 rounded-md bg-warning-bg p-2 text-sm text-warning">
+            <span className="font-medium">Admin note:</span> {program.adminNote}
+          </p>
+        )}
       </div>
       <Show
         when="signed-in"

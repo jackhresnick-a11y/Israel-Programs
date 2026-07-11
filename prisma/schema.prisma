@@ -86,6 +86,11 @@ model Program {
   hasScholarship         Boolean?
   hasCollegeCredit       Boolean?
   travelType             TravelType?
+  /// Internal moderator-only note (e.g. "no dedicated website found during research,
+  /// verify before relying on this entry") -- never selected into any public page or
+  /// client-component props, only shown on the admin program view. Not proposable
+  /// content: no ProgramEdit field-decision path touches it.
+  adminNote              String?
   status                 ProgramStatus              @default(PENDING)
   createdById            String
   createdAt              DateTime                   @default(now())
