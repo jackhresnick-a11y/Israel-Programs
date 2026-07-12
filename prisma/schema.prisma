@@ -60,6 +60,12 @@ enum EmailVerificationStatus {
   WRONG_CONTACT
 }
 
+enum WebsiteLanguage {
+  ENGLISH
+  HEBREW
+  BOTH
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -89,6 +95,13 @@ model Program {
   contactEmailStatus     EmailVerificationStatus?
   contactPhone           String?
   contactWebsite         String?
+  /// Detected language of contactWebsite/signupUrl, for the admin bulk-email tool's
+  /// English/Hebrew/Both sections (see lib/programs.ts's listProgramContactEmails and
+  /// prisma/classify-website-language.ts, which does the one-time detection pass).
+  /// Admin-only workflow signal, not proposable program content -- same reasoning as
+  /// contactEmailStatus above, so it's excluded from the ProgramEdit field-decision
+  /// pipeline and only ever written by the admin-only website-language route.
+  websiteLanguage        WebsiteLanguage?
   hasScholarship         Boolean?
   hasCollegeCredit       Boolean?
   travelType             TravelType?

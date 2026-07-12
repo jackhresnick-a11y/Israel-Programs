@@ -1,0 +1,555 @@
+[
+  {
+    "slug": "alexander-muss-high-school-in-israel-amhsi",
+    "name": "Alexander Muss High School in Israel (AMHSI)",
+    "url": "https://www.amhsi.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "baer-miriam",
+    "name": "Baer Miriam",
+    "url": "https://www.baermiriam.com",
+    "detected": "ENGLISH",
+    "evidence": "body text 99% Latin characters"
+  },
+  {
+    "slug": "beit-chana-seminary-tzfat-chul-program",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "url": "https://www.beitchana.org/",
+    "detected": "BOTH",
+    "evidence": "Hebrew-dominant body (76%) + English switcher link"
+  },
+  {
+    "slug": "buchmann-mehta-school-of-music-international-program",
+    "name": "Buchmann-Mehta School of Music International Program",
+    "url": "https://en-arts.tau.ac.il/Music/Inter-Prog",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "cteen-summer-heritage-quest-poland-israel",
+    "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+    "url": "https://www.cteensummer.com/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "career-israel",
+    "name": "Career Israel",
+    "url": "https://www.careerisrael.com/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "chevron-yeshiva-knesset-yisrael",
+    "name": "Chevron Yeshiva (Knesset Yisrael)",
+    "url": "https://chevronyeshiva.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "conservative-yeshiva",
+    "name": "Conservative Yeshiva",
+    "url": "https://fuchsbergcenter.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "diaspora-yeshiva-gap-year-program",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "url": "https://diasporayeshiva.com/",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "ein-prat-academy-for-leadership",
+    "name": "Ein Prat Academy for Leadership",
+    "url": "https://ein-prat.com/?lang=en",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "fzy-year-course",
+    "name": "FZY Year Course",
+    "url": "https://www.fzy.org.uk/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "habonim-dror-australia-shnat",
+    "name": "Habonim Dror Australia - Shnat",
+    "url": "https://www.hdoz.com/shnat",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "habonim-dror-workshop",
+    "name": "Habonim Dror Workshop",
+    "url": "https://www.hdnaisrael.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "hasbara-fellowships-israel-training-program",
+    "name": "Hasbara Fellowships Israel Training Program",
+    "url": "https://hasbarafellowships.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "hazor-excavations",
+    "name": "Hazor Excavations",
+    "url": "https://www.hazor-excavations.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "hevruta-gap-year-program",
+    "name": "Hevruta Gap-Year Program",
+    "url": "https://www.hartman.org.il/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "hippos-sussita-excavations",
+    "name": "Hippos-Sussita Excavations",
+    "url": "https://www.dighippos.com",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "israel-government-fellows-igf",
+    "name": "Israel Government Fellows (IGF)",
+    "url": "https://www.begincenter.org.il/begins-heritage/israel-government-fellows/?lang=en",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "israel-lacrosse-gap-year-program",
+    "name": "Israel Lacrosse Gap Year Program",
+    "url": "https://www.lacrosse.co.il/",
+    "detected": "BOTH",
+    "evidence": "English-dominant body (100%) + Hebrew switcher link"
+  },
+  {
+    "slug": "isralight",
+    "name": "Isralight",
+    "url": "https://www.isralight.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "jts-israel-year",
+    "name": "JTS Israel Year",
+    "url": "https://www.jtsa.edu/jts-and-israel/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "kibbutz-lotan-green-apprenticeship",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "url": "https://kibbutzlotan.com",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "kibbutz-ulpan",
+    "name": "Kibbutz Ulpan",
+    "url": "https://kibbutzulpan.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "mda-overseas-volunteers-program",
+    "name": "MDA Overseas Volunteers Program",
+    "url": "https://afmda.org/volunteer-overseas/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "mmy-michlelet-mevaseret-yerushalayim",
+    "name": "MMY (Michlelet Mevaseret Yerushalayim)",
+    "url": "https://mevaseret.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "mach-hach-baaretz",
+    "name": "Mach Hach BaAretz",
+    "url": "https://machhachbaaretz.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "machon-meir",
+    "name": "Machon Meir",
+    "url": "https://machonmeir.net",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "machon-roni",
+    "name": "Machon Roni",
+    "url": "https://diasporayeshiva.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "machon-sara-yerushalayim-msy",
+    "name": "Machon Sara Yerushalayim (MSY)",
+    "url": "https://machonsara.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 82% Latin characters"
+  },
+  {
+    "slug": "machon-shlomo",
+    "name": "Machon Shlomo",
+    "url": "https://machonshlomo.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "machon-yaakov",
+    "name": "Machon Yaakov",
+    "url": "https://www.machonyaakov.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "mayanot-womens-program",
+    "name": "Mayanot Women's Program",
+    "url": "https://www.mayanot.edu",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "meorot-yerushalayim",
+    "name": "Meorot Yerushalayim",
+    "url": "https://gomeorot.com",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "midreshet-berot-bat-ayin",
+    "name": "Midreshet B'erot Bat Ayin",
+    "url": "https://www.berotbatayin.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+    "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+    "url": "https://themir.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "neveh-zion",
+    "name": "Neveh Zion",
+    "url": "https://www.nevehzion.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "new-israel-fund-shatil-social-justice-fellowship",
+    "name": "New Israel Fund / Shatil Social Justice Fellowship",
+    "url": "https://nif.org/get-involved/fellowships/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "ono-academic-college-international-school",
+    "name": "Ono Academic College International School",
+    "url": "https://www.ono.ac.il/eng/international-school/",
+    "detected": "BOTH",
+    "evidence": "English-dominant body (100%) + Hebrew switcher link"
+  },
+  {
+    "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+    "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+    "url": "https://pardes.org.il/",
+    "detected": null,
+    "evidence": "fetch failed or non-HTML response"
+  },
+  {
+    "slug": "ponevezh-yeshiva",
+    "name": "Ponevezh Yeshiva",
+    "url": "https://www.ponevez.co.il/",
+    "detected": null,
+    "evidence": "ambiguous mixed body text (48% Hebrew), no lang attr to break the tie"
+  },
+  {
+    "slug": "rrc-israel-summer-term",
+    "name": "RRC Israel Summer Term",
+    "url": "https://rrc.edu/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "reichman-university-study-abroad",
+    "name": "Reichman University Study Abroad",
+    "url": "https://www.runi.ac.il/en/schools/rris",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "s-daniel-abraham-israel-program",
+    "name": "S. Daniel Abraham Israel Program",
+    "url": "https://www.yu.edu/israel-program",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "shapells-yeshiva-darche-noam",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "url": "https://darchenoam.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "shearim",
+    "name": "She'arim",
+    "url": "https://www.shearim.com",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "shnat-betar",
+    "name": "Shnat Betar",
+    "url": "https://betar.org.il/",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "shvilim-traveling-gap-year-program",
+    "name": "Shvilim Traveling Gap Year Program",
+    "url": "https://gap-year-israel.org/",
+    "detected": "BOTH",
+    "evidence": "English-dominant body (100%) + Hebrew switcher link"
+  },
+  {
+    "slug": "technion-american-medical-school-teams",
+    "name": "Technion American Medical School (TeAMS)",
+    "url": "https://teams.technion.ac.il/",
+    "detected": "ENGLISH",
+    "evidence": "body text 77% Latin characters"
+  },
+  {
+    "slug": "tel-abel-beth-maacah-excavation",
+    "name": "Tel Abel Beth Maacah Excavation",
+    "url": "https://www.abel-beth-maacah.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "tel-gezer-excavation",
+    "name": "Tel Gezer Excavation",
+    "url": "https://ngsba.org/excavations/tel-gezer/",
+    "detected": "BOTH",
+    "evidence": "English-dominant body (100%) + Hebrew switcher link"
+  },
+  {
+    "slug": "the-anne-samson-jerusalem-journey-tjj",
+    "name": "The Anne Samson Jerusalem Journey (TJJ)",
+    "url": "https://tjj.jsu.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "tichon-ramah-yerushalayim-try",
+    "name": "Tichon Ramah Yerushalayim (TRY)",
+    "url": "https://ramah.org.il/try/",
+    "detected": "ENGLISH",
+    "evidence": "body text 95% Latin characters"
+  },
+  {
+    "slug": "tomer-devorah-seminary",
+    "name": "Tomer Devorah Seminary",
+    "url": "https://www.tomerdevorah.net",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "torah-tech",
+    "name": "Torah Tech",
+    "url": "https://torahtech.co/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "urj-heller-high",
+    "name": "URJ Heller High",
+    "url": "https://www.hellerhigh.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "ulpan-or-sabra-immersion-program",
+    "name": "Ulpan-Or Sabra Immersion Program",
+    "url": "https://www.ulpanor.com/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "vertigo-international-dance-program-vidp",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "url": "https://vertigo.org.il/en/",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "yachad-gap-year",
+    "name": "Yachad Gap Year",
+    "url": "https://mechinot.org.il/en/yachad",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yad-byad",
+    "name": "Yad B'Yad",
+    "url": "https://www.yachad.org/israel",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yahel-social-change-fellowship",
+    "name": "Yahel Social Change Fellowship",
+    "url": "https://www.yahelisrael.com/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshiva-gedolah-yagdil-torah",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "url": "https://yagdiltorah.org",
+    "detected": null,
+    "evidence": "fetch failed or non-HTML response"
+  },
+  {
+    "slug": "yeshivas-bircas-hatorah",
+    "name": "Yeshivas Bircas HaTorah",
+    "url": "https://www.bircas.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivas-chofetz-chaim-yerushalayim",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "url": "https://yccy.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivas-nesivos-ahron",
+    "name": "Yeshivas Nesivos Ahron",
+    "url": "https://nesivosahron.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 99% Latin characters"
+  },
+  {
+    "slug": "yeshivas-zeev-hatorah",
+    "name": "Yeshivas Zeev Hatorah",
+    "url": "https://www.zeevhatorah.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivat-ateret-yerushalayim",
+    "name": "Yeshivat Ateret Yerushalayim",
+    "url": "https://www.ateret.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 99% Latin characters"
+  },
+  {
+    "slug": "yeshivat-drisha-shana-alef",
+    "name": "Yeshivat Drisha (Shana Alef)",
+    "url": "https://drisha.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivat-har-etzion-the-gush",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "url": "https://www.haretzion.org",
+    "detected": "BOTH",
+    "evidence": "English-dominant body (99%) + Hebrew switcher link"
+  },
+  {
+    "slug": "yeshivat-lev-hatorah",
+    "name": "Yeshivat Lev HaTorah",
+    "url": "https://levhatorah.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivat-merkaz-harav",
+    "name": "Yeshivat Merkaz HaRav",
+    "url": "https://mercazharav.org.il/",
+    "detected": "BOTH",
+    "evidence": "hreflang alternates advertise both en and he"
+  },
+  {
+    "slug": "yeshivat-netiv-aryeh",
+    "name": "Yeshivat Netiv Aryeh",
+    "url": "https://yna.edu",
+    "detected": "ENGLISH",
+    "evidence": "body text 99% Latin characters"
+  },
+  {
+    "slug": "yeshivat-ohr-yerushalayim",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "url": "https://www.ohryerushalayim.com",
+    "detected": "ENGLISH",
+    "evidence": "body text 98% Latin characters"
+  },
+  {
+    "slug": "yeshivat-otniel",
+    "name": "Yeshivat Otniel",
+    "url": "https://otniel.org/",
+    "detected": "HEBREW",
+    "evidence": "body text 96% Hebrew characters"
+  },
+  {
+    "slug": "yeshivat-reishit-yerushalayim",
+    "name": "Yeshivat Reishit Yerushalayim",
+    "url": "https://www.reishit.org",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "yeshivat-shaarei-mevaseret-zion",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "url": "https://www.ysmz.org/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "young-judaea-horizon-israel",
+    "name": "Young Judaea Horizon Israel",
+    "url": "https://www.youngjudaea.org/horizon-israel/",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "young-judaea-year-course-medical-track",
+    "name": "Young Judaea Year Course - Medical Track",
+    "url": "https://www.youngjudaea.org/programs/yearcourse/specialty-tracks/medical/",
+    "detected": null,
+    "evidence": "fetch failed or non-HTML response"
+  },
+  {
+    "slug": "yuval-yisrael-usy-israel-pilgrimage",
+    "name": "Yuval Yisrael (USY Israel Pilgrimage)",
+    "url": "https://www.usy.org/summer-travel",
+    "detected": "ENGLISH",
+    "evidence": "body text 100% Latin characters"
+  },
+  {
+    "slug": "ziegler-school-israel-summer-program",
+    "name": "Ziegler School Israel Summer Program",
+    "url": "https://www.aju.edu/ziegler-school-rabbinic-studies",
+    "detected": null,
+    "evidence": "fetch failed or non-HTML response"
+  }
+]

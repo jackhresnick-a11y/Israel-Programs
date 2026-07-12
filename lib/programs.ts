@@ -2,7 +2,14 @@ import slugify from "slugify";
 import { z } from "zod";
 import Fuse from "fuse.js";
 import { prisma } from "@/lib/prisma";
-import { DurationType, Prisma, ProgramStatus, TravelType } from "@/app/generated/prisma/client";
+import {
+  DurationType,
+  EmailVerificationStatus,
+  Prisma,
+  ProgramStatus,
+  TravelType,
+  WebsiteLanguage,
+} from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
 import { resolveTagsByName } from "@/lib/tags";
 
@@ -487,14 +494,41 @@ export async function listPublishedProgramNames() {
   });
 }
 
-export type ProgramContactEmail = { id: string; name: string; contactEmail: string | null };
+export type ProgramContactEmail = {
+  id: string;
+  slug: string;
+  name: string;
+  contactEmail: string | null;
+  contactWebsite: string | null;
+  websiteLanguage: WebsiteLanguage | null;
+  contactEmailStatus: EmailVerificationStatus | null;
+  contactEmailVerifiedAt: Date | null;
+};
 
-/** Every published program's contact email, for the admin bulk-email tab. Queried live so the list grows automatically as programs are added. */
+/** Every published program's contact email (plus the fields the admin bulk-email tab
+ * needs to section by website language and surface not-yet-verified emails). Queried
+ * live so the list grows automatically as programs are added. */
 export async function listProgramContactEmails(): Promise<ProgramContactEmail[]> {
   const rows = await prisma.program.findMany({
     where: { status: "PUBLISHED" },
-    select: { id: true, name: true, contactEmail: true },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      contactEmail: true,
+      contactWebsite: true,
+      websiteLanguage: true,
+      contactEmailStatus: true,
+      contactEmailVerifiedAt: true,
+    },
     orderBy: { name: "asc" },
   });
   return rows.map((r) => ({ ...r, contactEmail: r.contactEmail?.trim() || null }));
+}
+
+/** Admin-only: sets (or clears, with null) a program's detected/corrected website
+ * language. See prisma/classify-website-language.ts for the one-time detection pass
+ * this overrides/backfills by hand. */
+export async function setProgramWebsiteLanguage(id: string, language: WebsiteLanguage | null) {
+  return prisma.program.update({ where: { id }, data: { websiteLanguage: language } });
 }
