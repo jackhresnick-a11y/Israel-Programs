@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { requireRole } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import { isVercelBlobUrl } from "@/lib/blob";
 
 export async function DELETE(
   _request: Request,
@@ -23,11 +24,15 @@ export async function DELETE(
 
   // Best-effort: the DB row is the source of truth for what's "deleted", so
   // don't fail the request over a Blob-side cleanup issue -- but do clean up
-  // the underlying object rather than leaving it orphaned in the store.
-  try {
-    await del(video.url);
-  } catch (err) {
-    console.error("Failed to delete blob for video", id, video.url, err);
+  // the underlying object rather than leaving it orphaned in the store. Only
+  // legacy Blob-hosted rows need this; a YouTube/Vimeo embed URL was never a
+  // blob object, so calling del() on it would just be a guaranteed failure.
+  if (isVercelBlobUrl(video.url)) {
+    try {
+      await del(video.url);
+    } catch (err) {
+      console.error("Failed to delete blob for video", id, video.url, err);
+    }
   }
 
   return NextResponse.json({ ok: true });
