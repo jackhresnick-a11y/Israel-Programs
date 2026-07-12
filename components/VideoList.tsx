@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { isEmbedUrl } from "@/lib/videoEmbed";
 
 type Video = {
   id: string;
@@ -13,11 +14,12 @@ const MAX_LOAD_RETRIES = 4;
 const RETRY_DELAY_MS = 1500;
 
 /**
- * A freshly-uploaded blob can occasionally 404/error on its first load if
- * the CDN edge the browser hits hasn't picked up the object yet, which
- * otherwise sticks as a permanent black box until a manual page reload.
- * Retry a few times with a cache-busting query param instead of giving up
- * after the first error.
+ * YouTube/Vimeo videos render as an embed iframe; legacy Vercel Blob file
+ * URLs keep the <video> element. For the blob path: a freshly-uploaded blob
+ * can occasionally 404/error on its first load if the CDN edge the browser
+ * hits hasn't picked up the object yet, which otherwise sticks as a
+ * permanent black box until a manual page reload. Retry a few times with a
+ * cache-busting query param instead of giving up after the first error.
  */
 export function VideoPlayer({ url }: { url: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -35,6 +37,20 @@ export function VideoPlayer({ url }: { url: string }) {
       setSrc(`${url}?retry=${retriesRef.current}`);
       videoRef.current?.load();
     }, RETRY_DELAY_MS * retriesRef.current);
+  }
+
+  if (isEmbedUrl(url)) {
+    return (
+      <iframe
+        src={url}
+        title="Program video"
+        className="aspect-video w-full rounded-lg border border-border"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        loading="lazy"
+        allowFullScreen
+      />
+    );
   }
 
   if (failed) {

@@ -1,52 +1,50 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { parseVideoLink } from "@/lib/videoEmbed";
 
+/**
+ * Adds a video to a program by YouTube/Vimeo link. Direct file upload (to
+ * Vercel Blob) was removed: video egress through Blob is what suspended the
+ * store on the Hobby plan, so hosting stays on the video platforms and the
+ * site only stores the canonical embed URL (see lib/videoEmbed.ts).
+ */
 export default function VideoUploader({ programId }: { programId: string }) {
   const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
+  const [link, setLink] = useState("");
   const [caption, setCaption] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!file) return;
-    setUploading(true);
+    if (!parseVideoLink(link)) {
+      setError("That doesn't look like a YouTube or Vimeo link.");
+      return;
+    }
+    setSaving(true);
     setError(null);
 
     try {
-      const blob = await upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/videos/upload",
-        multipart: true,
-      });
-
       const res = await fetch(`/api/programs/${programId}/videos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: blob.url,
-          filename: file.name,
-          mimeType: file.type,
-          caption: caption || undefined,
-        }),
+        body: JSON.stringify({ url: link, caption: caption || undefined }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to upload video");
+        throw new Error(body.error ?? "Failed to add video");
       }
-      setFile(null);
+      setLink("");
       setCaption("");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload video");
+      setError(err instanceof Error ? err.message : "Failed to add video");
     } finally {
-      setUploading(false);
+      setSaving(false);
     }
   }
 
@@ -58,9 +56,10 @@ export default function VideoUploader({ programId }: { programId: string }) {
         </p>
       )}
       <Input
-        type="file"
-        accept="video/mp4,video/webm,video/quicktime"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        type="url"
+        placeholder="YouTube or Vimeo link (e.g. https://youtu.be/...)"
+        value={link}
+        onChange={(e) => setLink(e.target.value)}
       />
       <Input
         type="text"
@@ -68,8 +67,12 @@ export default function VideoUploader({ programId }: { programId: string }) {
         value={caption}
         onChange={(e) => setCaption(e.target.value)}
       />
-      <Button type="submit" size="sm" disabled={!file || uploading} className="w-fit">
-        {uploading ? "Uploading..." : "Upload video"}
+      <p className="text-xs text-muted">
+        Upload your video to YouTube (unlisted is fine) or Vimeo first, then
+        paste the link here.
+      </p>
+      <Button type="submit" size="sm" disabled={!link || saving} className="w-fit">
+        {saving ? "Adding..." : "Add video"}
       </Button>
     </form>
   );
