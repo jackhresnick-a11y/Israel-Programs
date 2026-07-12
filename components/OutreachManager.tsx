@@ -8,6 +8,8 @@ import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Badge, { type BadgeTone } from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
+import { categorizeProgram, groupByCategory, CATEGORY_KEYS, CATEGORY_LABELS, type CategoryKey } from "@/lib/outreachCategories";
+import type { DurationType } from "@/app/generated/prisma/enums";
 
 type OutreachStatus = "DRAFT" | "APPROVED" | "SENT" | "BOUNCED" | "REPLIED" | "WRONG_CONTACT";
 
@@ -31,10 +33,12 @@ type EligibleProgram = {
   slug: string;
   name: string;
   location: string | null;
-  durationType: string;
+  durationType: DurationType;
   contactEmail: string | null;
   contactEmailSource: string | null;
   websiteLanguage: WebsiteLanguage | null;
+  outreachCategory: string | null;
+  tags: { slug: string; category: string | null }[];
   outreachEmail: OutreachEmail | null;
 };
 
@@ -115,6 +119,36 @@ function LanguageBadge({ language }: { language: WebsiteLanguage | null }) {
   return <Badge tone="tag">{LANGUAGE_LABELS[language]}</Badge>;
 }
 
+/** Auto (null override -- heuristic rules apply) + the nine CATEGORY_KEYS (including
+ * "other"). Selecting a value POSTs the override; selecting "Auto" clears it back to
+ * null. Shown on every row in both the "no draft yet" and Drafts sections, since a
+ * program's category can be corrected wherever it's seen. */
+function CategoryDropdown({
+  program,
+  onChange,
+  disabled,
+}: {
+  program: EligibleProgram;
+  onChange: (programId: string, category: CategoryKey | null) => void;
+  disabled: boolean;
+}) {
+  return (
+    <select
+      value={program.outreachCategory ?? ""}
+      disabled={disabled}
+      onChange={(e) => onChange(program.id, e.target.value ? (e.target.value as CategoryKey) : null)}
+      className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
+    >
+      <option value="">Auto ({CATEGORY_LABELS[categorizeProgram({ ...program, outreachCategory: null })]})</option>
+      {CATEGORY_KEYS.map((key) => (
+        <option key={key} value={key}>
+          {CATEGORY_LABELS[key]}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 async function postJson(url: string, body?: unknown) {
   const res = await fetch(url, {
     method: "POST",
@@ -141,6 +175,7 @@ export default function OutreachManager({
   const [programs, setPrograms] = useState(eligible);
   const [templates, setTemplates] = useState(initialTemplates);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
+  const [selectedGenerateIds, setSelectedGenerateIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editSubject, setEditSubject] = useState("");
   const [editBody, setEditBody] = useState("");
@@ -167,6 +202,7 @@ export default function OutreachManager({
     () => approved.filter((p) => matchesLanguageFilter(p, approvedLanguageFilter)),
     [approved, approvedLanguageFilter]
   );
+  const noDraftGrouped = useMemo(() => groupByCategory(noDraft), [noDraft]);
 
   function updateOutreach(programId: string, patch: Partial<OutreachEmail>) {
     setPrograms((cur) =>
@@ -204,6 +240,61 @@ export default function OutreachManager({
     } finally {
       setBusy(null);
     }
+  }
+
+  async function handleGenerateSelected() {
+    const ids = [...selectedGenerateIds];
+    if (ids.length === 0) return;
+    setBusy("generate-selected");
+    try {
+      const result = await postJson("/api/admin/outreach/generate-drafts", { programIds: ids });
+      toast(`Generated ${result.created} draft(s) (${result.skippedExisting} already had one)`);
+      setSelectedGenerateIds(new Set());
+      router.refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to generate drafts");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  /** POSTs a manual category override (or null to revert to "Auto") for one program
+   * and updates local state so its row moves to the new group immediately -- this is
+   * the "add/remove a program from a category" control. */
+  async function handleSetCategory(programId: string, category: CategoryKey | null) {
+    const prev = programs.find((p) => p.id === programId)?.outreachCategory ?? null;
+    setPrograms((cur) => cur.map((p) => (p.id === programId ? { ...p, outreachCategory: category } : p)));
+    try {
+      await postJson(`/api/admin/programs/${programId}/outreach-category`, { category });
+    } catch (err) {
+      setPrograms((cur) => cur.map((p) => (p.id === programId ? { ...p, outreachCategory: prev } : p)));
+      toast(err instanceof Error ? err.message : "Failed to update category");
+    }
+  }
+
+  function toggleGenerateSelected(programId: string) {
+    setSelectedGenerateIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(programId)) next.delete(programId);
+      else next.add(programId);
+      return next;
+    });
+  }
+
+  function selectAllInCategory(categoryPrograms: EligibleProgram[]) {
+    setSelectedGenerateIds((prev) => {
+      const next = new Set(prev);
+      categoryPrograms.forEach((p) => next.add(p.id));
+      return next;
+    });
+  }
+
+  function selectAllGenerate() {
+    setSelectedGenerateIds(new Set(noDraft.map((p) => p.id)));
+  }
+
+  function selectNoneGenerate() {
+    setSelectedGenerateIds(new Set());
   }
 
   function startEdit(program: EligibleProgram) {
@@ -434,14 +525,76 @@ export default function OutreachManager({
       </section>
 
       {/* Generate */}
-      <section className="flex items-center justify-between gap-3 rounded-xl border border-border p-4">
-        <p className="text-sm text-foreground">
-          {noDraft.length} eligible program(s) have no draft yet. {drafts.length} draft(s), {approved.length} approved,{" "}
-          {actioned.length} sent/actioned.
-        </p>
-        <Button onClick={handleGenerateDrafts} disabled={busy === "generate" || noDraft.length === 0}>
-          {busy === "generate" ? "Generating..." : `Generate ${noDraft.length} draft(s)`}
-        </Button>
+      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-foreground">
+            {noDraft.length} eligible program(s) have no draft yet. {drafts.length} draft(s), {approved.length} approved,{" "}
+            {actioned.length} sent/actioned.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={handleGenerateDrafts}
+              disabled={busy === "generate" || noDraft.length === 0}
+            >
+              {busy === "generate" ? "Generating..." : `Generate all (${noDraft.length})`}
+            </Button>
+            <Button
+              onClick={handleGenerateSelected}
+              disabled={busy === "generate-selected" || selectedGenerateIds.size === 0}
+            >
+              {busy === "generate-selected"
+                ? "Generating..."
+                : `Generate drafts for selected (${selectedGenerateIds.size})`}
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button size="sm" variant="secondary" onClick={selectAllGenerate} disabled={noDraft.length === 0}>
+            Select all ({noDraft.length})
+          </Button>
+          <Button size="sm" variant="secondary" onClick={selectNoneGenerate} disabled={selectedGenerateIds.size === 0}>
+            Select none
+          </Button>
+          <span className="text-sm text-muted">{selectedGenerateIds.size} selected</span>
+        </div>
+        <div className="flex flex-col gap-4">
+          {CATEGORY_KEYS.map((key) => {
+            const categoryPrograms = noDraftGrouped[key];
+            if (categoryPrograms.length === 0) return null;
+            return (
+              <div key={key} className="flex flex-col gap-2 rounded-lg border border-border">
+                <div className="flex items-center justify-between gap-3 border-b border-border bg-surface-muted p-3">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {CATEGORY_LABELS[key]} ({categoryPrograms.length})
+                  </h3>
+                  <Button size="sm" variant="secondary" onClick={() => selectAllInCategory(categoryPrograms)}>
+                    Select all
+                  </Button>
+                </div>
+                <div className="flex flex-col divide-y divide-border">
+                  {categoryPrograms.map((program) => (
+                    <div key={program.id} className="flex flex-wrap items-center gap-3 p-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedGenerateIds.has(program.id)}
+                        onChange={() => toggleGenerateSelected(program.id)}
+                        className="h-4 w-4 accent-accent"
+                      />
+                      <Link href={`/programs/${program.slug}/edit`} className="font-medium text-foreground hover:underline">
+                        {program.name}
+                      </Link>
+                      <LanguageBadge language={program.websiteLanguage} />
+                      <span className="text-xs text-muted">{program.contactEmail}</span>
+                      <CategoryDropdown program={program} onChange={handleSetCategory} disabled={busy !== null} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          {noDraft.length === 0 && <p className="text-sm text-muted">Every eligible program already has a draft.</p>}
+        </div>
       </section>
 
       {/* Drafts */}
@@ -507,6 +660,7 @@ export default function OutreachManager({
                   {oe.edited && <Badge tone="info">Hand-edited</Badge>}
                   {oe.toEmailOverridden && <Badge tone="warning">Redirected</Badge>}
                   <span className="text-xs text-muted">{oe.toEmail}</span>
+                  <CategoryDropdown program={program} onChange={handleSetCategory} disabled={busy !== null} />
                 </div>
                 {isEditing ? (
                   <div className="flex flex-col gap-2 pl-7">

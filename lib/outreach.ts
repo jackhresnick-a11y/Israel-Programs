@@ -92,6 +92,8 @@ export async function listOutreachQueue() {
         contactEmail: true,
         contactEmailSource: true,
         websiteLanguage: true,
+        outreachCategory: true,
+        tags: { select: { slug: true, category: true } },
         outreachEmail: true,
       },
       orderBy: { name: "asc" },
@@ -110,18 +112,28 @@ export async function listOutreachQueue() {
   return { eligible, needsSourceCheck };
 }
 
-/** Upserts a DRAFT OutreachEmail for every eligible program missing one. Never
- * overwrites a row with edited: true (a hand-tuned draft survives regeneration), and
- * never touches a row that has moved past DRAFT (APPROVED/SENT/etc. are left alone --
- * regenerating drafts is not a way to undo a send or an outcome). */
-export async function generateDrafts(subjectTemplate: string, bodyTemplate: string) {
+/** Upserts a DRAFT OutreachEmail for eligible programs missing one. Never overwrites a
+ * row with edited: true (a hand-tuned draft survives regeneration), and never touches
+ * a row that has moved past DRAFT (APPROVED/SENT/etc. are left alone -- regenerating
+ * drafts is not a way to undo a send or an outcome).
+ *
+ * `programIds`, when given, restricts the run to exactly those programs -- an id
+ * that's ineligible (or simply not a real program) is silently skipped rather than
+ * erroring, since the eligibility check is the same live query either way and a
+ * stale/bad id shouldn't abort an otherwise-valid selection. Omitting `programIds`
+ * keeps the original generate-everything behavior (the "Generate all" button). */
+export async function generateDrafts(subjectTemplate: string, bodyTemplate: string, programIds?: string[]) {
   const { eligible } = await listOutreachQueue();
+  const targets = programIds ? new Set(programIds) : null;
   const durationLabels = await getDurationLabelMap();
 
   let created = 0;
   let skippedExisting = 0;
 
   for (const program of eligible) {
+    if (targets && !targets.has(program.id)) {
+      continue;
+    }
     if (program.outreachEmail) {
       skippedExisting++;
       continue;

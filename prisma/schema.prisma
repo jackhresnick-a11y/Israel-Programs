@@ -111,6 +111,16 @@ model Program {
   /// contactEmailStatus above, so it's excluded from the ProgramEdit field-decision
   /// pipeline and only ever written by the admin-only website-language route.
   websiteLanguage        WebsiteLanguage?
+  /// Manual override for the admin outreach tool's category grouping (see
+  /// lib/outreachCategories.ts's categorizeProgram, which uses this value when set
+  /// and falls back to heuristic rules over tags/websiteLanguage/durationType/name
+  /// when null). A plain string (validated against the category-key union at the API
+  /// layer, app/api/admin/programs/[id]/outreach-category/route.ts) rather than a
+  /// Postgres enum on purpose -- these categories are admin-workflow labels expected
+  /// to be renamed/split as the outreach tool evolves, and a string column makes that
+  /// a code change instead of a migration each time. Same ownership boundary as
+  /// websiteLanguage/contactEmailStatus above: admin-only, not proposable content.
+  outreachCategory       String?
   hasScholarship         Boolean?
   hasCollegeCredit       Boolean?
   travelType             TravelType?

@@ -544,3 +544,13 @@ export async function listProgramContactEmails(): Promise<ProgramContactEmail[]>
 export async function setProgramWebsiteLanguage(id: string, language: WebsiteLanguage | null) {
   return prisma.program.update({ where: { id }, data: { websiteLanguage: language } });
 }
+
+/** Admin-only: sets (or clears, with null) a manual override for the outreach tool's
+ * category grouping. null means "categorize automatically" -- see
+ * lib/outreachCategories.ts's categorizeProgram, which this value feeds into.
+ * Validation that `category` is one of CATEGORY_KEYS happens at the API layer
+ * (app/api/admin/programs/[id]/outreach-category/route.ts), not here, so this stays a
+ * thin Prisma wrapper matching setProgramWebsiteLanguage's shape. */
+export async function setProgramOutreachCategory(id: string, category: string | null) {
+  return prisma.program.update({ where: { id }, data: { outreachCategory: category } });
+}
