@@ -93,6 +93,30 @@ export function getOutreachFromAddress(): string | null {
   return address.toLowerCase().endsWith(OUTREACH_DOMAIN) ? from : null;
 }
 
+const DEFAULT_OUTREACH_REPLY_TO = "jackhresnick@gmail.com";
+
+/** Extracts and cleans REPLY_TO_ADDRESS the same way getOutreachFromAddress cleans
+ * RESEND_FROM (trims whitespace, strips one layer of surrounding quotes -- the same
+ * paste-mistake tolerance). Unlike getOutreachFromAddress, this never returns null and
+ * has no domain restriction: Reply-To has no DKIM/SPF/DMARC implications (those apply
+ * to From, which stays on israelprogramswiki.com), so it can point at any inbox the
+ * admin actually reads -- falls back to DEFAULT_OUTREACH_REPLY_TO when unset or empty
+ * after cleanup, so outreach always has a Reply-To without requiring the env var. */
+export function getOutreachReplyToAddress(): string {
+  const raw = process.env.REPLY_TO_ADDRESS;
+  if (!raw) return DEFAULT_OUTREACH_REPLY_TO;
+
+  let address = raw.trim();
+  if (address.length >= 2) {
+    const first = address[0];
+    const last = address[address.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      address = address.slice(1, -1).trim();
+    }
+  }
+  return address || DEFAULT_OUTREACH_REPLY_TO;
+}
+
 export type OutreachEmailInput = {
   to: string;
   subject: string;
@@ -106,7 +130,9 @@ export type OutreachSendResult = { ok: true; resendId: string } | { ok: false; e
  * message id (needed to correlate bounce webhooks back to the OutreachEmail row) and
  * a specific error string instead of a bare boolean, and refuses outright if
  * getOutreachFromAddress() can't produce a domain-valid sender -- there is no
- * onboarding@resend.dev fallback here.
+ * onboarding@resend.dev fallback here. Sets Reply-To (getOutreachReplyToAddress) so a
+ * program's reply lands in a real inbox the admin checks, since RESEND_FROM is a
+ * send-only address with no mailbox of its own.
  */
 export async function sendOutreachEmail(input: OutreachEmailInput): Promise<OutreachSendResult> {
   const from = getOutreachFromAddress();
@@ -123,6 +149,7 @@ export async function sendOutreachEmail(input: OutreachEmailInput): Promise<Outr
     const { data, error } = await resend.emails.send({
       from,
       to: input.to,
+      replyTo: getOutreachReplyToAddress(),
       subject: input.subject,
       text: input.text,
     });
