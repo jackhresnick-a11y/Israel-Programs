@@ -494,6 +494,18 @@ export async function listPublishedProgramNames() {
   });
 }
 
+/** Slug + last-modified timestamp for every publicly-reachable program, for
+ * app/sitemap.ts. Filtered to PUBLISHED to match app/programs/[slug]/page.tsx's own
+ * visibility check -- a PENDING/REJECTED program 404s for anonymous visitors, so it
+ * must never appear in the sitemap either. */
+export async function listPublishedProgramSlugsForSitemap() {
+  return prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true, updatedAt: true },
+    orderBy: { slug: "asc" },
+  });
+}
+
 export type ProgramContactEmail = {
   id: string;
   slug: string;
