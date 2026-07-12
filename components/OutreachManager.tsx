@@ -23,6 +23,9 @@ type OutreachEmail = {
   sentAt: Date | null;
 };
 
+type WebsiteLanguage = "ENGLISH" | "HEBREW" | "BOTH";
+type LanguageFilter = "ALL" | WebsiteLanguage | "UNCLASSIFIED";
+
 type EligibleProgram = {
   id: string;
   slug: string;
@@ -31,6 +34,7 @@ type EligibleProgram = {
   durationType: string;
   contactEmail: string | null;
   contactEmailSource: string | null;
+  websiteLanguage: WebsiteLanguage | null;
   outreachEmail: OutreachEmail | null;
 };
 
@@ -50,6 +54,66 @@ const STATUS_TONE: Record<OutreachStatus, BadgeTone> = {
   REPLIED: "success",
   WRONG_CONTACT: "warning",
 };
+
+const LANGUAGE_LABELS: Record<WebsiteLanguage, string> = {
+  ENGLISH: "English",
+  HEBREW: "Hebrew",
+  BOTH: "English + Hebrew",
+};
+
+const LANGUAGE_FILTER_CHIPS: { key: LanguageFilter; label: string }[] = [
+  { key: "ALL", label: "All" },
+  { key: "ENGLISH", label: "English" },
+  { key: "HEBREW", label: "Hebrew" },
+  { key: "BOTH", label: "Both" },
+  { key: "UNCLASSIFIED", label: "Unclassified" },
+];
+
+function matchesLanguageFilter(program: EligibleProgram, filter: LanguageFilter): boolean {
+  if (filter === "ALL") return true;
+  if (filter === "UNCLASSIFIED") return !program.websiteLanguage;
+  return program.websiteLanguage === filter;
+}
+
+/** Shared filter-chip row used above both the Drafts and Approved lists -- counts are
+ * computed from the full (unfiltered) set passed in, so they never shift as the admin
+ * clicks between chips. */
+function LanguageFilterChips({
+  programs,
+  active,
+  onChange,
+}: {
+  programs: EligibleProgram[];
+  active: LanguageFilter;
+  onChange: (filter: LanguageFilter) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {LANGUAGE_FILTER_CHIPS.map((chip) => {
+        const count = programs.filter((p) => matchesLanguageFilter(p, chip.key)).length;
+        return (
+          <button
+            key={chip.key}
+            type="button"
+            onClick={() => onChange(chip.key)}
+            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+              active === chip.key
+                ? "border-accent bg-accent text-accent-foreground"
+                : "border-border text-muted hover:bg-surface-muted"
+            }`}
+          >
+            {chip.label} ({count})
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function LanguageBadge({ language }: { language: WebsiteLanguage | null }) {
+  if (!language) return null;
+  return <Badge tone="tag">{LANGUAGE_LABELS[language]}</Badge>;
+}
 
 async function postJson(url: string, body?: unknown) {
   const res = await fetch(url, {
@@ -82,6 +146,8 @@ export default function OutreachManager({
   const [editBody, setEditBody] = useState("");
   const [editToEmail, setEditToEmail] = useState("");
   const [busy, setBusy] = useState<string | null>(null); // a coarse "something is loading" key
+  const [draftLanguageFilter, setDraftLanguageFilter] = useState<LanguageFilter>("ALL");
+  const [approvedLanguageFilter, setApprovedLanguageFilter] = useState<LanguageFilter>("ALL");
 
   const noDraft = programs.filter((p) => !p.outreachEmail);
   const drafts = programs.filter((p) => p.outreachEmail?.status === "DRAFT");
@@ -92,6 +158,14 @@ export default function OutreachManager({
   const draftSelectionEmails = useMemo(
     () => drafts.filter((p) => p.outreachEmail && selectedDraftIds.has(p.outreachEmail.id)),
     [drafts, selectedDraftIds]
+  );
+  const draftsFiltered = useMemo(
+    () => drafts.filter((p) => matchesLanguageFilter(p, draftLanguageFilter)),
+    [drafts, draftLanguageFilter]
+  );
+  const approvedFiltered = useMemo(
+    () => approved.filter((p) => matchesLanguageFilter(p, approvedLanguageFilter)),
+    [approved, approvedLanguageFilter]
   );
 
   function updateOutreach(programId: string, patch: Partial<OutreachEmail>) {
@@ -230,6 +304,38 @@ export default function OutreachManager({
     });
   }
 
+  /** Selects exactly the currently-filtered (shown) draft rows -- combined with a
+   * language chip, this is the "approve/delete only English websites" flow: pick a
+   * chip, select all shown, then Approve selected (targeting who gets emailed) or
+   * Delete selected. */
+  function selectAllShown() {
+    setSelectedDraftIds(new Set(draftsFiltered.map((p) => p.outreachEmail!.id)));
+  }
+
+  function selectNone() {
+    setSelectedDraftIds(new Set());
+  }
+
+  async function deleteAllDrafts() {
+    const ids = drafts.map((p) => p.outreachEmail!.id);
+    if (ids.length === 0) return;
+    if (!confirm(`Delete ALL ${ids.length} draft(s)? This ignores the current filter and removes every draft, not just what's shown. Programs and their real contact data are never touched.`)) {
+      return;
+    }
+    setBusy("delete-all");
+    try {
+      const result = await postJson("/api/admin/outreach/delete", { ids });
+      const deletedIds = new Set(drafts.map((p) => p.id));
+      setPrograms((cur) => cur.map((p) => (deletedIds.has(p.id) ? { ...p, outreachEmail: null } : p)));
+      setSelectedDraftIds(new Set());
+      toast(`Deleted ${result.deleted} of ${result.requested} draft(s)`);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to delete all drafts");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function approveIds(ids: string[]) {
     if (ids.length === 0) return;
     setBusy("approve");
@@ -342,6 +448,26 @@ export default function OutreachManager({
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground">Drafts ({drafts.length})</h2>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={drafts.length === 0 || busy === "delete-all"}
+            onClick={deleteAllDrafts}
+          >
+            {busy === "delete-all" ? "Deleting..." : `Delete all drafts (${drafts.length})`}
+          </Button>
+        </div>
+        <LanguageFilterChips programs={drafts} active={draftLanguageFilter} onChange={setDraftLanguageFilter} />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Button size="sm" variant="secondary" onClick={selectAllShown} disabled={draftsFiltered.length === 0}>
+              Select all shown ({draftsFiltered.length})
+            </Button>
+            <Button size="sm" variant="secondary" onClick={selectNone} disabled={selectedDraftIds.size === 0}>
+              Select none
+            </Button>
+            <span className="text-sm text-muted">{selectedDraftIds.size} selected</span>
+          </div>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -361,8 +487,8 @@ export default function OutreachManager({
           </div>
         </div>
         <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
-          {drafts.length === 0 && <p className="p-4 text-sm text-muted">No drafts.</p>}
-          {drafts.map((program) => {
+          {draftsFiltered.length === 0 && <p className="p-4 text-sm text-muted">No drafts{draftLanguageFilter !== "ALL" ? " match this filter" : ""}.</p>}
+          {draftsFiltered.map((program) => {
             const oe = program.outreachEmail!;
             const isEditing = editingId === oe.id;
             return (
@@ -377,6 +503,7 @@ export default function OutreachManager({
                   <Link href={`/programs/${program.slug}/edit`} className="font-medium text-foreground hover:underline">
                     {program.name}
                   </Link>
+                  <LanguageBadge language={program.websiteLanguage} />
                   {oe.edited && <Badge tone="info">Hand-edited</Badge>}
                   {oe.toEmailOverridden && <Badge tone="warning">Redirected</Badge>}
                   <span className="text-xs text-muted">{oe.toEmail}</span>
@@ -434,9 +561,18 @@ export default function OutreachManager({
             {busy === "send" ? "Sending..." : `Send next batch (up to ${templates.outreachBatchSize})`}
           </Button>
         </div>
+        <p className="text-xs text-muted">
+          Send next batch sends every approved row regardless of language -- to send only one language, approve just
+          that filtered selection above before clicking send.
+        </p>
+        <LanguageFilterChips programs={approved} active={approvedLanguageFilter} onChange={setApprovedLanguageFilter} />
         <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
-          {approved.length === 0 && <p className="p-4 text-sm text-muted">Nothing approved yet.</p>}
-          {approved.map((program) => {
+          {approvedFiltered.length === 0 && (
+            <p className="p-4 text-sm text-muted">
+              {approved.length === 0 ? "Nothing approved yet." : "No approved drafts match this filter."}
+            </p>
+          )}
+          {approvedFiltered.map((program) => {
             const oe = program.outreachEmail!;
             return (
               <div key={program.id} className="flex items-center justify-between gap-3 p-4">
@@ -444,6 +580,7 @@ export default function OutreachManager({
                   <Link href={`/programs/${program.slug}/edit`} className="font-medium text-foreground hover:underline">
                     {program.name}
                   </Link>
+                  <LanguageBadge language={program.websiteLanguage} />
                   {oe.toEmailOverridden && <Badge tone="warning">Redirected</Badge>}
                   <span className="text-xs text-muted">{oe.toEmail}</span>
                 </div>

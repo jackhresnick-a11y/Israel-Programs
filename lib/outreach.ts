@@ -91,6 +91,7 @@ export async function listOutreachQueue() {
         durationType: true,
         contactEmail: true,
         contactEmailSource: true,
+        websiteLanguage: true,
         outreachEmail: true,
       },
       orderBy: { name: "asc" },
