@@ -74,7 +74,10 @@ export async function POST() {
       skippedUnpublished++;
       continue;
     }
-    if (row.program.contactEmail !== row.toEmail) {
+    // A deliberately overridden toEmail (e.g. an admin redirecting a test draft to
+    // their own inbox) is *expected* to differ from the program's real contactEmail --
+    // only an un-overridden mismatch means the address drifted underneath the draft.
+    if (!row.toEmailOverridden && row.program.contactEmail !== row.toEmail) {
       await prisma.outreachEmail.update({
         where: { id: row.id },
         data: {

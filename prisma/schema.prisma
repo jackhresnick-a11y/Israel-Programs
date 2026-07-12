@@ -149,6 +149,13 @@ model OutreachEmail {
   program      Program        @relation(fields: [programId], references: [id])
   status       OutreachStatus @default(DRAFT)
   toEmail      String
+  /// True once an admin hand-edits toEmail away from the program's real contactEmail
+  /// (e.g. redirecting a test draft to their own inbox). send-batch's drift guard
+  /// normally reverts a row to DRAFT if toEmail no longer matches the program's
+  /// current contactEmail -- this flag distinguishes "admin did this on purpose" from
+  /// "the contact email changed underneath the draft," so an overridden row is still
+  /// allowed to send to its overridden address instead of being silently reverted.
+  toEmailOverridden Boolean   @default(false)
   subject      String
   body         String
   /// True once an admin hand-edits subject/body -- generateDrafts() skips

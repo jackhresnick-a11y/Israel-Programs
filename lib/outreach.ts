@@ -143,10 +143,30 @@ export async function generateDrafts(subjectTemplate: string, bodyTemplate: stri
   return { created, skippedExisting };
 }
 
-export async function updateDraft(id: string, input: { subject?: string; body?: string }) {
-  const data: { subject?: string; body?: string; edited: boolean } = { edited: true };
+/** DRAFT-only: subject/body/toEmail can only be hand-edited before approval, so a
+ * SENT/BOUNCED/etc. row's history (and the audit trail send-batch relies on) can
+ * never be rewritten after the fact. Setting toEmail marks toEmailOverridden: true,
+ * which is what lets send-batch's stale-address drift guard distinguish "admin
+ * redirected this on purpose" from "the program's contactEmail changed underneath
+ * it" -- see the schema comment on OutreachEmail.toEmailOverridden. */
+export async function updateDraft(
+  id: string,
+  input: { subject?: string; body?: string; toEmail?: string }
+) {
+  const existing = await prisma.outreachEmail.findUniqueOrThrow({ where: { id } });
+  if (existing.status !== "DRAFT") {
+    throw new Error("Only DRAFT rows can be edited");
+  }
+
+  const data: { subject?: string; body?: string; toEmail?: string; toEmailOverridden?: boolean; edited: boolean } = {
+    edited: true,
+  };
   if (input.subject !== undefined) data.subject = input.subject;
   if (input.body !== undefined) data.body = input.body;
+  if (input.toEmail !== undefined) {
+    data.toEmail = input.toEmail;
+    data.toEmailOverridden = true;
+  }
   return prisma.outreachEmail.update({ where: { id }, data });
 }
 
@@ -154,6 +174,20 @@ export async function approveDrafts(ids: string[], adminId: string) {
   return prisma.outreachEmail.updateMany({
     where: { id: { in: ids }, status: "DRAFT" },
     data: { status: "APPROVED", approvedById: adminId, approvedAt: new Date() },
+  });
+}
+
+/** Deletes OutreachEmail rows only -- Program is never touched by this function (no
+ * Program read, no Program write; the where-clause only ever matches OutreachEmail
+ * rows by id/status). Restricted to DRAFT/APPROVED: a SENT/BOUNCED/REPLIED/
+ * WRONG_CONTACT row is the outreach history and, for SENT rows, the resendId that
+ * lets a later bounce webhook find its way back -- deleting one would silently erase
+ * the send record and orphan any bounce that arrives afterward. Returns the actual
+ * deleted count so the caller can tell the admin when some selected rows were
+ * protected and skipped rather than silently doing less than asked. */
+export async function deleteDrafts(ids: string[]) {
+  return prisma.outreachEmail.deleteMany({
+    where: { id: { in: ids }, status: { in: ["DRAFT", "APPROVED"] } },
   });
 }
 
