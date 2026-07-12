@@ -14,9 +14,15 @@ datasource db {
 
 enum DurationType {
   TEN_DAY
+  SHORT
   SUMMER
   SEMESTER
   GAP_YEAR
+  MULTI_YEAR
+  ONGOING
+  /// Retired 2026-07-12 taxonomy pass -- no programs use this value anymore, kept in
+  /// the enum (Postgres can't drop enum values in place) rather than force a data
+  /// migration on any external reference. New programs should never be assigned CUSTOM.
   CUSTOM
 }
 

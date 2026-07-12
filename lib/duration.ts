@@ -11,14 +11,37 @@ import { prisma } from "@/lib/prisma";
 // instead, which is what makes it safe to import lib/prisma (a server-only module) here.
 export const DURATION_LABELS: Record<DurationType, string> = {
   TEN_DAY: "10-Day Trip",
+  SHORT: "Short (2-10 weeks)",
   SUMMER: "Summer Program",
   SEMESTER: "Semester",
   GAP_YEAR: "Gap Year",
+  MULTI_YEAR: "Multi-Year / Degree",
+  ONGOING: "Ongoing / Flexible",
   CUSTOM: "Custom",
 };
 
+/** Synthesized fallback used only if the DurationOption table itself can't be read
+ * (e.g. a DB enum value the deployed Prisma client doesn't know about yet -- see the
+ * 2026-07-12 outage, where a committed-but-undeployed enum migration left prod's
+ * client throwing P2023 on every page that read this table). Keeps the site degraded
+ * -- default labels, CUSTOM hidden -- rather than fully down. */
+function fallbackDurationOptions() {
+  return (Object.keys(DURATION_LABELS) as DurationType[]).map((value, order) => ({
+    id: `fallback-${value}`,
+    value,
+    label: DURATION_LABELS[value],
+    order,
+    showInFilter: value !== "CUSTOM",
+  }));
+}
+
 export async function listDurationOptions() {
-  return prisma.durationOption.findMany({ orderBy: { order: "asc" } });
+  try {
+    return await prisma.durationOption.findMany({ orderBy: { order: "asc" } });
+  } catch (err) {
+    console.error("listDurationOptions: DurationOption table unreadable, using static fallback", err);
+    return fallbackDurationOptions();
+  }
 }
 
 export async function updateDurationOption(
@@ -53,6 +76,11 @@ export function durationLabelMapFromOptions(
  * DB label where a DurationOption row exists, DURATION_LABELS as the fallback otherwise
  * (e.g. a DurationType value added to the enum before its row was seeded). */
 export async function getDurationLabelMap(): Promise<Record<DurationType, string>> {
-  const rows = await prisma.durationOption.findMany();
-  return durationLabelMapFromOptions(rows);
+  try {
+    const rows = await prisma.durationOption.findMany();
+    return durationLabelMapFromOptions(rows);
+  } catch (err) {
+    console.error("getDurationLabelMap: DurationOption table unreadable, using static fallback", err);
+    return { ...DURATION_LABELS };
+  }
 }
