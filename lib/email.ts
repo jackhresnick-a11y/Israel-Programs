@@ -64,10 +64,28 @@ const OUTREACH_DOMAIN = "@israelprogramswiki.com";
  * from a shared/test address -- a program-facing "verify your listing" email must
  * come from the site's own domain (also required for the DKIM/SPF/DMARC records to
  * mean anything). Returns null if RESEND_FROM is unset or not on that domain, so the
- * caller can refuse the whole batch with a clear reason before attempting any send. */
+ * caller can refuse the whole batch with a clear reason before attempting any send.
+ *
+ * Tolerates the two most common paste mistakes when setting the value in a dashboard
+ * (surrounding quotes, leading/trailing whitespace) rather than rejecting an
+ * otherwise-correct value outright -- a stray `"..."` or trailing space around an
+ * env var is easy to introduce and easy to miss, and the previous strict version had
+ * no way to surface *why* a seemingly-correct-looking value was being rejected. This
+ * does not tolerate an actual domain typo -- that still returns null, correctly. */
 export function getOutreachFromAddress(): string | null {
-  const from = process.env.RESEND_FROM;
+  const raw = process.env.RESEND_FROM;
+  if (!raw) return null;
+
+  let from = raw.trim();
+  if (from.length >= 2) {
+    const first = from[0];
+    const last = from[from.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      from = from.slice(1, -1).trim();
+    }
+  }
   if (!from) return null;
+
   // Accepts either a bare address or "Display Name <address>" and checks the
   // domain of the actual address, not the display name.
   const match = from.match(/<([^>]+)>/);
