@@ -66,6 +66,15 @@ enum WebsiteLanguage {
   BOTH
 }
 
+enum OutreachStatus {
+  DRAFT
+  APPROVED
+  SENT
+  BOUNCED
+  REPLIED
+  WRONG_CONTACT
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -120,10 +129,41 @@ model Program {
   edits                  ProgramEdit[]
   references             Reference[]
   emailVerifications     ContactEmailVerification[]
+  outreachEmail          OutreachEmail?
 
   @@index([durationType])
   @@index([status])
   @@index([organizationId])
+}
+
+/// One outreach ("verify your listing") draft/send record per program -- @unique
+/// programId means regenerating drafts upserts in place rather than piling up rows.
+/// toEmail snapshots Program.contactEmail at draft time so send-batch can detect (and
+/// refuse to send against) a contactEmail that changed after approval. Status only
+/// ever advances via the admin-gated routes in app/api/admin/outreach/* or the
+/// signature-verified Resend bounce webhook -- never touched by import/seed code,
+/// same ownership boundary as contactEmailStatus above.
+model OutreachEmail {
+  id           String         @id @default(cuid())
+  programId    String         @unique
+  program      Program        @relation(fields: [programId], references: [id])
+  status       OutreachStatus @default(DRAFT)
+  toEmail      String
+  subject      String
+  body         String
+  /// True once an admin hand-edits subject/body -- generateDrafts() skips
+  /// regenerating a row with edited: true so a hand-tuned draft is never clobbered.
+  edited       Boolean        @default(false)
+  approvedById String?
+  approvedAt   DateTime?
+  sentAt       DateTime?
+  /// Resend's message id, set on send -- correlates the bounce webhook back to a row.
+  resendId     String?        @unique
+  note         String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([status])
 }
 
 /// Append-only log of human verification actions on Program.contactEmail. Snapshots the
