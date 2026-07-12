@@ -1,5 +1,12 @@
 import type { DurationType } from "@/app/generated/prisma/enums";
-import type { AIProvider, ParsedSearchQuery, ReviewSummary } from "./types";
+import type {
+  AIProvider,
+  ChatMessage,
+  ParsedSearchQuery,
+  ProgramCandidate,
+  RecommendationResult,
+  ReviewSummary,
+} from "./types";
 
 const DURATION_KEYWORDS: Record<string, DurationType> = {
   "10 day": "TEN_DAY",
@@ -57,5 +64,29 @@ export class NullProvider implements AIProvider {
       return `${programName} matches your basic criteria.`;
     }
     return `${programName} matches because: ${reasons.join("; ")}.`;
+  }
+
+  /** No network call -- the candidates are already a live-DB search result (see
+   * app/api/assistant/route.ts's stage 1), so surfacing the top few verbatim with a
+   * templated reply is a legitimate (if unconversational) answer, not a placeholder. */
+  async recommendPrograms(input: {
+    message: string;
+    history: ChatMessage[];
+    candidates: ProgramCandidate[];
+  }): Promise<RecommendationResult> {
+    const top = input.candidates.slice(0, 5);
+    if (top.length === 0) {
+      return {
+        reply: "I couldn't find any programs matching that. Try describing what you're looking for differently.",
+        recommendedSlugs: [],
+      };
+    }
+    return {
+      reply:
+        top.length === 1
+          ? "Here is 1 program matching your search:"
+          : `Here are ${top.length} programs matching your search:`,
+      recommendedSlugs: top.map((c) => c.slug),
+    };
   }
 }

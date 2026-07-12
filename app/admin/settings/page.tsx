@@ -8,6 +8,7 @@ import BackgroundLogoForm from "@/components/BackgroundLogoForm";
 import HomeLogoForm from "@/components/HomeLogoForm";
 import EmblemLogoForm from "@/components/EmblemLogoForm";
 import RecentlyAddedForm from "@/components/RecentlyAddedForm";
+import AssistantSettingsForm from "@/components/AssistantSettingsForm";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -43,6 +44,7 @@ export default async function AdminSettingsPage() {
     recentlyAdded,
     programOptions,
     videosBySlug,
+    assistantEnabled,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -71,6 +73,7 @@ export default async function AdminSettingsPage() {
     getRecentlyAddedConfig(),
     listPublishedProgramNames(),
     listVideoOptionsByProgramSlug(),
+    getSiteContent("assistantEnabled"),
   ]);
 
   return (
@@ -165,6 +168,12 @@ export default async function AdminSettingsPage() {
           programOptions={programOptions}
           videosBySlug={videosBySlug}
         />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Assistant
+        </h2>
+        <AssistantSettingsForm initialEnabled={assistantEnabled === "true"} />
       </section>
     </PageContainer>
   );

@@ -2,7 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import { DurationType } from "@/app/generated/prisma/enums";
-import type { AIProvider, ParsedSearchQuery, ReviewSummary } from "./types";
+import type {
+  AIProvider,
+  ChatMessage,
+  ParsedSearchQuery,
+  ProgramCandidate,
+  RecommendationResult,
+  ReviewSummary,
+} from "./types";
 
 /**
  * Model tiers are deliberately split per the product spec (docs/PRODUCT_SPEC.md
@@ -73,5 +80,73 @@ export class AnthropicProvider implements AIProvider {
     });
     const textBlock = response.content.find((b) => b.type === "text");
     return textBlock?.text ?? `${programName} matches your preferences.`;
+  }
+
+  /**
+   * Recommends only from `input.candidates` -- a live-DB search result the caller
+   * (app/api/assistant/route.ts) fetched via lib/programs.ts's listPrograms, never a
+   * snapshot. Two independent layers keep this from fabricating a program:
+   *   1. The zod schema's recommendedSlugs is a z.enum() of exactly this request's
+   *      candidate slugs, so Claude's structured output literally cannot name a slug
+   *      outside the given set -- the SDK's own parse would reject it.
+   *   2. The caller re-validates the returned slugs against its own candidate list
+   *      before responding to the client, independent of trusting this method.
+   * The system prompt additionally instructs Claude never to invent a detail not
+   * present in the candidate data, for the free-text `reply` (which structural
+   * validation can't constrain the way it can a slug enum).
+   */
+  async recommendPrograms(input: {
+    message: string;
+    history: ChatMessage[];
+    candidates: ProgramCandidate[];
+  }): Promise<RecommendationResult> {
+    if (input.candidates.length === 0) {
+      return {
+        reply: "I couldn't find any programs matching that. Try describing what you're looking for differently.",
+        recommendedSlugs: [],
+      };
+    }
+
+    const candidateSlugs = input.candidates.map((c) => c.slug) as [string, ...string[]];
+    const recommendationSchema = z.object({
+      reply: z
+        .string()
+        .describe(
+          "A warm, concise conversational reply (2-4 sentences) recommending programs from the candidate list. If none fit well, say so honestly. If the request is too vague to narrow down, ask a brief clarifying question instead of guessing."
+        ),
+      recommendedSlugs: z
+        .array(z.enum(candidateSlugs))
+        .max(5)
+        .describe("Slugs of the best-matching candidates, most relevant first. Empty if nothing fits or you're asking a clarifying question."),
+    });
+
+    const candidateBlock = input.candidates
+      .map(
+        (c) =>
+          `- slug: ${c.slug} | name: ${c.name} | location: ${c.location ?? "unknown"} | duration: ${c.durationType} | tags: ${c.tags.join(", ") || "none"} | description: ${c.descriptionExcerpt}`
+      )
+      .join("\n");
+
+    const response = await this.client.messages.parse({
+      model: REASONING_MODEL,
+      max_tokens: 1024,
+      system:
+        "You are a helpful assistant for Israel Programs Wiki, a directory of Israel gap-year/study/volunteer programs for Jewish young adults. " +
+        "You may ONLY recommend programs from the CANDIDATES list below -- never invent a program, name, detail, or attribute that isn't given there. " +
+        "If none of the candidates fit well, say so honestly rather than forcing a match. " +
+        "If the user's request is too vague to narrow down, ask a brief clarifying question instead of guessing.\n\n" +
+        `CANDIDATES:\n${candidateBlock}`,
+      messages: [
+        ...input.history.map((h) => ({ role: h.role, content: h.content })),
+        { role: "user" as const, content: input.message },
+      ],
+      output_config: { format: zodOutputFormat(recommendationSchema) },
+    });
+
+    const parsed = response.parsed_output;
+    if (!parsed) {
+      return { reply: "Sorry, I had trouble finding a match. Could you rephrase?", recommendedSlugs: [] };
+    }
+    return { reply: parsed.reply, recommendedSlugs: parsed.recommendedSlugs };
   }
 }
