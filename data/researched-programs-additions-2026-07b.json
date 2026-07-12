@@ -1,0 +1,61 @@
+{
+  "_note": "2026-07-12 Tier 3 batch: dedicated English-language MBA programs at Bar-Ilan, Hebrew University, and Tel Aviv University, per the 'English-language BA/MBA options' item. Verified as genuinely distinct from the already-listed general undergraduate study-abroad entries at these same universities (israel-xp-bar-ilan-university-overseas-student-program, rothberg-international-school, tau-international-study-abroad-semesteryear) -- none of those mention an MBA. Hebrew University runs two separately-enrolled MBA tracks (StartUp 360 and Med-Tech Innovation), each given its own entry per the one-org-many-tracks rule discussed in this workstream. Sourced from imba.biu.ac.il, imba.huji.ac.il, and en-coller.tau.ac.il (all fetched 2026-07-12). No pricing/tuition info included. A standalone English BA-degree gap (distinct from the existing study-abroad entries) was checked for but not found well-documented enough to add without risking guesswork -- left out per the 'omit unverifiable details rather than guess' rule.",
+  "university_mba_programs": [
+    {
+      "name": "Bar-Ilan University International MBA",
+      "organization": "Bar-Ilan University",
+      "location": "Ramat Gan",
+      "description": "A 15-month English-language MBA at Bar-Ilan University's School of Business Administration, combining alternating on-campus and online sessions with coursework in entrepreneurship, global management, finance, and marketing; includes a study tour to China and draws an international cohort of 30-35 students per class.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://imba.biu.ac.il/",
+      "contactPhone": "",
+      "contactWebsite": "https://imba.biu.ac.il/",
+      "tags": ["professional", "coed", "age-post-college", "non-affiliated-religously", "coastal-israel"]
+    },
+    {
+      "name": "Hebrew University Business School - StartUp 360 MBA",
+      "organization": "Hebrew University of Jerusalem",
+      "location": "Jerusalem",
+      "description": "A one-year, AACSB-accredited English-language MBA at the Hebrew University Business School focused on entrepreneurship, strategy, and innovation, combining coursework taught by Israeli and international faculty with a year-long internship placement at a startup or venture capital firm; open to applicants from both business and non-business backgrounds.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://imba.huji.ac.il/startup",
+      "contactPhone": "",
+      "contactWebsite": "https://imba.huji.ac.il/",
+      "tags": ["professional", "coed", "age-post-college", "non-affiliated-religously", "jerusalem"]
+    },
+    {
+      "name": "Hebrew University Business School - Med-Tech Innovation MBA",
+      "organization": "Hebrew University of Jerusalem",
+      "location": "Jerusalem",
+      "description": "A one-year, AACSB-accredited English-language MBA at the Hebrew University Business School combining business fundamentals with biomedical-sector knowledge, taught by Israeli and international faculty with a year-long internship placement; open to applicants from business, scientific, or medical backgrounds.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://imba.huji.ac.il/",
+      "contactPhone": "",
+      "contactWebsite": "https://imba.huji.ac.il/",
+      "tags": ["professional", "coed", "age-post-college", "non-affiliated-religously", "jerusalem", "medical"]
+    },
+    {
+      "name": "Tel Aviv University Sofaer Global MBA",
+      "organization": "Tel Aviv University",
+      "location": "Tel Aviv",
+      "description": "The Coller School of Management's flagship English-language, AACSB-accredited MBA at Tel Aviv University, focused on entrepreneurship and new-venture creation through hands-on hackathons and accelerators; caps each cohort at 50 students drawn from 40+ countries, with an internship component and access to a 500+-member alumni network.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://en-coller.tau.ac.il/gmba",
+      "contactPhone": "",
+      "contactWebsite": "https://en-coller.tau.ac.il/gmba",
+      "tags": ["professional", "coed", "age-post-college", "non-affiliated-religously", "coastal-israel"]
+    }
+  ]
+}

@@ -1,0 +1,1767 @@
+{
+  "duplicatedDescriptions": [],
+  "costMentions": [
+    {
+      "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+      "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+      "matched": [
+        "free"
+      ],
+      "description": "An annual two-week Israel mission for CAMERA Fellows, CCAP activists and other campus Israel-advocacy leaders from the US, Canada and Uruguay, filled with expert speakers, lectures and touring -- most of the trip based in Jerusalem, with a Tel Aviv visit, a free weekend, and closing days on a Kinneret-area kibbutz -- to sharpen participants' ability to advocate accurately and effectively for Israel back on campus."
+    },
+    {
+      "slug": "tel-gezer-excavation",
+      "name": "Tel Gezer Excavation",
+      "matched": [
+        "paid"
+      ],
+      "description": "An excavation at Tel Gezer, one of the first sites in Israel to use student volunteers instead of paid laborers and the first to offer a field school for students; academic credit varies by sponsoring university program."
+    }
+  ],
+  "missingLocations": [
+    {
+      "slug": "jcc-maccabi-israel-sports-tour",
+      "name": "JCC Maccabi Israel Sports Tour",
+      "hasLocationTag": false,
+      "locationTags": []
+    },
+    {
+      "slug": "midreshet-torah-vavodah-mtva",
+      "name": "Midreshet Torah V'Avodah (MTVA)",
+      "hasLocationTag": false,
+      "locationTags": []
+    },
+    {
+      "slug": "ncsy-kollel-mechina-track",
+      "name": "NCSY Kollel Mechina Track",
+      "hasLocationTag": false,
+      "locationTags": []
+    },
+    {
+      "slug": "ohrsom",
+      "name": "Ohrsom",
+      "hasLocationTag": false,
+      "locationTags": []
+    },
+    {
+      "slug": "yeshivat-torah-vavodah-ytva",
+      "name": "Yeshivat Torah V'Avodah (YTVA)",
+      "hasLocationTag": false,
+      "locationTags": []
+    }
+  ],
+  "essenceCoverageGaps": {
+    "essence-academic-internship": [
+      {
+        "slug": "chai-israel",
+        "name": "Chai Israel"
+      },
+      {
+        "slug": "darchei-binah",
+        "name": "Darchei Binah"
+      },
+      {
+        "slug": "fzy-year-course",
+        "name": "FZY Year Course"
+      },
+      {
+        "slug": "hazor-excavations",
+        "name": "Hazor Excavations"
+      },
+      {
+        "slug": "kadima-world-bnei-akiva",
+        "name": "Kadima (World Bnei Akiva)"
+      },
+      {
+        "slug": "kol-ami-mechina",
+        "name": "Kol Ami Mechina"
+      },
+      {
+        "slug": "mayanot-post-high-school-program-men",
+        "name": "Mayanot Post-High-School Program (Men)"
+      },
+      {
+        "slug": "mechinat-beit-yatir",
+        "name": "Mechinat Beit Yatir"
+      },
+      {
+        "slug": "mechinat-gal",
+        "name": "Mechinat Gal"
+      },
+      {
+        "slug": "mechinat-orot",
+        "name": "Mechinat Orot"
+      },
+      {
+        "slug": "midreshet-harova",
+        "name": "Midreshet HaRova"
+      },
+      {
+        "slug": "midreshet-hashiluv-natur",
+        "name": "Midreshet HaShiluv Natur"
+      },
+      {
+        "slug": "midreshet-lindenbaum",
+        "name": "Midreshet Lindenbaum"
+      },
+      {
+        "slug": "midreshet-torah-vavodah-mtva",
+        "name": "Midreshet Torah V'Avodah (MTVA)"
+      },
+      {
+        "slug": "otzma",
+        "name": "OTZMA"
+      },
+      {
+        "slug": "rinas-bais-yaakov",
+        "name": "Rinas Bais Yaakov"
+      },
+      {
+        "slug": "urj-heller-high",
+        "name": "URJ Heller High"
+      },
+      {
+        "slug": "yeshiva-tiferet-tj",
+        "name": "Yeshiva Tiferet (TJ)"
+      },
+      {
+        "slug": "yeshivas-toras-chaim",
+        "name": "Yeshivas Toras Chaim"
+      },
+      {
+        "slug": "yeshivat-ashreinu",
+        "name": "Yeshivat Ashreinu"
+      },
+      {
+        "slug": "yeshivat-hameiri-kiryat-moshe",
+        "name": "Yeshivat HaMeiri (Kiryat Moshe)"
+      },
+      {
+        "slug": "yeshivat-hakotel",
+        "name": "Yeshivat Hakotel"
+      },
+      {
+        "slug": "yeshivat-hesder-orot-yaakov-rehovot",
+        "name": "Yeshivat Hesder Orot Yaakov (Rehovot)"
+      },
+      {
+        "slug": "yeshivat-netiv-aryeh",
+        "name": "Yeshivat Netiv Aryeh"
+      },
+      {
+        "slug": "yeshivat-orayta",
+        "name": "Yeshivat Orayta"
+      },
+      {
+        "slug": "yeshivat-torah-vavodah-ytva",
+        "name": "Yeshivat Torah V'Avodah (YTVA)"
+      },
+      {
+        "slug": "young-judaea-year-course",
+        "name": "Young Judaea Year Course"
+      }
+    ],
+    "essence-pre-military": [
+      {
+        "slug": "beit-midrash-reuta-carmel",
+        "name": "Beit Midrash Reuta (Carmel)"
+      },
+      {
+        "slug": "bnei-akiva-olamit-shalem",
+        "name": "Bnei Akiva Olamit: Shalem"
+      },
+      {
+        "slug": "hesder-yeshiva-akko",
+        "name": "Hesder Yeshiva Akko"
+      },
+      {
+        "slug": "limmud-world-bnei-akiva",
+        "name": "Limmud (World Bnei Akiva)"
+      },
+      {
+        "slug": "mechinat-arzei-halevanon",
+        "name": "Mechinat Arzei HaLevanon"
+      },
+      {
+        "slug": "mechinat-avner-akko",
+        "name": "Mechinat Avner - Akko"
+      },
+      {
+        "slug": "mechinat-beer-ora",
+        "name": "Mechinat Beer Ora"
+      },
+      {
+        "slug": "mechinat-beit-yatir",
+        "name": "Mechinat Beit Yatir"
+      },
+      {
+        "slug": "mechinat-chemdat-yehuda",
+        "name": "Mechinat Chemdat Yehuda"
+      },
+      {
+        "slug": "mechinat-chosen-peduel",
+        "name": "Mechinat Chosen Peduel"
+      },
+      {
+        "slug": "mechinat-echad-vachat-mishelanu",
+        "name": "Mechinat Echad V'Achat Mishelanu"
+      },
+      {
+        "slug": "mechinat-eitan",
+        "name": "Mechinat Eitan"
+      },
+      {
+        "slug": "mechinat-elisha",
+        "name": "Mechinat Elisha"
+      },
+      {
+        "slug": "mechinat-keshet-yehuda",
+        "name": "Mechinat Keshet Yehuda"
+      },
+      {
+        "slug": "mechinat-lapidot-emuna",
+        "name": "Mechinat Lapidot Emuna"
+      },
+      {
+        "slug": "mechinat-lavi",
+        "name": "Mechinat Lavi"
+      },
+      {
+        "slug": "mechinat-magen-shaul-nokdim",
+        "name": "Mechinat Magen Shaul (Nokdim)"
+      },
+      {
+        "slug": "mechinat-maoz-lod",
+        "name": "Mechinat Maoz (Lod)"
+      },
+      {
+        "slug": "mechinat-mashahiyot-maskyot",
+        "name": "Mechinat Mashahiyot (Maskyot)"
+      },
+      {
+        "slug": "mechinat-orot",
+        "name": "Mechinat Orot"
+      },
+      {
+        "slug": "mechinat-oz-shlomo",
+        "name": "Mechinat Oz Shlomo"
+      },
+      {
+        "slug": "mechinat-shuvu-achim",
+        "name": "Mechinat Shuvu Achim"
+      },
+      {
+        "slug": "mechinat-tamir",
+        "name": "Mechinat Tamir"
+      },
+      {
+        "slug": "mechinat-tzahali",
+        "name": "Mechinat Tzahali"
+      },
+      {
+        "slug": "mechinat-uri",
+        "name": "Mechinat Uri"
+      },
+      {
+        "slug": "mechinat-yedidya",
+        "name": "Mechinat Yedidya"
+      },
+      {
+        "slug": "mechinat-yonatan",
+        "name": "Mechinat Yonatan"
+      },
+      {
+        "slug": "ncsy-kollel-mechina-track",
+        "name": "NCSY Kollel Mechina Track"
+      },
+      {
+        "slug": "ncsy-michlelet-mechina",
+        "name": "NCSY Michlelet Mechina"
+      },
+      {
+        "slug": "neve-yerushalayim-mechina-introductory-program",
+        "name": "Neve Yerushalayim – Mechina Introductory Program"
+      },
+      {
+        "slug": "yeshivat-ahavat-israel-netivot",
+        "name": "Yeshivat Ahavat Israel (Netivot)"
+      },
+      {
+        "slug": "yeshivat-ashkelon-orot-hatorah-vehachesed",
+        "name": "Yeshivat Ashkelon (Orot HaTorah VeHaChesed)"
+      },
+      {
+        "slug": "yeshivat-ayelet-hashachar-eilat",
+        "name": "Yeshivat Ayelet HaShachar (Eilat)"
+      },
+      {
+        "slug": "yeshivat-birkat-yosef-alon-moreh",
+        "name": "Yeshivat Birkat Yosef (Alon Moreh)"
+      },
+      {
+        "slug": "yeshivat-chiburim-afula",
+        "name": "Yeshivat Chiburim Afula"
+      },
+      {
+        "slug": "yeshivat-chiburim-beit-shean",
+        "name": "Yeshivat Chiburim Beit Shean"
+      },
+      {
+        "slug": "yeshivat-cholon",
+        "name": "Yeshivat Cholon"
+      },
+      {
+        "slug": "yeshivat-derech-chaim-kiryat-gat",
+        "name": "Yeshivat Derech Chaim (Kiryat Gat)"
+      },
+      {
+        "slug": "yeshivat-givat-olga-hadera",
+        "name": "Yeshivat Givat Olga (Hadera)"
+      },
+      {
+        "slug": "yeshivat-habikah-sdemot-neriah",
+        "name": "Yeshivat HaBikah (Sdemot Neriah)"
+      },
+      {
+        "slug": "yeshivat-hagolan",
+        "name": "Yeshivat HaGolan"
+      },
+      {
+        "slug": "yeshivat-hahesder-dimona",
+        "name": "Yeshivat HaHesder Dimona"
+      },
+      {
+        "slug": "yeshivat-hahesder-ramat-hasharon",
+        "name": "Yeshivat HaHesder Ramat HaSharon"
+      },
+      {
+        "slug": "yeshivat-hahesder-ramla",
+        "name": "Yeshivat HaHesder Ramla"
+      },
+      {
+        "slug": "yeshivat-hahesder-rishon-lezion",
+        "name": "Yeshivat HaHesder Rishon LeZion"
+      },
+      {
+        "slug": "yeshivat-hameiri-kiryat-moshe",
+        "name": "Yeshivat HaMeiri (Kiryat Moshe)"
+      },
+      {
+        "slug": "yeshivat-haseder-gavoha-kiryat-gat",
+        "name": "Yeshivat HaSeder Gavoha Kiryat Gat"
+      },
+      {
+        "slug": "yeshivat-haseder-nof-hagalil",
+        "name": "Yeshivat HaSeder Nof HaGalil"
+      },
+      {
+        "slug": "yeshivat-hakotel",
+        "name": "Yeshivat Hakotel"
+      },
+      {
+        "slug": "yeshivat-hesder-maalot-yaakov",
+        "name": "Yeshivat Hesder Maalot Yaakov"
+      },
+      {
+        "slug": "yeshivat-hesder-orot-yaakov-rehovot",
+        "name": "Yeshivat Hesder Orot Yaakov (Rehovot)"
+      },
+      {
+        "slug": "yeshivat-karnei-shomron",
+        "name": "Yeshivat Karnei Shomron"
+      },
+      {
+        "slug": "yeshivat-kiryat-shmona",
+        "name": "Yeshivat Kiryat Shmona"
+      },
+      {
+        "slug": "yeshivat-maale-gilboa",
+        "name": "Yeshivat Ma'ale Gilboa"
+      },
+      {
+        "slug": "yeshivat-midbara-keeden-mitzpe-ramon",
+        "name": "Yeshivat Midbara Ke'Eden (Mitzpe Ramon)"
+      },
+      {
+        "slug": "yeshivat-nachalat-yosef-shavei-shomron",
+        "name": "Yeshivat Nachalat Yosef (Shavei Shomron)"
+      },
+      {
+        "slug": "yeshivat-or-akiva",
+        "name": "Yeshivat Or Akiva"
+      },
+      {
+        "slug": "yeshivat-or-veyeshua-haifa",
+        "name": "Yeshivat Or VeYeshua (Haifa)"
+      },
+      {
+        "slug": "yeshivat-orot-moshe-rosh-haayin",
+        "name": "Yeshivat Orot Moshe (Rosh HaAyin)"
+      },
+      {
+        "slug": "yeshivat-orot-shaul-tel-aviv",
+        "name": "Yeshivat Orot Shaul (Tel Aviv)"
+      },
+      {
+        "slug": "yeshivat-ramat-gan",
+        "name": "Yeshivat Ramat Gan"
+      },
+      {
+        "slug": "yeshivat-sderot",
+        "name": "Yeshivat Sderot"
+      },
+      {
+        "slug": "yeshivat-sdot-negev-kfar-maimon",
+        "name": "Yeshivat Sdot Negev (Kfar Maimon)"
+      },
+      {
+        "slug": "yeshivat-shirat-moshe-meirim-beyafo",
+        "name": "Yeshivat Shirat Moshe (Meirim BeYafo)"
+      },
+      {
+        "slug": "yeshivat-tfachot",
+        "name": "Yeshivat Tfachot"
+      },
+      {
+        "slug": "yeshivat-torah-vavodah-ytva",
+        "name": "Yeshivat Torah V'Avodah (YTVA)"
+      }
+    ],
+    "essence-spiritual-growth": [
+      {
+        "slug": "bar-ilan-university-yeshiva-university-summer-science-research-internship",
+        "name": "Bar-Ilan University-Yeshiva University Summer Science Research Internship"
+      },
+      {
+        "slug": "bnei-david-eli",
+        "name": "Bnei David (Eli)"
+      },
+      {
+        "slug": "fzy-year-course",
+        "name": "FZY Year Course"
+      },
+      {
+        "slug": "mechinat-beit-yisrael-big",
+        "name": "Mechinat Beit Yisrael (Big)"
+      },
+      {
+        "slug": "ncsy-next-step-israel-internships",
+        "name": "NCSY Next Step (Israel Internships)"
+      },
+      {
+        "slug": "yeshiva-university-summer-internship-masschallenge-israel",
+        "name": "Yeshiva University Summer Internship (MassChallenge-Israel)"
+      }
+    ],
+    "essence-travel": [
+      {
+        "slug": "apf-medical-and-nursing-volunteer-program",
+        "name": "APF Medical & Nursing Volunteer Program"
+      },
+      {
+        "slug": "birthright-israel",
+        "name": "Birthright Israel"
+      },
+      {
+        "slug": "darchei-binah",
+        "name": "Darchei Binah"
+      },
+      {
+        "slug": "habonim-dror-southern-africa-shnat",
+        "name": "Habonim Dror Southern Africa - Shnat"
+      },
+      {
+        "slug": "ncsy-derech",
+        "name": "NCSY Derech"
+      },
+      {
+        "slug": "ncsy-kollel",
+        "name": "NCSY Kollel"
+      },
+      {
+        "slug": "ncsy-kollel-mechina-track",
+        "name": "NCSY Kollel Mechina Track"
+      },
+      {
+        "slug": "ncsy-michlelet",
+        "name": "NCSY Michlelet"
+      },
+      {
+        "slug": "ncsy-michlelet-mechina",
+        "name": "NCSY Michlelet Mechina"
+      },
+      {
+        "slug": "ncsy-next-step-israel-internships",
+        "name": "NCSY Next Step (Israel Internships)"
+      },
+      {
+        "slug": "nesiya-kehillah-summer-program",
+        "name": "Nesiya Kehillah Summer Program"
+      },
+      {
+        "slug": "young-judaea-year-course",
+        "name": "Young Judaea Year Course"
+      }
+    ]
+  },
+  "essenceTagCounts": {
+    "essence-spiritual-growth": 190,
+    "essence-academic-internship": 66,
+    "essence-pre-military": 60,
+    "essence-travel": 35
+  },
+  "firstPersonVoiceCandidates": [
+    {
+      "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+      "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+      "description": "An annual two-week Israel mission for CAMERA Fellows, CCAP activists and other campus Israel-advocacy leaders from the US, Canada and Uruguay, filled with expert speakers, lectures and touring -- most of the trip based in Jerusalem, with a Tel Aviv visit, a free weekend, and closing days on a Kinneret-area kibbutz -- to sharpen participants' ability to advocate accurately and effectively for Israel back on campus."
+    },
+    {
+      "slug": "yeshivas-bais-yisroel",
+      "name": "Yeshivas Bais Yisroel",
+      "description": "An English-language Litvish Orthodox yeshiva founded in 1985 by Rabbi Doniel Lehrfield, with over 100 students from the US, England, Canada, South Africa, Mexico, Chile, and Australia."
+    },
+    {
+      "slug": "yeshivat-hakotel",
+      "name": "Yeshivat Hakotel",
+      "description": "A Religious Zionist yeshiva overlooking the Western Wall that provides a broad and serious array of English learning options while enabling students to integrate with Hakotel's Israeli program and student body; offers joint credit with Yeshiva University and Touro as well as the option to join the Machal-hesder program and draft with Hakotel Israelis as well as many like-minded foreigners. The yeshiva has a warm environment where Rebbeim and older students offer mentorship younger students as they work to build a life of meaning whether in Israel of back in the US."
+    },
+    {
+      "slug": "yeshivat-hesder-sderot",
+      "name": "Yeshivat Hesder Sderot",
+      "description": "Founded in 1995 by Rabbi Dovid Fendel, now the largest Hesder yeshiva in Israel with 800+ Israeli students; no dedicated formal overseas learning track, though a US nonprofit supports it."
+    },
+    {
+      "slug": "yeshivat-maale-gilboa",
+      "name": "Yeshivat Ma'ale Gilboa",
+      "description": "A Shiluv yeshiva combining two years of Torah study with the full three years of IDF service (rather than the shorter Hesder track), emphasizing rigorous study alongside intellectual openness and social consciousness; its overseas program is fully integrated with the Israeli program, adding English-language classes on top of the Hebrew ones, and draws post-high-school and post-college students from the US, UK, and Australia."
+    },
+    {
+      "slug": "yeshivat-ohr-yerushalayim",
+      "name": "Yeshivat Ohr Yerushalayim",
+      "description": "A Beit Midrash program on Moshav Beit Meir in the Judean hills for English-speaking men from the US and other Anglo countries wanting a year or more of intensive study."
+    }
+  ],
+  "ageEncodingConflicts": [
+    {
+      "slug": "alexander-muss-high-school-in-israel-amhsi",
+      "name": "Alexander Muss High School in Israel (AMHSI)",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "arava-institute-for-environmental-studies",
+      "name": "Arava Institute for Environmental Studies",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "ariel-university-international-program",
+      "name": "Ariel University International Program",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-gap-year",
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "bbyo-passport-israel-journey",
+      "name": "BBYO Passport: Israel Journey",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "bbyo-passport-israel-trek",
+      "name": "BBYO Passport: Israel Trek",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "bezalel-academy-of-arts-and-design-student-exchange-program",
+      "name": "Bezalel Academy of Arts and Design - Student Exchange Program",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "birthright-israel",
+      "name": "Birthright Israel",
+      "durationType": "TEN_DAY",
+      "ageTags": [
+        "age-gap-year",
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "10-day"
+      ]
+    },
+    {
+      "slug": "cteen-summer-heritage-quest-poland-israel",
+      "name": "CTeen Summer: Heritage Quest (Poland-Israel)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "diller-teen-fellows-israel-summer-seminar",
+      "name": "Diller Teen Fellows Israel Summer Seminar",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ginsburg-ingerman-overseas-student-program-osp",
+      "name": "Ginsburg-Ingerman Overseas Student Program (OSP)",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-gap-year",
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "huc-jir-year-in-israel",
+      "name": "HUC-JIR Year-in-Israel",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "hazor-excavations",
+      "name": "Hazor Excavations",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "hippos-sussita-excavations",
+      "name": "Hippos-Sussita Excavations",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "israel-tech-challenge-fellows-program",
+      "name": "Israel Tech Challenge Fellows Program",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "jcc-maccabi-israel-sports-tour",
+      "name": "JCC Maccabi Israel Sports Tour",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "jts-israel-year",
+      "name": "JTS Israel Year",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "jerusalem-academy-of-music-and-dance-dancejerusalem",
+      "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "mach-hach-baaretz",
+      "name": "Mach Hach BaAretz",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "machaneh-bonim-bisrael-mbi",
+      "name": "Machaneh Bonim B'Israel (MBI)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "midreshet-rachel-vchaya",
+      "name": "Midreshet Rachel v'Chaya",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "ncsy-derech",
+      "name": "NCSY Derech",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-euro-israel",
+      "name": "NCSY Euro Israel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-give-girls-israel-volunteer-experience",
+      "name": "NCSY GIVE (Girls Israel Volunteer Experience)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-hatzalah-rescue",
+      "name": "NCSY Hatzalah Rescue",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-israel-id",
+      "name": "NCSY Israel ID",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-jolt-israel",
+      "name": "NCSY JOLT Israel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-kollel",
+      "name": "NCSY Kollel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-kollel-mechina-track",
+      "name": "NCSY Kollel Mechina Track",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-michlelet",
+      "name": "NCSY Michlelet",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-michlelet-mechina",
+      "name": "NCSY Michlelet Mechina",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ncsy-next-step-israel-internships",
+      "name": "NCSY Next Step (Israel Internships)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "nesiya-kehillah-summer-program",
+      "name": "Nesiya Kehillah Summer Program",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "new-israel-fund-shatil-social-justice-fellowship",
+      "name": "New Israel Fund / Shatil Social Justice Fellowship",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "noar-hadash-israel-program",
+      "name": "No'ar Hadash Israel Program",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "otzma",
+      "name": "OTZMA",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "onward-israel",
+      "name": "Onward Israel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+      "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "rrc-israel-summer-term",
+      "name": "RRC Israel Summer Term",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ramah-israel-seminar",
+      "name": "Ramah Israel Seminar",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "reichman-university-study-abroad",
+      "name": "Reichman University Study Abroad",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "rothberg-international-school",
+      "name": "Rothberg International School",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "sapir-international",
+      "name": "Sapir International",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "shenkar-college-international-program",
+      "name": "Shenkar College International Program",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "shiloh-excavations",
+      "name": "Shiloh Excavations",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tau-international-study-abroad-semesteryear",
+      "name": "TAU International (Study Abroad Semester/Year)",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "technion-ignite-international-high-school-summer-program",
+      "name": "Technion Ignite: International High School Summer Program",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "technion-international-semesteryear-abroad",
+      "name": "Technion International - Semester/Year Abroad",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "tel-abel-beth-maacah-excavation",
+      "name": "Tel Abel Beth Maacah Excavation",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tel-akko-total-archaeology-project",
+      "name": "Tel Akko Total Archaeology Project",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tel-gezer-excavation",
+      "name": "Tel Gezer Excavation",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tel-megiddo-excavation",
+      "name": "Tel Megiddo Excavation",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tel-shimron-excavations",
+      "name": "Tel Shimron Excavations",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college",
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "the-anne-samson-jerusalem-journey-tjj",
+      "name": "The Anne Samson Jerusalem Journey (TJJ)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "tichon-ramah-yerushalayim-try",
+      "name": "Tichon Ramah Yerushalayim (TRY)",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "urj-heller-high",
+      "name": "URJ Heller High",
+      "durationType": "SEMESTER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "university-of-haifa-international-school-semesteryear-abroad",
+      "name": "University of Haifa International School - Semester/Year Abroad",
+      "durationType": "CUSTOM",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "semester"
+      ]
+    },
+    {
+      "slug": "weizmann-institute-kupcinet-getz-international-summer-school",
+      "name": "Weizmann Institute – Kupcinet-Getz International Summer School",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "yad-byad",
+      "name": "Yad B'Yad",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "yahel-social-change-fellowship",
+      "name": "Yahel Social Change Fellowship",
+      "durationType": "GAP_YEAR",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": []
+    },
+    {
+      "slug": "yallah-israel-nfty-in-israel-adventure",
+      "name": "Yallah! Israel (NFTY in Israel - Adventure)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "young-judaea-gesher-israel",
+      "name": "Young Judaea Gesher Israel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "young-judaea-horizon-israel",
+      "name": "Young Judaea Horizon Israel",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "yuval-yisrael-usy-israel-pilgrimage",
+      "name": "Yuval Yisrael (USY Israel Pilgrimage)",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-high-school"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    },
+    {
+      "slug": "ziegler-school-israel-summer-program",
+      "name": "Ziegler School Israel Summer Program",
+      "durationType": "SUMMER",
+      "ageTags": [
+        "age-post-college"
+      ],
+      "legacyDurationTags": [
+        "summer"
+      ]
+    }
+  ],
+  "durationTypeCounts": {
+    "TEN_DAY": 4,
+    "SUMMER": 48,
+    "SEMESTER": 12,
+    "GAP_YEAR": 196,
+    "CUSTOM": 102
+  },
+  "customPrograms": [
+    {
+      "slug": "apf-medical-and-nursing-volunteer-program",
+      "name": "APF Medical & Nursing Volunteer Program",
+      "description": "Places North American medical students, nursing students, and other healthcare professionals as volunteers in Israeli hospitals and primary-care services, matched to placements by ability and availability. Also runs an annual APF/Birthright medical trip for medical, nursing, and allied-health studen"
+    },
+    {
+      "slug": "aish-hatorah-essentials-program",
+      "name": "Aish HaTorah – Essentials Program",
+      "description": "A 28-day introductory-to-Judaism program in the Old City for ages 18-29, covering topics like practical spirituality and Genesis alongside science; a shorter track distinct from Aish HaTorah's longer Aish Gesher and Foundations programs."
+    },
+    {
+      "slug": "aish-hatorah-foundations-program",
+      "name": "Aish HaTorah – Foundations Program",
+      "description": "A flexible-length program for college students on a gap year or semester break exploring Judaism with no background assumed, offering three hours of morning and three hours of afternoon classes covering Jewish philosophy, personal growth, history and text study, with optional evening programming."
+    },
+    {
+      "slug": "arevim-masa-year-of-service",
+      "name": "Arevim - Masa Year of Service",
+      "description": "An 8-10 month program for young adults (18-21) combining Sherut Leumi-style social-service volunteering (health, education or welfare, participant's choice) with an educational program on Israeli-Arab conflict, politics and current affairs, leadership/entrepreneurship seminars, and cultural/outdoor "
+    },
+    {
+      "slug": "beit-midrash-reuta-carmel",
+      "name": "Beit Midrash Reuta (Carmel)",
+      "description": "A yeshiva founded in 2000 in Moshav Carmel offering both a higher-yeshiva track and a hesder track, plus a kollel for married scholars, led by founder Rabbi Natan Ophner (a graduate of Yeshivat Merkaz HaRav). Curriculum covers Talmud (Bava Batra, Gittin), Jewish philosophy (Rav Kook, Maimonides, the"
+    },
+    {
+      "slug": "beit-orot-jerusalem",
+      "name": "Beit Orot (Jerusalem)",
+      "description": "A Beit Midrash on Mount Scopus for army graduates seeking to dedicate a period to intensive Torah study before continuing their life course, led by Rabbi Chen David Hallamish. Also runs a Jerusalem Brigade-Mount Scopus visitor center with tours and lectures, and community programming around settleme"
+    },
+    {
+      "slug": "bnei-david-eli",
+      "name": "Bnei David (Eli)",
+      "description": "Bnei David is a Religious Zionist organization that operates across multiple campuses, including Yeshivot, mechinot, and Midrashot. It is most famously known for its mechina located in Eli and its midrasha, Danieli, located in Kfar Tapuach, which completely revolutionized how the national-religious "
+    },
+    {
+      "slug": "buchmann-mehta-school-of-music-international-program",
+      "name": "Buchmann-Mehta School of Music International Program",
+      "description": "A Bachelor's/Master's/Artist Diploma program (established 2008) for outstanding foreign musicians in instrumental performance, voice, conducting or composition, taught by IPO principal players and other leading Israeli musicians, with performance opportunities in the school's Symphony Orchestra, cha"
+    },
+    {
+      "slug": "camera-fellows-student-leadership-and-advocacy-mission-to-israel",
+      "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+      "description": "An annual two-week Israel mission for CAMERA Fellows, CCAP activists and other campus Israel-advocacy leaders from the US, Canada and Uruguay, filled with expert speakers, lectures and touring -- most of the trip based in Jerusalem, with a Tel Aviv visit, a free weekend, and closing days on a Kinner"
+    },
+    {
+      "slug": "chevron-yeshiva-knesset-yisrael",
+      "name": "Chevron Yeshiva (Knesset Yisrael)",
+      "description": "A major Litvish yeshiva with ~1,400 students, one of the most prestigious Haredi yeshivot in the world; predominantly Israeli-student focused with no formal overseas program."
+    },
+    {
+      "slug": "conservative-yeshiva",
+      "name": "Conservative Yeshiva",
+      "description": "An egalitarian yeshiva offering one-year, pre-college, advanced-studies, summer and winter Torah-study tracks for adults of all backgrounds and denominations, blending traditional beit midrash learning with a Conservative/Masorti approach; the program includes Thursday day trips and a Shabbaton, and"
+    },
+    {
+      "slug": "eli-gap-year-program",
+      "name": "ELI Gap Year Program",
+      "description": "A new (launching 2026-27) pre-college gap year combining a minimum of four for-credit Tel Aviv University courses with cybersecurity, AI and entrepreneurship workshops, hands-on research in TAU labs, mentorship from Israeli entrepreneurs, Jewish-peoplehood programming, and immersive tours across Isr"
+    },
+    {
+      "slug": "eyaht-aish-hatorah-college-for-women",
+      "name": "EYAHT - Aish HaTorah College for Women",
+      "description": "A full-time college for advanced Jewish learning aimed at unaffiliated, college-educated and professional English-speaking women ages 22-30, founded in 1984, offering multi-level classes in Jewish philosophy, history, prayer, Chumash and Rabbi Noah Weinberg's '48 Ways to Wisdom' curriculum; most stu"
+    },
+    {
+      "slug": "eco-israel-program",
+      "name": "Eco-Israel Program",
+      "description": "A 5-month permaculture and sustainable-living program for English-speaking young adults ages 18-24, centered on a Permaculture Design Course (internationally certified) and hands-on farm work. A Masa-affiliated long-term program."
+    },
+    {
+      "slug": "emunah-college-faculty-of-arts-and-design",
+      "name": "Emunah College - Faculty of Arts and Design",
+      "description": "An accredited arts and design degree program for religious women, covering visual art, visual communication and drama, with ESL/EPIC (English for Purposes of International Communication) coursework supporting the English proficiency required for an Israeli academic degree."
+    },
+    {
+      "slug": "en-gedi-oasis-archaeological-project",
+      "name": "En-Gedi Oasis Archaeological Project",
+      "description": "A newly launched excavation under Hebrew University's Institute of Archaeology, led by Dr. Uri Davidovich, with participants staying at a glamping-style resort within Kibbutz En-Gedi; one credit per week of excavation is available from Hebrew University."
+    },
+    {
+      "slug": "ginsburg-ingerman-overseas-student-program-osp",
+      "name": "Ginsburg-Ingerman Overseas Student Program (OSP)",
+      "description": "BGU's overseas student program offers a semester or year of English-taught coursework spanning anthropology, environmental studies, political science, global health, and Israel studies, plus a six-week Hebrew ulpan and dorm life with Israeli suitemates."
+    },
+    {
+      "slug": "hadassah-medical-center-volunteer-program",
+      "name": "Hadassah Medical Center Volunteer Program",
+      "description": "A Foreign Volunteer Program placing short-term overseas volunteers alongside nursing staff, in service laboratories, and in patient-comfort and care roles at Hadassah's two university hospitals, with a coordinator introducing each volunteer to their unit and staying in touch throughout their placeme"
+    },
+    {
+      "slug": "hasbara-fellowships-israel-training-program",
+      "name": "Hasbara Fellowships Israel Training Program",
+      "description": "A 16-day leadership and advocacy training program for North American college-student leaders, active on 95+ campuses, combining ten workshops on Israel advocacy and campus leadership with meetings with Israeli political, military and business figures and conversations with Israelis and Palestinians "
+    },
+    {
+      "slug": "hesder-yeshiva-akko",
+      "name": "Hesder Yeshiva Akko",
+      "description": "A branch of Hesder Yeshiva Maalot Yaakov established in 2002 by Rabbi Yossi Stern, combining Torah study with active community involvement and volunteer work in Akko. Runs a 'Netiv' course integrating IDF soldiers and programs for local university students."
+    },
+    {
+      "slug": "israel-government-fellows-igf",
+      "name": "Israel Government Fellows (IGF)",
+      "description": "A 10-month elite government and policy internship placing Fellows in Israeli government ministries and NGOs for hands-on public-administration work, paired with intensive Hebrew study, tours, and weekly seminar days meeting Israeli officials, policymakers, journalists and activists. Founded in 2007 "
+    },
+    {
+      "slug": "israel-lacrosse-gap-year-program",
+      "name": "Israel Lacrosse Gap Year Program",
+      "description": "A gap year for lacrosse players ages 18-30 to live, train and compete in Israel for a college semester or full year, playing in domestic league and exhibition games plus tournaments abroad in Europe, completing a formal coach-certification program and mentoring local youth teams as ambassadors for t"
+    },
+    {
+      "slug": "isralight",
+      "name": "Isralight",
+      "description": "A flexible-length Jewish learning program in the Old City for all ages, running anywhere from half a day to a few weeks."
+    },
+    {
+      "slug": "jewel-for-women",
+      "name": "JEWEL for Women",
+      "description": "A short introduction to Judaism in Jerusalem for ages 19-31, including room, board, classes, and field trips; taught in English with no Hebrew required."
+    },
+    {
+      "slug": "jerusalem-college-of-technology-international-english-speakers-program",
+      "name": "Jerusalem College of Technology - International English Speakers Program",
+      "description": "A hybrid program letting English-speaking students combine a post-high-school yeshiva experience with a real academic degree: Torah/yeshiva studies in English in the morning, and English-taught coursework toward a Computer Science or Business Administration degree in the afternoon, with optional Heb"
+    },
+    {
+      "slug": "kibbutz-lotan-green-apprenticeship",
+      "name": "Kibbutz Lotan Green Apprenticeship",
+      "description": "A month-long, hands-on program in permaculture, natural building (straw-bale and earth-plaster construction), and organic agriculture, living on Lotan's eco-campus of student-built earthen domes. Graduates receive an internationally recognized Permaculture Design Certificate."
+    },
+    {
+      "slug": "kibbutz-program-center-kpc",
+      "name": "Kibbutz Program Center (KPC)",
+      "description": "The classic short-term kibbutz work-exchange program: volunteers aged 18-35 work about 8.5 hours a day, five days a week, in a kibbutz's agriculture, kitchen, garden, or factory branches, in exchange for shared accommodation, three daily meals, and laundry facilities, without the structured Hebrew-u"
+    },
+    {
+      "slug": "kibbutz-ulpan",
+      "name": "Kibbutz Ulpan",
+      "description": "A 5-month program combining multi-level Hebrew language classes with kibbutz dormitory living and work assignments, giving participants an immersive experience of rural Israeli community life alongside their Hebrew studies."
+    },
+    {
+      "slug": "kol-ami-mechina",
+      "name": "Kol Ami Mechina",
+      "description": "A 6-month leadership program (with an optional 3+ month 'Perek Bet' internship extension) bringing young Israelis together with Jewish peers from around the world to study Jewish Peoplehood, public diplomacy and Jewish texts alongside personal-growth work and volunteering that benefits Israeli socie"
+    },
+    {
+      "slug": "leket-israel-volunteer-program",
+      "name": "Leket Israel Volunteer Program",
+      "description": "Israel's national food-rescue organization runs gleaning trips to pick surplus produce in the fields, night-time food rescue runs, and sandwich-packing sessions for schoolchildren, redistributing rescued food to a network of 200+ partner nonprofits serving over 175,000 people weekly; sessions requir"
+    },
+    {
+      "slug": "mda-overseas-volunteers-program",
+      "name": "MDA Overseas Volunteers Program",
+      "description": "A volunteer medical based program for young Jewish adults (ages 18-40) that provides certified first-responder training followed by experiences in real ambulance shifts alongside Israeli medics; offered independently and through Masa Israel partnerships."
+    },
+    {
+      "slug": "medical-school-for-international-health-msih",
+      "name": "Medical School for International Health (MSIH)",
+      "description": "A four-year, North American-style M.D. program taught in English, integrating global health coursework throughout. First three years in Israel (with Medical Hebrew in years 1-2), fourth-year clinical electives at Columbia University Medical Center, and an eight-week clerkship in an underserved commu"
+    },
+    {
+      "slug": "mir-yeshiva-yeshivas-mir-yerushalayim",
+      "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+      "description": "One of the largest yeshivot in the world with thousands of students; its core beit midrash is predominantly Israeli/Haredi, but it also hosts a very large, long-established American/overseas division for English speakers."
+    },
+    {
+      "slug": "musrara-international-residency-program",
+      "name": "Musrara International Residency Program",
+      "description": "A juried two-week international artist residency at Musrara's Naggar School selecting five interdisciplinary artists from Israel and abroad working in photography, new media, video art, sound and experimental music, alongside the school's ongoing three-year photography, new-media and phototherapy de"
+    },
+    {
+      "slug": "neve-yerushalayim-mechina-introductory-program",
+      "name": "Neve Yerushalayim – Mechina Introductory Program",
+      "description": "A 6-week introductory track at Neve Yerushalayim for women ages 19-35, featuring prominent lecturers on philosophical and theological topics, private tutorials, campus tours, and dorm housing, with financial aid available; a shorter taste of Neve's curriculum distinct from the school's two longer pr"
+    },
+    {
+      "slug": "ohrsom",
+      "name": "Ohrsom",
+      "description": "Once in a life time gap year experience. Global travel includes countries from the States, to Norway to India and endless other destinations. Designed to inspire a Torah connection through incredible shiurim and Torah experiences throughout the land of Israel. Based in the heart of Jerusalem, studen"
+    },
+    {
+      "slug": "pardes-institute-of-jewish-studies-yearsemester-program",
+      "name": "Pardes Institute of Jewish Studies - Year/Semester Program",
+      "description": "A pluralistic, egalitarian beit midrash for university graduates combining classic Jewish text study (Talmud, Tanach, Halacha) with philosophical, ethical and societal questions facing the Jewish people today, taught seminar-style with chavruta (paired) learning; students choose from a wide range of"
+    },
+    {
+      "slug": "ponevezh-yeshiva",
+      "name": "Ponevezh Yeshiva",
+      "description": "One of the world's foremost Litvish (non-Hasidic Haredi) yeshivot, re-established in Bnei Brak in 1944 with thousands of students; Israeli/Haredi-students-only with no formal overseas program."
+    },
+    {
+      "slug": "project-ten-kibbutz-harduf",
+      "name": "Project TEN (Kibbutz Harduf)",
+      "description": "A service-learning center co-directed by a Jewish woman and a Muslim man where young-adult volunteers weekly support Beit Elisha (a group home for adults with disabilities) and Sha'ar La'adam's ecological/educational activities, alongside pluralistic Jewish learning, Hebrew and Arabic classes, coexi"
+    },
+    {
+      "slug": "rothberg-international-school",
+      "name": "Rothberg International School",
+      "description": "Hebrew University's school for international students, offering undergraduate study abroad and exchange tracks with English-taught courses across the humanities, social sciences, business, and Israel/Middle East studies, plus Hebrew ulpan."
+    },
+    {
+      "slug": "sam-spiegel-jerusalem-international-film-lab",
+      "name": "Sam Spiegel Jerusalem International Film Lab",
+      "description": "An internationally-ranked film school's lab program bringing a small cohort of outstanding local and international emerging filmmakers to Jerusalem to develop their debut feature film projects, alongside the school's separate four-year directing/producing and two-year screenwriting degree tracks."
+    },
+    {
+      "slug": "sapir-international",
+      "name": "Sapir International",
+      "description": "Sapir Academic College's International Office offers semester-based courses in English for overseas students in fields such as marketing, communications, cinema, law, economics, and social work, studying alongside Israeli peers."
+    },
+    {
+      "slug": "sar-el-volunteers-for-israel",
+      "name": "Sar-El (Volunteers for Israel)",
+      "description": "A volunteer program placing civilians (17+) on IDF bases for 1-3 weeks to perform non-combat logistical support such as packing medical supplies and equipment maintenance, living alongside soldiers."
+    },
+    {
+      "slug": "save-a-childs-heart-volunteer-program",
+      "name": "Save a Child's Heart Volunteer Program",
+      "description": "Volunteers support children from developing countries receiving pediatric cardiac care, organizing games and activities and providing companionship and emotional support to patients and families before and after their procedures; tracks range from an 'Immersive' 3-week minimum to longer 'Superstar' "
+    },
+    {
+      "slug": "shapells-yeshiva-darche-noam",
+      "name": "Shapell's / Yeshiva Darché Noam",
+      "description": "A yeshiva for English-speaking college graduates and young professionals in their 20s and 30s, founded in 1978, offering long-term (6+ months), medium-term (3-6 months) and short-term (1-3 months) Torah study tracks in Gemara, Chumash, Halacha and Hashkafa alongside character development."
+    },
+    {
+      "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+      "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+      "description": "A national civilian service alternative to IDF service for young adults ages 17-24, placing volunteers in hospitals, schools, at-risk-youth programs, and other social service settings; Nefesh B'Nefesh provides dedicated support (including a track for lone volunteers) for participants coming from abr"
+    },
+    {
+      "slug": "tau-international-study-abroad-semesteryear",
+      "name": "TAU International (Study Abroad Semester/Year)",
+      "description": "Tel Aviv University's international school offers undergraduates a semester or full academic year of English-taught coursework in fields like international relations, business, Jewish and Israel studies, plus intensive Hebrew study, while living on TAU's Tel Aviv campus."
+    },
+    {
+      "slug": "technion-american-medical-school-teams",
+      "name": "Technion American Medical School (TeAMS)",
+      "description": "An English-language M.D. program (running since 1983) for U.S. and Canadian pre-med graduates who intend to practice in North America, combining basic medical sciences at the Technion with clinical education at leading Israeli medical centers; graduates sit U.S./Canadian licensing exams."
+    },
+    {
+      "slug": "technion-international-semesteryear-abroad",
+      "name": "Technion International - Semester/Year Abroad",
+      "description": "Technion International's exchange program lets undergraduates (2nd year and above) study engineering and science courses in English for a semester or academic year, living on campus with Israeli and international students and joining industry site visits."
+    },
+    {
+      "slug": "tel-aviv-university-mfa-in-documentary-cinema",
+      "name": "Tel Aviv University - MFA in Documentary Cinema",
+      "description": "An international, English-language MFA in documentary filmmaking held over four terms, taking students from research and script development through production, editing, and post-production under working filmmakers; open to graduates of TAU and other institutions, including from abroad."
+    },
+    {
+      "slug": "tel-aviv-university-ny-stateamerican-program-sackler-gray-faculty-of-medicine",
+      "name": "Tel Aviv University NY State/American Program (Sackler / Gray Faculty of Medicine)",
+      "description": "An English-language, four-year M.D. program chartered by the Regents of the University of the State of New York, established in 1976, open to U.S. and Canadian citizens/permanent residents. Requires a bachelor's degree, at least one year of North American college coursework, and the MCAT; some Hebre"
+    },
+    {
+      "slug": "tikkun-olam-tel-aviv-jaffa",
+      "name": "Tikkun Olam Tel Aviv-Jaffa",
+      "description": "A Masa-affiliated program for English-speaking young adults (ages 21-30) to live, study Hebrew and Jewish culture, and volunteer in south Tel Aviv-Jaffa, choosing between Social Action, Coexistence, or Internship tracks over 5 or 10 months."
+    },
+    {
+      "slug": "tikvah-israel-fellowship",
+      "name": "Tikvah Israel Fellowship",
+      "description": "A supplemental enrichment fellowship that runs alongside a student's main shana ba'aretz (gap year) program, bringing together students from more than 20 partner yeshivot, seminaries, and gap-year programs to study the texts, events, and personalities that forged modern Zionism, including Israeli mi"
+    },
+    {
+      "slug": "ulpan-etzion",
+      "name": "Ulpan Etzion",
+      "description": "The Jewish Agency's flagship Hebrew ulpan, founded in 1949, offering five months of intensive Hebrew instruction (5 hours/day, 5 days/week) to roughly 1,600 immigrants and young adults aged 22-35 per year from 30+ countries, with cultural activities and preparation for IDF service or Israeli employm"
+    },
+    {
+      "slug": "ulpan-or-sabra-immersion-program",
+      "name": "Ulpan-Or Sabra Immersion Program",
+      "description": "A personalized, one-on-one Hebrew program built around the 'Rapid Language Acquisition' method, with the flagship Sabra Immersion track combining three hours of daily one-on-one study with 1.5 hours of interactive outdoor activities; also offered as 10-day, one-week and two-week intensives."
+    },
+    {
+      "slug": "university-of-haifa-international-msc-in-marine-biology",
+      "name": "University of Haifa International MSc in Marine Biology",
+      "description": "A thesis-track, English-taught MSc in marine biology combining coursework, research cruises, and dive-based fieldwork studying the Mediterranean Sea; Israeli and international students study together over two academic years."
+    },
+    {
+      "slug": "university-of-haifa-international-school-semesteryear-abroad",
+      "name": "University of Haifa International School - Semester/Year Abroad",
+      "description": "The University of Haifa's International School offers a semester or full-year study abroad program with English-taught courses in fields like Arabic, archaeology, business, history, international relations, and peace and conflict studies, with students living alongside Israeli students on Mount Carm"
+    },
+    {
+      "slug": "vois-volunteer-in-israel",
+      "name": "VOIS - Volunteer in Israel",
+      "description": "An official Israeli government program placing overseas volunteers from 51+ countries into welfare settings (group homes, day centers, nursing homes) to support people with disabilities, at-risk youth, Holocaust survivors, and the elderly."
+    },
+    {
+      "slug": "vertigo-international-dance-program-vidp",
+      "name": "Vertigo International Dance Program (VIDP)",
+      "description": "A contemporary-dance program (established 2012) for male dancers 18-28 and female dancers 18-25 with a dance background, from Israel and around the world, offered by Vertigo Dance Company at its Eco-Art Village on a Judean-foothills kibbutz; recognized by Israel's Ministry of Culture & Sports, with "
+    },
+    {
+      "slug": "yeshiva-gevoha-itamar",
+      "name": "Yeshiva Gevoha Itamar",
+      "description": "A higher yeshiva established in 1998 on a hill in the Itamar settlement overlooking Shechem, founded by Rabbi Avihai Rontzky and now led by Rabbi Yehoshua van Dijk. Publishes a quarterly Torah journal, 'Ha'Tomer,' and maintains student groups worldwide."
+    },
+    {
+      "slug": "yeshivas-bircas-hatorah",
+      "name": "Yeshivas Bircas HaTorah",
+      "description": "A yeshiva founded in 1989 just above the Cardo in the Old City's Jewish Quarter, offering full-time beginning, intermediate and advanced learning programs as well as intensive short-term programs for visitors from abroad, drawing students of all ages and Jewish backgrounds."
+    },
+    {
+      "slug": "yeshivas-brisk",
+      "name": "Yeshivas Brisk",
+      "description": "An elite, highly selective Litvish yeshiva led by the Soloveitchik dynasty, known for the analytical 'Brisker method'; serves Israeli/Haredi students almost exclusively with no dedicated overseas program."
+    },
+    {
+      "slug": "yeshivat-ahavat-israel-netivot",
+      "name": "Yeshivat Ahavat Israel (Netivot)",
+      "description": "A hesder yeshiva in Netivot established in 2000, with about 50 students (roughly 20 in active military service), founded by Rabbi Israel Friedman Ben-Shalom together with his son Shmuli Ben-Shalom, with Rabbi David Asulin serving as head of yeshiva."
+    },
+    {
+      "slug": "yeshivat-ashkelon-orot-hatorah-vehachesed",
+      "name": "Yeshivat Ashkelon (Orot HaTorah VeHaChesed)",
+      "description": "A hesder-shiluvim yeshiva in Ashkelon educating students toward love of Torah, the Jewish people, and the State of Israel, combining significant military service with a mission-oriented outlook. Offers a post-army teaching-degree track in partnership with Orot Israel College."
+    },
+    {
+      "slug": "yeshivat-ayelet-hashachar-eilat",
+      "name": "Yeshivat Ayelet HaShachar (Eilat)",
+      "description": "A hesder yeshiva in Eilat."
+    },
+    {
+      "slug": "yeshivat-birkat-yosef-alon-moreh",
+      "name": "Yeshivat Birkat Yosef (Alon Moreh)",
+      "description": "A hesder and higher-yeshiva in Alon Moreh founded in 1995 (5755), with over 180 students and avrechim across its hesder and gevoha tracks. Led by Rabbi Eliyakim Levanon and Rabbi Shachar Eimber."
+    },
+    {
+      "slug": "yeshivat-chiburim-afula",
+      "name": "Yeshivat Chiburim Afula",
+      "description": "A branch of the Chiburim Beit Shean VeHaEmek hesder yeshiva, operating in Afula alongside the main Beit Shean institution under the same organizational umbrella."
+    },
+    {
+      "slug": "yeshivat-chiburim-beit-shean",
+      "name": "Yeshivat Chiburim Beit Shean",
+      "description": "A hesder yeshiva operated by the Chiburim Beit Shean VeHaEmek organization, which also runs family support and counseling services, agricultural education, and adult education (midrasha) programs across the Beit Shean valley region, in partnership with several government ministries and municipalitie"
+    },
+    {
+      "slug": "yeshivat-cholon",
+      "name": "Yeshivat Cholon",
+      "description": "A hesder yeshiva in Holon (population 200,000+) founded to establish a significant Torah center in the city, combining Talmudic study, Jewish law, biblical texts, and philosophy with military-service preparation and 'Lore of the Land of Israel.' Most students follow a 5-year track (2 years yeshiva, "
+    },
+    {
+      "slug": "yeshivat-derech-chaim-kiryat-gat",
+      "name": "Yeshivat Derech Chaim (Kiryat Gat)",
+      "description": "A hesder yeshiva in Kiryat Gat established in 2006 (5766), known for its in-depth analytical approach and high level of Talmudic and halachic study. About 150 students, including about 20 avrechim (married scholars) and 130 unmarried students, led by Rabbi Amir Maman."
+    },
+    {
+      "slug": "yeshivat-givat-olga-hadera",
+      "name": "Yeshivat Givat Olga (Hadera)",
+      "description": "A high school and hesder yeshiva in the Givat Olga neighborhood of Hadera, founded in 2011 through the initiative of the Torah nucleus 'Atid Im Tikva,' and formally recognized as a hesder yeshiva by the Defense Ministry in 2013. Led by Rabbi Efraim Giami. Students volunteer in personal mentoring, ho"
+    },
+    {
+      "slug": "yeshivat-habikah-sdemot-neriah",
+      "name": "Yeshivat HaBikah (Sdemot Neriah)",
+      "description": "A hesder yeshiva named for Rabbi Moshe Tzvi Neriah, established in 1994 by Yeshivat Bnei Akiva Kfar Haroeh (Rabbi Neriah's last founding before his passing a year later), relocated to Sdemot Mechola to strengthen Jewish settlement in the Jordan Valley. About 40 students study there under current hea"
+    },
+    {
+      "slug": "yeshivat-hagolan",
+      "name": "Yeshivat HaGolan",
+      "description": "A higher yeshiva with a hesder track in the Golan Heights, offering study hall lessons in Gemara, Halacha, faith and philosophy, mussar, and Biblical studies, with an active alumni network and Torah library."
+    },
+    {
+      "slug": "yeshivat-hahesder-dimona",
+      "name": "Yeshivat HaHesder Dimona",
+      "description": "A higher/hesder yeshiva in Dimona established roughly 12 years ago, led by Rabbi David Torjeman, taking responsibility for Torah leadership in the city. Encourages enlistment in combat roles within the hesder track as well as special forces and reconnaissance units; the hesder track runs 17 months o"
+    },
+    {
+      "slug": "yeshivat-hahesder-ramat-hasharon",
+      "name": "Yeshivat HaHesder Ramat HaSharon",
+      "description": "A hesder yeshiva in Ramat HaSharon led by Rabbi Moshe Chai B'Harabi, with three main study tracks: in-depth Talmud study in the morning, breadth of study in the afternoons and evenings, and Halacha study for married students. Views military service through the hesder track as an expression of the va"
+    },
+    {
+      "slug": "yeshivat-hahesder-ramla",
+      "name": "Yeshivat HaHesder Ramla",
+      "description": "A hesder yeshiva in Ramla established in 2014 (Elul 5774), located in a complex on the edge of the market in the Emishav neighborhood, combining higher Torah study with significant military service. Led by Rabbi Ari Hendler."
+    },
+    {
+      "slug": "yeshivat-hahesder-rishon-lezion",
+      "name": "Yeshivat HaHesder Rishon LeZion",
+      "description": "A family-oriented hesder yeshiva focused on developing students' spiritual identity as Torah scholars, combining in-depth Talmud study with Jewish thought, life skills, mentorship, and community engagement."
+    },
+    {
+      "slug": "yeshivat-hameiri-kiryat-moshe",
+      "name": "Yeshivat HaMeiri (Kiryat Moshe)",
+      "description": "A hesder yeshiva in Jerusalem's Kiryat Moshe neighborhood, established in 1995 at the direction of former Chief Rabbi Mordechai Eliyahu, founded by Rabbi Shmuel Zafrani and Dr. Yaakov Hadani, offering a unique track that combines yeshiva study with academic studies leading to accreditation. About 80"
+    },
+    {
+      "slug": "yeshivat-haseder-gavoha-kiryat-gat",
+      "name": "Yeshivat HaSeder Gavoha Kiryat Gat",
+      "description": "A hesder yeshiva in Kiryat Gat established to disseminate Torah with love among the Jewish people, distinct from the city's other hesder yeshiva (Derech Chaim). Emphasizes divine service with love and joy, love for the Jewish people, passionate Torah study, community responsibility, and character de"
+    },
+    {
+      "slug": "yeshivat-haseder-nof-hagalil",
+      "name": "Yeshivat HaSeder Nof HaGalil",
+      "description": "A hesder yeshiva in Nof HaGalil emphasizing deep Torah study with independent thinking, national unity through exploring Jewish peoplehood, and character development including leadership and personal responsibility."
+    },
+    {
+      "slug": "yeshivat-har-bracha",
+      "name": "Yeshivat Har Bracha",
+      "description": "A Torah institution centered on 'Torah as a way of life,' led by Rabbi Eliezer Melamed, offering a Kollel for rabbinical studies, a Shiluvim track combining Torah study with secular university degrees, a women's Torat Chaim Midrasha, and a program for army veterans."
+    },
+    {
+      "slug": "yeshivat-hesder-maalot-yaakov",
+      "name": "Yeshivat Hesder Maalot Yaakov",
+      "description": "A Bnei Akiva-affiliated hesder yeshiva in Maalot centered on the doctrine of 'Torah of the Land of Israel,' combining religious study with Zionist values. Runs a 'Bnei Menashe' integration project for that diaspora community and a 'Panim el Panim' interpersonal engagement initiative."
+    },
+    {
+      "slug": "yeshivat-hesder-orot-yaakov-rehovot",
+      "name": "Yeshivat Hesder Orot Yaakov (Rehovot)",
+      "description": "A hesder yeshiva in Rehovot founded roughly 50 years ago, combining Torah study in a warm, family-like atmosphere with military service preparation and an academic degree track. About 200 students study there under Rabbi Ami Danino."
+    },
+    {
+      "slug": "yeshivat-karnei-shomron",
+      "name": "Yeshivat Karnei Shomron",
+      "description": "One of the veteran hesder yeshivot, established in 1980 (5740), located in western Samaria near Kedumim, Emanuel, and Alfei Menashe. Led by Rabbi Shmuel Haber and Rabbi Avraham Kurzweil."
+    },
+    {
+      "slug": "yeshivat-kiryat-shmona",
+      "name": "Yeshivat Kiryat Shmona",
+      "description": "A settlement hesder yeshiva in northern Israel, established in 1977 by Rabbi Tzfanya Drori (a student of Rabbi Tzvi Yehuda HaCohen Kook) to strengthen Torah values in the northern border region. About 230 students engage in diverse learning methods; the yeshiva positions itself as a Torah center for"
+    },
+    {
+      "slug": "yeshivat-kol-torah",
+      "name": "Yeshivat Kol Torah",
+      "description": "A historic Litvish yeshiva founded in 1939, the first mainstream Haredi yeshiva to teach in Hebrew rather than Yiddish, long associated with Rav Shlomo Zalman Auerbach; Israeli/Haredi students only, no overseas program."
+    },
+    {
+      "slug": "yeshivat-merkaz-harav",
+      "name": "Yeshivat Merkaz HaRav",
+      "description": "Flagship religious-Zionist yeshiva gevoha founded in 1924 by Rav Kook, with 600+ students; Israeli-students-only in practice with no dedicated overseas program."
+    },
+    {
+      "slug": "yeshivat-midbara-keeden-mitzpe-ramon",
+      "name": "Yeshivat Midbara Ke'Eden (Mitzpe Ramon)",
+      "description": "One of Israel's larger hesder yeshivot, established in 2000 and deliberately located in Mitzpe Ramon to advance settlement and spiritual revival in the Negev. About 300 students, including roughly 80 married students, led by Rabbi Tzvi Kostiner; also runs a smaller sister high-school-age yeshiva, Mi"
+    },
+    {
+      "slug": "yeshivat-nachalat-yosef-shavei-shomron",
+      "name": "Yeshivat Nachalat Yosef (Shavei Shomron)",
+      "description": "A religious-nationalist yeshiva in Shavei Shomron with both a higher-yeshiva and hesder track, led by Rabbi Yehoshua Shmidt with Rabbi Dov Lior as president. Renamed Yeshivat Nachalat Yosef in 2017 in memory of Rabbi Yosef Schwartz. Known for studying Talmud using the 'Method of Signs' (Shitat HaSim"
+    },
+    {
+      "slug": "yeshivat-netzer-matai-ariel",
+      "name": "Yeshivat Netzer Matai (Ariel)",
+      "description": "A Torah study center in Ariel following the teachings of Rabbi Kook and his son, offering deep learning for gap-year students (week-long intensive tracks) and flexible courses for university students. Originally established in Netzarim, Gush Katif, before relocating to Ariel."
+    },
+    {
+      "slug": "yeshivat-or-akiva",
+      "name": "Yeshivat Or Akiva",
+      "description": "A hesder yeshiva complex in Or Akiva encompassing a preparatory program, the yeshiva itself, a girls' school, and an alumni program, with about 120 students. Led by Rabbi Yossi Alfasi. Approach emphasizes meeting each student where he is, with deep learning rooted in love and faith, journeys, and pe"
+    },
+    {
+      "slug": "yeshivat-or-etzion",
+      "name": "Yeshivat Or Etzion",
+      "description": "A high-level yeshiva founded in the spirit of Rabbi Avraham Isaac Kook, established in 1977 by Rabbi Haim Druckman, emphasizing Torah study, fear of Heaven, observance of commandments, love of the Jewish people, and love of the State of Israel. Also houses a preparatory track for the Ethiopian Jewis"
+    },
+    {
+      "slug": "yeshivat-or-veyeshua-haifa",
+      "name": "Yeshivat Or VeYeshua (Haifa)",
+      "description": "A hesder and higher yeshiva founded in 2001 by Rabbi Dr. Eliyahu Zayni as the first Zionist yeshiva in Haifa, combining meaningful Torah study with military service, emphasizing personal growth, responsibility, and love for the Jewish people and Land of Israel."
+    },
+    {
+      "slug": "yeshivat-orot-moshe-rosh-haayin",
+      "name": "Yeshivat Orot Moshe (Rosh HaAyin)",
+      "description": "A hesder-shiluvim yeshiva in Rosh HaAyin led by Rabbi Gilad Chala, combining faith-based Torah study with meaningful military service across a four-year structure: a year of yeshiva study preparing for the army, two years of military service, and a final year of yeshiva study preparing for life afte"
+    },
+    {
+      "slug": "yeshivat-orot-shaul-tel-aviv",
+      "name": "Yeshivat Orot Shaul (Tel Aviv)",
+      "description": "A hesder yeshiva founded in September 1998 by Rabbi Yuval Sherlo, Rabbi David Stav, and Rabbi Shai Piron, led by Rabbi Yuval Sherlo, Rabbi Tamir Granot, and Rabbi Itamar Eldar. Relocated to Tel Aviv's Shapira neighborhood in 2020, at which point it left the AMIT network and joined the Ruach HaGolan "
+    },
+    {
+      "slug": "yeshivat-ramat-gan",
+      "name": "Yeshivat Ramat Gan",
+      "description": "A religious-Zionist Chassidic hesder yeshiva, described as a pioneer among Zionist yeshivot in the Gush Dan area, established in 1994 (5754). Led by Rabbi Yehoshua Shapira, joined by Rabbi Ben Tzion Elgazi since 2018; Rabbi Yaakov Ariel (former city rabbi) serves as president."
+    },
+    {
+      "slug": "yeshivat-sderot",
+      "name": "Yeshivat Sderot",
+      "description": "A hesder yeshiva in Sderot combining Talmudic study with Jewish thought (Rav Kook, the Maharal) and national-religious/Zionist ideology, operating dormitory facilities and community outreach projects. Runs a 'Lev LaDaat' branch/track (about 150 students total across the institution) alongside its ma"
+    },
+    {
+      "slug": "yeshivat-sdot-negev-kfar-maimon",
+      "name": "Yeshivat Sdot Negev (Kfar Maimon)",
+      "description": "A hesder yeshiva open to high school graduates from throughout Israel, combining Torah study with meaningful military service, led by the rabbi of Kibbutz Sa'ad, Rabbi Ari Set, and Rabbi Michael Adre'i (rabbi of Kfar Maimon-Toushiya)."
+    },
+    {
+      "slug": "yeshivat-shilo",
+      "name": "Yeshivat Shilo",
+      "description": "A Torah study institution in Shilo emphasizing deep Talmudic study from foundational understanding through advanced rabbinic sources, complemented by courses on faith, ethics, and Hasidic teachings. About 100 students and post-graduate scholars, plus military groups, led by Rabbi Michael Broom (pres"
+    },
+    {
+      "slug": "yeshivat-shirat-moshe-meirim-beyafo",
+      "name": "Yeshivat Shirat Moshe (Meirim BeYafo)",
+      "description": "A yeshiva founded by Rabbi Eliyahu Mali as the centerpiece of the Meirim BeYafo organization, which runs about nine initiatives in Jaffa including a pre-military academy (Mechinat Chivat Tzion), a women's center, and student housing, aiming to strengthen Jewish communal life in the city. Around 600 "
+    },
+    {
+      "slug": "yeshivat-tekoa",
+      "name": "Yeshivat Tekoa",
+      "description": "A yeshiva operating in the spirit of Rabbi Adin Steinsaltz z\"l, emphasizing in-depth and broad Talmudic study to develop Torah scholars grounded in tradition. Also runs a kollel for advanced study."
+    },
+    {
+      "slug": "yeshivat-tfachot",
+      "name": "Yeshivat Tfachot",
+      "description": "A hesder yeshiva established in 1980 to strengthen Jewish presence in the Galilee, combining Torah study with military service. About 200 students currently study there; the institution also runs mission-oriented communities (garinim) in Tfachot and Tiberias, plus an extension yeshiva, Ramat Arbel."
+    }
+  ]
+}

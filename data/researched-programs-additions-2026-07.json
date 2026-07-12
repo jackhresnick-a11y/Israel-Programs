@@ -1,0 +1,47 @@
+{
+  "_note": "2026-07-12 Tier 1/2 priority-additions batch, per the israelprogramswiki.com data-quality task. Covers the 3 confirmed-missing Tier 1/2 programs verified against the full 362-program list before import: Masa Israel Journey (umbrella grant/matching portal, distinct from the individual Masa-affiliated tracks already listed separately, e.g. career-israel, arevim-masa-year-of-service, masa-israel-teaching-fellows-mitf), Nefesh B'Nefesh (org-level aliyah-support entry, distinct from the already-listed sherut-leumi-national-service-via-nefesh-bnefesh track), and Destination Israel (Masa-affiliated Tel Aviv internship/volunteer organizer, distinct from the generic onward-israel entry even though one of its tracks is branded 'Onward TLV'). Sourced from masaisrael.org, nbn.org.il, and destinationisrael.com (all fetched 2026-07-12). No pricing/grant-dollar-amount info included per standing rule. Everything already confirmed to exist (Birthright Israel, Onward Israel, Garin Tzabar, Sar-El, Career Israel, Tamid, Ulpan Etzion, Aardvark Israel, Kivunim, Young Judaea Year Course, Reichman, Rothberg, Technion International, TAU International, Israel XP/Bar-Ilan) is intentionally NOT in this file -- see the workstream report for the full exists-vs-added table. The 5 Birthright trip organizers (Israel Outdoors, Mayanot, Sachlav, Amazing Israel, Shorashim) are withheld pending Gate 2 approval and are not in this file either.",
+  "umbrella_organizations": [
+    {
+      "name": "Masa Israel Journey",
+      "organization": "The Jewish Agency for Israel",
+      "location": "Various locations across Israel",
+      "description": "The Jewish Agency's umbrella network connecting young Jewish adults with 2-12 month study, internship, volunteer, and teaching programs across Israel. Rather than running a single program itself, Masa operates as a matching and grant-support portal spanning gap-year, academic-semester, teaching-fellowship, and professional-internship tracks -- some of which are separately listed in this directory under their own program names.",
+      "durationType": "ONGOING",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://www.masaisrael.org/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.masaisrael.org/",
+      "tags": ["masa", "coed", "age-gap-year", "age-college", "age-post-college", "non-affiliated-religously"]
+    },
+    {
+      "name": "Nefesh B'Nefesh",
+      "organization": "Nefesh B'Nefesh",
+      "location": "Various locations across Israel",
+      "description": "An aliyah-support organization, founded in 2002 in partnership with Israel's Ministry of Aliyah and Integration and the Jewish Agency, assisting Jews from North America and the UK through every stage of immigrating to Israel: aliyah advising, an English-speaking employment job board, career-retraining courses, and post-arrival community and government-services support. Runs a dedicated Lone Soldiers Program supporting thousands of IDF-bound immigrants annually from over 70 countries.",
+      "durationType": "ONGOING",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://www.nbn.org.il/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.nbn.org.il/",
+      "tags": ["aliyah", "lone-soldier", "coed"]
+    },
+    {
+      "name": "Destination Israel",
+      "organization": "Destination Israel",
+      "location": "Tel Aviv",
+      "description": "A Masa-affiliated organization based in Tel Aviv offering professional internship placements (2-5 months) across finance, tech, marketing, consulting, and other fields with a network of 1,200+ partner companies, alongside shorter volunteer tracks (1-6 weeks) with organizations like Magen David Adom and United Hatzalah, and a remote-work track for participants continuing outside employment while based in Israel. Includes housing and Hebrew ulpan options.",
+      "durationType": "SEMESTER",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://www.destinationisrael.com/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.destinationisrael.com/",
+      "tags": ["masa", "professional", "ulpan", "coed", "age-college", "age-post-college", "coastal-israel", "non-affiliated-religously", "essence-academic-internship", "integration-medium"]
+    }
+  ]
+}

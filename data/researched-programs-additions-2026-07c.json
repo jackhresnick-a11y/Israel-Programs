@@ -1,0 +1,47 @@
+{
+  "_note": "2026-07-12 Gate-2-approved batch: individual Birthright Israel trip-organizer entries, added alongside the existing birthright-israel umbrella entry and israel-free-spirit (an existing organizer-style entry that set the site's precedent for this structure). Of the 5 organizers named in the original request, only 3 were verifiable as currently-active Birthright organizers: Israel Outdoors, Mayanot, and Sachlav (all confirmed via their official sites, fetched 2026-07-12). 'Amazing Israel' could not be found as a real, currently-accredited Birthright organizer despite searching -- omitted rather than guessed. Shorashim/Israel with Israelis confirmed (via israelwithisraelis.com and secondary sources) to have STOPPED running Birthright trips as of November 2022, pivoting to other 'Tailor Made' trip types -- also omitted, since listing it as an active Birthright organizer would be factually wrong. Both flagged in the workstream report for user review. All three added entries tagged #birthright + #10-day per Gate 2's approved structure. No pricing info included (Birthright trips are free, which per standing guidance is the one permitted exception to the no-pricing rule, but 'free' was not asserted here since none of these 3 organizer pages were fetched specifically to confirm it beyond the general Birthright-is-free fact already reflected on the birthright-israel entry).",
+  "birthright_trip_organizers": [
+    {
+      "name": "Israel Outdoors",
+      "organization": "Israel Outdoors",
+      "location": "Israel-wide",
+      "description": "A Birthright Israel trip organizer running free 10-day trips since 2002 for Jewish young adults ages 18-26, distinctive for its pluralistic, adventure-oriented itinerary -- hiking, biking, rafting, and jeep touring through the Galilee, desert canyons, and coastline -- alongside the standard historical and cultural sites.",
+      "durationType": "TEN_DAY",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://israeloutdoors.com/",
+      "contactPhone": "",
+      "contactWebsite": "https://israeloutdoors.com/",
+      "tags": ["birthright", "10-day", "age-gap-year", "age-college", "age-post-college", "coed", "integration-medium", "essence-travel"]
+    },
+    {
+      "name": "Mayanot",
+      "organization": "Mayanot Institute of Jewish Studies",
+      "location": "Israel-wide",
+      "description": "A Chabad-affiliated Birthright Israel trip organizer offering free 7-10 day trips across several age cohorts (18-22, 22-26, 27-32), with themed tracks including campus-focused groups, gender-specific trips, active-adventure trips, and a liberal-arts-curriculum option, plus post-trip extension and alumni volunteer opportunities.",
+      "durationType": "TEN_DAY",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://mayanotisrael.com/",
+      "contactPhone": "",
+      "contactWebsite": "https://mayanotisrael.com/",
+      "tags": ["birthright", "10-day", "chabad", "age-gap-year", "age-college", "age-post-college", "coed", "integration-medium"]
+    },
+    {
+      "name": "Sachlav",
+      "organization": "Sachlav Israel",
+      "location": "Israel-wide",
+      "description": "An unaffiliated Birthright Israel trip organizer running free 10-day trips for Jewish young adults, bundling accommodations, meals, guided tours, activities, and security support into an all-inclusive itinerary.",
+      "durationType": "TEN_DAY",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://www.sachlav.com/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.sachlav.com/",
+      "tags": ["birthright", "10-day", "age-gap-year", "age-college", "age-post-college", "coed", "integration-medium"]
+    }
+  ]
+}
