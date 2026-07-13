@@ -4,13 +4,13 @@ import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import type { ProgramContactEmail } from "@/lib/programs";
+import { LANGUAGE_LABELS, type WebsiteLanguage } from "@/lib/websiteLanguage";
 
 // Keeps each generated Gmail compose URL comfortably under browser/URL-length
 // limits so very large selections still work, split across multiple buttons.
 const MAX_URL_LENGTH = 1800;
 const GMAIL_COMPOSE_BASE = "https://mail.google.com/mail/?view=cm&fs=1&bcc=";
 
-type WebsiteLanguage = "ENGLISH" | "HEBREW" | "BOTH";
 type Row = ProgramContactEmail & { needsVerification: boolean };
 type VerifiedFilter = "ALL" | WebsiteLanguage | "UNCLASSIFIED";
 
@@ -32,12 +32,6 @@ function chunkEmails(emails: string[]): string[][] {
   if (current.length > 0) chunks.push(current);
   return chunks;
 }
-
-const LANGUAGE_LABELS: Record<WebsiteLanguage, string> = {
-  ENGLISH: "English",
-  HEBREW: "Hebrew",
-  BOTH: "English + Hebrew",
-};
 
 /** One independently selectable/BCC-able list of programs. Owns its own selection
  * state -- sections never share a selection, so picking "select all" in one section

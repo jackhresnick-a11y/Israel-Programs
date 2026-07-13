@@ -125,6 +125,26 @@ export type OutreachEmailInput = {
 
 export type OutreachSendResult = { ok: true; resendId: string } | { ok: false; error: string };
 
+/** Extracts and cleans OUTREACH_BCC the same way getOutreachReplyToAddress cleans
+ * REPLY_TO_ADDRESS (trims whitespace, strips one layer of surrounding quotes). Unlike
+ * REPLY_TO_ADDRESS, BCC is optional -- absence means "don't BCC anyone," not "fall back
+ * to a default," so this returns null rather than a hardcoded address. Used to route a
+ * copy of every sent outreach email into the admin's own inbox (see sendOutreachEmail). */
+export function getOutreachBccAddress(): string | null {
+  const raw = process.env.OUTREACH_BCC;
+  if (!raw) return null;
+
+  let address = raw.trim();
+  if (address.length >= 2) {
+    const first = address[0];
+    const last = address[address.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      address = address.slice(1, -1).trim();
+    }
+  }
+  return address || null;
+}
+
 /**
  * Sends one outreach email. Distinct from sendContactEmail: returns the Resend
  * message id (needed to correlate bounce webhooks back to the OutreachEmail row) and
@@ -132,7 +152,8 @@ export type OutreachSendResult = { ok: true; resendId: string } | { ok: false; e
  * getOutreachFromAddress() can't produce a domain-valid sender -- there is no
  * onboarding@resend.dev fallback here. Sets Reply-To (getOutreachReplyToAddress) so a
  * program's reply lands in a real inbox the admin checks, since RESEND_FROM is a
- * send-only address with no mailbox of its own.
+ * send-only address with no mailbox of its own. Also BCCs getOutreachBccAddress() (if
+ * set) so a copy of every sent email lands in that same inbox for recordkeeping.
  */
 export async function sendOutreachEmail(input: OutreachEmailInput): Promise<OutreachSendResult> {
   const from = getOutreachFromAddress();
@@ -150,6 +171,7 @@ export async function sendOutreachEmail(input: OutreachEmailInput): Promise<Outr
       from,
       to: input.to,
       replyTo: getOutreachReplyToAddress(),
+      bcc: getOutreachBccAddress() ?? undefined,
       subject: input.subject,
       text: input.text,
     });
@@ -161,5 +183,69 @@ export async function sendOutreachEmail(input: OutreachEmailInput): Promise<Outr
   } catch (err) {
     console.error("[outreach email] send failed", err);
     return { ok: false, error: err instanceof Error ? err.message : "Unknown send error" };
+  }
+}
+
+export type TestEmailTemplate = "contact" | "verification" | "outreach";
+
+export type TestEmailResult = OutreachSendResult & { from?: string };
+
+const TEST_SAMPLES: Record<TestEmailTemplate, { subject: string; text: string }> = {
+  contact: {
+    subject: "Contact form: Test Sender",
+    text: "From: Test Sender <test@example.com>\n\nThis is a test of the contact-form notification email.",
+  },
+  // The app does not send a "verify your listing" email to programs today (see
+  // lib/outreach.ts) -- this sample exists purely so the admin can preview the
+  // copy/formatting and confirm inbox routing, not because a real send path uses it.
+  verification: {
+    subject: "Please verify your program listing on Israel Programs Wiki",
+    text: "Hi,\n\nThis is a sample verification-request email. It previews the copy and confirms inbox routing -- the app does not currently send this automatically.",
+  },
+  outreach: {
+    subject: "Verify your listing on Israel Programs Wiki",
+    text: "Hi,\n\nThis is a sample outreach email, rendered as a preview of the real 'verify your listing' template that programs receive.",
+  },
+};
+
+/**
+ * Sends a sample of one of the three email templates to any destination on demand, for
+ * previewing copy and confirming inbox routing from the admin Test Email panel. Mirrors
+ * sendOutreachEmail's from/replyTo/bcc resolution rather than duplicating it -- the
+ * "outreach" template must use the real getOutreachFromAddress() (so a test surfaces the
+ * same "RESEND_FROM not set to an israelprogramswiki.com address" failure the real send
+ * path would hit), while contact/verification use the same onboarding@resend.dev
+ * fallback as sendContactEmail since neither has a domain restriction.
+ */
+export async function sendTestEmail(input: { to: string; template: TestEmailTemplate }): Promise<TestEmailResult> {
+  const sample = TEST_SAMPLES[input.template];
+
+  const from = input.template === "outreach" ? getOutreachFromAddress() : process.env.RESEND_FROM ?? "onboarding@resend.dev";
+  if (!from) {
+    return { ok: false, error: "RESEND_FROM is not set to an address on israelprogramswiki.com" };
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return { ok: false, error: "RESEND_API_KEY is not configured" };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from,
+      to: input.to,
+      replyTo: getOutreachReplyToAddress(),
+      bcc: getOutreachBccAddress() ?? undefined,
+      subject: `[TEST] ${sample.subject}`,
+      text: sample.text,
+    });
+    if (error || !data) {
+      console.error("[test email] Resend returned an error", error);
+      return { ok: false, error: error?.message ?? "Resend returned no message id", from };
+    }
+    return { ok: true, resendId: data.id, from };
+  } catch (err) {
+    console.error("[test email] send failed", err);
+    return { ok: false, error: err instanceof Error ? err.message : "Unknown send error", from };
   }
 }

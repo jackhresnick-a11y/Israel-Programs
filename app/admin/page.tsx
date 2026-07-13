@@ -62,22 +62,10 @@ export default async function AdminPage() {
               Tags & categories
             </Link>
             <Link
-              href="/admin/emails"
+              href="/admin/email"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >
-              Contact emails
-            </Link>
-            <Link
-              href="/admin/email-verification"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
-            >
-              Email verification queue
-            </Link>
-            <Link
-              href="/admin/outreach"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
-            >
-              Outreach
+              Email
             </Link>
             <Link
               href="/admin/leads"

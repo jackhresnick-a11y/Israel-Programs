@@ -9,6 +9,7 @@ import Textarea from "@/components/ui/Textarea";
 import Badge, { type BadgeTone } from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
 import { categorizeProgram, groupByCategory, CATEGORY_KEYS, CATEGORY_LABELS, type CategoryKey } from "@/lib/outreachCategories";
+import { LANGUAGE_LABELS, type WebsiteLanguage } from "@/lib/websiteLanguage";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
 type OutreachStatus = "DRAFT" | "APPROVED" | "SENT" | "BOUNCED" | "REPLIED" | "WRONG_CONTACT";
@@ -25,7 +26,6 @@ type OutreachEmail = {
   sentAt: Date | null;
 };
 
-type WebsiteLanguage = "ENGLISH" | "HEBREW" | "BOTH";
 type LanguageFilter = "ALL" | WebsiteLanguage | "UNCLASSIFIED";
 
 type EligibleProgram = {
@@ -57,12 +57,6 @@ const STATUS_TONE: Record<OutreachStatus, BadgeTone> = {
   BOUNCED: "danger",
   REPLIED: "success",
   WRONG_CONTACT: "warning",
-};
-
-const LANGUAGE_LABELS: Record<WebsiteLanguage, string> = {
-  ENGLISH: "English",
-  HEBREW: "Hebrew",
-  BOTH: "English + Hebrew",
 };
 
 const LANGUAGE_FILTER_CHIPS: { key: LanguageFilter; label: string }[] = [
