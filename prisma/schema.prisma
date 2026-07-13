@@ -183,6 +183,21 @@ model OutreachEmail {
   @@index([status])
 }
 
+/// A named, reusable outreach email (subject + body) an admin can save and pick from
+/// when generating drafts -- distinct from the single global template stored in
+/// SiteContent (outreachSubjectTemplate/outreachBodyTemplate), which remains the
+/// fallback "Default" option. Supports the same {mergeField} syntax as the global
+/// template (see lib/outreach.ts's renderOutreachTemplate) -- rendering is identical,
+/// only the source of subject/body differs.
+model OutreachTemplate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  subject   String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 /// Append-only log of human verification actions on Program.contactEmail. Snapshots the
 /// address as it was at check time, so a bounced/replaced address and its reason survive
 /// any later edit to Program.contactEmail. Cascade on program delete is fine here (unlike

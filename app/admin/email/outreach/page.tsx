@@ -1,14 +1,16 @@
 import { listOutreachQueue } from "@/lib/outreach";
 import { getSiteContent } from "@/lib/siteContent";
+import { listOutreachTemplates } from "@/lib/outreachTemplates";
 import OutreachManager from "@/components/OutreachManager";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default async function AdminEmailOutreachPage() {
-  const [{ eligible, needsSourceCheck }, subjectTemplate, bodyTemplate, batchSize] = await Promise.all([
+  const [{ eligible, needsSourceCheck }, subjectTemplate, bodyTemplate, batchSize, savedTemplates] = await Promise.all([
     listOutreachQueue(),
     getSiteContent("outreachSubjectTemplate"),
     getSiteContent("outreachBodyTemplate"),
     getSiteContent("outreachBatchSize"),
+    listOutreachTemplates(),
   ]);
 
   return (
@@ -25,6 +27,7 @@ export default async function AdminEmailOutreachPage() {
           outreachBodyTemplate: bodyTemplate ?? "",
           outreachBatchSize: batchSize ?? "30",
         }}
+        savedTemplates={savedTemplates.map((t) => ({ id: t.id, name: t.name }))}
       />
     </div>
   );

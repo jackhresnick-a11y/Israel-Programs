@@ -158,16 +158,19 @@ export default function OutreachManager({
   eligible,
   needsSourceCheck,
   templates: initialTemplates,
+  savedTemplates,
 }: {
   eligible: EligibleProgram[];
   needsSourceCheck: NeedsSourceCheckProgram[];
   templates: Templates;
+  savedTemplates: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
 
   const [programs, setPrograms] = useState(eligible);
   const [templates, setTemplates] = useState(initialTemplates);
+  const [generateTemplateId, setGenerateTemplateId] = useState("");
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
   const [selectedGenerateIds, setSelectedGenerateIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -226,7 +229,9 @@ export default function OutreachManager({
   async function handleGenerateDrafts() {
     setBusy("generate");
     try {
-      const result = await postJson("/api/admin/outreach/generate-drafts");
+      const result = await postJson("/api/admin/outreach/generate-drafts", {
+        templateId: generateTemplateId || undefined,
+      });
       toast(`Generated ${result.created} draft(s) (${result.skippedExisting} already had one)`);
       router.refresh();
     } catch (err) {
@@ -241,7 +246,10 @@ export default function OutreachManager({
     if (ids.length === 0) return;
     setBusy("generate-selected");
     try {
-      const result = await postJson("/api/admin/outreach/generate-drafts", { programIds: ids });
+      const result = await postJson("/api/admin/outreach/generate-drafts", {
+        programIds: ids,
+        templateId: generateTemplateId || undefined,
+      });
       toast(`Generated ${result.created} draft(s) (${result.skippedExisting} already had one)`);
       setSelectedGenerateIds(new Set());
       router.refresh();
@@ -542,6 +550,24 @@ export default function OutreachManager({
                 : `Generate drafts for selected (${selectedGenerateIds.size})`}
             </Button>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="text-xs font-medium text-muted" htmlFor="generate-template-select">
+            Template
+          </label>
+          <select
+            id="generate-template-select"
+            value={generateTemplateId}
+            onChange={(e) => setGenerateTemplateId(e.target.value)}
+            className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
+          >
+            <option value="">Default (global template)</option>
+            {savedTemplates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex items-center gap-3">
           <Button size="sm" variant="secondary" onClick={selectAllGenerate} disabled={noDraft.length === 0}>
