@@ -75,6 +75,19 @@ enum OutreachStatus {
   WRONG_CONTACT
 }
 
+enum SchoolSize {
+  BIG
+  SMALL
+}
+
+enum CounselorOutreachStatus {
+  NOT_CONTACTED
+  CONTACTED
+  REPLIED
+  BOUNCED
+  WRONG_CONTACT
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -408,6 +421,53 @@ model Lead {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+/// Outreach contact for an Israel-guidance counselor at a Jewish school abroad --
+/// entirely separate from Program (these are schools, not programs). sourceUrl is
+/// required: no email is ever entered without a page it was observed on, same
+/// provenance principle as Program.contactEmailSource. emailIsGeneric flags a
+/// generic school address (info@/office@) captured in lieu of a counselor-specific
+/// one -- never presented as a direct counselor contact. Status only ever advances
+/// via recordCounselorOutreach (lib/counselorContacts.ts), which also appends a
+/// CounselorContactEvent row -- same audit-log shape as ContactEmailVerification.
+model CounselorContact {
+  id             String                  @id @default(cuid())
+  schoolName     String
+  country        String
+  cityRegion     String
+  schoolSize     SchoolSize?
+  contactName    String?
+  email          String
+  emailIsGeneric Boolean                 @default(false)
+  sourceUrl      String
+  notes          String?
+  status         CounselorOutreachStatus @default(NOT_CONTACTED)
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  events         CounselorContactEvent[]
+
+  @@unique([schoolName, country])
+  @@index([country])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// Append-only log of outreach status changes on a CounselorContact. Snapshots the
+/// email as it was at the time of the change, so a bounced address and the reason
+/// survive any later edit to CounselorContact.email. Cascade on delete is fine --
+/// history of a deleted contact's outreach has no standalone value.
+model CounselorContactEvent {
+  id           String                  @id @default(cuid())
+  contactId    String
+  contact      CounselorContact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  email        String
+  status       CounselorOutreachStatus
+  note         String?
+  recordedById String
+  createdAt    DateTime                @default(now())
+
+  @@index([contactId])
 }
 
 /// Anonymous usage counters for the programs browse page -- which filter

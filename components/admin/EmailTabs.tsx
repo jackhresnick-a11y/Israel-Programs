@@ -11,6 +11,7 @@ const TABS = [
   { href: "/admin/email/outreach", label: "Outreach" },
   { href: "/admin/email/templates", label: "Templates" },
   { href: "/admin/email/test", label: "Test" },
+  { href: "/admin/email/counselors", label: "Counselors" },
 ] as const;
 
 export default function EmailTabs() {
