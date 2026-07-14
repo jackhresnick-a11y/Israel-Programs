@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "baer-miriam-maayanot",
+    "name": "Baer Miriam (Ma'ayanot)",
+    "contactEmail": "office@baermiriam.com",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://www.baermiriam.com/",
+    "contactWebsite": "https://www.baermiriam.com/"
+  },
+  {
+    "slug": "sharfmans-bnot-torah-institute",
+    "name": "Sharfman's (Bnot Torah Institute)",
+    "contactEmail": "Info@BnotTorah.com",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://bnottorah.com/",
+    "contactWebsite": "https://bnottorah.com/"
+  },
+  {
+    "slug": "machon-maayan",
+    "name": "Machon Maayan",
+    "contactEmail": "office@machonmaayan.org",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://machonmaayan.org/",
+    "contactWebsite": "https://machonmaayan.org/"
+  },
+  {
+    "slug": "mmy-michlelet-mevaseret-yerushalayim",
+    "name": "MMY (Michlelet Mevaseret Yerushalayim)",
+    "contactEmail": "office@mmy.org.il",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://mevaseret.org/",
+    "contactWebsite": "https://mevaseret.org/"
+  },
+  {
+    "slug": "shaalvim-for-women-sfw",
+    "name": "Sha'alvim for Women (SFW)",
+    "contactEmail": "sfw.shaalvim@gmail.com",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://sfw.shaalvim.org/",
+    "contactWebsite": "https://sfw.shaalvim.org/"
+  },
+  {
+    "slug": "shearim-college-of-jewish-studies-for-women",
+    "name": "She'arim (College of Jewish Studies for Women)",
+    "contactEmail": "hello@shearim.com",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://shearim.com/",
+    "contactWebsite": "https://shearim.com/"
+  },
+  {
+    "slug": "tiferet-center",
+    "name": "Tiferet Center",
+    "contactEmail": "info@tiferetcenter.com",
+    "category": "anglo_seminaries",
+    "signupUrl": "https://www.tiferetcenter.com/",
+    "contactWebsite": "https://www.tiferetcenter.com/"
+  },
+  {
+    "slug": "imrei-binah",
+    "name": "Imrei Binah",
+    "contactEmail": "yeshivaimreibina@gmail.com",
+    "category": "anglo_yeshivot",
+    "signupUrl": "https://www.imreibinah.com/",
+    "contactWebsite": "https://www.imreibinah.com/"
+  },
+  {
+    "slug": "yeshivat-yesod-hatorah",
+    "name": "Yeshivat Yesod HaTorah",
+    "contactEmail": "info@yesodhatorah.org",
+    "category": "sephardic_yeshivot",
+    "signupUrl": "https://yesodhatorah.org/",
+    "contactWebsite": "https://yesodhatorah.org/"
+  },
+  {
+    "slug": "yeshivas-neimus-hatorah",
+    "name": "Yeshivas Ne'imus HaTorah",
+    "contactEmail": "NeimusHaTorah1@gmail.com",
+    "category": "chassidish_yeshivot",
+    "signupUrl": "https://www.neimushatorah.com/",
+    "contactWebsite": "https://www.neimushatorah.com/"
+  }
+]
