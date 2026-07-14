@@ -78,5 +78,85 @@
     "category": "chassidish_yeshivot",
     "signupUrl": "https://www.neimushatorah.com/",
     "contactWebsite": "https://www.neimushatorah.com/"
+  },
+  {
+    "slug": "mechinat-shahar-elrom",
+    "name": "Mechinat Shahar Elrom",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/elrom/",
+    "contactWebsite": "https://mehina.net/elrom/"
+  },
+  {
+    "slug": "mechinat-shahar-degania",
+    "name": "Mechinat Shahar Degania",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/dgania/",
+    "contactWebsite": "https://mehina.net/dgania/"
+  },
+  {
+    "slug": "mechinat-shahar-malkia",
+    "name": "Mechinat Shahar Malkia",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/malkia/",
+    "contactWebsite": "https://mehina.net/malkia/"
+  },
+  {
+    "slug": "mechinat-shahar-david-tel-katzir",
+    "name": "Mechinat Shahar David (Tel Katzir)",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/david-tel-katzir/",
+    "contactWebsite": "https://mehina.net/david-tel-katzir/"
+  },
+  {
+    "slug": "mechinat-shahar-tal",
+    "name": "Mechinat Shahar Tal",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/tal/",
+    "contactWebsite": "https://mehina.net/tal/"
+  },
+  {
+    "slug": "mechinat-shahar-rotem",
+    "name": "Mechinat Shahar Rotem",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/rotem/",
+    "contactWebsite": "https://mehina.net/rotem/"
+  },
+  {
+    "slug": "mechinat-shahar-haon",
+    "name": "Mechinat Shahar Haon",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/haon/",
+    "contactWebsite": "https://mehina.net/haon/"
+  },
+  {
+    "slug": "mechinat-shahar-hukuk",
+    "name": "Mechinat Shahar Hukuk",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/hukuk/",
+    "contactWebsite": "https://mehina.net/hukuk/"
+  },
+  {
+    "slug": "mechinat-shahar-mevo-dotan",
+    "name": "Mechinat Shahar Mevo Dotan",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/mevo-dotan/",
+    "contactWebsite": "https://mehina.net/mevo-dotan/"
+  },
+  {
+    "slug": "mechinat-shahar-nitzan",
+    "name": "Mechinat Shahar Nitzan",
+    "contactEmail": "Office1@mehina.net",
+    "category": "mechina",
+    "signupUrl": "https://mehina.net/nitzan/",
+    "contactWebsite": "https://mehina.net/nitzan/"
   }
 ]

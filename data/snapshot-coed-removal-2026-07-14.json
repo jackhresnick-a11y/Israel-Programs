@@ -1,0 +1,76 @@
+[
+  {
+    "id": "cmr8bo6em001phdmzdoezz43r",
+    "name": "Sherut Leumi (National Service) via Nefesh B'Nefesh",
+    "slug": "sherut-leumi-national-service-via-nefesh-bnefesh",
+    "tags": [
+      {
+        "id": "cmr7sl7m0000ew9mz2efu8jyn",
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "id": "cmr8stn5d00010omzsxnrfve6",
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "id": "cmrcghtpw000033mzcn8hnmhn",
+        "name": "High integration",
+        "slug": "integration-high"
+      },
+      {
+        "id": "cmrcghvfw000733mzhfqhtwlr",
+        "name": "Non-affiliated religously",
+        "slug": "non-affiliated-religously"
+      },
+      {
+        "id": "cmrcghw0e000c33mzoig1t7xi",
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "id": "cmrcj75de000304k3d6swctka",
+        "name": "Sherut leumi (national service)",
+        "slug": "sherut-leumi-national-service"
+      },
+      {
+        "id": "cmrduzq6u0002ermzeiyh6cr8",
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "id": "cmrduzqb10003ermzq9c66x03",
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "id": "cmrhje9fi0004e1mz39b0ls5s",
+        "name": "lone-soldier",
+        "slug": "lone-soldier"
+      }
+    ]
+  },
+  {
+    "id": "cmrhjlkdh00023hmzxvg44ffa",
+    "name": "Nefesh B'Nefesh",
+    "slug": "nefesh-bnefesh",
+    "tags": [
+      {
+        "id": "cmr8stn5d00010omzsxnrfve6",
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "id": "cmrhje28o0003e1mzdxkq7xur",
+        "name": "aliyah",
+        "slug": "aliyah"
+      },
+      {
+        "id": "cmrhje9fi0004e1mz39b0ls5s",
+        "name": "lone-soldier",
+        "slug": "lone-soldier"
+      }
+    ]
+  }
+]
