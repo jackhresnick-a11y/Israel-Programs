@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL = "https://israelprogramswiki.com";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -15,8 +14,13 @@ export default function robots(): MetadataRoute.Robots {
         "/mission/edit",
         "/references/",
         "/compare",
+        "/saved",
+        // Deliberately NOT /s/ (shared folder links) -- a disallow would stop
+        // crawlers from ever fetching the page to see its noindex metadata,
+        // and WhatsApp/Facebook's link-preview scrapers need to fetch it
+        // regardless to build a share card. See the folders design doc.
       ],
     },
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

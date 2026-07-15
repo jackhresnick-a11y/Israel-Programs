@@ -153,6 +153,7 @@ model Program {
   references             Reference[]
   emailVerifications     ContactEmailVerification[]
   outreachEmail          OutreachEmail?
+  folderItems            FolderItem[]
 
   @@index([durationType])
   @@index([status])
@@ -490,4 +491,45 @@ model AnalyticsEvent {
 
   @@index([createdAt])
   @@index([type, createdAt])
+}
+
+/// A user's named list of programs -- replaces the flat favorites/SavedItem
+/// concept sketched in docs/PRODUCT_SPEC.md §3 (never build that; every save
+/// action here targets a Folder, with a lazily-created isDefault one giving
+/// the one-tap "save" UX). shareToken is null until the owner shares the
+/// folder; sharing always mints a fresh random token (see lib/folders.ts's
+/// mintShareToken) rather than toggling a boolean, so a revoked link can
+/// never be resurrected by re-sharing. There is deliberately no separate
+/// Share model -- one live link per folder is enough for v1.
+model Folder {
+  id         String       @id @default(cuid())
+  ownerId    String
+  name       String
+  isDefault  Boolean      @default(false)
+  shareToken String?      @unique
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  items      FolderItem[]
+
+  @@index([ownerId])
+}
+
+/// One (folder, program) membership. onDelete: SetNull (not Cascade) on the
+/// program relation is deliberate: if a program is hard-deleted, its
+/// FolderItem row survives as a tombstone (programId null) rather than
+/// vanishing, so the "N programs no longer available" count shown to a
+/// folder's owner and to shared-link visitors stays accurate for both
+/// hard-deleted and merely-unpublished programs, not just one of the two.
+/// Tombstones are inert (nothing writes a null programId except this
+/// cascade) and never count against MAX_ITEMS_PER_FOLDER; they persist
+/// until the owner clears them (lib/folders.ts's clearUnavailableItems).
+model FolderItem {
+  id        String   @id @default(cuid())
+  folderId  String
+  programId String?
+  createdAt DateTime @default(now())
+  folder    Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  program   Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+
+  @@unique([folderId, programId])
 }

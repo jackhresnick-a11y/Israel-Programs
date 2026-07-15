@@ -1,13 +1,16 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SignInButton, Show } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
-import { getProgramBySlug, averageRating } from "@/lib/programs";
+import { getProgramBySlug, averageRating, toPublicProgram, shareDescription } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
+import { SITE_NAME } from "@/lib/siteUrl";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewList from "@/components/ReviewList";
 import VideoUploader from "@/components/VideoUploader";
@@ -21,6 +24,47 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 
+// Shared between the page body and generateMetadata so the two only issue
+// one Prisma query per request.
+const getProgram = cache(getProgramBySlug);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const program = await getProgram(slug);
+
+  // Unpublished: no shareable preview. Anonymous visitors already 404 on the
+  // page itself; an owner/moderator viewing a PENDING/REJECTED program gets
+  // explicit noindex rather than inheriting the root layout's full OG
+  // defaults onto a page that shouldn't be indexed or unfurled.
+  if (!program || program.status !== "PUBLISHED") {
+    return { robots: { index: false, follow: false } };
+  }
+
+  // Route share copy exclusively through toPublicProgram() so adminNote /
+  // contactEmailSource / outreachCategory can never reach a meta tag.
+  const pub = toPublicProgram(program);
+  const description = shareDescription(pub.description);
+  const path = `/programs/${slug}`;
+
+  return {
+    title: pub.name,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      title: pub.name,
+      description,
+      url: path,
+      type: "website",
+      siteName: SITE_NAME,
+    },
+    twitter: { card: "summary_large_image", title: pub.name, description },
+  };
+}
+
 export default async function ProgramDetailPage({
   params,
   searchParams,
@@ -30,7 +74,7 @@ export default async function ProgramDetailPage({
 }) {
   const { slug } = await params;
   const [program, role, { userId }, query, durationLabelMap] = await Promise.all([
-    getProgramBySlug(slug),
+    getProgram(slug),
     getCurrentRole(),
     auth(),
     searchParams,

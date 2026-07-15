@@ -4,9 +4,12 @@ import { averageRating } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
+import ShareButton from "@/components/ShareButton";
+import BookmarkButton from "@/components/BookmarkButton";
 import { cn } from "@/lib/cn";
 
 export type ProgramCardProgram = {
+  id: string;
   slug: string;
   name: string;
   description: string;
@@ -23,7 +26,7 @@ export function ProgramCardInfo({
   program,
   durationLabelMap,
   gap = "normal",
-  reserveActionSpace = false,
+  actionSpace = "none",
 }: {
   program: ProgramCardProgram;
   /** Resolved duration labels (admin-editable, see lib/duration.ts's getDurationLabelMap) --
@@ -31,14 +34,21 @@ export function ProgramCardInfo({
   durationLabelMap: Record<DurationType, string>;
   /** "tight" is used by the featured card's condensed desktop info column. */
   gap?: "normal" | "tight";
-  /** Leaves room on the right of the title/duration row for an overlaid action (e.g. the Compare pill). */
-  reserveActionSpace?: boolean;
+  /** Leaves room on the right of the title/duration row for the overlaid corner
+   *  controls -- "sm" for bookmark + share, "lg" for bookmark + share + the Compare pill. */
+  actionSpace?: "none" | "sm" | "lg";
 }) {
   const rating = averageRating(program.reviews);
 
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
-      <div className={cn("flex items-center gap-3", reserveActionSpace && "pr-20")}>
+      <div
+        className={cn(
+          "flex items-center gap-3",
+          actionSpace === "sm" && "pr-16",
+          actionSpace === "lg" && "pr-40"
+        )}
+      >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-muted">
           {program.logoUrl ? (
             <Image
@@ -100,9 +110,17 @@ export default function ProgramCard({
 }) {
   return (
     <Card interactive className="relative flex flex-col gap-3 p-5">
-      {action && <div className="absolute right-3 top-3 z-10">{action}</div>}
+      <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+        <BookmarkButton programId={program.id} name={program.name} />
+        <ShareButton slug={program.slug} name={program.name} />
+        {action}
+      </div>
       <Link href={`/programs/${program.slug}`} className="flex flex-col gap-3">
-        <ProgramCardInfo program={program} durationLabelMap={durationLabelMap} reserveActionSpace={Boolean(action)} />
+        <ProgramCardInfo
+          program={program}
+          durationLabelMap={durationLabelMap}
+          actionSpace={action ? "lg" : "sm"}
+        />
       </Link>
       <Link
         href={`/programs/${program.slug}/edit`}

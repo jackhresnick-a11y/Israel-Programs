@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { requireRole } from "@/lib/roles";
+import { revokeAllSharesForUser } from "@/lib/folders";
 
 /**
  * Deliberately moderator-accessible (not admin-only like the general role
@@ -20,6 +21,10 @@ export async function POST(
   const { id } = await params;
   const client = await clerkClient();
   await client.users.updateUserMetadata(id, { publicMetadata: { role: "banned" } });
+  // A banned user's folder names must stop being reachable on the public
+  // /s/[token] surface the instant the ban takes effect -- see
+  // revokeAllSharesForUser's doc comment for why this doesn't restore on unban.
+  await revokeAllSharesForUser(id);
 
   return NextResponse.json({ id, role: "banned" });
 }

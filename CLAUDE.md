@@ -55,10 +55,18 @@ npm run lint              # eslint (flat config: eslint-config-next core-web-vit
 npx tsc --noEmit          # typecheck — there is no dedicated script for this, use directly
 ```
 
-**No test suite exists in this repo.** There is no test runner, no test files, and no
-`test` script — don't assume Jest/Vitest conventions or try to "run the tests."
-Verification in this project means: `npx tsc --noEmit`, `npm run lint`, exercising the
-feature via `curl`/the running dev server, and (for data changes) querying Neon directly.
+**A small Vitest suite exists** (`npm test`, `vitest.config.ts` at the repo root, aliasing
+`@` to the repo root same as `tsconfig.json`) — `lib/roles.test.ts` (the
+`requireRole`/`requireSignedIn`/`requireSignedInNotBanned` matrix, since keyless local dev
+can't exercise a signed-in-non-admin session directly) and `lib/folders.test.ts` (an IDOR
+lockdown suite for `lib/folders.ts`'s ownership checks, using a hand-rolled in-memory
+Prisma fake via `vi.mock("@/lib/prisma")` rather than a real database). This covers
+pure-logic `lib/*.ts` functions behind `vi.mock`-able boundaries, not routes, pages, or
+anything that needs a real Postgres connection — most verification in this project is
+still `npx tsc --noEmit`, `npm run lint`, exercising the feature via `curl`/the running dev
+server, and (for data changes) querying Neon directly. Follow `lib/roles.test.ts`'s
+pattern (hoisted mocks, dynamic `await import(...)` after `vi.mock`) if adding to this
+suite rather than introducing a different testing style.
 
 ### Database
 

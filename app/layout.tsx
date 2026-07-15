@@ -8,6 +8,7 @@ import AssistantWidgetMount from "@/components/AssistantWidgetMount";
 import { ToastProvider } from "@/components/ui/Toast";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
+import { SITE_NAME, SITE_URL } from "@/lib/siteUrl";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,10 +28,22 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
 });
 
+const SITE_DESCRIPTION =
+  "A community-driven guide to Jewish Israel programs — gap years, summer trips, internships, and more.";
+
 export const metadata: Metadata = {
-  title: "Israel Programs Wiki",
-  description:
-    "A community-driven guide to Jewish Israel programs — gap years, summer trips, internships, and more.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({

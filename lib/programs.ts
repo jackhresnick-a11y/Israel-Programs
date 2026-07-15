@@ -116,6 +116,25 @@ export function toPublicProgram<T extends Record<string, unknown>>(
   return result;
 }
 
+/** Plain-text share/OG description: strips the `**bold**` markers FormattedText
+ *  renders, collapses whitespace, and truncates at a word boundary (~160 chars). */
+export function shareDescription(text: string, maxLength = 160): string {
+  const plain = text.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  if (plain.length <= maxLength) return plain;
+  const cut = plain.slice(0, maxLength);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 80 ? lastSpace : maxLength).trimEnd()}…`;
+}
+
+/** Minimal fields for the per-program OG image route -- avoids pulling
+ *  tags/videos/reviews for a request that only ever renders a name/subtitle. */
+export async function getProgramShareData(slug: string) {
+  return prisma.program.findUnique({
+    where: { slug },
+    select: { name: true, status: true, location: true, organization: true },
+  });
+}
+
 export async function createProgram(
   input: ProgramInput,
   createdById: string,

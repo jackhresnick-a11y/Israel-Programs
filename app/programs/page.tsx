@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { listPrograms, listAllTags } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
@@ -5,6 +6,7 @@ import { listRegions } from "@/lib/regions";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import { getSiteContent } from "@/lib/siteContent";
 import { trackSearch, trackFilterUse } from "@/lib/analytics";
+import { SITE_NAME } from "@/lib/siteUrl";
 import ProgramCard from "@/components/ProgramCard";
 import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
@@ -12,6 +14,27 @@ import CompareCheckbox from "@/components/CompareCheckbox";
 import CompareBar from "@/components/CompareBar";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
+
+const LISTING_DESCRIPTION =
+  "Search and filter hundreds of Israel programs by duration, region, affiliation, and more.";
+
+export const metadata: Metadata = {
+  title: "Browse Programs",
+  description: LISTING_DESCRIPTION,
+  alternates: { canonical: "/programs" },
+  openGraph: {
+    title: "Browse Programs",
+    description: LISTING_DESCRIPTION,
+    url: "/programs",
+    type: "website",
+    siteName: SITE_NAME,
+    // Nested `openGraph` objects replace the parent's wholesale (not merge),
+    // so without this the root's file-convention og:image silently drops
+    // off any page that sets its own openGraph -- point it at the same
+    // generated image explicitly rather than relying on inheritance.
+    images: "/opengraph-image",
+  },
+};
 
 type SearchParams = Promise<{
   q?: string;

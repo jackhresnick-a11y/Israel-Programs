@@ -56,6 +56,11 @@ export default async function Nav() {
             Add Program
           </Link>
           {userId && (
+            <Link href="/saved" className="hover:text-accent">
+              Saved
+            </Link>
+          )}
+          {userId && (
             <Link href="/references/requests" className="hover:text-accent">
               My Reference Requests
             </Link>
