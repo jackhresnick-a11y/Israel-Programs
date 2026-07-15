@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "tzevet-mikey",
+    "name": "Tzevet Mikey",
+    "contactEmail": "tzevetmikey.recruitment@lsef.org.il",
+    "category": "armyTraining",
+    "signupUrl": "https://tzevetmikey.com/register/",
+    "contactWebsite": "https://tzevetmikey.com/"
+  },
+  {
+    "slug": "tzevet-lohamim",
+    "name": "Tzevet Lohamim",
+    "contactEmail": "info@tsevetlohamim.com",
+    "category": "armyTraining",
+    "signupUrl": "https://www.tsevetlohamim.com/",
+    "contactWebsite": "https://www.tsevetlohamim.com/"
+  }
+]

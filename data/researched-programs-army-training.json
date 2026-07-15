@@ -1,0 +1,53 @@
+{
+  "_note": "Kosher kravi (כושר קרבי) / pre-army physical & mental preparation batch, researched at user request to seed the new 'Army training' essence tag (essence-army-training, see prisma/seed-army-training-tag.ts). Imported with `--status=PENDING` (see prisma/import-researched.ts) -- deliberately NOT published; user wants to review before these go live. Three programs included, all confirmed via each program's own official site (not social-media-only): Tzevet Mikey, Tzevet Lohamim (aka Tzevet Lochamim), and Garin Mahal. A fourth source -- Garin Mahal's own 'Gibush training programs in Israel' page (garinmahal.com/gibush-training-programs-in-israel) -- independently corroborates that Tzevet Lohamim and Tzevet Mikey are the only two combat-fitness training groups in this space specifically designed for lone soldiers/English speakers; every other named group there (Acharai, Adrenalin, Excellent Training, HaMador Kosher Kravi, HaMaslul, Xpert, Yuval Eilam) is a Hebrew-only commercial gym serving the general Israeli public, not this site's audience -- deliberately excluded, see adminNote-equivalent skip notes in the final report. Also researched and deliberately excluded: Ach Gadol (broader multi-service lone-soldier support org -- ulpan/workshops/tours, not primarily a fitness/kosher-kravi program; no fitness-specific page found), Lone Soldier Center's 'Maslul Michael' (URL 404s, could not verify current existence), Friends of the Lone Soldier's 'pre-army preparation' mention (one vague sentence, no dedicated program page, refers back to Lone Soldier Center/Tzevet Mikey). Garin Tzabar already exists in the DB (slug garin-tzabar) -- confirmed not a duplicate risk for the three programs below (name/description checked). No age range could be verified for Tzevet Mikey or Tzevet Lohamim from official sources -- left blank rather than guessed, per instruction. No cost could be verified for Tzevet Lohamim -- left blank. Per-program sourcing/verification caveats are in each row's adminNote (internal-only, per CLAUDE.md's rule that research caveats never belong in the public description).",
+  "armyTraining": [
+    {
+      "name": "Tzevet Mikey",
+      "organization": "Tzevet Mikey (Lone Soldier Empowerment Foundation)",
+      "location": "Jerusalem, Israel",
+      "description": "A free, volunteer-run pre-army training program (Hebrew: צוות מייקי) for future lone soldiers and new immigrant soldiers, operated by former lone soldier commanders and special forces veterans. The program combines combat fitness training, Hebrew instruction through its Ulpan Yehoshua track, IDF orientation and rights guidance, and mentorship, alongside special forces tryout simulations, IDF-style stretcher hikes, Krav Maga lessons, and multi-day navigation seminars. It has graduated over 1,300 pre-army lone soldiers since 2014 and currently supports over 150 core participants annually. Open to both men and women preparing to draft.",
+      "durationType": "ONGOING",
+      "durationText": "Bi-weekly training sessions (Mondays & Wednesdays evenings), plus monthly large-scale events; runs year-round",
+      "cost": "Free",
+      "signupInstructions": "Register via the sign-up form linked from the official website.",
+      "signupUrl": "https://tzevetmikey.com/register/",
+      "contactEmail": "tzevetmikey.recruitment@lsef.org.il",
+      "contactPhone": "",
+      "contactWebsite": "https://tzevetmikey.com/",
+      "tags": ["Army training", "Pre-military", "pre-army", "lone-soldier", "Coed", "jerusalem"],
+      "adminNote": "Sourced entirely from the official site (tzevetmikey.com: homepage, /about-us/, /must-know/ [404'd on fetch, not used]). Age range is not stated anywhere on the official site -- left blank rather than guessed. Hebrew is taught as part of the program itself (Ulpan Yehoshua), which strongly suggests English speakers with little/no Hebrew are welcome, but no explicit 'no Hebrew required' policy statement was found to confirm this as a formal eligibility rule -- flag for verification with the org directly. contactEmail above will be diverted to data/ignored-import-emails-<date>.json by the importer per lib/importGuards.ts, not written to Program.contactEmail; route through the admin contact-verification workflow if it should be published. Primary source is the org's own official website, not social media -- not a social-media-sourcing flag case."
+    },
+    {
+      "name": "Tzevet Lohamim",
+      "organization": "Tzevet Lohamim (Team of Warriors)",
+      "location": "Tel Aviv, Israel",
+      "description": "A non-profit Special Forces & Leadership training academy (Hebrew: צוות לוחמים) run by former IDF special forces operators and commanders, designed to prepare immigrants and prospective lone soldiers physically and mentally for IDF combat units. Training includes Krav Maga, special-forces-based tactical fitness and mental toughness sessions, a 24+ hour special forces selection simulation ('Selection'), and a 12+ hour 'Layla Lavan' (White Night) simulation. The organization reports a 90%+ IDF Special Forces success rate among consistent trainees.",
+      "durationType": "ONGOING",
+      "durationText": "Weekly: Combat Fitness Mondays 19:00, Military Leadership Fridays 08:00 (Thursdays 19:00 in summer), Krav Maga Saturdays 12:45, all in Tel Aviv; 'Layla Lavan' roughly every 2-3 months; 'Selection' (Gibbush) each March and September",
+      "cost": "",
+      "signupInstructions": "Sign up via the registration link on the official website.",
+      "signupUrl": "https://www.tsevetlohamim.com/",
+      "contactEmail": "info@tsevetlohamim.com",
+      "contactPhone": "+972-52-533-5639",
+      "contactWebsite": "https://www.tsevetlohamim.com/",
+      "tags": ["Army training", "Pre-military", "pre-army", "lone-soldier", "central israel"],
+      "adminNote": "Sourced entirely from the official site (tsevetlohamim.com: homepage, /program-details, /schedule, /combat-fitness). No age range, gender restriction, cost, or language-of-instruction statement was found on the official site despite checking multiple pages -- all left blank rather than guessed; flag for direct verification with the org. Primary source is the org's own official website, not social media -- not a social-media-sourcing flag case, though the site does link out to Facebook/Instagram/YouTube for updates."
+    },
+    {
+      "name": "Garin Mahal",
+      "organization": "Garin Mahal",
+      "location": "Jerusalem Forest, Israel",
+      "description": "A free, month-long live-in pre-army training program for young men (ages 18-26) from around the world preparing to volunteer for IDF service through Mahal, based at a military-style facility in the Jerusalem Forest. Established in 2010 as the first pre-army preparatory program for lone soldiers, it combines intensive Hebrew-immersion ulpan, physical and combat fitness training, special forces tryout simulations, and educational tours on Israeli military history and culture. In 2015 Israel's Ministry of Defense adopted the model and made a pre-army preparatory program mandatory for all Mahal volunteers. No prior Hebrew proficiency or fitness level is required to join, though all training itself is conducted in Hebrew. Participation does not obligate a participant to subsequently draft into the IDF.",
+      "durationType": "SHORT",
+      "durationText": "4 weeks",
+      "cost": "Free (participants cover their own flights and medical insurance)",
+      "signupInstructions": "Apply via the online application form on the official website; the program contact, Baruch Tretiak, can also be reached directly via WhatsApp.",
+      "signupUrl": "https://garinmahal.com/getting-started/application-form",
+      "contactEmail": "",
+      "contactPhone": "+972-52-860-0062",
+      "contactWebsite": "https://garinmahal.com/",
+      "tags": ["Army training", "Pre-military", "pre-army", "lone-soldier", "Boys only", "jerusalem"],
+      "adminNote": "Sourced entirely from the official site (garinmahal.com: homepage, /6-week-pre-military-program [page title says '4 Week Pre Military Program', page body also states 4 weeks -- the URL slug's '6-week' appears to be a stale/inconsistent naming leftover on their own site, not our error; durationText uses the body text's '4 weeks'], /about-us/why-garin-mahal). Men only (ages 18-26) is explicit on the official site, not inferred. Deliberately did NOT tag hebrew-required: the org's own stated policy is 'no prior Hebrew proficiency... required to join', but ALL training is conducted in Hebrew per the same source -- this is a real tension worth flagging clearly for review, since a program requiring zero prior Hebrew but delivering 100% of instruction in Hebrew is a materially different fit for an English-only speaker than a program with English support. Primary source is the org's own official website, not social media -- not a social-media-sourcing flag case; contact info found was a personal WhatsApp number (Baruch Tretiak), not an org-wide phone line or email, which is itself a signal of a smaller/informally-run operation despite having a full website."
+    }
+  ]
+}

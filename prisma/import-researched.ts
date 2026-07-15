@@ -25,6 +25,9 @@ type ResearchedProgram = {
   contactPhone: string;
   contactWebsite: string;
   tags: string[];
+  /** Internal-only research/verification caveats (source gaps, social-media-only
+   * sourcing, etc.) -- never public-facing. Written to Program.adminNote. */
+  adminNote?: string;
 };
 
 /** A batch row may still carry a raw contactEmail from research -- captured below to a
@@ -39,7 +42,15 @@ function slugFor(name: string): string {
 }
 
 async function main() {
-  const fileName = process.argv[2] || "researched-programs.json";
+  const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+  const statusFlag = process.argv.slice(2).find((a) => a.startsWith("--status="));
+  const requestedStatus = statusFlag?.split("=")[1] ?? "PUBLISHED";
+  if (requestedStatus !== "PUBLISHED" && requestedStatus !== "PENDING") {
+    throw new Error(`--status must be PUBLISHED or PENDING, got "${requestedStatus}"`);
+  }
+  const status: "PUBLISHED" | "PENDING" = requestedStatus;
+
+  const fileName = args[0] || "researched-programs.json";
   const jsonPath = join(__dirname, "..", "data", fileName);
   const raw = JSON.parse(readFileSync(jsonPath, "utf-8")) as Record<string, unknown>;
 
@@ -138,7 +149,8 @@ async function main() {
       signupUrl: p.signupUrl || undefined,
       contactPhone: p.contactPhone || undefined,
       contactWebsite: p.contactWebsite || undefined,
-      status: "PUBLISHED" as const,
+      adminNote: p.adminNote || undefined,
+      status,
       createdById: IMPORT_USER_ID,
       tags: { connect: tags },
     };
@@ -149,7 +161,7 @@ async function main() {
   }
 
   console.log(
-    `Imported ${created} programs (${skippedDuplicateInBatch} duplicate slugs across research batches, ${skippedExisting} already in DB, ${newTagsMinted} brand-new tags minted -- see [new tag] warnings above for any worth double-checking).`
+    `Imported ${created} programs as ${status} (${skippedDuplicateInBatch} duplicate slugs across research batches, ${skippedExisting} already in DB, ${newTagsMinted} brand-new tags minted -- see [new tag] warnings above for any worth double-checking).`
   );
 
   if (ignoredEmails.length > 0) {
