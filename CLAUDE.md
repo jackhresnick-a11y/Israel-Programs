@@ -34,10 +34,11 @@ live stack is Prisma + Postgres/Neon, per this file) — trust CLAUDE.md over §
 actually exists today, and the spec for where things are headed.
 
 `README.md`'s "Stack"/"Project structure"/"Notes" sections are also stale on upload
-storage — they describe logos *and* videos as local-disk under `public/uploads/`. That
-was true once, but per "Upload storage" below, video now uploads browser-direct to
-Vercel Blob; only logo is still local-disk (and still broken in production). Trust this
-file over the README for upload storage specifics.
+storage — they describe logos *and* videos as local-disk under `public/uploads/`, which
+was true once. The reality has since changed twice: per "Upload storage" below, program
+video is now YouTube/Vimeo **embeds** (not uploads at all), and branding images are
+static files in `public/brand/`. Trust this file over the README for upload storage
+specifics.
 
 The README's "Notes" section is *also* stale on search — it still describes matching
 "exact tag (hashtag) filters," which predates both the Fuse.js fuzzy search and the
@@ -106,11 +107,23 @@ features should follow the same shape rather than inlining Prisma calls in a rou
 
 **Watch what you pass to client components.** `lib/references.ts`'s
 `listPublishedReferences` deliberately `select`s only the fields the public program page
-may render — `contactEmail`/`userId` must never reach a client component's props, since
-Next.js serializes client-component props into the page's RSC payload and they end up in
-the raw HTML even for fields the JSX never displays. Follow the same
-select-only-what's-public pattern for any other model with a mix of public and
-sensitive fields (e.g. `ContactRequest`, which carries `requesterEmail`).
+may render — `contactEmail`/`userId`/`whatsappNumber`/`whatsappNumberSource` must never
+reach a client component's props, since Next.js serializes client-component props into
+the page's RSC payload and they end up in the raw HTML even for fields the JSX never
+displays. Follow the same select-only-what's-public pattern for any other model with a
+mix of public and sensitive fields (e.g. `ContactRequest`, which carries
+`requesterEmail`).
+
+`Reference.whatsappNumber` (+ its required `whatsappNumberSource`, added alongside
+`contactEmail` since both are gated identically) is admin-only — never rendered to the
+public or to a contact-requester, same as `contactEmail`. It's set either by the
+reference-giver themselves at submission time (`lib/phone.ts`'s
+`optionalWhatsappNumberSchema` normalizes to E.164; the source is auto-generated as
+`"self-submitted via reference form <date>"`, never user input) or by an admin via
+`/admin/references` (`lib/references.ts`'s `updateReferenceWhatsapp`, which refuses a
+number without a source). No phone-number library is in `package.json` —
+`lib/phone.ts`'s `normalizeToE164` is a small hand-rolled E.164 check, not a full
+libphonenumber-style parser.
 
 ### Moderation: three different shapes for three different risks
 `ProgramStatus` (`PENDING`/`PUBLISHED`/`REJECTED`) gates **new** Program and Reference
@@ -311,29 +324,50 @@ score still breaks ties within a tier. Both `app/programs/page.tsx` and the JSON
 (`app/api/programs/route.ts`) go through this same `listPrograms`, so they always rank
 identically.
 
-### Upload storage: video is on Vercel Blob, logo is not (and is still broken)
-The two upload surfaces do **not** share an implementation, and it's important not to
-conflate them:
+### Upload storage: video is YouTube/Vimeo embeds; branding is static `/public` files (the Blob store is suspended)
+This changed materially in July 2026. The project's Vercel **Blob store is suspended** —
+the Hobby plan's ~10 GB/month data-transfer cap was blown by serving program video mp4s
+directly, so *every* blob URL (videos **and** the brand images that used to live there)
+now returns `403 "Your store is blocked"` for anyone without a warm browser cache (which
+is why a bug can look like it only affects signed-out visitors — a signed-in dev's disk
+cache masks it). Both upload surfaces were routed **off Blob**; don't reintroduce
+Blob-backed uploads.
 
-- **Video** (`components/VideoUploader.tsx`) uploads browser-direct to Vercel Blob via
-  `@vercel/blob/client`'s `upload()`, authorized by the token route at
-  `app/api/videos/upload/route.ts` (`handleUpload`, gated by `requireSignedIn`). The
-  video file itself never touches a serverless function — `app/api/programs/[id]/videos/route.ts`
-  only receives a JSON `{url, filename, mimeType, caption}` body afterward and records it
-  against the Program, after checking the URL's hostname ends with
-  `.public.blob.vercel-storage.com` (don't accept arbitrary URLs there). This requires a
-  **Public**-access Blob store connected to the project with `BLOB_READ_WRITE_TOKEN` set
-  — a Private-access store will reject/mismatch the public-URL assumption both here and
-  in playback (`<video src={video.url}>` in `components/VideoList.tsx` can't attach an
-  auth header for a private blob). For local dev, pull/set `BLOB_READ_WRITE_TOKEN` in
-  `.env.local` the same way `DATABASE_URL` is set up.
-- **Logo** (`lib/storage.ts`'s `saveLogo`, called from `app/api/programs/route.ts` and
-  `app/api/programs/[id]/route.ts`) still writes to local disk (`public/uploads/logos/`)
-  and **does not work on Vercel** for the same reasons video used to fail: the
-  serverless function filesystem is read-only (500s) and the ~4.5MB request-body limit
-  rejects larger files (413s). This is known, unfixed, and the next candidate for the
-  same browser-direct-Blob treatment video just got — don't assume `saveLogo` works in
-  production, and don't reuse it as a reference implementation for new uploads.
+- **Video is now embeds, not file uploads.** `components/VideoUploader.tsx` takes a
+  pasted YouTube/Vimeo **link**. `app/api/programs/[id]/videos/route.ts` runs it through
+  `lib/videoEmbed.ts`'s `parseVideoLink` (accepts the common watch/share/embed link
+  shapes for both providers, canonicalizes server-side to a safe
+  `youtube-nocookie.com/embed/<id>?rel=0` or `player.vimeo.com/video/<id>` URL, and
+  **rejects anything else** — a pasted URL is never trusted as an iframe src) and stores
+  the canonical URL with `mimeType: "embed/<provider>"`. `components/VideoList.tsx`'s
+  `VideoPlayer` branches on `isEmbedUrl(url)` (matched on the canonical hostname, **not**
+  the client-influenced stored mimeType): embeds render as a 16:9 `<iframe>`, legacy Blob
+  file URLs keep the `<video>` element and its CDN-propagation retry. The old
+  browser-direct-Blob path (`app/api/videos/upload/route.ts` + `@vercel/blob/client`'s
+  `upload()`, gated by `requireSignedIn`) still exists and the record route still accepts
+  `*.public.blob.vercel-storage.com` URLs, so pre-existing rows keep working — but the
+  uploader UI no longer offers file upload, and you shouldn't add it back. The homepage
+  featured card (`components/FeaturedProgramCard.tsx`) renders through the same
+  `VideoPlayer`, so embeds work there identically — no separate video path exists.
+- **Branding images are static files in `public/brand/`.** Header logo, home/emblem
+  logos, and background watermarks (each with a light + dark variant) are referenced by
+  `SiteContent` keys — `headerLogoUrl`, `homeLogoUrl`/`homeLogoUrlDark`,
+  `emblemLogoUrl`/`emblemLogoUrlDark`, `backgroundLogoUrl`/`backgroundLogoUrlDark` —
+  whose bodies are `/brand/*.png` paths served by Vercel's static CDN, not Blob. None of
+  these PNGs has a transparent background, so each variant is the file whose baked-in
+  background matches its surface (navy header `#1a2740`, cream light page `#fbf8f2`,
+  near-black dark page `#14110b`); public display follows a "clean fallback, never a
+  broken icon" rule — a blank key renders text/light-mode fallback, not a 404 `<img>`.
+  The admin "upload logo" form (`components/SiteLogoForm.tsx` →
+  `app/api/site-logo/upload/route.ts`) and `lib/storage.ts`'s `saveLogo` still target
+  Blob (or read-only local disk) and will error while the store is suspended — set
+  branding by committing a file to `public/brand/` and pointing the SiteContent key at
+  it, not via the admin upload UI.
+- **Shared-DB gotcha when repointing branding or featured videos:** `SiteContent` (and
+  all data) lives in **one** Neon database shared by local dev and production, so editing
+  a key locally takes effect on prod *instantly* — but a `/brand/*.png` file it points at
+  only exists on prod after a commit + deploy. Change the key and deploy the file
+  together, or prod serves a broken image in the window between.
 
 ### The xlsx export is DB-backed, not file-based — and that's deliberate
 `lib/programExport.ts` does **not** write a file to disk. It was originally
@@ -358,6 +392,31 @@ re-fetching the selected slugs server-side (`getProgramsBySlugs` in `lib/program
 rather than trusting client-held program data. `lib/facets.ts`'s `TRAVEL_TYPE_LABELS`
 (a display-label map for the `TravelType` enum, same idea as `DURATION_LABELS`) backs
 both this table and other travel-type displays.
+
+### Leads, analytics, and the contact form: anonymous, no-cookie, best-effort
+Three related surfaces added together (`lib/leads.ts`, `lib/analytics.ts`, `lib/email.ts`,
+`lib/rateLimit.ts`), all sharing a deliberate "never block or identify the user" posture:
+
+- **Analytics** (`lib/analytics.ts`) writes one `AnalyticsEvent` row per search / filter
+  use via Next's `after()` — fire-and-forget *after* the response streams, with failures
+  logged and swallowed so a page render never waits on or fails from an analytics write.
+  No user identifier or cookie is ever recorded. `getAnalyticsSummary` aggregates in JS
+  over an indexed `findMany` (Prisma can't `GROUP BY` JSON sub-fields, and volume is low);
+  the return type is the contract, so swap to `$queryRaw` internally later if needed.
+  Admin views at `/admin/analytics`.
+- **Leads** (`lib/leads.ts`) are footer "ask us" submissions — `leadSchema` includes a
+  honeypot `website` field (real users never fill it). Admin views at `/admin/leads`.
+- **Email** (`lib/email.ts`, Resend) **never throws** — a missing `RESEND_API_KEY` /
+  `CONTACT_EMAIL` or a Resend failure all resolve to `false`, and the caller falls back
+  to a `mailto:` link. There is deliberately no hard dependency on email delivery.
+- **Rate limiting** (`lib/rateLimit.ts`) is an in-memory per-instance sliding window
+  (per-serverless-instance on Vercel, so best-effort spam friction, not a global
+  guarantee); no IP is ever persisted. Both admin pages gate with `getCurrentRole()` and
+  **redirect** non-admins rather than throw.
+
+Both the `Lead` and `AnalyticsEvent` tables were added in migrations that shipped in
+`df4fbb7` and applied to production separately — if either admin page 500s, check
+`prisma migrate status` against the live DB before anything else.
 
 ### AI layer exists but is fully dormant
 `lib/ai/` defines an `AIProvider` interface with a `NullProvider` (default) and
@@ -441,9 +500,11 @@ erroring, so it's easy to miss unless you diff intended vs. actual slugs after i
 - Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) in `.env.local`
   — `next dev` will issue temporary keyless credentials if these are absent, but a
   production build (`next start`) requires real ones.
-- `BLOB_READ_WRITE_TOKEN` in `.env.local` for video uploads to work locally — must be
-  issued against a **Public**-access Vercel Blob store (see Upload storage above); a
-  token from a Private store will not produce working video URLs.
+- `BLOB_READ_WRITE_TOKEN` in `.env.local` is only needed for the **legacy** Blob upload
+  path (see Upload storage above) — new video is YouTube/Vimeo embeds and branding is
+  static `/public` files, neither of which touches Blob. The store is currently
+  suspended, so this token doesn't produce working URLs regardless; you can develop the
+  current features without it.
 - First admin has to be set by hand once: sign up in the app, then in the Clerk
   dashboard set that user's **public metadata** to `{ "role": "admin" }`. After that,
   `/admin` can promote/demote other users without touching Clerk directly.

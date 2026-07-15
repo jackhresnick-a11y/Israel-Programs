@@ -74,6 +74,12 @@ export default async function AdminPage() {
               Leads
             </Link>
             <Link
+              href="/admin/references"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              References
+            </Link>
+            <Link
               href="/admin/analytics"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >

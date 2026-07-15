@@ -366,17 +366,24 @@ model SiteContent {
 }
 
 model Reference {
-  id              String           @id @default(cuid())
-  programId       String
-  program         Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
-  userId          String
-  displayName     String
-  attendedText    String
-  note            String?
-  contactEmail    String
-  status          ProgramStatus    @default(PENDING)
-  createdAt       DateTime         @default(now())
-  contactRequests ContactRequest[]
+  id                   String           @id @default(cuid())
+  programId            String
+  program              Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  userId               String
+  displayName          String
+  attendedText         String
+  note                 String?
+  contactEmail         String
+  /// Normalized E.164 (e.g. "+972501234567"). Gated identically to
+  /// contactEmail -- never selected into listPublishedReferences or any
+  /// public/requester-facing payload. Admin-only.
+  whatsappNumber       String?
+  /// Required whenever whatsappNumber is set (enforced in code, not the DB) --
+  /// same provenance principle as Program.contactEmailSource.
+  whatsappNumberSource String?
+  status               ProgramStatus    @default(PENDING)
+  createdAt            DateTime         @default(now())
+  contactRequests      ContactRequest[]
 
   @@unique([programId, userId])
   @@index([programId])

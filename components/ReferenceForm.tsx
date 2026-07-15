@@ -12,6 +12,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
   const { toast } = useToast();
   const [attendedText, setAttendedText] = useState("");
   const [note, setNote] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +24,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
       const res = await fetch(`/api/programs/${programId}/references`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attendedText, note }),
+        body: JSON.stringify({ attendedText, note, whatsappNumber }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -31,6 +32,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
       }
       setAttendedText("");
       setNote("");
+      setWhatsappNumber("");
       toast("Your request to be a reference for this program has been sent");
       router.refresh();
     } catch (err) {
@@ -59,6 +61,14 @@ export default function ReferenceForm({ programId }: { programId: string }) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
       />
+      <div className="flex flex-col gap-1">
+        <Input
+          placeholder="Optional: WhatsApp number, e.g. +972 50 123 4567"
+          value={whatsappNumber}
+          onChange={(e) => setWhatsappNumber(e.target.value)}
+        />
+        <p className="text-xs text-muted">Never shown publicly — admins only.</p>
+      </div>
       <Button type="submit" size="sm" disabled={submitting} className="w-fit">
         {submitting ? "Submitting..." : "Volunteer as a reference"}
       </Button>

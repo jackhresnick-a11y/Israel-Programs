@@ -29,7 +29,18 @@ export async function POST(request: Request, { params }: Params) {
     const body = await request.json();
     const input = referenceInputSchema.parse(body);
     const reference = await createReference(id, input, { userId, displayName, contactEmail });
-    return NextResponse.json(reference, { status: 201 });
+    // Only return what the author needs to see -- never the full row (which
+    // includes contactEmail/whatsappNumber) over the wire, even to themselves.
+    return NextResponse.json(
+      {
+        id: reference.id,
+        displayName: reference.displayName,
+        attendedText: reference.attendedText,
+        note: reference.note,
+        status: reference.status,
+      },
+      { status: 201 }
+    );
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });
