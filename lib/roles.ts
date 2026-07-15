@@ -38,11 +38,14 @@ export async function requireSignedIn(): Promise<RoleCheck> {
 }
 
 /**
- * Signed-in and not banned -- used specifically by the "suggestion" routes
- * (new program submissions, proposed edits) per the ban's intentionally
- * narrow scope. Other user-generated content (reviews, references, videos,
- * contact requests) intentionally still uses requireSignedIn() and remains
- * open to banned users.
+ * Signed-in and not banned -- used by the "suggestion" routes (new program
+ * submissions, proposed edits) per the ban's intentionally narrow scope, and
+ * by the videos route (adding a video now renders arbitrary third-party
+ * embed HTML on the program page, which is more than the ban's original
+ * narrow scope was meant to leave open to banned users). Other
+ * user-generated content (reviews, references, contact requests)
+ * intentionally still uses requireSignedIn() and remains open to banned
+ * users.
  */
 export async function requireSignedInNotBanned(): Promise<RoleCheck> {
   const check = await requireSignedIn();

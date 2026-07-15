@@ -169,8 +169,10 @@ else via the API.
 ### Roles: `user` / `moderator` / `admin` / `banned`
 Stored in Clerk `publicMetadata.role`, read via `lib/roles.ts`. `requireRole`/
 `requireSignedIn` are the general gates; `requireSignedInNotBanned` is a narrower one
-used **only** by the two "suggestion" routes (new Program creation, proposed edits) —
-banning intentionally does not block reviews, references, videos, or contact requests.
+used by the two "suggestion" routes (new Program creation, proposed edits) and by the
+videos route (adding a video renders arbitrary third-party embed HTML on the program
+page — more than the ban's original narrow scope was meant to leave open) — banning
+intentionally does not block reviews, references, or contact requests.
 The ban action itself reuses the existing admin role-update route (`role: "banned"` is
 just another value), plus a separate **moderator-accessible** `POST
 /api/admin/users/[id]/ban` route — deliberately narrower than the admin-only general
@@ -341,18 +343,35 @@ is why a bug can look like it only affects signed-out visitors — a signed-in d
 cache masks it). Both upload surfaces were routed **off Blob**; don't reintroduce
 Blob-backed uploads.
 
-- **Video is now embeds, not file uploads.** `components/VideoUploader.tsx` takes a
-  pasted YouTube/Vimeo **link**. `app/api/programs/[id]/videos/route.ts` runs it through
-  `lib/videoEmbed.ts`'s `parseVideoLink` (accepts the common watch/share/embed link
-  shapes for both providers, canonicalizes server-side to a safe
-  `youtube-nocookie.com/embed/<id>?rel=0` or `player.vimeo.com/video/<id>` URL, and
-  **rejects anything else** — a pasted URL is never trusted as an iframe src) and stores
-  the canonical URL with `mimeType: "embed/<provider>"`. `components/VideoList.tsx`'s
-  `VideoPlayer` branches on `isEmbedUrl(url)` (matched on the canonical hostname, **not**
-  the client-influenced stored mimeType): embeds render as a 16:9 `<iframe>`, legacy Blob
-  file URLs keep the `<video>` element and its CDN-propagation retry. The old
-  browser-direct-Blob path (`app/api/videos/upload/route.ts` + `@vercel/blob/client`'s
-  `upload()`, gated by `requireSignedIn`) still exists and the record route still accepts
+- **Video is now embeds, not file uploads — five platforms, not two.**
+  `components/VideoUploader.tsx` takes a pasted link from YouTube, Vimeo, Facebook,
+  Instagram, or TikTok. `app/api/programs/[id]/videos/route.ts` zod-validates the body
+  (same http(s)-only discipline as `lib/programs.ts`'s `httpUrl`) then runs the URL
+  through `lib/videoEmbed.ts`'s `parseVideoLink` (accepts each platform's common
+  watch/share/embed link shapes, canonicalizes server-side to a safe per-platform embed
+  URL built from a template using only the extracted ID — never the raw pasted string —
+  and **rejects anything else**) or, for `fb.watch`/`vm.tiktok.com`/`tiktok.com/t/...`
+  short links, `resolveShortVideoLink` (follows one redirect hop against a fixed host
+  allowlist, then re-parses the destination) and stores the canonical URL with
+  `mimeType: "embed/<provider>"`. The route requires `requireSignedInNotBanned()` (not
+  the bare `requireSignedIn()` other user-generated content uses) — see the comment on
+  `requireSignedInNotBanned` in `lib/roles.ts` for why videos specifically got carved out
+  of the ban's narrow scope. No platform needs an App ID, API key, or SDK script for the
+  iframe approach used here (verified live July 2026) — Facebook's `plugins/video.php`,
+  Instagram's `/embed/captioned/`, and TikTok's `/player/v1/` all render unauthenticated
+  for public videos; each just needs a `frame-src` CSP entry (see below).
+  `components/VideoList.tsx`'s `VideoPlayer` branches on `platformForStoredUrl(url)`
+  (matched on the canonical hostname, **not** the client-influenced stored mimeType):
+  YouTube/Vimeo render an immediate sandboxed 16:9 `<iframe>` (lightweight, no SDK);
+  Facebook/Instagram/TikTok render a click-to-load facade first (those embed documents
+  are heavy — Instagram's is ~600KB — and a program page can list several) before
+  mounting the same sandboxed iframe; TikTok/Instagram use a 9:16 frame instead of 16:9.
+  Every iframe gets an explicit `sandbox` attribute and `allow` list — never a bare
+  iframe. Anything that isn't a recognized embed host and isn't a legacy Blob URL renders
+  a plain "Watch on [Platform]" link-out instead of a broken iframe. Legacy Blob file URLs
+  keep the `<video>` element and its CDN-propagation retry. The old browser-direct-Blob
+  path (`app/api/videos/upload/route.ts` + `@vercel/blob/client`'s `upload()`, gated by
+  `requireSignedIn`) still exists and the record route still accepts
   `*.public.blob.vercel-storage.com` URLs, so pre-existing rows keep working — but the
   uploader UI no longer offers file upload, and you shouldn't add it back. The homepage
   featured card (`components/FeaturedProgramCard.tsx`) renders through the same

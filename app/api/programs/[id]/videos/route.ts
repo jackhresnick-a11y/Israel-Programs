@@ -1,20 +1,36 @@
 import { NextResponse } from "next/server";
-import { requireSignedIn } from "@/lib/roles";
+import { z } from "zod";
+import { requireSignedInNotBanned } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { parseVideoLink } from "@/lib/videoEmbed";
+import { parseVideoLink, resolveShortVideoLink } from "@/lib/videoEmbed";
 
 type Params = { params: Promise<{ id: string }> };
 
+const UNSUPPORTED_LINK_ERROR =
+  "Paste a video link from YouTube, Vimeo, Facebook, Instagram, or TikTok.";
+
+/** Same http(s)-only discipline as lib/programs.ts's httpUrl -- rejects javascript:/data:. */
+const videoBodySchema = z.object({
+  url: z
+    .string()
+    .trim()
+    .url()
+    .refine((value) => /^https?:\/\//i.test(value), { message: "Must be a valid http(s) URL" }),
+  caption: z.string().trim().max(500).optional(),
+});
+
 /**
- * Records a video against a Program. YouTube/Vimeo links only -- canonicalized
- * server-side to a known-safe embed URL via parseVideoLink, never stored as pasted.
- * File uploads (Vercel Blob) are intentionally not accepted here: Blob egress on
- * program video is what suspended the store in July 2026, and the token-issuing
- * upload route (/api/videos/upload) has been removed, so this is the only remaining
- * way to add a video and it can't be pointed at a file.
+ * Records a video against a Program. Links from YouTube, Vimeo, Facebook,
+ * Instagram, or TikTok -- canonicalized server-side to a known-safe embed URL
+ * via parseVideoLink (or resolveShortVideoLink for fb.watch/vm.tiktok.com/
+ * tiktok.com/t/ short links), never stored as pasted. File uploads (Vercel
+ * Blob) are intentionally not accepted here: Blob egress on program video is
+ * what suspended the store in July 2026, and the token-issuing upload route
+ * (/api/videos/upload) has been removed, so this is the only remaining way
+ * to add a video and it can't be pointed at a file.
  */
 export async function POST(request: Request, { params }: Params) {
-  const check = await requireSignedIn();
+  const check = await requireSignedInNotBanned();
   if (!check.ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: check.status });
   }
@@ -22,22 +38,15 @@ export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
 
   const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
+  const parsedBody = videoBodySchema.safeParse(body);
+  if (!parsedBody.success) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
+  const { url, caption } = parsedBody.data;
 
-  const { url, caption } = body as Record<string, unknown>;
-
-  if (typeof url !== "string") {
-    return NextResponse.json({ error: "Invalid video URL" }, { status: 400 });
-  }
-
-  const embed = parseVideoLink(url);
+  const embed = parseVideoLink(url) ?? (await resolveShortVideoLink(url));
   if (!embed) {
-    return NextResponse.json(
-      { error: "Paste a YouTube or Vimeo link (e.g. https://youtu.be/... or https://vimeo.com/...)" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: UNSUPPORTED_LINK_ERROR }, { status: 400 });
   }
 
   // Dedupe on the canonical embed URL so re-pasting the same video in a
@@ -58,7 +67,7 @@ export async function POST(request: Request, { params }: Params) {
         // marks the provider so embeds are distinguishable from files.
         filename: url,
         mimeType: `embed/${embed.provider}`,
-        caption: typeof caption === "string" && caption.length > 0 ? caption : undefined,
+        caption: caption && caption.length > 0 ? caption : undefined,
       },
     });
     return NextResponse.json(video, { status: 201 });

@@ -17,7 +17,7 @@ const cspHeader = `
   img-src 'self' data: https://img.clerk.com https://*.clerk.accounts.dev;
   font-src 'self';
   connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com;
-  frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com;
+  frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.facebook.com https://www.instagram.com https://www.tiktok.com;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
