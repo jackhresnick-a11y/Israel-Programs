@@ -1,9 +1,14 @@
+import { redirect } from "next/navigation";
+import { getCurrentRole } from "@/lib/roles";
 import { listProgramContactEmails } from "@/lib/programs";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import EmailListTable from "@/components/EmailListTable";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default async function AdminEmailContactsPage() {
+  const role = await getCurrentRole();
+  if (role !== "admin") redirect("/");
+
   const programs = await listProgramContactEmails();
   // Computed server-side (isEmailVerificationFresh lives in lib/emailVerification.ts,
   // which imports lib/prisma -- can't be imported into the "use client" table below)

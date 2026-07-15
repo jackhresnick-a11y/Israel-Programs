@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentRole } from "@/lib/roles";
 import { listEmailVerificationQueue, STALE_AFTER_MONTHS } from "@/lib/emailVerification";
 import EmailVerificationActions from "@/components/EmailVerificationActions";
 import PageHeader from "@/components/ui/PageHeader";
@@ -6,6 +8,9 @@ import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 
 export default async function AdminEmailVerificationPage() {
+  const role = await getCurrentRole();
+  if (role !== "admin") redirect("/");
+
   const queue = await listEmailVerificationQueue();
 
   return (

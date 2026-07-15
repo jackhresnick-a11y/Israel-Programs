@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { requireRole, requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
-import { createProgramEdit, parseProgramFormData, updateProgram } from "@/lib/programs";
+import { createProgramEdit, parseProgramFormData, toPublicProgram, updateProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
 
@@ -10,13 +10,15 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
   const program = await prisma.program.findUnique({
-    where: { id },
+    // PUBLISHED-only: PENDING/REJECTED rows aren't public yet, so an unguessable id
+    // shouldn't surface them here any more than the moderation queue itself does.
+    where: { id, status: "PUBLISHED" },
     include: { tags: true, videos: true, reviews: true },
   });
   if (!program) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(program);
+  return NextResponse.json(toPublicProgram(program));
 }
 
 export async function PATCH(request: Request, { params }: Params) {

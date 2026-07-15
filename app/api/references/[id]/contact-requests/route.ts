@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { contactRequestInputSchema, createContactRequest } from "@/lib/references";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -10,6 +11,10 @@ export async function POST(request: Request, { params }: Params) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Sign in to request contact" }, { status: 401 });
+  }
+
+  if (!checkRateLimit(`contact-request:${userId}`, { limit: 5, windowMs: 10 * 60_000 })) {
+    return NextResponse.json({ error: "Too many requests — please try again later." }, { status: 429 });
   }
 
   const { id } = await params;

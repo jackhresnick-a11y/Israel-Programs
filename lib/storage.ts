@@ -6,11 +6,12 @@ const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
 
+// SVG intentionally excluded -- an SVG can carry <script>/event-handler payloads that
+// execute in the site's origin when served back inline, unlike the raster formats here.
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/png",
   "image/jpeg",
   "image/webp",
-  "image/svg+xml",
 ]);
 
 export class UploadError extends Error {}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createReference, referenceInputSchema } from "@/lib/references";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -9,6 +10,10 @@ export async function POST(request: Request, { params }: Params) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Sign in to volunteer as a reference" }, { status: 401 });
+  }
+
+  if (!checkRateLimit(`reference:${userId}`, { limit: 5, windowMs: 10 * 60_000 })) {
+    return NextResponse.json({ error: "Too many requests — please try again later." }, { status: 429 });
   }
 
   const { id } = await params;

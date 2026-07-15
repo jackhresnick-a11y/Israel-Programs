@@ -15,6 +15,14 @@ import { resolveTagsByName } from "@/lib/tags";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
+/** zod's .url() accepts any scheme (javascript:, data:, ...); this restricts to http/https
+ *  so a submitted link can never execute script or render as an inline resource when clicked. */
+const httpUrl = z
+  .string()
+  .trim()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value), { message: "Must be a valid http(s) URL" });
+
 export type ProgramInput = {
   name: string;
   description: string;
@@ -46,10 +54,10 @@ const programSchema = z.object({
   durationText: z.string().trim().max(200).optional().or(z.literal("")),
   cost: z.string().trim().max(200).optional().or(z.literal("")),
   signupInstructions: z.string().trim().max(2000).optional().or(z.literal("")),
-  signupUrl: z.string().trim().url().optional().or(z.literal("")),
+  signupUrl: httpUrl.optional().or(z.literal("")),
   contactEmail: z.string().trim().email().optional().or(z.literal("")),
   contactPhone: z.string().trim().max(50).optional().or(z.literal("")),
-  contactWebsite: z.string().trim().url().optional().or(z.literal("")),
+  contactWebsite: httpUrl.optional().or(z.literal("")),
   hasScholarship: z.string().optional().transform((v) => v === "true"),
   hasCollegeCredit: z.string().optional().transform((v) => v === "true"),
   travelType: z
@@ -91,6 +99,20 @@ export function parseTags(raw: string): string[] {
     seen.add(key);
     result.push(name);
   }
+  return result;
+}
+
+/** Admin-only fields that must never reach the public JSON API -- strip these at every
+ *  response boundary that isn't gated to a moderator/admin. Server Components render
+ *  adminNote themselves behind an {isModerator && ...} check, so they call listPrograms/
+ *  getProgramBySlug directly and don't go through this; only the public GET routes do. */
+const ADMIN_ONLY_PROGRAM_FIELDS = ["adminNote", "contactEmailSource", "outreachCategory"] as const;
+
+export function toPublicProgram<T extends Record<string, unknown>>(
+  program: T
+): Omit<T, (typeof ADMIN_ONLY_PROGRAM_FIELDS)[number]> {
+  const result = { ...program };
+  for (const field of ADMIN_ONLY_PROGRAM_FIELDS) delete result[field];
   return result;
 }
 

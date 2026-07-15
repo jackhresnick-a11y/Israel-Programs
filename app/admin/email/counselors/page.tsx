@@ -1,9 +1,14 @@
+import { redirect } from "next/navigation";
+import { getCurrentRole } from "@/lib/roles";
 import { listCounselorContacts } from "@/lib/counselorContacts";
 import CounselorContactManager from "@/components/admin/CounselorContactManager";
 import PageHeader from "@/components/ui/PageHeader";
 import { buttonVariants } from "@/components/ui/Button";
 
 export default async function AdminCounselorContactsPage() {
+  const role = await getCurrentRole();
+  if (role !== "admin") redirect("/");
+
   const contacts = await listCounselorContacts();
 
   return (

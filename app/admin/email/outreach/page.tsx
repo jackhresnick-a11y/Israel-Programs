@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { getCurrentRole } from "@/lib/roles";
 import { listOutreachQueue } from "@/lib/outreach";
 import { getSiteContent } from "@/lib/siteContent";
 import { listOutreachTemplates } from "@/lib/outreachTemplates";
@@ -5,6 +7,9 @@ import OutreachManager from "@/components/OutreachManager";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default async function AdminEmailOutreachPage() {
+  const role = await getCurrentRole();
+  if (role !== "admin") redirect("/");
+
   const [{ eligible, needsSourceCheck }, subjectTemplate, bodyTemplate, batchSize, savedTemplates] = await Promise.all([
     listOutreachQueue(),
     getSiteContent("outreachSubjectTemplate"),

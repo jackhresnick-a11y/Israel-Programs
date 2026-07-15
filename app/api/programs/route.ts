@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
-import { createProgram, listPrograms, parseProgramFormData } from "@/lib/programs";
+import { createProgram, listPrograms, parseProgramFormData, toPublicProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     hasCollegeCredit: searchParams.get("hasCollegeCredit") === "true" ? true : undefined,
     travelType: (searchParams.get("travelType") as TravelType) ?? undefined,
   });
-  return NextResponse.json(programs);
+  return NextResponse.json(programs.map(toPublicProgram));
 }
 
 export async function POST(request: Request) {
