@@ -358,12 +358,16 @@ export type PollResponseFilter = {
 };
 
 /** Admin moderation queue -- capped at 200 most-recent matches per filter combination.
- * Includes email/ipHash/answers, unlike every public/read-side query in this codebase,
- * because this is admin-only content behind /admin/polls/moderation's role gate, same
- * "sensitive fields are fine once past the admin gate" precedent as
- * /admin/references showing Reference.contactEmail. */
+ * Includes email/ipHash/answers/reviews, unlike every public/read-side query in this
+ * codebase, because this is admin-only content behind /admin/polls/moderation's role
+ * gate, same "sensitive fields are fine once past the admin gate" precedent as
+ * /admin/references showing Reference.contactEmail. Each response also gets a computed
+ * `skippedQuestions` list -- `presentedQuestionIds` minus whatever actually has a
+ * PollAnswer row, resolved to {id, key, text} in one batched query across the whole
+ * page rather than N+1 per response -- so moderation can show "Skipped: <question>"
+ * explicitly instead of a skip just reading as an absence with no explanation. */
 export async function listPollResponses(filter: PollResponseFilter = {}) {
-  return prisma.pollResponse.findMany({
+  const responses = await prisma.pollResponse.findMany({
     where: {
       ...(filter.programId ? { programId: filter.programId } : {}),
       ...(filter.status ? { status: filter.status } : {}),
@@ -377,7 +381,30 @@ export async function listPollResponses(filter: PollResponseFilter = {}) {
       program: { select: { name: true, slug: true } },
       referrerToken: { select: { label: true } },
       answers: { include: { question: { select: { key: true, text: true } } } },
+      reviews: { include: { question: { select: { key: true, text: true } } } },
     },
+  });
+
+  const skippedIds = new Set<string>();
+  for (const r of responses) {
+    const answeredIds = new Set(r.answers.map((a) => a.questionId));
+    for (const qid of r.presentedQuestionIds) {
+      if (!answeredIds.has(qid)) skippedIds.add(qid);
+    }
+  }
+  const skippedQuestionRows =
+    skippedIds.size > 0
+      ? await prisma.pollQuestion.findMany({ where: { id: { in: [...skippedIds] } }, select: { id: true, key: true, text: true } })
+      : [];
+  const skippedQuestionById = new Map(skippedQuestionRows.map((q) => [q.id, q]));
+
+  return responses.map((r) => {
+    const answeredIds = new Set(r.answers.map((a) => a.questionId));
+    const skippedQuestions = r.presentedQuestionIds
+      .filter((qid) => !answeredIds.has(qid))
+      .map((qid) => skippedQuestionById.get(qid))
+      .filter((q): q is { id: string; key: string; text: string } => q !== undefined);
+    return { ...r, skippedQuestions };
   });
 }
 

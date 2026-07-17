@@ -5,6 +5,7 @@ import { getCurrentRole, normalizeRole } from "@/lib/roles";
 import { listPendingPrograms, listPendingEdits, listRecentPrograms } from "@/lib/programs";
 import { listPendingReferences } from "@/lib/references";
 import { listRecentReviews } from "@/lib/reviews";
+import { countPendingReviews } from "@/lib/pollReviews";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import { getDurationLabelMap } from "@/lib/duration";
 import { getUsersByIds } from "@/lib/clerkUsers";
@@ -23,7 +24,7 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "moderator" && role !== "admin") redirect("/");
 
-  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews, durationLabelMap] =
+  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews, durationLabelMap, pendingPollReviews] =
     await Promise.all([
       listPendingPrograms(),
       listPendingEdits(),
@@ -31,6 +32,7 @@ export default async function AdminPage() {
       role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
       role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
       getDurationLabelMap(),
+      role === "admin" ? countPendingReviews() : Promise.resolve(0),
     ]);
 
   const submitters = await getUsersByIds([
@@ -87,9 +89,14 @@ export default async function AdminPage() {
             </Link>
             <Link
               href="/admin/polls"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
+              className={buttonVariants({ variant: "secondary", size: "sm", className: "gap-1.5" })}
             >
               Ratings
+              {pendingPollReviews > 0 && (
+                <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover dark:text-accent">
+                  {pendingPollReviews}
+                </span>
+              )}
             </Link>
           </div>
         )}

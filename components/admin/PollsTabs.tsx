@@ -11,9 +11,10 @@ const TABS = [
   { href: "/admin/polls/programs", label: "Programs" },
   { href: "/admin/polls/links", label: "Links" },
   { href: "/admin/polls/moderation", label: "Moderation" },
+  { href: "/admin/polls/reviews", label: "Reviews" },
 ] as const;
 
-export default function PollsTabs() {
+export default function PollsTabs({ pendingReviewCount = 0 }: { pendingReviewCount?: number }) {
   const pathname = usePathname();
 
   return (
@@ -25,10 +26,21 @@ export default function PollsTabs() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              buttonVariants({ variant: active ? "primary" : "secondary", size: "sm" })
+              buttonVariants({ variant: active ? "primary" : "secondary", size: "sm" }),
+              "gap-1.5"
             )}
           >
             {tab.label}
+            {tab.href === "/admin/polls/reviews" && pendingReviewCount > 0 && (
+              <span
+                className={cn(
+                  "inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
+                  active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover dark:text-accent"
+                )}
+              >
+                {pendingReviewCount}
+              </span>
+            )}
           </Link>
         );
       })}

@@ -31,6 +31,21 @@ export type PollResponseRow = {
     value: number;
     question: { key: string; text: string };
   }[];
+  /** presentedQuestionIds minus whatever has a PollAnswer row, resolved to text --
+   * see lib/pollResponses.ts's listPollResponses. */
+  skippedQuestions: { id: string; key: string; text: string }[];
+  reviews: {
+    id: string;
+    text: string;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    question: { key: string; text: string };
+  }[];
+};
+
+const REVIEW_STATUS_TONE: Record<PollResponseRow["reviews"][number]["status"], "neutral" | "success" | "danger"> = {
+  PENDING: "neutral",
+  APPROVED: "success",
+  REJECTED: "danger",
 };
 
 async function api(url: string, method: string, body?: object) {
@@ -193,7 +208,9 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
       {error && <p className="text-xs text-danger">{error}</p>}
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
-          {open ? "Hide answers" : `Show answers (${response.answers.length})`}
+          {open
+            ? "Hide details"
+            : `Show details (${response.answers.length} answered, ${response.skippedQuestions.length} skipped, ${response.reviews.length} reviews)`}
         </Button>
         {response.status !== "VOIDED" ? (
           <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => handleAction("void")}>
@@ -206,15 +223,40 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
         )}
       </div>
       {open && (
-        <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
-          {response.answers.map((a) => (
-            <div key={a.questionId} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
-              <span className="text-foreground">
-                {a.question.text} <span className="text-muted">(v{a.questionVersion})</span>
-              </span>
-              <span className="font-medium text-foreground">{a.value}</span>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+            {response.answers.map((a) => (
+              <div key={a.questionId} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                <span className="text-foreground">
+                  {a.question.text} <span className="text-muted">(v{a.questionVersion})</span>
+                </span>
+                <span className="font-medium text-foreground">{a.value}</span>
+              </div>
+            ))}
+            {response.skippedQuestions.map((q) => (
+              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                <span className="text-muted">{q.text}</span>
+                <Badge tone="neutral">Skipped</Badge>
+              </div>
+            ))}
+            {response.answers.length === 0 && response.skippedQuestions.length === 0 && (
+              <p className="px-3 py-2 text-xs text-muted">No questions were presented to this response.</p>
+            )}
+          </div>
+          {response.reviews.length > 0 && (
+            <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+              <p className="text-xs font-semibold text-muted">Reviews</p>
+              {response.reviews.map((review) => (
+                <div key={review.id} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-foreground">{review.question.text}</span>
+                    <Badge tone={REVIEW_STATUS_TONE[review.status]}>{review.status}</Badge>
+                  </div>
+                  <p className="text-xs text-foreground/80">{review.text}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
