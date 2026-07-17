@@ -58,15 +58,20 @@ npx tsc --noEmit          # typecheck — there is no dedicated script for this,
 **A small Vitest suite exists** (`npm test`, `vitest.config.ts` at the repo root, aliasing
 `@` to the repo root same as `tsconfig.json`) — `lib/roles.test.ts` (the
 `requireRole`/`requireSignedIn`/`requireSignedInNotBanned` matrix, since keyless local dev
-can't exercise a signed-in-non-admin session directly) and `lib/folders.test.ts` (an IDOR
+can't exercise a signed-in-non-admin session directly), `lib/folders.test.ts` (an IDOR
 lockdown suite for `lib/folders.ts`'s ownership checks, using a hand-rolled in-memory
-Prisma fake via `vi.mock("@/lib/prisma")` rather than a real database). This covers
-pure-logic `lib/*.ts` functions behind `vi.mock`-able boundaries, not routes, pages, or
-anything that needs a real Postgres connection — most verification in this project is
-still `npx tsc --noEmit`, `npm run lint`, exercising the feature via `curl`/the running dev
-server, and (for data changes) querying Neon directly. Follow `lib/roles.test.ts`'s
-pattern (hoisted mocks, dynamic `await import(...)` after `vi.mock`) if adding to this
-suite rather than introducing a different testing style.
+Prisma fake via `vi.mock("@/lib/prisma")` rather than a real database), `lib/videoEmbed.test.ts`
+(pure URL-parsing/canonicalization cases for `parseVideoLink` across all five embed
+platforms — no mocks needed, since that module has no DB or network dependency), and
+`lib/pollShared.test.ts`/`lib/pollFormat.test.ts` (the alumni-ratings question resolver
+and stars/percent math — see "Alumni ratings" below). This covers pure-logic `lib/*.ts`
+functions behind `vi.mock`-able boundaries (or with no external dependency at all), not
+routes, pages, or anything that needs a real Postgres connection — most verification in
+this project is still `npx tsc --noEmit`, `npm run lint`, exercising the feature via
+`curl`/the running dev server, and (for data changes) querying Neon directly. Follow
+`lib/roles.test.ts`'s pattern (hoisted mocks, dynamic `await import(...)` after
+`vi.mock`) if adding a DB-adjacent test to this suite rather than introducing a
+different testing style.
 
 ### Database
 
@@ -227,6 +232,48 @@ verified" badge; a fresh `VERIFIED` email renders with a "Verified" badge;
 stays on the Program row so an admin can still see/replace it via the
 normal edit flow.
 
+### Two unrelated "send email" tools — don't conflate them
+`/admin/emails` (plural, `app/admin/emails/page.tsx`) is the older bulk tool referenced
+above — it composes a Gmail `mailto:`/BCC link and never sends anything itself. The
+**consolidated `/admin/email` section** (singular — `app/admin/email/layout.tsx` gates
+admin-only and renders shared tabs via `EmailTabs`) is a different, newer system that
+*does* send, through Resend:
+- **Outreach** (`/admin/email/outreach`, `lib/outreach.ts`) drafts a "your program is
+  listed" email per `Program` into the `OutreachEmail` table (one row per program —
+  `@unique programId` — so regenerating upserts in place rather than piling up rows).
+  `renderOutreachTemplate` fills a small `{mergeField|"fallback"}` syntax (`{programName}`,
+  `{listingUrl}`, `{programDescriptor}` built from `durationType` + `location` via the
+  same admin-editable `DurationOption` label map `/admin/tags` uses — never invented
+  wording) against either the single global template in `SiteContent`
+  (`outreachSubjectTemplate`/`outreachBodyTemplate`) or a named, reusable
+  `OutreachTemplate` row. `lib/outreachCategories.ts`'s `categorizeProgram` buckets
+  programs missing a draft into admin-requested groups (English yeshivot/seminaries,
+  Israeli mechinot, etc.) using `Program.outreachCategory` when an admin has set it,
+  else heuristics over tags/duration/name. Drafts require admin approval
+  (`approvedAt`/`approvedById`) before `send-batch` will send them, and a hand-edited
+  draft (`edited: true`) is never silently regenerated. **Sending is real**: `send-batch`
+  calls Resend directly and stores the returned `resendId`; `POST /api/webhooks/resend`
+  (signature-verified via `resend.webhooks.verify`, reading the raw request body —
+  parsing-then-reserializing would break the signature check) handles the
+  `email.bounced` event and calls `markOutreachBouncedByResendId`, which both flips the
+  `OutreachEmail` row and — since a bounced outreach send is itself evidence about the
+  address — calls the *same* `recordEmailVerification` the manual verification queue
+  above uses, tying outreach sending back into `contactEmailStatus`. This is the one
+  path in the app where an automated process (not an admin click) can set
+  `contactEmailStatus`.
+- **Counselors** (`/admin/email/counselors`, `lib/counselorContacts.ts`) is a completely
+  separate workflow over the `CounselorContact` model — Israel-guidance counselors at
+  Jewish schools *abroad*, not `Program` rows at all (see the model's schema comment).
+  Same append-only audit-log shape as `ContactEmailVerification`: `recordCounselorOutreach`
+  both updates `CounselorContact.status` and appends a `CounselorContactEvent` row.
+  Editing `email` resets `status` to `NOT_CONTACTED`, same "a changed address's history no
+  longer applies" rule as `Program.contactEmailStatus`. A CSV export exists
+  (`GET /api/admin/counselor-contacts.csv`) but — like the verification queue's CSV —
+  there is no send integration; the counselor-outreach *action itself* is manual.
+- **Contacts**/**Templates**/**Verification**/**Test** are the remaining tabs:
+  raw contact-email harvest results, `OutreachTemplate` CRUD, the
+  `/admin/email-verification` queue folded in here, and a one-off test-send page.
+
 ### Tags: flat model, optional category, principled split from structured attributes
 `Tag` has an optional `category` (`gender` / `affiliation` / `israeli-integration` /
 `essence` / `age` / `location` today, plus a dormant, UI-less `language`; most tags —
@@ -263,6 +310,19 @@ every program re-saved that way. This exact bug shipped and was repaired once al
 `prisma/audit-tags.ts` (read-only) any time to check for name/slug twin pairs or dead
 `Region.memberSlugs` before assuming the data is clean; `prisma/merge-duplicate-tags.ts`
 is the hand-reviewed repair template if it recurs.
+
+### Recurring pattern: split a `lib/*.ts` module when a client component needs its types
+`lib/prisma.ts` imports the `pg` driver, which needs Node built-ins (`tls`, etc.) that
+don't exist in a browser bundle — so any `lib/*.ts` file that (transitively) imports
+`lib/prisma.ts` cannot be imported from a `"use client"` component, even just for a type
+or a constant. Two instances of the same fix so far: `lib/tagTints.ts` was split out of
+`lib/tags.ts`, and `lib/missionBlocks.ts` was split out of `lib/mission.ts` — each split
+file holds only the pure types/constants/zod schema a client form component needs
+(`MissionBlocksForm.tsx`, tag-tint pickers), while the original file keeps the
+Prisma-backed CRUD functions and re-exports the split file's symbols for server-side
+callers. Follow this precedent — pull the client-needed pure declarations into a
+sibling `*Foo.ts` file — rather than making a "use client" component import the
+Prisma-backed module directly.
 
 ### Browse filters: one dropdown per category, all config admin-editable via DB tables
 `components/SearchBar.tsx` renders one dropdown per filter category via the shared
@@ -409,6 +469,26 @@ lives in Neon rather than local disk, this works identically on a Vercel cold st
 local `next dev`. If you're tempted to write a file for some other feature, this is
 the cautionary precedent — prefer DB-backed or object-storage-backed state instead.
 
+### Saved lists (`Folder`/`FolderItem`): the one-tap save is a lazily-created default folder
+`/saved` (list) and `/saved/[id]` (detail) are user-owned collections, all access-checked
+through `lib/folders.ts` (`getFolder`/etc. verify `ownerId` matches the caller —
+`folders.test.ts` is the IDOR regression suite for exactly this). There's no flat
+favorites/bookmark table: a plain "save this program" tap calls `saveToDefaultFolder`,
+which lazily creates a folder with `isDefault: true` on first use rather than requiring
+the user to name one up front. Per-user caps (`MAX_FOLDERS_PER_USER = 50`,
+`MAX_ITEMS_PER_FOLDER = 200` in `lib/folders.ts`) are enforced in these functions, not the
+schema. Sharing (`mintShareToken`) always generates a **fresh** random token rather than
+toggling a reuse flag — `revokeShareToken` nulls it out, and a revoked link can never
+come back to life by re-sharing, deliberately. The public, unauthenticated read view for
+a shared link is `app/s/[token]/page.tsx` (`getSharedFolder`) — `noindex` but not
+`robots.txt`-disallowed, specifically so link-preview scrapers (WhatsApp/Facebook) can
+still fetch it to build a share card while search engines don't index it. Per
+`FolderItem`'s schema comment: `programId` uses `onDelete: SetNull`, not `Cascade` — a
+hard-deleted program leaves a tombstone row (`programId: null`) rather than vanishing, so
+"N programs no longer available" counts stay accurate for both hard-deleted and
+merely-unpublished programs; tombstones don't count against `MAX_ITEMS_PER_FOLDER` and
+persist until the owner runs `clearUnavailableItems`.
+
 ### Program comparison is client-side state, not a URL or DB concept
 `CompareProvider` (`components/CompareContext.tsx`) holds up to `MAX_COMPARE` (3,
 `lib/compare.ts`) selected programs in plain React state — there's no query param or
@@ -445,12 +525,23 @@ Both the `Lead` and `AnalyticsEvent` tables were added in migrations that shippe
 `df4fbb7` and applied to production separately — if either admin page 500s, check
 `prisma migrate status` against the live DB before anything else.
 
-### AI layer exists but is fully dormant
-`lib/ai/` defines an `AIProvider` interface with a `NullProvider` (default) and
-`AnthropicProvider`, switched by `isAIEnabled()` (`AI_ENABLED=true` + `ANTHROPIC_API_KEY`
-in env). As of now **nothing in the app calls `getAIProvider()`** — it's scaffolding
-for a future AI-powered surface, not a currently-active feature. Don't assume any
-existing behavior is AI-driven.
+### AI layer: one live surface, a two-stage design that can't fabricate a program
+`lib/ai/` defines an `AIProvider` interface with a `NullProvider` (default, deterministic
+fallback) and `AnthropicProvider`, switched by `isAIEnabled()` (`AI_ENABLED=true` +
+`ANTHROPIC_API_KEY` in env). It backs exactly one route, `POST /api/assistant`
+(`app/api/assistant/route.ts`) — a conversational program-recommendation endpoint gated
+behind the `assistantEnabled` `SiteContent` flag (admins can always reach it regardless of
+the flag, for testing before enabling it publicly; the check is re-verified server-side,
+not just used to hide the widget). Deliberately **two-stage**, so the model can only ever
+recommend a program that's actually live right now: stage 1 runs the identical
+`listPrograms({ q: message })` query `/programs` itself uses (a live DB read, never a
+snapshot or embedding index) to produce a bounded candidate list; stage 2 hands only
+those candidates to `getAIProvider().recommendPrograms(...)`, which picks among/explains
+them but cannot introduce a slug that wasn't in the candidate set. The route re-validates
+the returned slugs against its own candidate map before responding — defense in depth
+independent of trusting the provider's structured-output guarantees. Also rate-limited
+tighter than the leads/analytics endpoints (`lib/rateLimit.ts`, 20 req / 10 min per IP),
+since an enabled assistant calls a paid external API per request.
 
 ### Adding real programs: a two-phase research → enrichment pipeline, not one script
 New programs don't get created by hand one at a time. `data/researched-programs*.json`
@@ -521,6 +612,87 @@ rather than replaced with a `-`. Both silently produce a slug that matches zero 
 — `apply-good-for.ts`/`apply-facet-tags-by-slug.ts` log it as "not found" rather than
 erroring, so it's easy to miss unless you diff intended vs. actual slugs after import.
 
+### Alumni ratings (`/rate`, `/admin/polls/*`): ships dark, two capture paths, DB-level integrity
+A 1-5 rating system, system-wide scale, no free-text — six models
+(`PollQuestion`, `QuestionBucket`, `ProgramPollConfig`, `PollResponse`, `PollAnswer`,
+`ReferrerToken`) added in migration `20260717122617_add_alumni_polls`. That migration
+hand-appends a `CHECK ("value" BETWEEN 1 AND 5)` constraint on `PollAnswer` and two
+partial unique indexes (`PollResponse` one-counted-per-user-per-program,
+one-counted-and-verified-per-email-per-program) directly to the generated SQL, since
+Prisma has no first-class syntax for either — **never run `prisma db push` against this
+schema**, it silently drops both. **Public math only ever counts a response where
+`status = COUNTED` AND `verified = true`** — every aggregate query in the system filters
+on that pair together, never status alone.
+
+Two independent submission paths, both ending at the same `PollAnswer` rows:
+- **Signed-in** (`lib/pollResponses.ts`'s `submitSignedInResponse`): verified + COUNTED
+  immediately, no email step ever. A repeat visit updates the existing counted response
+  in place (delete-and-recreate its answers in one transaction) rather than rejecting
+  the resubmit or creating a duplicate; the partial unique index is the DB-level
+  backstop against a concurrent double-submit race, which the function retries once
+  against.
+- **Anonymous link path** (`/rate/[slug]?ref=TOKEN`, minted at `/admin/polls/links` via
+  `lib/pollTokens.ts`'s `mintReferrerToken`): no login wall, inputs pre-position at 3,
+  submit creates a PENDING/unverified response. Only the thank-you screen's optional
+  email step (`attachEmailAndSendVerification`, `lib/email.ts`'s `sendPollVerifyEmail`)
+  sends a magic link; clicking it (`verifyPollResponse`, `/rate/verify`) flips the
+  response to COUNTED+verified. A **revoked, expired, or over-cap token is still
+  accepted, not rejected** — `validateReferrerToken` returns it with a flag
+  (`token_revoked`/`token_expired`/`token_over_cap`) instead of an error, so a link an
+  admin handed out never silently stops working; only a token that doesn't resolve at
+  all falls back to a sign-in CTA. A second verification of an already-counted email
+  voids itself with a `duplicate_email` flag rather than double-counting. `flags`
+  (`String[]` on `PollResponse`, constants in `lib/pollShared.ts`'s `POLL_FLAGS`) also
+  catches `repeat_ip` (a salted-SHA-256 `ipHash` — see `lib/pollIntegrity.ts`'s
+  `hashIp`, a deliberate departure from `lib/rateLimit.ts`'s "no IP ever persisted"
+  posture, since this system needs a durable per-visitor signal the in-memory limiter
+  can't provide).
+
+**Question resolution is one pure function, never duplicated.** `lib/pollShared.ts`'s
+`resolvePollQuestionSet` takes a program's config + every bucket + every question and
+returns the ordered set the rating form renders: the Core bucket's questions (always
+present, minus per-program `removedQuestionIds`, plus per-program `addedQuestionIds`)
+first, then extra buckets in the config's `bucketIds` order. Retired questions/buckets
+and dead soft-ref ids are silently dropped — same "soft ref rot" tolerance as
+`Region.memberSlugs` above, not a foreign key. **The Core bucket is never stored in any
+`ProgramPollConfig.bucketIds`** — it's implicit for every program — which is how "the
+Core bucket cannot be removed from any program" holds at both the admin UI (no control
+ever offers it) and the API layer (`upsertProgramPollConfig` in `lib/pollConfig.ts`
+defensively strips the Core bucket's id from `bucketIds` even so). `lib/pollConfig.ts`'s
+`getQuestionsForProgram` is the only place that calls the resolver with live data.
+
+Seven `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe types/zod/
+resolver — no Prisma import, same split-for-client-components precedent as
+`lib/tagTints.ts` above), `pollFormat.ts` (client-safe `meanToPercent`/`formatStarsMean`
+— percent and stars are **always** derived from the same mean, never stored or computed
+independently, so the two displays can't drift apart), `pollConfig.ts` (per-program
+config + question resolution), `pollQuestions.ts` (question/bucket admin CRUD, retire-
+never-delete once answered, version-bumps a question's `version` when its `text`
+changes and it already has answers), `pollTokens.ts` (`ReferrerToken` mint/validate),
+`pollResponses.ts` (submission, magic-link verification, and moderation: `voidPollResponse`
+retains the row; `restorePollResponse` "recomputes" status from the `verified` flag
+already on the row rather than needing a separate prior-status field, reporting a
+conflict — not throwing — if that collides with a partial unique index), and
+`pollResults.ts` (React-`cache()`d `getProgramPollSummary`, only aggregating
+per-question means/histogram when the state is actually "published," since the common
+"ships dark" case needs just a count).
+
+The program page summary strip (`components/PollSummaryStrip.tsx`, between the
+description and "Who it's for" blocks) renders one of four states — be first / collecting
+(with a live progress bar) / under review / the published score — gated on
+`resultsVisible` (per-program, `/admin/polls/programs`) AND `countedVerified >=
+minResponsesToPublish` AND a global kill switch (`SiteContent` key
+`pollResultsKillSwitch`, `lib/pollResults.ts`'s `POLL_KILL_SWITCH_KEY`, toggled at
+`/admin/polls/moderation`) being off. `/admin/polls/programs` also has a bulk-assign
+tool — attach/detach one bucket across every program carrying any of a set of tags in
+one action, resolving program ids via the same `tags.some.slug.in` shape
+`lib/programs.ts`'s tag filtering uses.
+
+`POLL_IP_SALT` must be set in production. `hashIp` falls back to a hardcoded dev-only
+salt when `NODE_ENV !== "production"`, but **throws** if it's unset and `NODE_ENV ===
+"production"` — an unset salt in prod 500s every anonymous submission outright, it
+doesn't just weaken the hash.
+
 ## Local setup essentials
 
 - `DATABASE_URL` (Neon Postgres) in both `.env` and `.env.local`.
@@ -532,6 +704,12 @@ erroring, so it's easy to miss unless you diff intended vs. actual slugs after i
   static `/public` files, neither of which touches Blob. The store is currently
   suspended, so this token doesn't produce working URLs regardless; you can develop the
   current features without it.
+- `RESEND_FROM` must end in `@israelprogramswiki.com` (`lib/email.ts`'s
+  `getOutreachFromAddress`) for outreach or alumni-rating magic-link emails to send at
+  all — `onboarding@resend.dev` or any other address fails the domain check and the
+  send is refused (never thrown; the caller sees `{ ok: false }`).
+- `POLL_IP_SALT` is required once `NODE_ENV=production` (a local `next dev` falls back
+  to a hardcoded dev salt) — see "Alumni ratings" above.
 - First admin has to be set by hand once: sign up in the app, then in the Clerk
   dashboard set that user's **public metadata** to `{ "role": "admin" }`. After that,
   `/admin` can promote/demote other users without touching Clerk directly.
