@@ -530,7 +530,7 @@ export async function getProgramsBySlugs(slugs: string[]) {
 export async function listPublishedProgramNames() {
   return prisma.program.findMany({
     where: { status: "PUBLISHED" },
-    select: { slug: true, name: true },
+    select: { id: true, slug: true, name: true },
     orderBy: { name: "asc" },
   });
 }
