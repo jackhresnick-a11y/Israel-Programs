@@ -9,6 +9,8 @@ import HomeLogoForm from "@/components/HomeLogoForm";
 import EmblemLogoForm from "@/components/EmblemLogoForm";
 import RecentlyAddedForm from "@/components/RecentlyAddedForm";
 import AssistantSettingsForm from "@/components/AssistantSettingsForm";
+import HomeVideoForm from "@/components/HomeVideoForm";
+import { getHomeVideoSettings } from "@/lib/homeVideo";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -45,6 +47,7 @@ export default async function AdminSettingsPage() {
     programOptions,
     videosBySlug,
     assistantEnabled,
+    homeVideoSettings,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -74,6 +77,7 @@ export default async function AdminSettingsPage() {
     listPublishedProgramNames(),
     listVideoOptionsByProgramSlug(),
     getSiteContent("assistantEnabled"),
+    getHomeVideoSettings(),
   ]);
 
   return (
@@ -140,6 +144,17 @@ export default async function AdminSettingsPage() {
           }}
           currentDarkUrl={homeUrlDark}
         />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Homepage Video
+        </h2>
+        <p className="text-sm text-muted">
+          A featured YouTube or Vimeo video shown on the homepage below the welcome heading and
+          above Featured/Recently Added. Defaults to off; settings are kept when hidden, so you
+          can configure it ahead of time and flip it on later.
+        </p>
+        <HomeVideoForm initialEnabled={homeVideoSettings.enabled} initialConfig={homeVideoSettings.config} />
       </section>
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">

@@ -40,8 +40,11 @@ const LAZY_LOAD_PLATFORMS = new Set<Provider>(["facebook", "instagram", "tiktok"
  * their own cookies/storage; allow-popups(+escape) lets "share"/"login"
  * links in the embed open a real tab instead of silently failing.
  */
-const EMBED_SANDBOX =
+export const EMBED_SANDBOX =
   "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation";
+export const EMBED_ALLOW =
+  "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+export const EMBED_REFERRER_POLICY = "strict-origin-when-cross-origin" as const;
 
 function EmbedFrame({ url }: { url: string }) {
   return (
@@ -50,8 +53,8 @@ function EmbedFrame({ url }: { url: string }) {
       title="Program video"
       className="h-full w-full rounded-lg border border-border"
       sandbox={EMBED_SANDBOX}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerPolicy="strict-origin-when-cross-origin"
+      allow={EMBED_ALLOW}
+      referrerPolicy={EMBED_REFERRER_POLICY}
       loading="lazy"
       allowFullScreen
     />

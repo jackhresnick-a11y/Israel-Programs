@@ -9,7 +9,9 @@ import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getSiteContent } from "@/lib/siteContent";
 import { getCurrentRole } from "@/lib/roles";
+import { getHomeVideoSettings } from "@/lib/homeVideo";
 import HomeIntro from "@/components/HomeIntro";
+import HomeVideoHero from "@/components/HomeVideoHero";
 import {
   getRecentlyAddedConfig,
   resolveManualItems,
@@ -42,6 +44,7 @@ export default async function Home() {
     homeUrlDark,
     homeIntro,
     role,
+    homeVideo,
   ] = await Promise.all([
     recentlyAdded.mode === "manual"
       ? resolveManualItems(recentlyAdded.items)
@@ -65,6 +68,7 @@ export default async function Home() {
     getSiteContent("homeLogoUrlDark"),
     getSiteContent("homeIntro"),
     getCurrentRole(),
+    getHomeVideoSettings(),
   ]);
 
   const homeDesktopHeight = Number(homeSizeDesktop) || 320;
@@ -187,6 +191,8 @@ export default async function Home() {
           </div>
         </div>
       </div>
+
+      {homeVideo.enabled && homeVideo.config && <HomeVideoHero config={homeVideo.config} />}
 
       {featured.length > 0 && (
         <div className="flex flex-col gap-4">

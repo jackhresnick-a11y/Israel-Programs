@@ -14,7 +14,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""};
   style-src 'self' 'unsafe-inline';
-  img-src 'self' data: https://img.clerk.com https://*.clerk.accounts.dev;
+  img-src 'self' data: https://img.clerk.com https://*.clerk.accounts.dev https://img.youtube.com https://i.vimeocdn.com;
   font-src 'self';
   connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com;
   frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.facebook.com https://www.instagram.com https://www.tiktok.com;
