@@ -10,6 +10,7 @@ import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
+import { getProgramPollSummary } from "@/lib/pollResults";
 import { SITE_NAME } from "@/lib/siteUrl";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewList from "@/components/ReviewList";
@@ -19,6 +20,7 @@ import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
+import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -186,6 +188,8 @@ export default async function ProgramDetailPage({
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
         {program.description}
       </p>
+
+      <PollSummaryStrip summary={await getProgramPollSummary(program.id)} programSlug={program.slug} />
 
       {program.goodFor && (
         <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
