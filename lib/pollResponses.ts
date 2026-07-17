@@ -11,6 +11,49 @@ function isUniqueConstraintError(err: unknown): boolean {
 
 const VERIFY_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+type ReviewInput = { questionId: string; text: string };
+
+/**
+ * Inserts reviews one at a time (not `createMany`) so a duplicate
+ * (responseId, questionId) -- e.g. a signed-in resubmit re-sending a review for a
+ * question already reviewed, or a retried "add more detail" call -- fails only that
+ * one review instead of the whole batch. Every row starts PENDING; nothing here ever
+ * sets APPROVED (see lib/pollReviews.ts's approvePollReview for the only write path
+ * that can). Returns the question ids that were rejected as duplicates so the caller
+ * can surface a friendly per-review message without failing the request.
+ */
+async function insertReviews(
+  responseId: string,
+  programId: string,
+  reviews: ReviewInput[],
+  versionById: Map<string, number>
+): Promise<{ skippedQuestionIds: string[] }> {
+  const skippedQuestionIds: string[] = [];
+  const consentAt = new Date();
+  for (const review of reviews) {
+    try {
+      await prisma.pollReview.create({
+        data: {
+          responseId,
+          questionId: review.questionId,
+          questionVersion: versionById.get(review.questionId) ?? 1,
+          programId,
+          text: review.text,
+          consentGiven: true,
+          consentAt,
+        },
+      });
+    } catch (err) {
+      if (isUniqueConstraintError(err)) {
+        skippedQuestionIds.push(review.questionId);
+        continue;
+      }
+      throw err;
+    }
+  }
+  return { skippedQuestionIds };
+}
+
 /** The signed-in user's current counted rating for this program, if any -- used to
  * pre-fill RateForm ("Update your rating") for the update-in-place flow (locked
  * decision: a repeat signed-in visitor edits their existing response rather than being
@@ -26,23 +69,29 @@ type SignedInSubmitInput = {
   programId: string;
   userId: string;
   answers: { questionId: string; value: number }[];
+  reviews: ReviewInput[];
+  presentedQuestionIds: string[];
   ipHash: string;
 };
 
 async function attemptSignedInSubmit(input: SignedInSubmitInput) {
+  const allQuestionIds = [...new Set([...input.answers.map((a) => a.questionId), ...input.reviews.map((r) => r.questionId)])];
   const questions = await prisma.pollQuestion.findMany({
-    where: { id: { in: input.answers.map((a) => a.questionId) } },
+    where: { id: { in: allQuestionIds } },
     select: { id: true, version: true },
   });
   const versionById = new Map(questions.map((q) => [q.id, q.version]));
 
-  return prisma.$transaction(async (tx) => {
+  const response = await prisma.$transaction(async (tx) => {
     const existing = await tx.pollResponse.findFirst({
       where: { programId: input.programId, userId: input.userId, status: "COUNTED" },
     });
 
     const response = existing
-      ? await tx.pollResponse.update({ where: { id: existing.id }, data: { ipHash: input.ipHash } })
+      ? await tx.pollResponse.update({
+          where: { id: existing.id },
+          data: { ipHash: input.ipHash, presentedQuestionIds: input.presentedQuestionIds },
+        })
       : await tx.pollResponse.create({
           data: {
             programId: input.programId,
@@ -50,6 +99,7 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
             verified: true,
             status: "COUNTED",
             ipHash: input.ipHash,
+            presentedQuestionIds: input.presentedQuestionIds,
           },
         });
 
@@ -57,17 +107,24 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
       await tx.pollAnswer.deleteMany({ where: { responseId: existing.id } });
     }
 
-    await tx.pollAnswer.createMany({
-      data: input.answers.map((a) => ({
-        responseId: response.id,
-        questionId: a.questionId,
-        questionVersion: versionById.get(a.questionId) ?? 1,
-        value: a.value,
-      })),
-    });
+    // Skips are absence, not a row -- only questions the respondent actually answered
+    // get a PollAnswer at all.
+    if (input.answers.length > 0) {
+      await tx.pollAnswer.createMany({
+        data: input.answers.map((a) => ({
+          responseId: response.id,
+          questionId: a.questionId,
+          questionVersion: versionById.get(a.questionId) ?? 1,
+          value: a.value,
+        })),
+      });
+    }
 
     return response;
   });
+
+  const { skippedQuestionIds } = await insertReviews(response.id, input.programId, input.reviews, versionById);
+  return { response, skippedReviewQuestionIds: skippedQuestionIds };
 }
 
 /**
@@ -77,7 +134,9 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
  * resubmit -- the partial unique index on (userId, programId, status=COUNTED) is the
  * DB-level backstop against a concurrent double-submit race, which this function
  * retries once against (the retry's findFirst will see the row the losing race created
- * and update it instead of colliding again).
+ * and update it instead of colliding again). Reviews insert after the answer
+ * transaction commits (see insertReviews) so a duplicate review can never roll back an
+ * otherwise-valid rating.
  */
 export async function submitSignedInResponse(input: SignedInSubmitInput) {
   try {
@@ -95,6 +154,8 @@ type AnonymousSubmitInput = {
   referrerTokenId: string | null;
   tokenFlags: PollFlag[];
   answers: { questionId: string; value: number }[];
+  reviews: ReviewInput[];
+  presentedQuestionIds: string[];
   yearAttended: number | null;
   completion: PollCompletion | null;
   ipHash: string;
@@ -106,11 +167,14 @@ type AnonymousSubmitInput = {
  * whatever flags the token validation already found (over cap, revoked, expired -- see
  * lib/pollTokens.ts's validateReferrerToken) and adds `repeat_ip` if this ipHash has
  * already submitted a non-voided response for this same program, so moderation can see
- * the signal without anything being silently dropped.
+ * the signal without anything being silently dropped. Reviews from an unverified
+ * response are still stored (PENDING, same as any review) but are unapprovable until
+ * the parent verifies -- see lib/pollReviews.ts's approvePollReview.
  */
 export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
+  const allQuestionIds = [...new Set([...input.answers.map((a) => a.questionId), ...input.reviews.map((r) => r.questionId)])];
   const questions = await prisma.pollQuestion.findMany({
-    where: { id: { in: input.answers.map((a) => a.questionId) } },
+    where: { id: { in: allQuestionIds } },
     select: { id: true, version: true },
   });
   const versionById = new Map(questions.map((q) => [q.id, q.version]));
@@ -130,49 +194,78 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
       completion: input.completion,
       ipHash: input.ipHash,
       flags,
+      presentedQuestionIds: input.presentedQuestionIds,
     },
   });
 
-  await prisma.pollAnswer.createMany({
-    data: input.answers.map((a) => ({
-      responseId: response.id,
-      questionId: a.questionId,
-      questionVersion: versionById.get(a.questionId) ?? 1,
-      value: a.value,
-    })),
-  });
+  if (input.answers.length > 0) {
+    await prisma.pollAnswer.createMany({
+      data: input.answers.map((a) => ({
+        responseId: response.id,
+        questionId: a.questionId,
+        questionVersion: versionById.get(a.questionId) ?? 1,
+        value: a.value,
+      })),
+    });
+  }
 
-  return response;
+  const { skippedQuestionIds } = await insertReviews(response.id, input.programId, input.reviews, versionById);
+  return { response, skippedReviewQuestionIds: skippedQuestionIds };
 }
 
 /**
- * Adds non-core "add more detail" answers to a still-pending response, after the
- * initial submit. Restricted to PENDING responses only -- the responseId is a bare cuid
- * capability (no auth), so this must never be able to mutate a response that's already
- * COUNTED or VOIDED. skipDuplicates makes a retried/double-submitted expander harmless
- * rather than a 500 (the composite PollAnswer PK would otherwise reject it).
+ * Adds non-core "add more detail" answers and reviews to a still-pending response,
+ * after the initial submit. Restricted to PENDING responses only -- the responseId is
+ * a bare cuid capability (no auth), so this must never be able to mutate a response
+ * that's already COUNTED or VOIDED. `skipDuplicates` makes a retried/double-submitted
+ * expander harmless rather than a 500 for answers (the composite PollAnswer PK would
+ * otherwise reject it); reviews go through the same per-row insertReviews as initial
+ * submission. `extraQuestionIds` is the full set of non-core questions the expander
+ * displayed (from the route's resolved config, not the client) -- appended onto
+ * `presentedQuestionIds` so moderation's skip diff reflects everything actually shown,
+ * not just what was answered.
  */
-export async function addDetailAnswers(responseId: string, answers: { questionId: string; value: number }[]) {
-  const response = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
+export async function addDetailAnswersAndReviews(
+  responseId: string,
+  answers: { questionId: string; value: number }[],
+  reviews: ReviewInput[],
+  extraQuestionIds: string[]
+) {
+  const response = await prisma.pollResponse.findUnique({
+    where: { id: responseId },
+    select: { status: true, programId: true, presentedQuestionIds: true },
+  });
   if (!response || response.status !== "PENDING") {
     throw new Error("This response can no longer be edited");
   }
 
+  const allQuestionIds = [...new Set([...answers.map((a) => a.questionId), ...reviews.map((r) => r.questionId)])];
   const questions = await prisma.pollQuestion.findMany({
-    where: { id: { in: answers.map((a) => a.questionId) } },
+    where: { id: { in: allQuestionIds } },
     select: { id: true, version: true },
   });
   const versionById = new Map(questions.map((q) => [q.id, q.version]));
 
-  await prisma.pollAnswer.createMany({
-    data: answers.map((a) => ({
-      responseId,
-      questionId: a.questionId,
-      questionVersion: versionById.get(a.questionId) ?? 1,
-      value: a.value,
-    })),
-    skipDuplicates: true,
+  if (answers.length > 0) {
+    await prisma.pollAnswer.createMany({
+      data: answers.map((a) => ({
+        responseId,
+        questionId: a.questionId,
+        questionVersion: versionById.get(a.questionId) ?? 1,
+        value: a.value,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  const nextPresented = [...new Set([...response.presentedQuestionIds, ...extraQuestionIds])];
+  await prisma.pollResponse.update({
+    where: { id: responseId },
+    data: { presentedQuestionIds: nextPresented },
   });
+
+  const { skippedQuestionIds } = await insertReviews(responseId, response.programId, reviews, versionById);
+  return { skippedReviewQuestionIds: skippedQuestionIds };
 }
 
 export type AttachEmailResult = { ok: true } | { ok: false; reason: string };

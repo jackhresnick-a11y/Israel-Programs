@@ -1,19 +1,25 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
-import { answerListSchema } from "@/lib/pollShared";
-import { addDetailAnswers } from "@/lib/pollResponses";
+import { answerListSchema, reviewListSchema } from "@/lib/pollShared";
+import { addDetailAnswersAndReviews } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
-const bodySchema = z.object({ answers: answerListSchema });
+const bodySchema = z.object({
+  answers: answerListSchema,
+  reviews: reviewListSchema.default([]),
+});
 
 /**
- * Adds "Add more detail" (non-core bucket) answers to a still-pending anonymous
- * response, after the initial submit -- the responseId in the URL is a bare capability
- * (no auth on this route), so every check here matters: rate-limited by IP,
+ * Adds "Add more detail" (non-core bucket) answers and reviews to a still-pending
+ * anonymous response, after the initial submit -- the responseId in the URL is a bare
+ * capability (no auth on this route), so every check here matters: rate-limited by IP,
  * question-id allowlist re-derived from the program's live config (never trust the
- * client's questionId set), and addDetailAnswers itself refuses anything not PENDING.
+ * client's questionId set), and addDetailAnswersAndReviews itself refuses anything not
+ * PENDING. `extras` (every non-core question the expander displayed) is passed through
+ * so `presentedQuestionIds` reflects what was actually shown, not just what was
+ * answered.
  */
 export async function POST(
   request: Request,
@@ -27,22 +33,29 @@ export async function POST(
     }
 
     const json = await request.json();
-    const { answers } = bodySchema.parse(json);
+    const { answers, reviews } = bodySchema.parse(json);
 
     const response = await prisma.pollResponse.findUnique({ where: { id }, select: { programId: true } });
     if (!response) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const { core, extras } = await getQuestionsForProgram(response.programId);
-    const allowedIds = new Set([...core.map((q) => q.id), ...extras.flatMap((e) => e.questions.map((q) => q.id))]);
-    const invalid = answers.filter((a) => !allowedIds.has(a.questionId));
-    if (invalid.length > 0) {
+    const { extras } = await getQuestionsForProgram(response.programId);
+    const extraQuestionIds = extras.flatMap((e) => e.questions.map((q) => q.id));
+    const allowedIds = new Set(extraQuestionIds);
+    const invalidAnswers = answers.filter((a) => !allowedIds.has(a.questionId));
+    const invalidReviews = reviews.filter((r) => !allowedIds.has(r.questionId));
+    if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
       return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
     }
 
-    await addDetailAnswers(id, answers);
-    return NextResponse.json({ ok: true });
+    const { skippedReviewQuestionIds } = await addDetailAnswersAndReviews(
+      id,
+      answers,
+      reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
+      extraQuestionIds
+    );
+    return NextResponse.json({ ok: true, skippedReviewQuestionIds });
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });

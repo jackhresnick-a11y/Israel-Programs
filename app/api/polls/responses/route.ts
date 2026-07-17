@@ -22,22 +22,31 @@ export async function POST(request: Request) {
 
       const body = signedInSubmitSchema.parse(json);
 
-      // Never trust the client's questionId set -- only accept answers to questions
-      // that are actually part of this program's live (Core) question set.
+      // Never trust the client's questionId set -- only accept answers/reviews for
+      // questions that are actually part of this program's live (Core) question set.
       const { core } = await getQuestionsForProgram(body.programId);
       const allowedIds = new Set(core.map((q) => q.id));
-      const invalid = body.answers.filter((a) => !allowedIds.has(a.questionId));
-      if (invalid.length > 0) {
+      const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
+      const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
+      if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
         return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
       }
 
-      const response = await submitSignedInResponse({
+      const { response, skippedReviewQuestionIds } = await submitSignedInResponse({
         programId: body.programId,
         userId,
         answers: body.answers,
+        reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
+        presentedQuestionIds: core.map((q) => q.id),
         ipHash: hashIp(ip),
       });
-      return NextResponse.json({ ok: true, responseId: response.id, verified: true, status: "COUNTED" });
+      return NextResponse.json({
+        ok: true,
+        responseId: response.id,
+        verified: true,
+        status: "COUNTED",
+        skippedReviewQuestionIds,
+      });
     }
 
     // Anonymous link-path submission.
@@ -73,21 +82,30 @@ export async function POST(request: Request) {
     const { core } = await getQuestionsForProgram(body.programId);
     const allowedIds = new Set(core.map((q) => q.id));
     const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
-    if (invalidAnswers.length > 0) {
+    const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
+    if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
       return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
     }
 
-    const response = await submitAnonymousResponse({
+    const { response, skippedReviewQuestionIds } = await submitAnonymousResponse({
       programId: body.programId,
       referrerTokenId: validation.token.id,
       tokenFlags: validation.flags,
       answers: body.answers,
+      reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
+      presentedQuestionIds: core.map((q) => q.id),
       yearAttended: body.yearAttended ?? null,
       completion: body.completion ?? null,
       ipHash: hashIp(ip),
     });
 
-    return NextResponse.json({ ok: true, responseId: response.id, verified: false, status: "PENDING" });
+    return NextResponse.json({
+      ok: true,
+      responseId: response.id,
+      verified: false,
+      status: "PENDING",
+      skippedReviewQuestionIds,
+    });
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });

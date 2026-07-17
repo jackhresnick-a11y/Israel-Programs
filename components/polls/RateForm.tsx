@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
 import Card from "@/components/ui/Card";
 import QuestionInput from "@/components/polls/QuestionInput";
 import { pollDraftKey, yearAttendedOptions, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
@@ -31,6 +32,88 @@ export default function RateForm(props: RateFormProps) {
   return <AnonymousRateForm {...props} />;
 }
 
+const EMPTY_SUBMISSION_MESSAGE = "Answer at least one question or write a review";
+
+/** Above the first review field, per the build spec -- plain context, not a legal
+ * notice. Rendered once per form/expander section, immediately above its questions. */
+function ReviewConsentContext() {
+  return (
+    <p className="text-xs text-muted">
+      Reviews are published anonymously, reviewed by a moderator first, and may not be published at all.
+    </p>
+  );
+}
+
+/**
+ * One question's rating control plus its optional review textarea and per-review
+ * consent checkbox -- the same composite renders in the core form, the anonymous
+ * thank-you screen's "Add more detail" expander, and (via SignedInRateForm) the
+ * signed-in form, so review UX never drifts between the three. An unchecked consent
+ * box means the review simply isn't included in the submission -- never sent as
+ * `consent: false` (the rating and every other field on the page submit regardless).
+ */
+function QuestionWithReview({
+  question,
+  value,
+  onValueChange,
+  reviewText,
+  onReviewTextChange,
+  reviewConsent,
+  onReviewConsentChange,
+}: {
+  question: PollQuestionDTO;
+  value: number | null;
+  onValueChange: (value: number | null) => void;
+  reviewText: string;
+  onReviewTextChange: (text: string) => void;
+  reviewConsent: boolean;
+  onReviewConsentChange: (consent: boolean) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <QuestionInput question={question} value={value} onChange={onValueChange} />
+      <div className="flex flex-col gap-1.5 pl-1">
+        <Textarea
+          placeholder="Want to say more? (optional)"
+          value={reviewText}
+          onChange={(e) => onReviewTextChange(e.target.value)}
+          maxLength={1000}
+          rows={2}
+          className="text-sm"
+        />
+        <label className="flex items-start gap-2 text-xs text-muted">
+          <input
+            type="checkbox"
+            checked={reviewConsent}
+            onChange={(e) => onReviewConsentChange(e.target.checked)}
+            className="mt-0.5 accent-accent"
+          />
+          <span>I understand this will be published publicly on this program&rsquo;s page.</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+/** Builds the {questionId, value}[] / {questionId, text, consent}[] payloads from
+ * per-question state -- a skipped question (value null) is simply absent from
+ * `answers`; a review only makes it into `reviews` when both text and consent are
+ * present, an unchecked or empty review is silently excluded, never sent flagged. */
+function buildSubmission(
+  questions: PollQuestionDTO[],
+  values: Record<string, number | null>,
+  reviewTexts: Record<string, string>,
+  reviewConsents: Record<string, boolean>
+) {
+  const answers = questions
+    .filter((q) => values[q.id] !== null)
+    .map((q) => ({ questionId: q.id, value: values[q.id] as number }));
+  const reviews = questions
+    .filter((q) => reviewConsents[q.id] && reviewTexts[q.id]?.trim())
+    .map((q) => ({ questionId: q.id, text: reviewTexts[q.id].trim(), consent: true as const }));
+  return { answers, reviews };
+}
+
 function SignedInRateForm({
   programId,
   questions,
@@ -38,24 +121,29 @@ function SignedInRateForm({
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
-  const [values, setValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(questions.map((q) => [q.id, existingAnswers?.[q.id] ?? 3]))
+  const [values, setValues] = useState<Record<string, number | null>>(() =>
+    Object.fromEntries(questions.map((q) => [q.id, existingAnswers?.[q.id] ?? null]))
   );
+  const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
+  const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
+    const { answers, reviews } = buildSubmission(questions, values, reviewTexts, reviewConsents);
+    if (answers.length === 0 && reviews.length === 0) {
+      setError(EMPTY_SUBMISSION_MESSAGE);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/polls/responses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          programId,
-          answers: questions.map((q) => ({ questionId: q.id, value: values[q.id] })),
-        }),
+        body: JSON.stringify({ programId, answers, reviews }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -84,12 +172,17 @@ function SignedInRateForm({
   return (
     <div data-poll-mode="signed-in" className="flex flex-col gap-6">
       {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      <ReviewConsentContext />
       {questions.map((q) => (
-        <QuestionInput
+        <QuestionWithReview
           key={q.id}
           question={q}
           value={values[q.id]}
-          onChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          reviewText={reviewTexts[q.id] ?? ""}
+          onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
+          reviewConsent={reviewConsents[q.id] ?? false}
+          onReviewConsentChange={(consent) => setReviewConsents((prev) => ({ ...prev, [q.id]: consent }))}
         />
       ))}
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
@@ -99,7 +192,11 @@ function SignedInRateForm({
   );
 }
 
-type Draft = { values: Record<string, number>; yearAttended: number | null };
+type Draft = {
+  values: Record<string, number | null>;
+  reviewTexts: Record<string, string>;
+  yearAttended: number | null;
+};
 
 function loadDraft(programSlug: string): Draft | null {
   if (typeof window === "undefined") return null;
@@ -165,15 +262,23 @@ function AnonymousRateForm({
   questions,
   extras,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
-  // All inputs pre-positioned at 3 (midpoint), never empty. The very first render (both
+  // Every question starts unanswered (null), same as the signed-in form -- this
+  // supersedes the earlier "pre-position at 3" design, which made an untouched
+  // question indistinguishable from a real answer of 3. The very first render (both
   // on the server and React's initial client hydration pass) always starts from this
   // default -- a saved draft, if any, arrives via useSavedDraft one tick later and is
   // applied below during render (React's "adjusting state when a store value changes"
   // pattern), not inside an effect, so there's no hydration mismatch and no
   // setState-in-effect cascade.
-  const [values, setValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(questions.map((q) => [q.id, 3]))
+  const [values, setValues] = useState<Record<string, number | null>>(() =>
+    Object.fromEntries(questions.map((q) => [q.id, null]))
   );
+  const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
+  // Consent is deliberately NOT persisted to the draft (see saveDraft's payload below)
+  // -- restoring a draft always starts every consent box unchecked, even if it was
+  // checked before the page reloaded. Review *text* is preserved so nothing is lost,
+  // but re-affirming consent is a fresh, deliberate act every time.
+  const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
   const [yearAttended, setYearAttended] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -184,6 +289,7 @@ function AnonymousRateForm({
   if (savedDraft !== null && savedDraft !== appliedDraft) {
     setAppliedDraft(savedDraft);
     setValues((prev) => ({ ...prev, ...savedDraft.values }));
+    setReviewTexts((prev) => ({ ...prev, ...savedDraft.reviewTexts }));
     if (savedDraft.yearAttended !== null && savedDraft.yearAttended !== undefined) {
       setYearAttended(savedDraft.yearAttended);
     }
@@ -191,10 +297,16 @@ function AnonymousRateForm({
 
   useEffect(() => {
     if (responseId) return; // already submitted -- stop autosaving over a cleared draft
-    saveDraft(programSlug, { values, yearAttended });
-  }, [programSlug, values, yearAttended, responseId]);
+    saveDraft(programSlug, { values, reviewTexts, yearAttended });
+  }, [programSlug, values, reviewTexts, yearAttended, responseId]);
 
   async function handleSubmit() {
+    const { answers, reviews } = buildSubmission(questions, values, reviewTexts, reviewConsents);
+    if (answers.length === 0 && reviews.length === 0) {
+      setError(EMPTY_SUBMISSION_MESSAGE);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
@@ -204,7 +316,8 @@ function AnonymousRateForm({
         body: JSON.stringify({
           programId,
           ref: referrerToken,
-          answers: questions.map((q) => ({ questionId: q.id, value: values[q.id] })),
+          answers,
+          reviews,
           yearAttended,
         }),
       });
@@ -229,12 +342,17 @@ function AnonymousRateForm({
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
       {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      <ReviewConsentContext />
       {questions.map((q) => (
-        <QuestionInput
+        <QuestionWithReview
           key={q.id}
           question={q}
           value={values[q.id]}
-          onChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          reviewText={reviewTexts[q.id] ?? ""}
+          onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
+          reviewConsent={reviewConsents[q.id] ?? false}
+          onReviewConsentChange={(consent) => setReviewConsents((prev) => ({ ...prev, [q.id]: consent }))}
         />
       ))}
       <label className="flex max-w-xs flex-col gap-1">
@@ -271,10 +389,13 @@ function ThankYouScreen({
   const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
 
+  const extraQuestions = extras.flatMap((e) => e.questions);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailValues, setDetailValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(extras.flatMap((e) => e.questions).map((q) => [q.id, 3]))
+  const [detailValues, setDetailValues] = useState<Record<string, number | null>>(() =>
+    Object.fromEntries(extraQuestions.map((q) => [q.id, null]))
   );
+  const [detailReviewTexts, setDetailReviewTexts] = useState<Record<string, string>>({});
+  const [detailReviewConsents, setDetailReviewConsents] = useState<Record<string, boolean>>({});
   const [detailStatus, setDetailStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function handleConfirmEmail() {
@@ -298,15 +419,17 @@ function ThankYouScreen({
   }
 
   async function handleSaveDetail() {
+    const { answers, reviews } = buildSubmission(extraQuestions, detailValues, detailReviewTexts, detailReviewConsents);
+    if (answers.length === 0 && reviews.length === 0) {
+      setDetailStatus("saved");
+      return;
+    }
     setDetailStatus("saving");
     try {
-      const answers = extras
-        .flatMap((e) => e.questions)
-        .map((q) => ({ questionId: q.id, value: detailValues[q.id] }));
       const res = await fetch(`/api/polls/responses/${responseId}/details`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, reviews }),
       });
       if (!res.ok) throw new Error();
       setDetailStatus("saved");
@@ -362,15 +485,22 @@ function ThankYouScreen({
                 <p className="text-sm text-success">Thanks -- saved.</p>
               ) : (
                 <>
+                  <ReviewConsentContext />
                   {extras.map(({ bucket, questions }) => (
                     <div key={bucket.id} className="flex flex-col gap-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
                       {questions.map((q) => (
-                        <QuestionInput
+                        <QuestionWithReview
                           key={q.id}
                           question={q}
                           value={detailValues[q.id]}
-                          onChange={(v) => setDetailValues((prev) => ({ ...prev, [q.id]: v }))}
+                          onValueChange={(v) => setDetailValues((prev) => ({ ...prev, [q.id]: v }))}
+                          reviewText={detailReviewTexts[q.id] ?? ""}
+                          onReviewTextChange={(text) => setDetailReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
+                          reviewConsent={detailReviewConsents[q.id] ?? false}
+                          onReviewConsentChange={(consent) =>
+                            setDetailReviewConsents((prev) => ({ ...prev, [q.id]: consent }))
+                          }
                         />
                       ))}
                     </div>
