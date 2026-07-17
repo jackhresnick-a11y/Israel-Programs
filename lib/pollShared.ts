@@ -67,6 +67,18 @@ export type PollSummaryDTO = {
   overallHistogram: [number, number, number, number, number];
 };
 
+/** One approved review as rendered on the public program page -- grouped by question,
+ * never carries responseId/email/ipHash/consent metadata (the RSC-payload-leak rule
+ * this codebase applies to every model with a public/sensitive split). `yearAttended`
+ * is the only respondent-identifying detail shown, and only when given; 0 renders as
+ * "Earlier" per yearAttendedOptions below. */
+export type PollReviewDTO = {
+  questionKey: string;
+  questionText: string;
+  text: string;
+  yearAttended: number | null;
+};
+
 export const yearAttendedSchema = z.coerce.number().int().min(0).nullable().optional();
 
 /** 0 is the "Earlier" sentinel -- null/undefined means the field wasn't answered. */
@@ -81,26 +93,68 @@ export const answerInputSchema = z.object({
   value: z.coerce.number().int().min(1).max(5),
 });
 
-export const answerListSchema = z.array(answerInputSchema).min(1);
+/** No `.min(1)` -- a question the respondent skips simply isn't in this array, and an
+ * all-skipped submission is legitimate (the empty-submission refine below only blocks
+ * a response with *neither* an answer nor a review, not a review-only one). There is no
+ * "answer with a null value": `answerInputSchema.value` still requires a real 1-5,
+ * which is what makes a skip representable only as *absence*, never as a stored null
+ * or sentinel row. */
+export const answerListSchema = z.array(answerInputSchema);
 
 export const completionSchema = z.enum(["FULL", "PARTIAL", "DROPPED"]).nullable().optional();
 
-/** Signed-in submit: no ref token, no honeypot (Clerk already gates identity). */
-export const signedInSubmitSchema = z.object({
-  programId: z.string().min(1),
-  answers: answerListSchema,
+/** One consented, per-question public review. `consent` must be the literal `true` --
+ * the client only ever includes an entry here for a review whose checkbox was actually
+ * checked (an unchecked review is simply omitted, never sent as `consent: false`), and
+ * this schema is the second of three consent enforcement layers (client omission,
+ * this zod literal, and the DB's hand-written `CHECK ("consentGiven")` -- see the
+ * PollReview migration). */
+export const reviewInputSchema = z.object({
+  questionId: z.string().min(1),
+  text: z.string().trim().min(1).max(1000),
+  consent: z.literal(true),
 });
+
+export const reviewListSchema = z.array(reviewInputSchema);
+
+/** A response carrying neither a real answer nor a consented review isn't a
+ * response -- skips alone never block submission, but *nothing at all* does. */
+function requireAnswerOrReview(body: { answers: unknown[]; reviews: unknown[] }) {
+  return body.answers.length > 0 || body.reviews.length > 0;
+}
+const EMPTY_SUBMISSION_MESSAGE = "Answer at least one question or write a review";
+
+/** Signed-in submit: no ref token, no honeypot (Clerk already gates identity). */
+export const signedInSubmitSchema = z
+  .object({
+    programId: z.string().min(1),
+    answers: answerListSchema,
+    reviews: reviewListSchema.default([]),
+  })
+  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] });
 
 /** Anonymous link-path submit: `website` is a honeypot field real users never fill in
  * (app/api/contact/route.ts precedent) -- checked before rate limiting so bots can't
  * detect the limiter by probing it. */
-export const anonymousSubmitSchema = z.object({
-  programId: z.string().min(1),
+export const anonymousSubmitSchema = z
+  .object({
+    programId: z.string().min(1),
+    answers: answerListSchema,
+    reviews: reviewListSchema.default([]),
+    ref: z.string().min(1).optional(),
+    yearAttended: yearAttendedSchema,
+    completion: completionSchema,
+    website: z.string().optional(),
+  })
+  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] });
+
+/** The "Add more detail" / details endpoint: non-core answers and reviews for an
+ * already-submitted response. No empty-submission refine here -- an empty details
+ * payload is a no-op, not an error (the parent response already satisfied that rule
+ * at initial submit). */
+export const detailsSubmitSchema = z.object({
   answers: answerListSchema,
-  ref: z.string().min(1).optional(),
-  yearAttended: yearAttendedSchema,
-  completion: completionSchema,
-  website: z.string().optional(),
+  reviews: reviewListSchema.default([]),
 });
 
 export const emailAttachSchema = z.object({

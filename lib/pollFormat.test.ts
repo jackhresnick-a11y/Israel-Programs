@@ -21,8 +21,12 @@ describe("meanToPercent / formatStarsMean: same mean, arithmetically consistent"
   });
 });
 
+// The first argument is the count of COUNTED+verified responses that actually
+// answered `overall` -- not a raw response count -- since a question became
+// skippable. summaryState itself is agnostic to that distinction; it just compares
+// the number it's given against the threshold.
 describe("summaryState", () => {
-  it("zero counted-verified responses -> be_first, regardless of other flags", () => {
+  it("zero counted-verified overall-answers -> be_first, regardless of other flags", () => {
     expect(summaryState(0, 7, true, false)).toBe("be_first");
     expect(summaryState(0, 7, false, true)).toBe("be_first");
   });

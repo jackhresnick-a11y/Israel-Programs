@@ -18,9 +18,13 @@ export function formatStarsMean(mean: number): string {
 }
 
 /**
- * Which of the four program-page summary states applies. Public math only ever counts
- * responses that are `status = COUNTED` AND `verified = true` -- `countedVerified` here
- * must already reflect that filter (see lib/pollResults.ts).
+ * Which of the four program-page summary states applies. `countedVerified` is not
+ * simply "how many responses are COUNTED+verified" -- since questions became skippable,
+ * a response can be COUNTED+verified but have skipped `overall` entirely. The publish
+ * gate (and the headline/progress-bar counts derived from it) reads the number of
+ * COUNTED+verified responses that actually *answered* `overall` -- see
+ * lib/pollResults.ts's getProgramPollSummary, which computes this as an answer count,
+ * not a response count, before calling this function.
  */
 export function summaryState(
   countedVerified: number,

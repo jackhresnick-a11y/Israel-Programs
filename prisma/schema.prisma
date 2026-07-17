@@ -117,6 +117,12 @@ enum PollDisplayFormat {
   BOTH
 }
 
+enum PollReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -186,6 +192,7 @@ model Program {
   pollConfig             ProgramPollConfig?
   pollResponses          PollResponse[]
   referrerTokens         ReferrerToken[]
+  pollReviews            PollReview[]
 
   @@index([durationType])
   @@index([status])
@@ -583,6 +590,7 @@ model PollQuestion {
   status          PollLifecycleStatus @default(ACTIVE)
   version         Int                 @default(1)
   answers         PollAnswer[]
+  reviews         PollReview[]
 }
 
 /// A named, ordered group of questions shown together on the rating form. `questionIds`
@@ -657,9 +665,17 @@ model PollResponse {
   verifyToken          String?            @unique
   verifyTokenExpiresAt DateTime?
   verifyEmailSentAt    DateTime?
+  /// Exactly the question ids the rating form displayed to this respondent at submit
+  /// time, stamped server-side (never client input) -- moderation diffs this against
+  /// `answers` to show "skipped" explicitly, and stays accurate even after a later
+  /// admin edit adds/removes questions from the program's live config (unlike
+  /// recomputing against the *current* config, which would misattribute a
+  /// since-added question as "skipped" on old responses that never saw it).
+  presentedQuestionIds String[]           @default([])
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]
+  reviews              PollReview[]
 
   @@index([programId, status, verified])
   @@index([programId, ipHash])
@@ -684,6 +700,45 @@ model PollAnswer {
 
   @@id([responseId, questionId])
   @@index([questionId])
+}
+
+/// An optional, per-question free-text review, always paired with explicit consent
+/// (`consentGiven` is also a hand-written DB CHECK -- see the migration -- a
+/// non-consented row cannot exist even via a bug). One review per question per
+/// response (`@@unique([responseId, questionId])`) -- the form renders exactly one
+/// textarea per question, and editing an existing review is out of scope, so a second
+/// submission for the same (response, question) pair is rejected rather than
+/// overwritten. Defaults to PENDING and nothing ever auto-approves; `approvePollReview`
+/// (lib/pollReviews.ts) additionally refuses unless the parent PollResponse is already
+/// `COUNTED` AND `verified` -- an unverified anonymous response's reviews sit
+/// unapprovable until the magic link is clicked. Rejected rows are retained, never
+/// deleted. Publishing (`listPublicReviews`) is a query-time join against the parent
+/// response's live status/verified, not a stored publish flag -- voiding the parent
+/// response instantly hides its approved reviews with no write to this table, and
+/// restoring the response republishes them automatically. `programId` is denormalized
+/// (redundant with `response.programId`) purely so the public program-page query and
+/// the admin queue don't need to join through PollResponse to filter by program.
+model PollReview {
+  id              String           @id @default(cuid())
+  responseId      String
+  response        PollResponse     @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        PollQuestion     @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  questionVersion Int
+  programId       String
+  program         Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  text            String
+  consentGiven    Boolean
+  consentAt       DateTime
+  status          PollReviewStatus @default(PENDING)
+  moderatedBy     String?
+  moderatedAt     DateTime?
+  moderatorNote   String?
+  createdAt       DateTime         @default(now())
+
+  @@unique([responseId, questionId])
+  @@index([programId, status])
+  @@index([status])
 }
 
 /// A minted outreach link (`/rate/[slug]?ref=token`) an admin hands out to a specific

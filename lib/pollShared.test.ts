@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { resolvePollQuestionSet, type PollBucketDTO, type PollQuestionDTO } from "./pollShared";
+import {
+  resolvePollQuestionSet,
+  signedInSubmitSchema,
+  anonymousSubmitSchema,
+  reviewInputSchema,
+  type PollBucketDTO,
+  type PollQuestionDTO,
+} from "./pollShared";
 
 function question(id: string, overrides: Partial<PollQuestionDTO> = {}): PollQuestionDTO {
   return {
@@ -148,5 +155,69 @@ describe("resolvePollQuestionSet", () => {
     );
     expect(result.core).toEqual([]);
     expect(result.extras).toEqual([]);
+  });
+});
+
+describe("reviewInputSchema: consent must be the literal true", () => {
+  it("accepts a review with consent: true", () => {
+    const result = reviewInputSchema.safeParse({ questionId: "q1", text: "Great program", consent: true });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects consent: false -- an unconsented review is never sent, not sent-and-flagged", () => {
+    const result = reviewInputSchema.safeParse({ questionId: "q1", text: "Great program", consent: false });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty text", () => {
+    const result = reviewInputSchema.safeParse({ questionId: "q1", text: "", consent: true });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects text over 1000 characters", () => {
+    const result = reviewInputSchema.safeParse({ questionId: "q1", text: "a".repeat(1001), consent: true });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("signedInSubmitSchema / anonymousSubmitSchema: skip and empty-submission rules", () => {
+  it("accepts a partial submission -- some questions answered, the rest implicitly skipped", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 4 }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts zero answers plus a consented review -- reviews alone are a valid submission", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [],
+      reviews: [{ questionId: "q1", text: "Loved it", consent: true }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects zero answers with no reviews field at all -- reviews defaults to [], still empty", () => {
+    const result = signedInSubmitSchema.safeParse({ programId: "p1", answers: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects zero answers AND an explicit empty reviews array -- nothing at all is not a response", () => {
+    const result = signedInSubmitSchema.safeParse({ programId: "p1", answers: [], reviews: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it("anonymousSubmitSchema applies the same empty-submission rule", () => {
+    const result = anonymousSubmitSchema.safeParse({ programId: "p1", answers: [], reviews: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it("anonymousSubmitSchema still requires a real 1-5 value for any answer that IS present -- a skip is absence, never a null/out-of-range value", () => {
+    const result = anonymousSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 6 }],
+    });
+    expect(result.success).toBe(false);
   });
 });
