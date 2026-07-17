@@ -158,6 +158,12 @@ export default async function ProgramDetailPage({
         </div>
         <div className="flex gap-2">
           <Link
+            href={`/rate/${program.slug}`}
+            className={buttonVariants({ variant: "primary", size: "sm" })}
+          >
+            Rate this program
+          </Link>
+          <Link
             href={`/programs/${program.slug}/edit`}
             className={buttonVariants({ variant: "secondary", size: "sm" })}
           >

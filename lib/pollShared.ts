@@ -87,6 +87,7 @@ export const completionSchema = z.enum(["FULL", "PARTIAL", "DROPPED"]).nullable(
 
 /** Signed-in submit: no ref token, no honeypot (Clerk already gates identity). */
 export const signedInSubmitSchema = z.object({
+  programId: z.string().min(1),
   answers: answerListSchema,
 });
 
@@ -94,6 +95,7 @@ export const signedInSubmitSchema = z.object({
  * (app/api/contact/route.ts precedent) -- checked before rate limiting so bots can't
  * detect the limiter by probing it. */
 export const anonymousSubmitSchema = z.object({
+  programId: z.string().min(1),
   answers: answerListSchema,
   ref: z.string().min(1).optional(),
   yearAttended: yearAttendedSchema,

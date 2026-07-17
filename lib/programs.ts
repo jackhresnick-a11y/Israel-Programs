@@ -527,6 +527,19 @@ export async function getProgramsBySlugs(slugs: string[]) {
   return slugs.map((s) => bySlug.get(s)).filter((p): p is NonNullable<typeof p> => Boolean(p));
 }
 
+/** Narrow select for surfaces that only need a program's identity, not its full record
+ * (description/tags/videos/etc.) -- currently just app/rate/[programSlug]/page.tsx,
+ * which needs id (for PollResponse.programId) + name (for form copy) + status (to 404 a
+ * non-published program the same way the public program page does). Same
+ * "select only what the caller needs" discipline as FOLDER_PROGRAM_SELECT in
+ * lib/folders.ts. */
+export async function getProgramForRating(slug: string) {
+  return prisma.program.findUnique({
+    where: { slug },
+    select: { id: true, name: true, slug: true, status: true },
+  });
+}
+
 export async function listPublishedProgramNames() {
   return prisma.program.findMany({
     where: { status: "PUBLISHED" },
