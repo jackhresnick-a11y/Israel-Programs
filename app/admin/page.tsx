@@ -85,6 +85,12 @@ export default async function AdminPage() {
             >
               Analytics
             </Link>
+            <Link
+              href="/admin/polls"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Ratings
+            </Link>
           </div>
         )}
       </PageHeader>
