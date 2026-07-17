@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { POLL_FLAGS, type PollFlag } from "@/lib/pollShared";
 import { sendPollVerifyEmail } from "@/lib/email";
 import { pollVerifyUrl } from "@/lib/siteUrl";
-import type { PollCompletion } from "@/app/generated/prisma/enums";
+import type { PollCompletion, PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
   return Boolean(err && typeof err === "object" && "code" in err && err.code === "P2002");
@@ -251,6 +251,70 @@ export async function verifyPollResponse(token: string): Promise<VerifyResult> {
         data: { status: "VOIDED", verifyToken: null, flags: { push: POLL_FLAGS.DUPLICATE_EMAIL } },
       });
       return { ok: false, reason: "already_counted" };
+    }
+    throw err;
+  }
+}
+
+export type PollResponseFilter = {
+  programId?: string;
+  status?: PollResponseStatus;
+  verified?: boolean;
+  referrerTokenId?: string;
+  flaggedOnly?: boolean;
+};
+
+/** Admin moderation queue -- capped at 200 most-recent matches per filter combination.
+ * Includes email/ipHash/answers, unlike every public/read-side query in this codebase,
+ * because this is admin-only content behind /admin/polls/moderation's role gate, same
+ * "sensitive fields are fine once past the admin gate" precedent as
+ * /admin/references showing Reference.contactEmail. */
+export async function listPollResponses(filter: PollResponseFilter = {}) {
+  return prisma.pollResponse.findMany({
+    where: {
+      ...(filter.programId ? { programId: filter.programId } : {}),
+      ...(filter.status ? { status: filter.status } : {}),
+      ...(filter.verified !== undefined ? { verified: filter.verified } : {}),
+      ...(filter.referrerTokenId ? { referrerTokenId: filter.referrerTokenId } : {}),
+      ...(filter.flaggedOnly ? { flags: { isEmpty: false } } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    include: {
+      program: { select: { name: true, slug: true } },
+      referrerToken: { select: { label: true } },
+      answers: { include: { question: { select: { key: true, text: true } } } },
+    },
+  });
+}
+
+/** Voids a response -- retained, never deleted, per the build spec. No status-specific
+ * guard: a PENDING spam submission and a COUNTED one an admin later decides is bad
+ * faith both just need to stop counting/cluttering the queue. */
+export async function voidPollResponse(id: string) {
+  return prisma.pollResponse.update({ where: { id }, data: { status: "VOIDED" } });
+}
+
+export type RestoreResult = { ok: true } | { ok: false; reason: "conflict" };
+
+/**
+ * Restores a voided response, "recomputing" its status from the `verified` flag it
+ * already carries rather than requiring a separate "what was it before" field: a
+ * response that was verified (i.e. had completed the magic-link click, or was a
+ * signed-in submission) goes back to COUNTED; an unverified one goes back to PENDING.
+ * Can collide with the partial unique indexes (e.g. the same email has since verified
+ * a different response for this program) -- reported as a conflict rather than thrown,
+ * since that's an expected, recoverable outcome for an admin to see and decide on.
+ */
+export async function restorePollResponse(id: string): Promise<RestoreResult> {
+  const response = await prisma.pollResponse.findUniqueOrThrow({ where: { id } });
+  const nextStatus: PollResponseStatus = response.verified ? "COUNTED" : "PENDING";
+  try {
+    await prisma.pollResponse.update({ where: { id }, data: { status: nextStatus } });
+    return { ok: true };
+  } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      return { ok: false, reason: "conflict" };
     }
     throw err;
   }
