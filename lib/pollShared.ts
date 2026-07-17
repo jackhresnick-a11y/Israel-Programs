@@ -100,7 +100,7 @@ export const anonymousSubmitSchema = z.object({
   ref: z.string().min(1).optional(),
   yearAttended: yearAttendedSchema,
   completion: completionSchema,
-  website: z.string().max(0).optional(),
+  website: z.string().optional(),
 });
 
 export const emailAttachSchema = z.object({
