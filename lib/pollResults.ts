@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
-import { getProgramPollConfig } from "@/lib/pollConfig";
+import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { summaryState } from "@/lib/pollFormat";
-import type { PollSummaryDTO } from "@/lib/pollShared";
+import type { PollSummaryDTO, PollReviewGroupDTO } from "@/lib/pollShared";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
 
@@ -23,14 +23,30 @@ const EMPTY_HISTOGRAM: [number, number, number, number, number] = [0, 0, 0, 0, 0
  * pair. Per-question means and the overall histogram are only computed when the state
  * is actually "published" (results unlock at minResponsesToPublish, gated by
  * resultsVisible AND the kill switch) -- the common "ships dark" case needs only the
- * counted-verified count, not the full aggregation.
+ * overall-answer count, not the full aggregation.
+ *
+ * The publish gate, headline, and progress bar all read the count of COUNTED+verified
+ * responses that *answered* the `overall` question -- not the count of COUNTED+verified
+ * responses overall. Since questions became skippable, a response can be
+ * COUNTED+verified but have skipped `overall` entirely; counting it toward the gate
+ * would publish a score partly built on responses that never actually rated
+ * "overall," and the headline number wouldn't match what the histogram/mean are
+ * computed from. A program whose config has removed `overall` entirely reads 0 here
+ * and stays in "be_first" -- a deliberate, if unusual, consequence of the gate always
+ * being anchored to that one question.
  */
 export const getProgramPollSummary = cache(async (programId: string): Promise<PollSummaryDTO> => {
-  const [config, killSwitchOn, countedVerified] = await Promise.all([
+  const [config, killSwitchOn, overallQuestion] = await Promise.all([
     getProgramPollConfig(programId),
     isPollKillSwitchOn(),
-    prisma.pollResponse.count({ where: { programId, status: "COUNTED", verified: true } }),
+    prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } }),
   ]);
+
+  const countedVerified = overallQuestion
+    ? await prisma.pollAnswer.count({
+        where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED", verified: true } },
+      })
+    : 0;
 
   const state = summaryState(countedVerified, config.minResponsesToPublish, config.resultsVisible, killSwitchOn);
 
@@ -68,8 +84,6 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     })
     .filter((q): q is PollSummaryDTO["questions"][number] => q !== null);
 
-  const overallQuestion = await prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } });
-
   const overallHistogram: [number, number, number, number, number] = [...EMPTY_HISTOGRAM];
   let overallMean: number | null = null;
 
@@ -87,3 +101,88 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   return { ...base, questions, overallMean, overallHistogram };
 });
+
+/**
+ * Approved reviews for the public program page, grouped by question and ordered by the
+ * program's live (resolved) question order -- core first, then extra buckets, the same
+ * order the rating form itself presents via resolvePollQuestionSet, so the reviews
+ * section and the rating form never disagree about question order. A question with
+ * zero approved reviews doesn't appear as an empty group. "Published" is a query-time
+ * join against the parent response's live status/verified, not a stored flag on the
+ * review row -- a voided response's approved reviews disappear from this query
+ * immediately with no write to PollReview, and restoring the response brings them back
+ * automatically. Selects only the fields a reader may see: never responseId, email,
+ * ipHash, consent metadata, or moderator notes -- same RSC-payload-leak rule as every
+ * other public/sensitive-split model in this codebase.
+ */
+export const listPublicReviews = cache(async (programId: string): Promise<PollReviewGroupDTO[]> => {
+  const [rows, resolved] = await Promise.all([
+    prisma.pollReview.findMany({
+      where: {
+        programId,
+        status: "APPROVED",
+        response: { status: "COUNTED", verified: true },
+      },
+      select: {
+        text: true,
+        questionId: true,
+        question: { select: { key: true, text: true } },
+        response: { select: { yearAttended: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    getQuestionsForProgram(programId),
+  ]);
+
+  if (rows.length === 0) return [];
+
+  const byQuestionId = new Map<string, PollReviewGroupDTO>();
+  for (const row of rows) {
+    const existing = byQuestionId.get(row.questionId);
+    const item = { text: row.text, yearAttended: row.response.yearAttended };
+    if (existing) {
+      existing.reviews.push(item);
+    } else {
+      byQuestionId.set(row.questionId, {
+        questionKey: row.question.key,
+        questionText: row.question.text,
+        reviews: [item],
+      });
+    }
+  }
+
+  // Order groups by the program's resolved question order (core, then extras); a
+  // review for a question no longer in that resolved set (e.g. removed from the
+  // program since) still appears, appended after the ordered groups, rather than
+  // silently dropped.
+  const orderedQuestionIds = [...resolved.core, ...resolved.extras.flatMap((e) => e.questions)].map((q) => q.id);
+  const ordered: PollReviewGroupDTO[] = [];
+  const seen = new Set<string>();
+  for (const questionId of orderedQuestionIds) {
+    const group = byQuestionId.get(questionId);
+    if (group) {
+      ordered.push(group);
+      seen.add(questionId);
+    }
+  }
+  for (const [questionId, group] of byQuestionId) {
+    if (!seen.has(questionId)) ordered.push(group);
+  }
+
+  return ordered;
+});
+
+/**
+ * The program page reviews section's data -- gates on kill switch off AND
+ * `resultsVisible` true, deliberately *not* the minResponsesToPublish threshold the
+ * score itself additionally requires: every review was individually approved by an
+ * admin, so a program can show a couple of reviews while its score is still
+ * collecting toward the publish threshold. Short-circuits to an empty array without
+ * querying PollReview at all when the gate fails, same "don't do the expensive
+ * aggregation unless it'll actually render" posture as getProgramPollSummary.
+ */
+export async function getProgramReviewsSummary(programId: string): Promise<PollReviewGroupDTO[]> {
+  const [config, killSwitchOn] = await Promise.all([getProgramPollConfig(programId), isPollKillSwitchOn()]);
+  if (killSwitchOn || !config.resultsVisible) return [];
+  return listPublicReviews(programId);
+}

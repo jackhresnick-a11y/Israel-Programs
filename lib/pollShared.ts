@@ -67,16 +67,24 @@ export type PollSummaryDTO = {
   overallHistogram: [number, number, number, number, number];
 };
 
-/** One approved review as rendered on the public program page -- grouped by question,
- * never carries responseId/email/ipHash/consent metadata (the RSC-payload-leak rule
- * this codebase applies to every model with a public/sensitive split). `yearAttended`
- * is the only respondent-identifying detail shown, and only when given; 0 renders as
- * "Earlier" per yearAttendedOptions below. */
-export type PollReviewDTO = {
-  questionKey: string;
-  questionText: string;
+/** One approved review as rendered on the public program page -- never carries
+ * responseId/email/ipHash/consent metadata (the RSC-payload-leak rule this codebase
+ * applies to every model with a public/sensitive split). `yearAttended` is the only
+ * respondent-identifying detail shown, and only when given; 0 renders as "Earlier" per
+ * yearAttendedOptions below. */
+export type PollReviewItemDTO = {
   text: string;
   yearAttended: number | null;
+};
+
+/** All approved reviews for one question, grouped so the program page can render one
+ * header per question with its reviews underneath -- see lib/pollResults.ts's
+ * listPublicReviews, which orders these groups by the program's live (resolved)
+ * question order. */
+export type PollReviewGroupDTO = {
+  questionKey: string;
+  questionText: string;
+  reviews: PollReviewItemDTO[];
 };
 
 export const yearAttendedSchema = z.coerce.number().int().min(0).nullable().optional();
