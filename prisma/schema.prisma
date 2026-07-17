@@ -88,6 +88,35 @@ enum CounselorOutreachStatus {
   WRONG_CONTACT
 }
 
+enum PollQuestionType {
+  STARS
+  RADIO
+  DROPDOWN
+}
+
+enum PollLifecycleStatus {
+  ACTIVE
+  RETIRED
+}
+
+enum PollResponseStatus {
+  PENDING
+  COUNTED
+  VOIDED
+}
+
+enum PollCompletion {
+  FULL
+  PARTIAL
+  DROPPED
+}
+
+enum PollDisplayFormat {
+  STARS
+  PERCENT
+  BOTH
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -154,6 +183,9 @@ model Program {
   emailVerifications     ContactEmailVerification[]
   outreachEmail          OutreachEmail?
   folderItems            FolderItem[]
+  pollConfig             ProgramPollConfig?
+  pollResponses          PollResponse[]
+  referrerTokens         ReferrerToken[]
 
   @@index([durationType])
   @@index([status])
@@ -168,31 +200,31 @@ model Program {
 /// signature-verified Resend bounce webhook -- never touched by import/seed code,
 /// same ownership boundary as contactEmailStatus above.
 model OutreachEmail {
-  id           String         @id @default(cuid())
-  programId    String         @unique
-  program      Program        @relation(fields: [programId], references: [id])
-  status       OutreachStatus @default(DRAFT)
-  toEmail      String
+  id                String         @id @default(cuid())
+  programId         String         @unique
+  program           Program        @relation(fields: [programId], references: [id])
+  status            OutreachStatus @default(DRAFT)
+  toEmail           String
   /// True once an admin hand-edits toEmail away from the program's real contactEmail
   /// (e.g. redirecting a test draft to their own inbox). send-batch's drift guard
   /// normally reverts a row to DRAFT if toEmail no longer matches the program's
   /// current contactEmail -- this flag distinguishes "admin did this on purpose" from
   /// "the contact email changed underneath the draft," so an overridden row is still
   /// allowed to send to its overridden address instead of being silently reverted.
-  toEmailOverridden Boolean   @default(false)
-  subject      String
-  body         String
+  toEmailOverridden Boolean        @default(false)
+  subject           String
+  body              String
   /// True once an admin hand-edits subject/body -- generateDrafts() skips
   /// regenerating a row with edited: true so a hand-tuned draft is never clobbered.
-  edited       Boolean        @default(false)
-  approvedById String?
-  approvedAt   DateTime?
-  sentAt       DateTime?
+  edited            Boolean        @default(false)
+  approvedById      String?
+  approvedAt        DateTime?
+  sentAt            DateTime?
   /// Resend's message id, set on send -- correlates the bounce webhook back to a row.
-  resendId     String?        @unique
-  note         String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  resendId          String?        @unique
+  note              String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   @@index([status])
 }
@@ -532,4 +564,146 @@ model FolderItem {
   program   Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
 
   @@unique([folderId, programId])
+}
+
+/// One rateable question in the alumni-ratings system. `labels` always holds exactly
+/// five entries (index 0 = value 1), validated in lib/pollShared.ts's zod schema, not
+/// the DB. Questions are retired, never deleted, once any PollAnswer references them
+/// (see the Restrict relation below) -- editing `text` on a question that already has
+/// answers bumps `version` in the same write (lib/pollQuestions.ts's updateQuestion),
+/// so historical answers stay attributable to the wording they were actually given
+/// under (PollAnswer.questionVersion snapshots it at answer time).
+model PollQuestion {
+  id              String              @id @default(cuid())
+  key             String              @unique
+  text            String
+  type            PollQuestionType
+  labels          String[]
+  dropdownOptions Json?
+  status          PollLifecycleStatus @default(ACTIVE)
+  version         Int                 @default(1)
+  answers         PollAnswer[]
+}
+
+/// A named, ordered group of questions shown together on the rating form. `questionIds`
+/// is an ordered soft reference to PollQuestion.id -- same "soft ref, not a foreign key"
+/// shape as Region.memberSlugs, so a retired/deleted question just needs scrubbing from
+/// this array rather than blocking on a relation. Exactly one bucket ever has
+/// `isCore: true` (enforced in lib/pollQuestions.ts, not the DB) -- the Core bucket's
+/// questions are the fixed 5-question set every program always carries and can never be
+/// detached (see ProgramPollConfig.bucketIds below); every other bucket is optional,
+/// per-program, presentation-only grouping over the same PollAnswer rows.
+model QuestionBucket {
+  id          String              @id @default(cuid())
+  name        String
+  description String?
+  questionIds String[]
+  order       Int                 @default(0)
+  isCore      Boolean             @default(false)
+  status      PollLifecycleStatus @default(ACTIVE)
+}
+
+/// Per-program poll settings -- one row per Program, created by prisma/seed-polls.ts for
+/// every existing program and by admin config edits for new ones (a missing row reads as
+/// the schema defaults via lib/pollConfig.ts's getProgramPollConfig, so a program created
+/// after the seed still degrades gracefully rather than 500ing). `bucketIds` holds only
+/// *extra*, non-core buckets -- the Core bucket applies to every program implicitly and
+/// is never stored here, which is how "the Core bucket cannot be removed from any
+/// program" is enforced at both the admin UI (no control ever offers it) and the API
+/// layer (no field exists to express removing it). `removedQuestionIds` can still
+/// suppress an individual core (or added) question for just this program;
+/// `addedQuestionIds` are per-program one-off additions outside any bucket.
+model ProgramPollConfig {
+  programId             String            @id
+  program               Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  bucketIds             String[]
+  addedQuestionIds      String[]
+  removedQuestionIds    String[]
+  resultsVisible        Boolean           @default(false)
+  minResponsesToPublish Int               @default(7)
+  displayFormat         PollDisplayFormat @default(STARS)
+  placeholderOverride   String?
+}
+
+/// One rating submission. A response counts toward public math only when
+/// `status = COUNTED` AND `verified = true` -- see lib/pollResults.ts. The signed-in
+/// flow sets both immediately on submit (no email step, ever); the anonymous link flow
+/// (`referrerTokenId` set) creates a PENDING, unverified row and only flips to
+/// COUNTED/verified after the alum clicks the magic link sent to `email` (see
+/// verifyToken/verifyTokenExpiresAt below -- lib/pollResponses.ts's verifyPollResponse).
+/// `email` and `ipHash` (a salted SHA-256, never the raw IP -- lib/pollIntegrity.ts) must
+/// never be selected into any public page or client-component prop, same rule as
+/// Reference.contactEmail elsewhere in this schema. `flags` records integrity signals
+/// (token over its cap, a revoked/expired token still accepted, a repeated ipHash on the
+/// same program, a duplicate verified email) that don't block the submission but surface
+/// it in /admin/polls/moderation -- see lib/pollShared.ts's POLL_FLAGS for the value set.
+model PollResponse {
+  id                   String             @id @default(cuid())
+  programId            String
+  program              Program            @relation(fields: [programId], references: [id], onDelete: Cascade)
+  userId               String?
+  email                String?
+  verified             Boolean            @default(false)
+  referrerTokenId      String?
+  referrerToken        ReferrerToken?     @relation(fields: [referrerTokenId], references: [id])
+  yearAttended         Int?
+  completion           PollCompletion?
+  status               PollResponseStatus @default(PENDING)
+  flags                String[]           @default([])
+  ipHash               String
+  /// Magic-link verification token, nulled out once verifyPollResponse succeeds.
+  /// Re-attaching an email regenerates a fresh token rather than reusing a stale one --
+  /// same "always mint fresh, never toggle a reuse flag" spirit as Folder.shareToken.
+  verifyToken          String?            @unique
+  verifyTokenExpiresAt DateTime?
+  verifyEmailSentAt    DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  answers              PollAnswer[]
+
+  @@index([programId, status, verified])
+  @@index([programId, ipHash])
+  @@index([referrerTokenId])
+}
+
+/// One answer to one question within one response. The composite PK doubles as the
+/// "never answer the same question twice in one response" constraint. `value` is
+/// checked 1-5 at the DB level via a hand-added CHECK constraint in this model's
+/// migration (Prisma has no first-class CHECK syntax) -- see the migration.sql comment
+/// for why `prisma db push` must never be used against this schema. `question` uses
+/// onDelete: Restrict, not Cascade or SetNull: a PollQuestion can never be hard-deleted
+/// once it has answers (retire it instead), matching the spec's "questions are retired,
+/// never deleted, once responses exist."
+model PollAnswer {
+  responseId      String
+  response        PollResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        PollQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  questionVersion Int
+  value           Int
+
+  @@id([responseId, questionId])
+  @@index([questionId])
+}
+
+/// A minted outreach link (`/rate/[slug]?ref=token`) an admin hands out to a specific
+/// person or group (`label`/`note` record who). `maxResponses: null` means uncapped --
+/// exceeding it doesn't reject a submission, it flags the response (`token_over_cap`)
+/// for moderation, same "never silently drop" posture as a revoked or expired token
+/// still being accepted-and-flagged. `token` is a randomBytes(24) base64url string, same
+/// generation as Folder.shareToken.
+model ReferrerToken {
+  id           String         @id @default(cuid())
+  token        String         @unique
+  programId    String
+  program      Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
+  label        String
+  note         String?
+  maxResponses Int?
+  expiresAt    DateTime?
+  revoked      Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  responses    PollResponse[]
+
+  @@index([programId])
 }
