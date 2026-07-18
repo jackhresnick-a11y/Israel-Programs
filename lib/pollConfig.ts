@@ -6,6 +6,7 @@ import {
   type PollQuestionDTO,
   type ResolvedPollQuestionSet,
 } from "@/lib/pollShared";
+import { mintReferrerToken } from "@/lib/pollTokens";
 import type { PollDisplayFormat } from "@/app/generated/prisma/enums";
 
 export type ProgramPollConfigDTO = {
@@ -16,6 +17,9 @@ export type ProgramPollConfigDTO = {
   minResponsesToPublish: number;
   displayFormat: PollDisplayFormat;
   placeholderOverride: string | null;
+  /** Governs *capture* (the public share button), not results -- see the doc comment on
+   * the schema field. Deliberately independent of resultsVisible. */
+  pollLinkPublic: boolean;
 };
 
 const DEFAULT_POLL_CONFIG: ProgramPollConfigDTO = {
@@ -26,6 +30,7 @@ const DEFAULT_POLL_CONFIG: ProgramPollConfigDTO = {
   minResponsesToPublish: 7,
   displayFormat: "STARS",
   placeholderOverride: null,
+  pollLinkPublic: false,
 };
 
 /** A missing row reads as these schema defaults rather than throwing -- a program
@@ -42,6 +47,7 @@ export async function getProgramPollConfig(programId: string): Promise<ProgramPo
     minResponsesToPublish: row.minResponsesToPublish,
     displayFormat: row.displayFormat,
     placeholderOverride: row.placeholderOverride,
+    pollLinkPublic: row.pollLinkPublic,
   };
 }
 
@@ -119,9 +125,29 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
           minResponsesToPublish: p.pollConfig.minResponsesToPublish,
           displayFormat: p.pollConfig.displayFormat,
           placeholderOverride: p.pollConfig.placeholderOverride,
+          pollLinkPublic: p.pollConfig.pollLinkPublic,
         }
       : DEFAULT_POLL_CONFIG,
   }));
+}
+
+/** The public "share this program's poll" URL, relative (`/rate/[slug]?ref=...`) --
+ * callers that need an absolute URL prepend `window.location.origin`, same convention
+ * as PollLinkManager.tsx's `buildLink`. Null when the toggle is off, so a caller can
+ * `if (link)` to decide whether to render the button at all instead of rendering it
+ * pointing nowhere. */
+export async function getPublicPollLink(programId: string): Promise<string | null> {
+  const row = await prisma.programPollConfig.findUnique({
+    where: { programId },
+    select: {
+      pollLinkPublic: true,
+      program: { select: { slug: true } },
+      publicToken: { select: { token: true } },
+    },
+  });
+  if (!row || !row.pollLinkPublic || !row.publicToken) return null;
+
+  return `/rate/${row.program.slug}?ref=${row.publicToken.token}`;
 }
 
 export const programPollConfigPatchSchema = z.object({
@@ -132,6 +158,7 @@ export const programPollConfigPatchSchema = z.object({
   minResponsesToPublish: z.coerce.number().int().min(1).optional(),
   displayFormat: z.enum(["STARS", "PERCENT", "BOTH"]).optional(),
   placeholderOverride: z.string().trim().max(300).nullable().optional(),
+  pollLinkPublic: z.boolean().optional(),
 });
 
 /**
@@ -146,11 +173,23 @@ export async function upsertProgramPollConfig(
   programId: string,
   patch: z.infer<typeof programPollConfigPatchSchema>
 ) {
-  let data = patch;
+  let data: z.infer<typeof programPollConfigPatchSchema> & { publicTokenId?: string } = patch;
   if (patch.bucketIds) {
     const coreBucket = await prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true } });
     if (coreBucket) {
-      data = { ...patch, bucketIds: patch.bucketIds.filter((id) => id !== coreBucket.id) };
+      data = { ...data, bucketIds: patch.bucketIds.filter((id) => id !== coreBucket.id) };
+    }
+  }
+
+  if (patch.pollLinkPublic === true) {
+    const existing = await prisma.programPollConfig.findUnique({
+      where: { programId },
+      select: { publicTokenId: true },
+    });
+    if (!existing?.publicTokenId) {
+      const program = await prisma.program.findUniqueOrThrow({ where: { id: programId }, select: { id: true } });
+      const token = await mintReferrerToken({ programId: program.id, label: "Public program page" });
+      data = { ...data, publicTokenId: token.id };
     }
   }
 

@@ -123,6 +123,12 @@ enum PollReviewStatus {
   REJECTED
 }
 
+enum ProgramFaqStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -193,6 +199,7 @@ model Program {
   pollResponses          PollResponse[]
   referrerTokens         ReferrerToken[]
   pollReviews            PollReview[]
+  faqs                   ProgramFAQ[]
 
   @@index([durationType])
   @@index([status])
@@ -631,6 +638,17 @@ model ProgramPollConfig {
   minResponsesToPublish Int               @default(7)
   displayFormat         PollDisplayFormat @default(STARS)
   placeholderOverride   String?
+  /// Governs *capture*, not results -- deliberately independent of resultsVisible and
+  /// the global kill switch (which gate the score/reviews). Default off. Flipping this
+  /// on lazily mints one designated ReferrerToken (label "Public program page",
+  /// uncapped, no expiry) the first time, stored in publicTokenId -- re-toggling
+  /// off/on reuses the same token rather than minting a fresh one each time, so its
+  /// accumulated response history in /admin/polls/links stays attached to one row.
+  /// lib/pollConfig.ts's getPublicPollLink is the only reader that should build a
+  /// public-facing URL from this.
+  pollLinkPublic        Boolean           @default(false)
+  publicTokenId         String?           @unique
+  publicToken           ReferrerToken?    @relation(fields: [publicTokenId], references: [id], onDelete: SetNull)
 }
 
 /// One rating submission. A response counts toward public math only when
@@ -748,17 +766,59 @@ model PollReview {
 /// still being accepted-and-flagged. `token` is a randomBytes(24) base64url string, same
 /// generation as Folder.shareToken.
 model ReferrerToken {
-  id           String         @id @default(cuid())
-  token        String         @unique
+  id           String             @id @default(cuid())
+  token        String             @unique
   programId    String
-  program      Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
+  program      Program            @relation(fields: [programId], references: [id], onDelete: Cascade)
   label        String
   note         String?
   maxResponses Int?
   expiresAt    DateTime?
-  revoked      Boolean        @default(false)
-  createdAt    DateTime       @default(now())
+  revoked      Boolean            @default(false)
+  createdAt    DateTime           @default(now())
   responses    PollResponse[]
+  /// Set only for the one, lazily-minted token a program's ProgramPollConfig.pollLinkPublic
+  /// points at (@unique on the other side keeps this to at most one program).
+  publicFor    ProgramPollConfig?
 
   @@index([programId])
+}
+
+/// A per-program FAQ entry -- either admin-authored (`source` "staff"/"admin"/
+/// "alumni poll") or a visitor's submitted question via the program page's "Ask a
+/// question" button (`source` "visitor"). Visitor rows always start `DRAFT` with
+/// `answer` null; nothing publishes itself -- `lib/programFaq.ts`'s admin-only write
+/// path refuses to set `PUBLISHED` while `answer` is empty. `REJECTED` exists (beyond
+/// DRAFT/PUBLISHED) so a spam or out-of-scope visitor question can be dismissed
+/// without hard-deleting user-submitted content -- same retain-never-delete posture as
+/// `PollReview`; `deleteFaq` (lib/programFaq.ts) refuses `source: "visitor"` rows
+/// entirely, only ever deleting an admin-authored draft that never had public exposure.
+/// `consentGiven`/`consentAt`/`ipHash` are populated only for visitor rows (nullable
+/// for admin-authored ones, which have no consent concept) -- the hand-written
+/// conditional CHECK in this model's migration requires consent specifically when
+/// `source = 'visitor'`, the same non-bypassable-even-by-a-bug posture as
+/// `PollReview.consentGiven`'s unconditional CHECK. `ipHash` is a salted SHA-256
+/// (`lib/pollIntegrity.ts`'s `hashIp`), never the raw IP, and -- like every
+/// email/ipHash field in this schema -- must never be selected into a public page or
+/// client-component prop.
+model ProgramFAQ {
+  id            String           @id @default(cuid())
+  programId     String
+  program       Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  question      String
+  answer        String?
+  status        ProgramFaqStatus @default(DRAFT)
+  sortOrder     Int              @default(0)
+  source        String?
+  consentGiven  Boolean?
+  consentAt     DateTime?
+  ipHash        String?
+  moderatedBy   String?
+  moderatedAt   DateTime?
+  moderatorNote String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([programId, status])
+  @@index([status])
 }
