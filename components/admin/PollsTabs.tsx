@@ -12,15 +12,28 @@ const TABS = [
   { href: "/admin/polls/links", label: "Links" },
   { href: "/admin/polls/moderation", label: "Moderation" },
   { href: "/admin/polls/reviews", label: "Reviews" },
+  { href: "/admin/polls/faqs", label: "FAQs" },
 ] as const;
 
-export default function PollsTabs({ pendingReviewCount = 0 }: { pendingReviewCount?: number }) {
+export default function PollsTabs({
+  pendingReviewCount = 0,
+  pendingQuestionCount = 0,
+}: {
+  pendingReviewCount?: number;
+  pendingQuestionCount?: number;
+}) {
   const pathname = usePathname();
+
+  const badgeCounts: Partial<Record<(typeof TABS)[number]["href"], number>> = {
+    "/admin/polls/reviews": pendingReviewCount,
+    "/admin/polls/faqs": pendingQuestionCount,
+  };
 
   return (
     <div className="flex flex-wrap gap-2 border-b border-border pb-4">
       {TABS.map((tab) => {
         const active = pathname === tab.href;
+        const badgeCount = badgeCounts[tab.href] ?? 0;
         return (
           <Link
             key={tab.href}
@@ -31,14 +44,14 @@ export default function PollsTabs({ pendingReviewCount = 0 }: { pendingReviewCou
             )}
           >
             {tab.label}
-            {tab.href === "/admin/polls/reviews" && pendingReviewCount > 0 && (
+            {badgeCount > 0 && (
               <span
                 className={cn(
                   "inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
                   active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover dark:text-accent"
                 )}
               >
-                {pendingReviewCount}
+                {badgeCount}
               </span>
             )}
           </Link>

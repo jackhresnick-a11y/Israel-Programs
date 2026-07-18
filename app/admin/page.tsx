@@ -6,6 +6,7 @@ import { listPendingPrograms, listPendingEdits, listRecentPrograms } from "@/lib
 import { listPendingReferences } from "@/lib/references";
 import { listRecentReviews } from "@/lib/reviews";
 import { countPendingReviews } from "@/lib/pollReviews";
+import { countPendingQuestions } from "@/lib/programFaq";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import { getDurationLabelMap } from "@/lib/duration";
 import { getUsersByIds } from "@/lib/clerkUsers";
@@ -24,16 +25,27 @@ export default async function AdminPage() {
   const role = await getCurrentRole();
   if (role !== "moderator" && role !== "admin") redirect("/");
 
-  const [pendingPrograms, pendingEdits, pendingReferences, recentPrograms, recentReviews, durationLabelMap, pendingPollReviews] =
-    await Promise.all([
-      listPendingPrograms(),
-      listPendingEdits(),
-      listPendingReferences(),
-      role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
-      role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
-      getDurationLabelMap(),
-      role === "admin" ? countPendingReviews() : Promise.resolve(0),
-    ]);
+  const [
+    pendingPrograms,
+    pendingEdits,
+    pendingReferences,
+    recentPrograms,
+    recentReviews,
+    durationLabelMap,
+    pendingPollReviews,
+    pendingFaqQuestions,
+  ] = await Promise.all([
+    listPendingPrograms(),
+    listPendingEdits(),
+    listPendingReferences(),
+    role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
+    role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
+    getDurationLabelMap(),
+    role === "admin" ? countPendingReviews() : Promise.resolve(0),
+    role === "admin" ? countPendingQuestions() : Promise.resolve(0),
+  ]);
+
+  const pendingRatingsCount = pendingPollReviews + pendingFaqQuestions;
 
   const submitters = await getUsersByIds([
     ...pendingPrograms.map((p) => p.createdById),
@@ -92,9 +104,9 @@ export default async function AdminPage() {
               className={buttonVariants({ variant: "secondary", size: "sm", className: "gap-1.5" })}
             >
               Ratings
-              {pendingPollReviews > 0 && (
+              {pendingRatingsCount > 0 && (
                 <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover dark:text-accent">
-                  {pendingPollReviews}
+                  {pendingRatingsCount}
                 </span>
               )}
             </Link>

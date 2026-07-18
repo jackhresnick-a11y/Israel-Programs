@@ -11,6 +11,7 @@ import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResults";
+import { listPublishedFaqs } from "@/lib/programFaq";
 import { SITE_NAME } from "@/lib/siteUrl";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewList from "@/components/ReviewList";
@@ -22,6 +23,7 @@ import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
 import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PollReviewsSection from "@/components/PollReviewsSection";
+import ProgramFaqSection from "@/components/ProgramFaqSection";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -193,6 +195,8 @@ export default async function ProgramDetailPage({
       <PollSummaryStrip summary={await getProgramPollSummary(program.id)} programSlug={program.slug} />
 
       <PollReviewsSection groups={await getProgramReviewsSummary(program.id)} />
+
+      <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
       {program.goodFor && (
         <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
