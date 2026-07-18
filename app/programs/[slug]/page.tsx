@@ -11,6 +11,7 @@ import { listPublishedReferences } from "@/lib/references";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResults";
+import { getPublicPollLink } from "@/lib/pollConfig";
 import { listPublishedFaqs } from "@/lib/programFaq";
 import { SITE_NAME } from "@/lib/siteUrl";
 import ReviewForm from "@/components/ReviewForm";
@@ -23,6 +24,7 @@ import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
 import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PollReviewsSection from "@/components/PollReviewsSection";
+import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
@@ -101,6 +103,7 @@ export default async function ProgramDetailPage({
 
   const references = await listPublishedReferences(program.id);
   const rating = averageRating(program.reviews);
+  const publicPollLink = await getPublicPollLink(program.id);
 
   // Exactly one banner ever renders — a just-submitted confirmation takes
   // priority over the program's persistent status, so the two never stack.
@@ -193,6 +196,8 @@ export default async function ProgramDetailPage({
       </p>
 
       <PollSummaryStrip summary={await getProgramPollSummary(program.id)} programSlug={program.slug} />
+
+      {publicPollLink && <PublicPollLink link={publicPollLink} />}
 
       <PollReviewsSection groups={await getProgramReviewsSummary(program.id)} />
 

@@ -22,6 +22,7 @@ export type PollProgramRow = {
     minResponsesToPublish: number;
     displayFormat: "STARS" | "PERCENT" | "BOTH";
     placeholderOverride: string | null;
+    pollLinkPublic: boolean;
   };
 };
 
@@ -182,6 +183,7 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
   const [addedQuestionIds, setAddedQuestionIds] = useState(new Set(program.config.addedQuestionIds));
   const [removedQuestionIds, setRemovedQuestionIds] = useState(new Set(program.config.removedQuestionIds));
   const [resultsVisible, setResultsVisible] = useState(program.config.resultsVisible);
+  const [pollLinkPublic, setPollLinkPublic] = useState(program.config.pollLinkPublic);
   const [minResponses, setMinResponses] = useState(String(program.config.minResponsesToPublish));
   const [displayFormat, setDisplayFormat] = useState(program.config.displayFormat);
   const [placeholderOverride, setPlaceholderOverride] = useState(program.config.placeholderOverride ?? "");
@@ -202,6 +204,7 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
         addedQuestionIds: Array.from(addedQuestionIds),
         removedQuestionIds: Array.from(removedQuestionIds),
         resultsVisible,
+        pollLinkPublic,
         minResponsesToPublish: Number(minResponses) || 1,
         displayFormat,
         placeholderOverride: placeholderOverride.trim() || null,
@@ -221,6 +224,7 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
         <Badge tone={program.config.resultsVisible ? "success" : "neutral"}>
           {program.config.resultsVisible ? "Visible" : "Hidden"}
         </Badge>
+        {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}
         <span className="text-xs text-muted">
           min {program.config.minResponsesToPublish} · {program.config.displayFormat.toLowerCase()} ·{" "}
           {program.config.bucketIds.length} extra bucket{program.config.bucketIds.length === 1 ? "" : "s"}
@@ -243,6 +247,15 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
                 className="accent-accent"
               />
               Results visible
+            </label>
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={pollLinkPublic}
+                onChange={(e) => setPollLinkPublic(e.target.checked)}
+                className="accent-accent"
+              />
+              Public poll link (visitors can share/open this program&rsquo;s poll)
             </label>
             <label className="flex flex-col gap-1 text-xs text-muted">
               Min responses to publish
