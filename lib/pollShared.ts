@@ -202,6 +202,51 @@ export function pollDraftKey(programSlug: string): string {
   return `poll-draft:${programSlug}`;
 }
 
+/** The only bucket-attachment-rule shape ever passed to a client component -- see
+ * BucketRuleManager.tsx. */
+export type BucketAttachmentRuleDTO = {
+  id: string;
+  bucketId: string;
+  tagSlugs: string[];
+  status: PollLifecycleStatus;
+  createdAt: Date;
+};
+
+/** A rule matches a program when the program carries EVERY one of the rule's tag slugs
+ * (ANDed) -- an empty tagSlugs list never matches anything (guards against the vacuous
+ * `[].every(...) === true` case; real rules always carry >= 2 via
+ * lib/pollBucketRules.ts's bucketRuleInputSchema, but this function doesn't assume that
+ * invariant itself). Pure and client-safe so it's usable both server-side
+ * (lib/pollBucketRules.ts's getRuleAttachedBucketIds) and in tests without a database. */
+export function ruleMatchesTags(ruleTagSlugs: string[], programTagSlugs: string[]): boolean {
+  if (ruleTagSlugs.length === 0) return false;
+  const programSlugSet = new Set(programTagSlugs);
+  return ruleTagSlugs.every((slug) => programSlugSet.has(slug));
+}
+
+/**
+ * Composes a program's manually-attached bucket ids with the bucket ids that rule
+ * matching additionally attaches, for lib/pollConfig.ts's getQuestionsForProgram to pass
+ * to resolvePollQuestionSet as `bucketIds`. Manual attachments keep their stored order
+ * and always come first; rule-attached ids not already present follow, in the order the
+ * caller passes them (lib/pollConfig.ts sorts those by the bucket's own `order` before
+ * calling this) -- a bucket present in both lists appears once, at its manual position.
+ * This is the ONLY place manual and rule-attached buckets combine; everything downstream
+ * (removedQuestionIds stripping, retired-bucket/dead-id dropping, a bucket left with zero
+ * resolvable questions) is unchanged resolver behavior applied to the merged list, which
+ * is what gives "removedQuestionIds still wins over a rule-attached bucket" for free.
+ */
+export function mergeRuleAttachedBucketIds(manualBucketIds: string[], ruleBucketIds: string[]): string[] {
+  const manualSet = new Set(manualBucketIds);
+  const seen = new Set<string>();
+  const newFromRules = ruleBucketIds.filter((id) => {
+    if (manualSet.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+  return [...manualBucketIds, ...newFromRules];
+}
+
 /**
  * Pure resolver: given a program's config, every bucket, and every question, returns
  * the ordered question set the rating form should render. Core questions are always

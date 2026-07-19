@@ -24,6 +24,13 @@ export type PollProgramRow = {
     placeholderOverride: string | null;
     pollLinkPublic: boolean;
   };
+  /** Bucket ids an ACTIVE BucketAttachmentRule additionally attaches here based on this
+   * program's current tags -- see lib/pollConfig.ts's listProgramsWithPollConfig. Shown
+   * as a read-only "Auto via rule" badge below since these arrive independently of
+   * `config.bucketIds` (the manual checkboxes this component edits) and toggling a
+   * checkbox off here can't detach one -- only retiring the rule or changing the
+   * program's tags can. */
+  ruleAttachedBucketIds: string[];
 };
 
 type TagOption = { slug: string; name: string };
@@ -225,6 +232,11 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
           {program.config.resultsVisible ? "Visible" : "Hidden"}
         </Badge>
         {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}
+        {program.ruleAttachedBucketIds.length > 0 && (
+          <Badge tone="info">
+            +{program.ruleAttachedBucketIds.length} via rule
+          </Badge>
+        )}
         <span className="text-xs text-muted">
           min {program.config.minResponsesToPublish} · {program.config.displayFormat.toLowerCase()} ·{" "}
           {program.config.bucketIds.length} extra bucket{program.config.bucketIds.length === 1 ? "" : "s"}
@@ -303,6 +315,11 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
                     className="accent-accent"
                   />
                   {b.name}
+                  {program.ruleAttachedBucketIds.includes(b.id) && (
+                    <Badge tone="info" className="text-[10px]">
+                      Auto via rule
+                    </Badge>
+                  )}
                 </label>
               ))}
               {buckets.length === 0 && <p className="text-xs text-muted">No extra buckets exist yet.</p>}

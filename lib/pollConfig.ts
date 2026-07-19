@@ -2,10 +2,13 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import {
   resolvePollQuestionSet,
+  mergeRuleAttachedBucketIds,
+  ruleMatchesTags,
   type PollBucketDTO,
   type PollQuestionDTO,
   type ResolvedPollQuestionSet,
 } from "@/lib/pollShared";
+import { getRuleAttachedBucketIds } from "@/lib/pollBucketRules";
 import { mintReferrerToken } from "@/lib/pollTokens";
 import type { PollDisplayFormat } from "@/app/generated/prisma/enums";
 
@@ -81,14 +84,27 @@ function toQuestionDTO(q: {
  * at the question-bank sizes this system is designed for (a handful of buckets, tens of
  * questions) that's cheap, and it lets the pure resolvePollQuestionSet in lib/pollShared.ts
  * stay the single source of truth for the resolution logic instead of duplicating it in
- * a query. */
+ * a query. `bucketIds` passed to the resolver is the program's manually-attached buckets
+ * PLUS every bucket a BucketAttachmentRule auto-attaches based on the program's current
+ * tags (lib/pollBucketRules.ts's getRuleAttachedBucketIds, composed in via
+ * mergeRuleAttachedBucketIds) -- this is the only place rule-attached buckets enter
+ * resolution, so removedQuestionIds stripping, retired-bucket/dead-id dropping, and
+ * Core staying implicit all apply identically regardless of how a bucket got attached. */
 export async function getQuestionsForProgram(programId: string): Promise<ResolvedPollQuestionSet> {
-  const [config, buckets, questions] = await Promise.all([
+  const [config, buckets, questions, program] = await Promise.all([
     getProgramPollConfig(programId),
     prisma.questionBucket.findMany(),
     prisma.pollQuestion.findMany(),
+    prisma.program.findUnique({ where: { id: programId }, select: { tags: { select: { slug: true } } } }),
   ]);
-  return resolvePollQuestionSet(config, buckets.map(toBucketDTO), questions.map(toQuestionDTO));
+  const programTagSlugs = program?.tags.map((t) => t.slug) ?? [];
+  const ruleBucketIds = await getRuleAttachedBucketIds(programTagSlugs);
+  const effectiveBucketIds = mergeRuleAttachedBucketIds(config.bucketIds, ruleBucketIds);
+  return resolvePollQuestionSet(
+    { ...config, bucketIds: effectiveBucketIds },
+    buckets.map(toBucketDTO),
+    questions.map(toQuestionDTO)
+  );
 }
 
 export type ProgramWithPollConfig = {
@@ -96,39 +112,57 @@ export type ProgramWithPollConfig = {
   name: string;
   slug: string;
   config: ProgramPollConfigDTO;
+  /** Bucket ids attached by an ACTIVE BucketAttachmentRule matching this program's
+   * current tags -- disjoint from config.bucketIds (manual attachment) so
+   * ProgramPollConfigManager.tsx can badge them as "auto via rule" rather than
+   * rendering them as if an admin had picked them by hand. */
+  ruleAttachedBucketIds: string[];
 };
 
 /** Every published program with its poll config (or the schema defaults, for a program
  * that predates prisma/seed-polls.ts or was created since) -- feeds
  * /admin/polls/programs. `q` filters by name, applied server-side (a simple
- * case-insensitive contains) since the admin table can hit hundreds of rows. */
+ * case-insensitive contains) since the admin table can hit hundreds of rows. Rule
+ * matching is computed here in one pass over all ACTIVE rules (fetched once) rather than
+ * via lib/pollBucketRules.ts's getRuleAttachedBucketIds per program, which would be an
+ * N+1 query pattern at this table's scale. */
 export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Promise<ProgramWithPollConfig[]> {
-  const programs = await prisma.program.findMany({
-    where: {
-      status: "PUBLISHED",
-      ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
-    },
-    select: { id: true, name: true, slug: true, pollConfig: true },
-    orderBy: { name: "asc" },
-  });
+  const [programs, activeRules] = await Promise.all([
+    prisma.program.findMany({
+      where: {
+        status: "PUBLISHED",
+        ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+      },
+      select: { id: true, name: true, slug: true, pollConfig: true, tags: { select: { slug: true } } },
+      orderBy: { name: "asc" },
+    }),
+    prisma.bucketAttachmentRule.findMany({ where: { status: "ACTIVE" } }),
+  ]);
 
-  return programs.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    config: p.pollConfig
-      ? {
-          bucketIds: p.pollConfig.bucketIds,
-          addedQuestionIds: p.pollConfig.addedQuestionIds,
-          removedQuestionIds: p.pollConfig.removedQuestionIds,
-          resultsVisible: p.pollConfig.resultsVisible,
-          minResponsesToPublish: p.pollConfig.minResponsesToPublish,
-          displayFormat: p.pollConfig.displayFormat,
-          placeholderOverride: p.pollConfig.placeholderOverride,
-          pollLinkPublic: p.pollConfig.pollLinkPublic,
-        }
-      : DEFAULT_POLL_CONFIG,
-  }));
+  return programs.map((p) => {
+    const programTagSlugs = p.tags.map((t) => t.slug);
+    const ruleAttachedBucketIds = [
+      ...new Set(activeRules.filter((r) => ruleMatchesTags(r.tagSlugs, programTagSlugs)).map((r) => r.bucketId)),
+    ];
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      ruleAttachedBucketIds,
+      config: p.pollConfig
+        ? {
+            bucketIds: p.pollConfig.bucketIds,
+            addedQuestionIds: p.pollConfig.addedQuestionIds,
+            removedQuestionIds: p.pollConfig.removedQuestionIds,
+            resultsVisible: p.pollConfig.resultsVisible,
+            minResponsesToPublish: p.pollConfig.minResponsesToPublish,
+            displayFormat: p.pollConfig.displayFormat,
+            placeholderOverride: p.pollConfig.placeholderOverride,
+            pollLinkPublic: p.pollConfig.pollLinkPublic,
+          }
+        : DEFAULT_POLL_CONFIG,
+    };
+  });
 }
 
 /** The public "share this program's poll" URL, relative (`/rate/[slug]?ref=...`) --

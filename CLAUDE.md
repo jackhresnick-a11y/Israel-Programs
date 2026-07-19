@@ -731,18 +731,42 @@ ever offers it) and the API layer (`upsertProgramPollConfig` in `lib/pollConfig.
 defensively strips the Core bucket's id from `bucketIds` even so). `lib/pollConfig.ts`'s
 `getQuestionsForProgram` is the only place that calls the resolver with live data.
 
-Nine `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe
-types/zod/resolver — no Prisma import, same split-for-client-components precedent as
-`lib/tagTints.ts` above), `pollFormat.ts` (client-safe `meanToPercent`/`formatStarsMean`
-— percent and stars are **always** derived from the same mean, never stored or computed
-independently), `pollIntegrity.ts` (`hashIp`), `pollConfig.ts` (per-program config +
-question resolution), `pollQuestions.ts` (question/bucket admin CRUD, retire-never-delete
-once answered, version-bumps a question's `version` when its `text` changes and it
-already has answers), `pollTokens.ts` (`ReferrerToken` mint/validate), `pollResponses.ts`
-(submission, magic-link verification, and response moderation: `voidPollResponse`
-retains the row; `restorePollResponse` "recomputes" status from the `verified` flag
-already on the row rather than needing a separate prior-status field, reporting a
-conflict — not throwing — if that collides with a partial unique index),
+**Buckets can also attach automatically, via admin-editable `BucketAttachmentRule` rows
+(`lib/pollBucketRules.ts`, `/admin/polls/buckets`'s `BucketRuleManager.tsx`) — additive
+to Core and manual attachment, never a replacement for either.** Each rule pairs one
+bucket with two-or-more tag slugs (`bucketRuleInputSchema` enforces `.min(2)`, ANDed —
+`lib/pollShared.ts`'s `ruleMatchesTags`); a program gets the bucket only when it carries
+every one of the rule's tags. `getQuestionsForProgram` composes a program's manual
+`bucketIds` with every ACTIVE rule's bucket ids that match the program's current tags
+(`getRuleAttachedBucketIds`, ordered by the bucket's own `order`) via
+`mergeRuleAttachedBucketIds` — manual attachments first, rule-attached ones deduped in
+after — **before** calling `resolvePollQuestionSet`, so a per-program
+`removedQuestionIds` still empties a rule-attached bucket's questions exactly like it
+would a manually-attached one, with zero special-casing in the resolver itself. Same
+retire-never-delete posture as buckets/questions: there is no delete path for a rule,
+only `status: RETIRED`, so responses already collected against a bucket a program used
+to auto-qualify for are never touched — only future question sets stop including it.
+Creating or editing a rule requires seeing `previewBucketRule`'s "how many programs will
+this newly affect" count first (`POST /api/admin/polls/bucket-rules/preview`,
+`excludeRuleId` when editing so the count is relative to the rule's own prior state) —
+`BucketRuleManager.tsx` disables Save until a preview matching the exact current
+bucket+tags selection has loaded, so a rule can never silently change dozens of
+programs' polls in one save.
+
+Ten `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe
+types/zod/resolver/rule-matching — no Prisma import, same split-for-client-components
+precedent as `lib/tagTints.ts` above), `pollFormat.ts` (client-safe
+`meanToPercent`/`formatStarsMean` — percent and stars are **always** derived from the
+same mean, never stored or computed independently), `pollIntegrity.ts` (`hashIp`),
+`pollConfig.ts` (per-program config + question resolution, now including rule
+composition), `pollQuestions.ts` (question/bucket admin CRUD, retire-never-delete once
+answered, version-bumps a question's `version` when its `text` changes and it already
+has answers), `pollBucketRules.ts` (`BucketAttachmentRule` CRUD — no delete — matching,
+and the affected-programs preview), `pollTokens.ts` (`ReferrerToken` mint/validate),
+`pollResponses.ts` (submission, magic-link verification, and response moderation:
+`voidPollResponse` retains the row; `restorePollResponse` "recomputes" status from the
+`verified` flag already on the row rather than needing a separate prior-status field,
+reporting a conflict — not throwing — if that collides with a partial unique index),
 `pollReviews.ts` (the review moderation queue and its attention flags), and
 `pollResults.ts` (React-`cache()`d `getProgramPollSummary` + `listPublicReviews`/
 `getProgramReviewsSummary`, only aggregating per-question means/histogram when the

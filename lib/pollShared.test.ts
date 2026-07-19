@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   resolvePollQuestionSet,
+  ruleMatchesTags,
+  mergeRuleAttachedBucketIds,
   signedInSubmitSchema,
   anonymousSubmitSchema,
   detailsSubmitSchema,
@@ -283,5 +285,86 @@ describe("naQuestionIds: N/A marks", () => {
       naQuestionIds: ["q4"],
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("ruleMatchesTags: bucket-attachment-rule AND semantics", () => {
+  it("matches when the program carries every one of the rule's tag slugs", () => {
+    expect(ruleMatchesTags(["pre-army", "mechina"], ["pre-army", "mechina", "gap-year"])).toBe(true);
+  });
+
+  it("does not match when the program is missing one of the two required tags", () => {
+    expect(ruleMatchesTags(["pre-army", "mechina"], ["pre-army", "gap-year"])).toBe(false);
+  });
+
+  it("does not match when the program has neither tag", () => {
+    expect(ruleMatchesTags(["pre-army", "mechina"], ["gap-year"])).toBe(false);
+  });
+
+  it("supports more than two ANDed conditions -- every slug must still be present", () => {
+    expect(ruleMatchesTags(["a", "b", "c"], ["a", "b", "c", "d"])).toBe(true);
+    expect(ruleMatchesTags(["a", "b", "c"], ["a", "b"])).toBe(false);
+  });
+
+  it("an empty rule tag list never matches (guards the vacuous every()-on-[] case)", () => {
+    expect(ruleMatchesTags([], ["a", "b"])).toBe(false);
+  });
+});
+
+describe("mergeRuleAttachedBucketIds: composing manual + rule-attached buckets", () => {
+  it("appends rule-attached buckets after manual ones, in the order given", () => {
+    expect(mergeRuleAttachedBucketIds(["manual1"], ["ruleA", "ruleB"])).toEqual(["manual1", "ruleA", "ruleB"]);
+  });
+
+  it("de-duplicates a bucket that arrives both manually and via a rule, keeping its manual position", () => {
+    expect(mergeRuleAttachedBucketIds(["manual1", "shared"], ["shared", "ruleB"])).toEqual([
+      "manual1",
+      "shared",
+      "ruleB",
+    ]);
+  });
+
+  it("de-duplicates a bucket attached by more than one matching rule", () => {
+    expect(mergeRuleAttachedBucketIds([], ["ruleA", "ruleA", "ruleB"])).toEqual(["ruleA", "ruleB"]);
+  });
+
+  it("returns just the manual list when no rules match", () => {
+    expect(mergeRuleAttachedBucketIds(["manual1", "manual2"], [])).toEqual(["manual1", "manual2"]);
+  });
+});
+
+describe("resolvePollQuestionSet: rule-attached buckets go through the same resolver as manual ones", () => {
+  it("a rule-attached bucket's questions appear in extras once merged into bucketIds", () => {
+    const armyPrep = bucket("armyPrep", { questionIds: ["q4"] });
+    const effectiveBucketIds = mergeRuleAttachedBucketIds([], ["armyPrep"]);
+    const result = resolvePollQuestionSet(
+      { bucketIds: effectiveBucketIds, addedQuestionIds: [], removedQuestionIds: [] },
+      [core, armyPrep],
+      questions
+    );
+    expect(result.extras.map((e) => e.bucket.id)).toEqual(["armyPrep"]);
+    expect(result.extras[0].questions.map((q) => q.id)).toEqual(["q4"]);
+  });
+
+  it("removedQuestionIds still wins over a rule-attached bucket -- an emptied bucket is dropped from extras", () => {
+    const armyPrep = bucket("armyPrep", { questionIds: ["q4"] });
+    const effectiveBucketIds = mergeRuleAttachedBucketIds([], ["armyPrep"]);
+    const result = resolvePollQuestionSet(
+      { bucketIds: effectiveBucketIds, addedQuestionIds: [], removedQuestionIds: ["q4"] },
+      [core, armyPrep],
+      questions
+    );
+    expect(result.extras).toEqual([]);
+  });
+
+  it("a retired rule-attached bucket is dropped, same as a retired manually-attached one", () => {
+    const retiredArmyPrep = bucket("armyPrep", { questionIds: ["q4"], status: "RETIRED" });
+    const effectiveBucketIds = mergeRuleAttachedBucketIds([], ["armyPrep"]);
+    const result = resolvePollQuestionSet(
+      { bucketIds: effectiveBucketIds, addedQuestionIds: [], removedQuestionIds: [] },
+      [core, retiredArmyPrep],
+      questions
+    );
+    expect(result.extras).toEqual([]);
   });
 });
