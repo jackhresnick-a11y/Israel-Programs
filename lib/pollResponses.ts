@@ -69,6 +69,7 @@ type SignedInSubmitInput = {
   programId: string;
   userId: string;
   answers: { questionId: string; value: number }[];
+  naQuestionIds: string[];
   reviews: ReviewInput[];
   presentedQuestionIds: string[];
   ipHash: string;
@@ -90,7 +91,11 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
     const response = existing
       ? await tx.pollResponse.update({
           where: { id: existing.id },
-          data: { ipHash: input.ipHash, presentedQuestionIds: input.presentedQuestionIds },
+          data: {
+            ipHash: input.ipHash,
+            presentedQuestionIds: input.presentedQuestionIds,
+            naQuestionIds: input.naQuestionIds,
+          },
         })
       : await tx.pollResponse.create({
           data: {
@@ -100,6 +105,7 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
             status: "COUNTED",
             ipHash: input.ipHash,
             presentedQuestionIds: input.presentedQuestionIds,
+            naQuestionIds: input.naQuestionIds,
           },
         });
 
@@ -154,6 +160,7 @@ type AnonymousSubmitInput = {
   referrerTokenId: string | null;
   tokenFlags: PollFlag[];
   answers: { questionId: string; value: number }[];
+  naQuestionIds: string[];
   reviews: ReviewInput[];
   presentedQuestionIds: string[];
   yearAttended: number | null;
@@ -195,6 +202,7 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
       ipHash: input.ipHash,
       flags,
       presentedQuestionIds: input.presentedQuestionIds,
+      naQuestionIds: input.naQuestionIds,
     },
   });
 
@@ -214,26 +222,30 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
 }
 
 /**
- * Adds non-core "add more detail" answers and reviews to a still-pending response,
- * after the initial submit. Restricted to PENDING responses only -- the responseId is
- * a bare cuid capability (no auth), so this must never be able to mutate a response
- * that's already COUNTED or VOIDED. `skipDuplicates` makes a retried/double-submitted
- * expander harmless rather than a 500 for answers (the composite PollAnswer PK would
- * otherwise reject it); reviews go through the same per-row insertReviews as initial
- * submission. `extraQuestionIds` is the full set of non-core questions the expander
- * displayed (from the route's resolved config, not the client) -- appended onto
- * `presentedQuestionIds` so moderation's skip diff reflects everything actually shown,
- * not just what was answered.
+ * Adds non-core "add more detail" answers, reviews, and N/A marks to a still-pending
+ * response, after the initial submit. Restricted to PENDING responses only -- the
+ * responseId is a bare cuid capability (no auth), so this must never be able to mutate
+ * a response that's already COUNTED or VOIDED. `skipDuplicates` makes a
+ * retried/double-submitted expander harmless rather than a 500 for answers (the
+ * composite PollAnswer PK would otherwise reject it); reviews go through the same
+ * per-row insertReviews as initial submission. `extraQuestionIds` is the full set of
+ * non-core questions the expander displayed (from the route's resolved config, not the
+ * client) -- appended onto `presentedQuestionIds` so moderation's skip diff reflects
+ * everything actually shown, not just what was answered. `naQuestionIds` is
+ * union-merged onto the response's existing marks (same posture as
+ * `presentedQuestionIds`) rather than overwritten, since this call only ever adds to
+ * a response's non-core detail, never replaces its initial-submit state.
  */
 export async function addDetailAnswersAndReviews(
   responseId: string,
   answers: { questionId: string; value: number }[],
   reviews: ReviewInput[],
-  extraQuestionIds: string[]
+  extraQuestionIds: string[],
+  naQuestionIds: string[] = []
 ) {
   const response = await prisma.pollResponse.findUnique({
     where: { id: responseId },
-    select: { status: true, programId: true, presentedQuestionIds: true },
+    select: { status: true, programId: true, presentedQuestionIds: true, naQuestionIds: true },
   });
   if (!response || response.status !== "PENDING") {
     throw new Error("This response can no longer be edited");
@@ -259,9 +271,10 @@ export async function addDetailAnswersAndReviews(
   }
 
   const nextPresented = [...new Set([...response.presentedQuestionIds, ...extraQuestionIds])];
+  const nextNaQuestionIds = [...new Set([...response.naQuestionIds, ...naQuestionIds])];
   await prisma.pollResponse.update({
     where: { id: responseId },
-    data: { presentedQuestionIds: nextPresented },
+    data: { presentedQuestionIds: nextPresented, naQuestionIds: nextNaQuestionIds },
   });
 
   const { skippedQuestionIds } = await insertReviews(responseId, response.programId, reviews, versionById);
@@ -361,11 +374,14 @@ export type PollResponseFilter = {
  * Includes email/ipHash/answers/reviews, unlike every public/read-side query in this
  * codebase, because this is admin-only content behind /admin/polls/moderation's role
  * gate, same "sensitive fields are fine once past the admin gate" precedent as
- * /admin/references showing Reference.contactEmail. Each response also gets a computed
- * `skippedQuestions` list -- `presentedQuestionIds` minus whatever actually has a
- * PollAnswer row, resolved to {id, key, text} in one batched query across the whole
- * page rather than N+1 per response -- so moderation can show "Skipped: <question>"
- * explicitly instead of a skip just reading as an absence with no explanation. */
+ * /admin/references showing Reference.contactEmail. Each response also gets two
+ * computed, disjoint lists resolved to {id, key, text} in one batched query across the
+ * whole page rather than N+1 per response: `naQuestions` (ids in `naQuestionIds`,
+ * questions the respondent explicitly opted out of) and `skippedQuestions`
+ * (`presentedQuestionIds` minus whatever has a PollAnswer row minus whatever is in
+ * `naQuestions`, i.e. left untouched with no explicit mark either way) -- so
+ * moderation can show "N/A" and "Skipped" as distinct, explicit states instead of both
+ * reading as the same unexplained absence. */
 export async function listPollResponses(filter: PollResponseFilter = {}) {
   const responses = await prisma.pollResponse.findMany({
     where: {
@@ -385,26 +401,32 @@ export async function listPollResponses(filter: PollResponseFilter = {}) {
     },
   });
 
-  const skippedIds = new Set<string>();
+  const relevantIds = new Set<string>();
   for (const r of responses) {
     const answeredIds = new Set(r.answers.map((a) => a.questionId));
+    const naIds = new Set(r.naQuestionIds);
     for (const qid of r.presentedQuestionIds) {
-      if (!answeredIds.has(qid)) skippedIds.add(qid);
+      if (!answeredIds.has(qid)) relevantIds.add(qid);
     }
+    for (const qid of naIds) relevantIds.add(qid);
   }
-  const skippedQuestionRows =
-    skippedIds.size > 0
-      ? await prisma.pollQuestion.findMany({ where: { id: { in: [...skippedIds] } }, select: { id: true, key: true, text: true } })
+  const questionRows =
+    relevantIds.size > 0
+      ? await prisma.pollQuestion.findMany({ where: { id: { in: [...relevantIds] } }, select: { id: true, key: true, text: true } })
       : [];
-  const skippedQuestionById = new Map(skippedQuestionRows.map((q) => [q.id, q]));
+  const questionById = new Map(questionRows.map((q) => [q.id, q]));
 
   return responses.map((r) => {
     const answeredIds = new Set(r.answers.map((a) => a.questionId));
-    const skippedQuestions = r.presentedQuestionIds
-      .filter((qid) => !answeredIds.has(qid))
-      .map((qid) => skippedQuestionById.get(qid))
+    const naIds = new Set(r.naQuestionIds);
+    const naQuestions = r.naQuestionIds
+      .map((qid) => questionById.get(qid))
       .filter((q): q is { id: string; key: string; text: string } => q !== undefined);
-    return { ...r, skippedQuestions };
+    const skippedQuestions = r.presentedQuestionIds
+      .filter((qid) => !answeredIds.has(qid) && !naIds.has(qid))
+      .map((qid) => questionById.get(qid))
+      .filter((q): q is { id: string; key: string; text: string } => q !== undefined);
+    return { ...r, naQuestions, skippedQuestions };
   });
 }
 

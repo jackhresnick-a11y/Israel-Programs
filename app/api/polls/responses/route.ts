@@ -22,13 +22,15 @@ export async function POST(request: Request) {
 
       const body = signedInSubmitSchema.parse(json);
 
-      // Never trust the client's questionId set -- only accept answers/reviews for
-      // questions that are actually part of this program's live (Core) question set.
+      // Never trust the client's questionId set -- only accept answers/reviews/N/A
+      // marks for questions that are actually part of this program's live (Core)
+      // question set.
       const { core } = await getQuestionsForProgram(body.programId);
       const allowedIds = new Set(core.map((q) => q.id));
       const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
       const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
-      if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
+      const invalidNa = body.naQuestionIds.filter((id) => !allowedIds.has(id));
+      if (invalidAnswers.length > 0 || invalidReviews.length > 0 || invalidNa.length > 0) {
         return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
       }
 
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
         programId: body.programId,
         userId,
         answers: body.answers,
+        naQuestionIds: body.naQuestionIds,
         reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
         presentedQuestionIds: core.map((q) => q.id),
         ipHash: hashIp(ip),
@@ -83,7 +86,8 @@ export async function POST(request: Request) {
     const allowedIds = new Set(core.map((q) => q.id));
     const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
     const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
-    if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
+    const invalidNa = body.naQuestionIds.filter((id) => !allowedIds.has(id));
+    if (invalidAnswers.length > 0 || invalidReviews.length > 0 || invalidNa.length > 0) {
       return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
     }
 
@@ -92,6 +96,7 @@ export async function POST(request: Request) {
       referrerTokenId: validation.token.id,
       tokenFlags: validation.flags,
       answers: body.answers,
+      naQuestionIds: body.naQuestionIds,
       reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
       presentedQuestionIds: core.map((q) => q.id),
       yearAttended: body.yearAttended ?? null,

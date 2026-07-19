@@ -16,6 +16,7 @@ type RateFormProps =
       programId: string;
       questions: PollQuestionDTO[];
       existingAnswers?: Record<string, number>;
+      existingNaQuestionIds?: string[];
     }
   | {
       mode: "anonymous";
@@ -56,6 +57,8 @@ function QuestionWithReview({
   question,
   value,
   onValueChange,
+  na,
+  onNaChange,
   reviewText,
   onReviewTextChange,
   reviewConsent,
@@ -64,6 +67,8 @@ function QuestionWithReview({
   question: PollQuestionDTO;
   value: number | null;
   onValueChange: (value: number | null) => void;
+  na: boolean;
+  onNaChange: (na: boolean) => void;
   reviewText: string;
   onReviewTextChange: (text: string) => void;
   reviewConsent: boolean;
@@ -71,7 +76,7 @@ function QuestionWithReview({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <QuestionInput question={question} value={value} onChange={onValueChange} />
+      <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
       <div className="flex flex-col gap-1.5 pl-1">
         <Textarea
           placeholder="Want to say more? (optional)"
@@ -95,34 +100,43 @@ function QuestionWithReview({
   );
 }
 
-/** Builds the {questionId, value}[] / {questionId, text, consent}[] payloads from
- * per-question state -- a skipped question (value null) is simply absent from
- * `answers`; a review only makes it into `reviews` when both text and consent are
- * present, an unchecked or empty review is silently excluded, never sent flagged. */
+/** Builds the {questionId, value}[] / {questionId, text, consent}[] / string[] payloads
+ * from per-question state -- a skipped question (value null, not N/A'd) is simply
+ * absent from `answers`; an N/A'd question is excluded from `answers` (defensively,
+ * even though checking N/A already clears `values[q.id]` via QuestionInput's
+ * toggleNa) and instead listed in `naQuestionIds`; a review only makes it into
+ * `reviews` when both text and consent are present, an unchecked or empty review is
+ * silently excluded, never sent flagged. */
 function buildSubmission(
   questions: PollQuestionDTO[],
   values: Record<string, number | null>,
+  naValues: Record<string, boolean>,
   reviewTexts: Record<string, string>,
   reviewConsents: Record<string, boolean>
 ) {
   const answers = questions
-    .filter((q) => values[q.id] !== null)
+    .filter((q) => values[q.id] !== null && !naValues[q.id])
     .map((q) => ({ questionId: q.id, value: values[q.id] as number }));
+  const naQuestionIds = questions.filter((q) => naValues[q.id]).map((q) => q.id);
   const reviews = questions
     .filter((q) => reviewConsents[q.id] && reviewTexts[q.id]?.trim())
     .map((q) => ({ questionId: q.id, text: reviewTexts[q.id].trim(), consent: true as const }));
-  return { answers, reviews };
+  return { answers, naQuestionIds, reviews };
 }
 
 function SignedInRateForm({
   programId,
   questions,
   existingAnswers,
+  existingNaQuestionIds,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
   const [values, setValues] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(questions.map((q) => [q.id, existingAnswers?.[q.id] ?? null]))
+  );
+  const [naFlags, setNaFlags] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(questions.map((q) => [q.id, existingNaQuestionIds?.includes(q.id) ?? false]))
   );
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
@@ -131,7 +145,7 @@ function SignedInRateForm({
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
-    const { answers, reviews } = buildSubmission(questions, values, reviewTexts, reviewConsents);
+    const { answers, naQuestionIds, reviews } = buildSubmission(questions, values, naFlags, reviewTexts, reviewConsents);
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
@@ -143,7 +157,7 @@ function SignedInRateForm({
       const res = await fetch("/api/polls/responses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, answers, reviews }),
+        body: JSON.stringify({ programId, answers, naQuestionIds, reviews }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -179,6 +193,8 @@ function SignedInRateForm({
           question={q}
           value={values[q.id]}
           onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          na={naFlags[q.id] ?? false}
+          onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
           reviewConsent={reviewConsents[q.id] ?? false}
@@ -194,6 +210,7 @@ function SignedInRateForm({
 
 type Draft = {
   values: Record<string, number | null>;
+  naFlags: Record<string, boolean>;
   reviewTexts: Record<string, string>;
   yearAttended: number | null;
 };
@@ -273,11 +290,14 @@ function AnonymousRateForm({
   const [values, setValues] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(questions.map((q) => [q.id, null]))
   );
+  const [naFlags, setNaFlags] = useState<Record<string, boolean>>({});
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   // Consent is deliberately NOT persisted to the draft (see saveDraft's payload below)
   // -- restoring a draft always starts every consent box unchecked, even if it was
   // checked before the page reloaded. Review *text* is preserved so nothing is lost,
-  // but re-affirming consent is a fresh, deliberate act every time.
+  // but re-affirming consent is a fresh, deliberate act every time. N/A marks *are*
+  // persisted -- unlike consent, checking N/A isn't a legal affirmation, just a data
+  // choice, so there's no reason to make the respondent re-mark it after a reload.
   const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
   const [yearAttended, setYearAttended] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -289,6 +309,7 @@ function AnonymousRateForm({
   if (savedDraft !== null && savedDraft !== appliedDraft) {
     setAppliedDraft(savedDraft);
     setValues((prev) => ({ ...prev, ...savedDraft.values }));
+    setNaFlags((prev) => ({ ...prev, ...savedDraft.naFlags }));
     setReviewTexts((prev) => ({ ...prev, ...savedDraft.reviewTexts }));
     if (savedDraft.yearAttended !== null && savedDraft.yearAttended !== undefined) {
       setYearAttended(savedDraft.yearAttended);
@@ -297,11 +318,11 @@ function AnonymousRateForm({
 
   useEffect(() => {
     if (responseId) return; // already submitted -- stop autosaving over a cleared draft
-    saveDraft(programSlug, { values, reviewTexts, yearAttended });
-  }, [programSlug, values, reviewTexts, yearAttended, responseId]);
+    saveDraft(programSlug, { values, naFlags, reviewTexts, yearAttended });
+  }, [programSlug, values, naFlags, reviewTexts, yearAttended, responseId]);
 
   async function handleSubmit() {
-    const { answers, reviews } = buildSubmission(questions, values, reviewTexts, reviewConsents);
+    const { answers, naQuestionIds, reviews } = buildSubmission(questions, values, naFlags, reviewTexts, reviewConsents);
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
@@ -317,6 +338,7 @@ function AnonymousRateForm({
           programId,
           ref: referrerToken,
           answers,
+          naQuestionIds,
           reviews,
           yearAttended,
         }),
@@ -349,6 +371,8 @@ function AnonymousRateForm({
           question={q}
           value={values[q.id]}
           onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+          na={naFlags[q.id] ?? false}
+          onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
           reviewConsent={reviewConsents[q.id] ?? false}
@@ -394,6 +418,7 @@ function ThankYouScreen({
   const [detailValues, setDetailValues] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(extraQuestions.map((q) => [q.id, null]))
   );
+  const [detailNaFlags, setDetailNaFlags] = useState<Record<string, boolean>>({});
   const [detailReviewTexts, setDetailReviewTexts] = useState<Record<string, string>>({});
   const [detailReviewConsents, setDetailReviewConsents] = useState<Record<string, boolean>>({});
   const [detailStatus, setDetailStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -419,8 +444,14 @@ function ThankYouScreen({
   }
 
   async function handleSaveDetail() {
-    const { answers, reviews } = buildSubmission(extraQuestions, detailValues, detailReviewTexts, detailReviewConsents);
-    if (answers.length === 0 && reviews.length === 0) {
+    const { answers, naQuestionIds, reviews } = buildSubmission(
+      extraQuestions,
+      detailValues,
+      detailNaFlags,
+      detailReviewTexts,
+      detailReviewConsents
+    );
+    if (answers.length === 0 && naQuestionIds.length === 0 && reviews.length === 0) {
       setDetailStatus("saved");
       return;
     }
@@ -429,7 +460,7 @@ function ThankYouScreen({
       const res = await fetch(`/api/polls/responses/${responseId}/details`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, reviews }),
+        body: JSON.stringify({ answers, naQuestionIds, reviews }),
       });
       if (!res.ok) throw new Error();
       setDetailStatus("saved");
@@ -495,6 +526,8 @@ function ThankYouScreen({
                           question={q}
                           value={detailValues[q.id]}
                           onValueChange={(v) => setDetailValues((prev) => ({ ...prev, [q.id]: v }))}
+                          na={detailNaFlags[q.id] ?? false}
+                          onNaChange={(na) => setDetailNaFlags((prev) => ({ ...prev, [q.id]: na }))}
                           reviewText={detailReviewTexts[q.id] ?? ""}
                           onReviewTextChange={(text) => setDetailReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
                           reviewConsent={detailReviewConsents[q.id] ?? false}

@@ -31,8 +31,13 @@ export type PollResponseRow = {
     value: number;
     question: { key: string; text: string };
   }[];
-  /** presentedQuestionIds minus whatever has a PollAnswer row, resolved to text --
-   * see lib/pollResponses.ts's listPollResponses. */
+  /** Ids in naQuestionIds, resolved to text -- questions the respondent explicitly
+   * marked N/A, distinct from a merely-untouched question. See
+   * lib/pollResponses.ts's listPollResponses. */
+  naQuestions: { id: string; key: string; text: string }[];
+  /** presentedQuestionIds minus whatever has a PollAnswer row minus naQuestions,
+   * resolved to text -- left untouched with no explicit mark either way. See
+   * lib/pollResponses.ts's listPollResponses. */
   skippedQuestions: { id: string; key: string; text: string }[];
   reviews: {
     id: string;
@@ -210,7 +215,7 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
         <Button type="button" variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
           {open
             ? "Hide details"
-            : `Show details (${response.answers.length} answered, ${response.skippedQuestions.length} skipped, ${response.reviews.length} reviews)`}
+            : `Show details (${response.answers.length} answered, ${response.naQuestions.length} N/A, ${response.skippedQuestions.length} skipped, ${response.reviews.length} reviews)`}
         </Button>
         {response.status !== "VOIDED" ? (
           <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => handleAction("void")}>
@@ -233,13 +238,19 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
                 <span className="font-medium text-foreground">{a.value}</span>
               </div>
             ))}
+            {response.naQuestions.map((q) => (
+              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                <span className="text-muted">{q.text}</span>
+                <Badge tone="info">N/A</Badge>
+              </div>
+            ))}
             {response.skippedQuestions.map((q) => (
               <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
                 <span className="text-muted">{q.text}</span>
                 <Badge tone="neutral">Skipped</Badge>
               </div>
             ))}
-            {response.answers.length === 0 && response.skippedQuestions.length === 0 && (
+            {response.answers.length === 0 && response.naQuestions.length === 0 && response.skippedQuestions.length === 0 && (
               <p className="px-3 py-2 text-xs text-muted">No questions were presented to this response.</p>
             )}
           </div>

@@ -690,6 +690,12 @@ model PollResponse {
   /// recomputing against the *current* config, which would misattribute a
   /// since-added question as "skipped" on old responses that never saw it).
   presentedQuestionIds String[]           @default([])
+  /// Question ids the respondent explicitly marked N/A. An N/A'd question stores no
+  /// PollAnswer row (absence stays the only representation of "no answer value") --
+  /// this array only records that the opt-out was deliberate, so moderation can show
+  /// "N/A" distinct from a question that was merely left untouched (which shows via
+  /// presentedQuestionIds minus answers minus this array).
+  naQuestionIds        String[]           @default([])
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]

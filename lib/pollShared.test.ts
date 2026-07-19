@@ -3,6 +3,7 @@ import {
   resolvePollQuestionSet,
   signedInSubmitSchema,
   anonymousSubmitSchema,
+  detailsSubmitSchema,
   reviewInputSchema,
   type PollBucketDTO,
   type PollQuestionDTO,
@@ -217,6 +218,69 @@ describe("signedInSubmitSchema / anonymousSubmitSchema: skip and empty-submissio
     const result = anonymousSubmitSchema.safeParse({
       programId: "p1",
       answers: [{ questionId: "q1", value: 6 }],
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("naQuestionIds: N/A marks", () => {
+  it("defaults naQuestionIds to [] when omitted", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 4 }],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.naQuestionIds).toEqual([]);
+  });
+
+  it("accepts an answer for one question and an N/A mark for another", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 4 }],
+      naQuestionIds: ["q2"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a question that is both answered and marked N/A", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 4 }],
+      naQuestionIds: ["q1"],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("anonymousSubmitSchema rejects the same answer/N/A overlap", () => {
+    const result = anonymousSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [{ questionId: "q1", value: 4 }],
+      naQuestionIds: ["q1"],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("an all-N/A submission with no answers and no reviews still fails the empty-submission rule -- N/A marks alone aren't content", () => {
+    const result = signedInSubmitSchema.safeParse({
+      programId: "p1",
+      answers: [],
+      naQuestionIds: ["q1", "q2"],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("detailsSubmitSchema accepts N/A-only detail (no answers, no reviews) -- unlike the initial submit, an empty-content detail save is a legitimate no-op-except-N/A", () => {
+    const result = detailsSubmitSchema.safeParse({
+      answers: [],
+      naQuestionIds: ["q4"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("detailsSubmitSchema rejects an overlapping answer/N/A pair too", () => {
+    const result = detailsSubmitSchema.safeParse({
+      answers: [{ questionId: "q4", value: 3 }],
+      naQuestionIds: ["q4"],
     });
     expect(result.success).toBe(false);
   });

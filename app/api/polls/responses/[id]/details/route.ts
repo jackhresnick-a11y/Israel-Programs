@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
-import { answerListSchema, reviewListSchema } from "@/lib/pollShared";
+import { answerListSchema, reviewListSchema, naQuestionIdsSchema } from "@/lib/pollShared";
 import { addDetailAnswersAndReviews } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +9,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 const bodySchema = z.object({
   answers: answerListSchema,
   reviews: reviewListSchema.default([]),
+  naQuestionIds: naQuestionIdsSchema,
 });
 
 /**
@@ -33,7 +34,10 @@ export async function POST(
     }
 
     const json = await request.json();
-    const { answers, reviews } = bodySchema.parse(json);
+    const { answers, reviews, naQuestionIds } = bodySchema.parse(json);
+    if (answers.some((a) => naQuestionIds.includes(a.questionId))) {
+      return NextResponse.json({ error: "A question can't be both answered and marked N/A" }, { status: 400 });
+    }
 
     const response = await prisma.pollResponse.findUnique({ where: { id }, select: { programId: true } });
     if (!response) {
@@ -45,7 +49,8 @@ export async function POST(
     const allowedIds = new Set(extraQuestionIds);
     const invalidAnswers = answers.filter((a) => !allowedIds.has(a.questionId));
     const invalidReviews = reviews.filter((r) => !allowedIds.has(r.questionId));
-    if (invalidAnswers.length > 0 || invalidReviews.length > 0) {
+    const invalidNa = naQuestionIds.filter((qid) => !allowedIds.has(qid));
+    if (invalidAnswers.length > 0 || invalidReviews.length > 0 || invalidNa.length > 0) {
       return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
     }
 
@@ -53,7 +58,8 @@ export async function POST(
       id,
       answers,
       reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
-      extraQuestionIds
+      extraQuestionIds,
+      naQuestionIds
     );
     return NextResponse.json({ ok: true, skippedReviewQuestionIds });
   } catch (err) {

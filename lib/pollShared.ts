@@ -109,6 +109,14 @@ export const answerInputSchema = z.object({
  * or sentinel row. */
 export const answerListSchema = z.array(answerInputSchema);
 
+/** Question ids the respondent explicitly marked N/A -- like a skip, an N/A'd question
+ * never gets a PollAnswer row (absence is still the only representation of "no
+ * value"). This array only records that the opt-out was deliberate, distinct from a
+ * question the respondent simply never touched, so moderation can show "N/A" instead
+ * of "Skipped." N/A marks alone (with no answers and no reviews) don't satisfy the
+ * empty-submission refine below -- see requireAnswerOrReview. */
+export const naQuestionIdsSchema = z.array(z.string().min(1)).default([]);
+
 export const completionSchema = z.enum(["FULL", "PARTIAL", "DROPPED"]).nullable().optional();
 
 /** One consented, per-question public review. `consent` must be the literal `true` --
@@ -126,11 +134,23 @@ export const reviewInputSchema = z.object({
 export const reviewListSchema = z.array(reviewInputSchema);
 
 /** A response carrying neither a real answer nor a consented review isn't a
- * response -- skips alone never block submission, but *nothing at all* does. */
+ * response -- skips alone never block submission, but *nothing at all* does. Explicit
+ * N/A marks don't count as content either (they're the deliberate-opt-out equivalent
+ * of a skip, not an answer), so an all-N/A submission with no answers and no reviews
+ * still fails this. */
 function requireAnswerOrReview(body: { answers: unknown[]; reviews: unknown[] }) {
   return body.answers.length > 0 || body.reviews.length > 0;
 }
 const EMPTY_SUBMISSION_MESSAGE = "Answer at least one question or write a review";
+
+/** A question can't simultaneously carry a real 1-5 value and be marked N/A -- the
+ * client only ever sends one or the other per question, and this is the server-side
+ * backstop against a malformed or tampered payload claiming both. */
+function noAnswerNaOverlap(body: { answers: { questionId: string }[]; naQuestionIds: string[] }) {
+  const naSet = new Set(body.naQuestionIds);
+  return body.answers.every((a) => !naSet.has(a.questionId));
+}
+const NA_OVERLAP_MESSAGE = "A question can't be both answered and marked N/A";
 
 /** Signed-in submit: no ref token, no honeypot (Clerk already gates identity). */
 export const signedInSubmitSchema = z
@@ -138,8 +158,10 @@ export const signedInSubmitSchema = z
     programId: z.string().min(1),
     answers: answerListSchema,
     reviews: reviewListSchema.default([]),
+    naQuestionIds: naQuestionIdsSchema,
   })
-  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] });
+  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
+  .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
 /** Anonymous link-path submit: `website` is a honeypot field real users never fill in
  * (app/api/contact/route.ts precedent) -- checked before rate limiting so bots can't
@@ -149,21 +171,26 @@ export const anonymousSubmitSchema = z
     programId: z.string().min(1),
     answers: answerListSchema,
     reviews: reviewListSchema.default([]),
+    naQuestionIds: naQuestionIdsSchema,
     ref: z.string().min(1).optional(),
     yearAttended: yearAttendedSchema,
     completion: completionSchema,
     website: z.string().optional(),
   })
-  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] });
+  .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
+  .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
 /** The "Add more detail" / details endpoint: non-core answers and reviews for an
  * already-submitted response. No empty-submission refine here -- an empty details
  * payload is a no-op, not an error (the parent response already satisfied that rule
  * at initial submit). */
-export const detailsSubmitSchema = z.object({
-  answers: answerListSchema,
-  reviews: reviewListSchema.default([]),
-});
+export const detailsSubmitSchema = z
+  .object({
+    answers: answerListSchema,
+    reviews: reviewListSchema.default([]),
+    naQuestionIds: naQuestionIdsSchema,
+  })
+  .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
 export const emailAttachSchema = z.object({
   email: z.string().email(),

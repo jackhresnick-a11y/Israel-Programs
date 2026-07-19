@@ -62,9 +62,13 @@ can't exercise a signed-in-non-admin session directly), `lib/folders.test.ts` (a
 lockdown suite for `lib/folders.ts`'s ownership checks, using a hand-rolled in-memory
 Prisma fake via `vi.mock("@/lib/prisma")` rather than a real database), `lib/videoEmbed.test.ts`
 (pure URL-parsing/canonicalization cases for `parseVideoLink` across all five embed
-platforms — no mocks needed, since that module has no DB or network dependency), and
-`lib/pollShared.test.ts`/`lib/pollFormat.test.ts` (the alumni-ratings question resolver
-and stars/percent math — see "Alumni ratings" below). This covers pure-logic `lib/*.ts`
+platforms — no mocks needed, since that module has no DB or network dependency),
+`lib/pollShared.test.ts`/`lib/pollFormat.test.ts` (the alumni-ratings question resolver,
+skip/consent submission rules, and stars/percent math — see "Alumni ratings" below),
+`lib/programFaqShared.test.ts` (the FAQ "Ask a question" schema's consent-literal/length/
+honeypot cases — see "Program FAQs and the public poll link" below), and
+`lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
+`youtubePosterFromEmbedUrl` — see "Homepage hero video" below). This covers pure-logic `lib/*.ts`
 functions behind `vi.mock`-able boundaries (or with no external dependency at all), not
 routes, pages, or anything that needs a real Postgres connection — most verification in
 this project is still `npx tsc --noEmit`, `npm run lint`, exercising the feature via
@@ -612,41 +616,107 @@ rather than replaced with a `-`. Both silently produce a slug that matches zero 
 — `apply-good-for.ts`/`apply-facet-tags-by-slug.ts` log it as "not found" rather than
 erroring, so it's easy to miss unless you diff intended vs. actual slugs after import.
 
-### Alumni ratings (`/rate`, `/admin/polls/*`): ships dark, two capture paths, DB-level integrity
-A 1-5 rating system, system-wide scale, no free-text — six models
+### Alumni ratings (`/rate`, `/admin/polls/*`): ships dark, skippable questions, consent-gated reviews
+A 1-5 rating system, system-wide scale, no free-text *ratings* (see `PollReview` below
+for freeform *reviews*, which are a separate, optional layer) — seven models
 (`PollQuestion`, `QuestionBucket`, `ProgramPollConfig`, `PollResponse`, `PollAnswer`,
-`ReferrerToken`) added in migration `20260717122617_add_alumni_polls`. That migration
+`ReferrerToken`, `PollReview`) across two migrations. `20260717122617_add_alumni_polls`
 hand-appends a `CHECK ("value" BETWEEN 1 AND 5)` constraint on `PollAnswer` and two
 partial unique indexes (`PollResponse` one-counted-per-user-per-program,
-one-counted-and-verified-per-email-per-program) directly to the generated SQL, since
-Prisma has no first-class syntax for either — **never run `prisma db push` against this
-schema**, it silently drops both. **Public math only ever counts a response where
-`status = COUNTED` AND `verified = true`** — every aggregate query in the system filters
-on that pair together, never status alone.
+one-counted-and-verified-per-email-per-program); `20260717145712_add_poll_reviews_and_skip_snapshot`
+adds `PollReview` (with its own hand-appended `CHECK ("consentGiven")`) and
+`PollResponse.presentedQuestionIds`. Prisma has no first-class syntax for CHECK
+constraints or partial indexes — **never run `prisma db push` against this schema**, it
+silently drops all three. **Public math only ever counts a response where
+`status = COUNTED` AND `verified = true`** — every aggregate query filters on that pair
+together, never status alone.
 
-Two independent submission paths, both ending at the same `PollAnswer` rows:
+**Every question is skippable, and a skip is the *absence* of a row — never a stored
+null or sentinel.** Inputs start unanswered (no pre-fill): tapping a value selects it,
+tapping the same value again clears it. An **N/A checkbox** beside every question
+(`components/polls/QuestionInput.tsx`) is the *explicit, deliberate* version of that
+same absence — checking it clears any selected value, disables the inputs until
+unchecked, and adds the question's id to `PollResponse.naQuestionIds` (a second
+`String[]`, additive migration `20260719181645_add_poll_na_question_ids`) instead of
+writing a `PollAnswer` row, same as an ordinary skip. The two are tracked as genuinely
+different states, not just different labels for the same `value === null`: an N/A'd
+question is a positive, recorded signal ("doesn't apply to me"), while a merely-untouched
+question carries no signal at all — `naQuestionIds` is what lets `/admin/polls/moderation`
+tell them apart (see below), and an all-N/A submission with no real answers and no
+reviews still fails the empty-submission rule the same way an all-skipped one does (N/A
+marks aren't "content" any more than silence is). `PollResponse.presentedQuestionIds`
+snapshots exactly which question ids the form displayed at submit time (stamped
+server-side from the resolved config, never client input) — `/admin/polls/moderation`
+diffs this against `answers` and `naQuestionIds` to show "N/A: <question>" and
+"Skipped: <question>" as distinct explicit states, and stays accurate even after a
+later admin edit changes the program's live question set. Because a response can now
+skip `overall`, **the publish gate, headline, and progress bar all read the count of
+COUNTED+verified responses that *answered* `overall`, not the count of COUNTED+verified
+responses** — see `lib/pollResults.ts`'s `getProgramPollSummary`; a program whose config
+has removed `overall` entirely reads 0 here and never leaves "be_first." Per-question
+means/counts in that same file are already computed from actual `PollAnswer` rows only,
+so N/A (like any skip) naturally excludes itself with no separate aggregate-math change.
+
+Two independent submission paths, both ending at the same `PollAnswer`/`PollReview` rows:
 - **Signed-in** (`lib/pollResponses.ts`'s `submitSignedInResponse`): verified + COUNTED
   immediately, no email step ever. A repeat visit updates the existing counted response
-  in place (delete-and-recreate its answers in one transaction) rather than rejecting
-  the resubmit or creating a duplicate; the partial unique index is the DB-level
-  backstop against a concurrent double-submit race, which the function retries once
-  against.
+  in place (delete-and-recreate its answers in one transaction — reviews are insert-only,
+  see below) rather than rejecting the resubmit or creating a duplicate; the partial
+  unique index is the DB-level backstop against a concurrent double-submit race, which
+  the function retries once against.
 - **Anonymous link path** (`/rate/[slug]?ref=TOKEN`, minted at `/admin/polls/links` via
-  `lib/pollTokens.ts`'s `mintReferrerToken`): no login wall, inputs pre-position at 3,
-  submit creates a PENDING/unverified response. Only the thank-you screen's optional
-  email step (`attachEmailAndSendVerification`, `lib/email.ts`'s `sendPollVerifyEmail`)
-  sends a magic link; clicking it (`verifyPollResponse`, `/rate/verify`) flips the
-  response to COUNTED+verified. A **revoked, expired, or over-cap token is still
-  accepted, not rejected** — `validateReferrerToken` returns it with a flag
+  `lib/pollTokens.ts`'s `mintReferrerToken`): no login wall, submit creates a
+  PENDING/unverified response. Only the thank-you screen's optional email step
+  (`attachEmailAndSendVerification`, `lib/email.ts`'s `sendPollVerifyEmail`) sends a
+  magic link; clicking it (`verifyPollResponse`, `/rate/verify`) flips the response to
+  COUNTED+verified. A **revoked, expired, or over-cap token is still accepted, not
+  rejected** — `validateReferrerToken` returns it with a flag
   (`token_revoked`/`token_expired`/`token_over_cap`) instead of an error, so a link an
   admin handed out never silently stops working; only a token that doesn't resolve at
-  all falls back to a sign-in CTA. A second verification of an already-counted email
-  voids itself with a `duplicate_email` flag rather than double-counting. `flags`
-  (`String[]` on `PollResponse`, constants in `lib/pollShared.ts`'s `POLL_FLAGS`) also
-  catches `repeat_ip` (a salted-SHA-256 `ipHash` — see `lib/pollIntegrity.ts`'s
-  `hashIp`, a deliberate departure from `lib/rateLimit.ts`'s "no IP ever persisted"
-  posture, since this system needs a durable per-visitor signal the in-memory limiter
-  can't provide).
+  all falls back to a sign-in CTA. `flags` (`String[]` on `PollResponse`, constants in
+  `lib/pollShared.ts`'s `POLL_FLAGS`) also catches `repeat_ip` (a salted-SHA-256
+  `ipHash` — see `lib/pollIntegrity.ts`'s `hashIp`, a deliberate departure from
+  `lib/rateLimit.ts`'s "no IP ever persisted" posture) and `duplicate_email` (a second
+  verification of an already-counted email voids itself with this flag rather than
+  double-counting).
+
+**Reviews are optional per-question free text, gated on explicit per-review consent.**
+Each question in the form carries its own review textarea and its own consent checkbox
+directly beneath it — an unchecked review is simply never sent (never persisted as
+`consentGiven: false`, and never blocks the rating or the rest of the form). Consent is
+enforced three times over: the client only includes a review whose box was actually
+checked, `lib/pollShared.ts`'s `reviewInputSchema` requires `consent: z.literal(true)`,
+and the DB has the hand-written `CHECK ("consentGiven")` above — a non-consented row
+cannot exist even via a bug. Reviews insert one at a time after the answer transaction
+commits (`lib/pollResponses.ts`'s `insertReviews`), not via `createMany`, so a duplicate
+`(responseId, questionId)` — e.g. a signed-in resubmit re-reviewing the same question,
+or a retried "add more detail" call — fails only that one review (reported back as
+`skippedReviewQuestionIds`), never the whole submission. Every `PollReview` defaults to
+PENDING and **nothing auto-approves, ever**: `lib/pollReviews.ts`'s `approvePollReview`
+refuses unless the parent response is already `COUNTED` AND `verified`. Rejected
+reviews are retained, never deleted.
+
+**Publishing a review is a query-time join, not a stored flag.** `lib/pollResults.ts`'s
+`listPublicReviews` selects `status = APPROVED AND response.status = COUNTED AND
+response.verified` — voiding a response hides its approved reviews immediately with
+zero writes to `PollReview`, and restoring the response republishes them automatically.
+Reviews render on the program page (`components/PollReviewsSection.tsx`, below the
+summary strip) grouped by question in the program's live resolved-question order,
+gated on the kill switch and `resultsVisible` **only** — deliberately not the score's
+`minResponsesToPublish` threshold, since every review was individually approved.
+
+`/admin/polls/reviews` is the moderation queue (default PENDING; approve, reject with
+an optional note, bulk-reject) with three attention signals recomputed live on every
+page load rather than trusted from stale submission-time flags
+(`lib/pollReviews.ts`'s `computeAttentionFlags`): `shared_ip` (>1 non-voided response on
+the same program shares this ipHash, computed symmetrically — unlike
+`PollResponse.flags`' `repeat_ip`, which only marks the *second* submitter),
+`token_over_cap` (the parent's referrer token is *currently* at/over its cap, not
+whatever it was at submission time), and `email_domain_matches_program` (the response's
+email domain matches `Program.contactEmail`'s domain — never `Organization.contactEmail`,
+which is shared across programs and would false-positive on every one of them). A
+pending-count badge surfaces on both the Reviews tab and the main `/admin` "Ratings"
+nav link.
 
 **Question resolution is one pure function, never duplicated.** `lib/pollShared.ts`'s
 `resolvePollQuestionSet` takes a program's config + every bucket + every question and
@@ -661,27 +731,28 @@ ever offers it) and the API layer (`upsertProgramPollConfig` in `lib/pollConfig.
 defensively strips the Core bucket's id from `bucketIds` even so). `lib/pollConfig.ts`'s
 `getQuestionsForProgram` is the only place that calls the resolver with live data.
 
-Seven `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe types/zod/
-resolver — no Prisma import, same split-for-client-components precedent as
+Nine `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe
+types/zod/resolver — no Prisma import, same split-for-client-components precedent as
 `lib/tagTints.ts` above), `pollFormat.ts` (client-safe `meanToPercent`/`formatStarsMean`
 — percent and stars are **always** derived from the same mean, never stored or computed
-independently, so the two displays can't drift apart), `pollConfig.ts` (per-program
-config + question resolution), `pollQuestions.ts` (question/bucket admin CRUD, retire-
-never-delete once answered, version-bumps a question's `version` when its `text`
-changes and it already has answers), `pollTokens.ts` (`ReferrerToken` mint/validate),
-`pollResponses.ts` (submission, magic-link verification, and moderation: `voidPollResponse`
+independently), `pollIntegrity.ts` (`hashIp`), `pollConfig.ts` (per-program config +
+question resolution), `pollQuestions.ts` (question/bucket admin CRUD, retire-never-delete
+once answered, version-bumps a question's `version` when its `text` changes and it
+already has answers), `pollTokens.ts` (`ReferrerToken` mint/validate), `pollResponses.ts`
+(submission, magic-link verification, and response moderation: `voidPollResponse`
 retains the row; `restorePollResponse` "recomputes" status from the `verified` flag
 already on the row rather than needing a separate prior-status field, reporting a
-conflict — not throwing — if that collides with a partial unique index), and
-`pollResults.ts` (React-`cache()`d `getProgramPollSummary`, only aggregating
-per-question means/histogram when the state is actually "published," since the common
-"ships dark" case needs just a count).
+conflict — not throwing — if that collides with a partial unique index),
+`pollReviews.ts` (the review moderation queue and its attention flags), and
+`pollResults.ts` (React-`cache()`d `getProgramPollSummary` + `listPublicReviews`/
+`getProgramReviewsSummary`, only aggregating per-question means/histogram when the
+state is actually "published," since the common "ships dark" case needs just a count).
 
-The program page summary strip (`components/PollSummaryStrip.tsx`, between the
-description and "Who it's for" blocks) renders one of four states — be first / collecting
-(with a live progress bar) / under review / the published score — gated on
-`resultsVisible` (per-program, `/admin/polls/programs`) AND `countedVerified >=
-minResponsesToPublish` AND a global kill switch (`SiteContent` key
+The program page renders `PollSummaryStrip` (between the description and "Who it's
+for" blocks) then `PollReviewsSection` below it. The strip's four states — be first /
+collecting (with a live progress bar) / under review / the published score — are gated
+on `resultsVisible` (per-program, `/admin/polls/programs`) AND overall-answer-count
+`>= minResponsesToPublish` AND a global kill switch (`SiteContent` key
 `pollResultsKillSwitch`, `lib/pollResults.ts`'s `POLL_KILL_SWITCH_KEY`, toggled at
 `/admin/polls/moderation`) being off. `/admin/polls/programs` also has a bulk-assign
 tool — attach/detach one bucket across every program carrying any of a set of tags in
@@ -692,6 +763,91 @@ one action, resolving program ids via the same `tags.some.slug.in` shape
 salt when `NODE_ENV !== "production"`, but **throws** if it's unset and `NODE_ENV ===
 "production"` — an unset salt in prod 500s every anonymous submission outright, it
 doesn't just weaken the hash.
+
+### Program FAQs and the public poll link: two small additions riding the ratings system's patterns
+Two features layered onto Alumni ratings above, both reusing its provenance/moderation
+conventions rather than inventing new ones.
+
+**`ProgramFAQ`** is one model holding both curated (admin-authored) and visitor-submitted
+entries — not two separate tables — distinguished by `source` (`"visitor"` vs.
+`"staff"`/`"admin"`/free text) and `status` (`DRAFT`/`PUBLISHED`/`REJECTED`, the third
+added beyond a simpler two-state design specifically so a spam visitor question can be
+retained-and-rejected rather than hard-deleted, matching this repo's retain-never-delete
+posture elsewhere). A visitor's "Ask a question" submission (any signed-out visitor,
+`app/api/programs/[id]/faq-questions/route.ts` — honeypot checked before the rate limit,
+same order as `app/api/contact/route.ts`) always lands `DRAFT`/`source: "visitor"` with a
+server-stamped `consentAt` and salted `ipHash`; nothing ever auto-publishes. Consent is
+enforced the same three-times-over way as `PollReview`: the client only sends the field
+when the box was checked, `lib/programFaqShared.ts`'s `faqQuestionSubmitSchema` requires
+`consent: z.literal(true)`, and the DB has a hand-written conditional `CHECK` (only
+applies when `source = 'visitor'` — admin-authored rows have no consent concept at all;
+`IS TRUE` rather than a bare boolean reference, for the same NULL-passes-CHECK reason as
+`PollReview`'s constraint — see the migration comment). Publishing is refused in
+`lib/programFaq.ts`'s `updateFaq` while `answer` is null/empty, so a visitor question with
+no answer yet can't accidentally go live. `deleteFaq` refuses any `source === "visitor"`
+row (reject it instead); only admin-authored drafts that never had public exposure can be
+hard-deleted. `/admin/polls/faqs` (`FaqManager.tsx`) has the pending-questions queue
+(answer-and-publish or reject-with-note) on top and per-program curated CRUD
+(add/edit/reorder/publish/unpublish) below, mirroring `PollReviewQueue`'s and
+`BucketManager`'s conventions respectively; its pending count feeds both the FAQs tab
+badge and the `/admin` "Ratings" nav badge (summed with pending reviews).
+`components/ProgramFaqSection.tsx` renders published entries on the program page (below
+`PollReviewsSection`) gated purely on each entry's own `PUBLISHED` status — not the poll
+kill switch or `resultsVisible`, since a FAQ entry isn't aggregate poll data. Zero
+published entries renders nothing but the always-present "Ask a question" button
+(`AskQuestionForm.tsx`) — no empty-state placeholder.
+
+**The public poll link** surfaces the existing per-program `/rate/[slug]?ref=TOKEN` link
+(previously admin-only, minted by hand at `/admin/polls/links`) as a visible
+"Share / fill out this program's poll" button on the program page
+(`components/polls/PublicPollLink.tsx`), gated by a new per-program
+`ProgramPollConfig.pollLinkPublic` boolean that mirrors `resultsVisible`'s toggle pattern
+exactly (same checkbox styling in `ProgramPollConfigManager.tsx`, same PATCH route).
+**Deliberately independent of `resultsVisible` and the kill switch** — this toggle gates
+*capture* (can visitors reach the anonymous submission form at all), not *results*
+display; a program can accept public poll submissions while its score/reviews stay dark,
+or vice versa. Flipping it on **lazily mints exactly one designated `ReferrerToken`**
+(label `"Public program page"`, uncapped, no expiry) via the existing
+`lib/pollTokens.ts`'s `mintReferrerToken`, storing its id in the new
+`ProgramPollConfig.publicTokenId` (`@unique`) — re-toggling off/on reuses that same token
+rather than minting a fresh one each time, so its accumulated response history stays
+attached to one row in `/admin/polls/links` instead of fragmenting. `lib/pollConfig.ts`'s
+`getPublicPollLink(programId)` is the only reader that should build a public-facing URL
+from this (returns the relative `/rate/[slug]?ref=...` path, or `null` when the toggle is
+off or no token has been minted yet); the client component prepends
+`window.location.origin`, same convention as `PollLinkManager.tsx`'s `tokenUrl`.
+
+Both additions shipped in one migration
+(`20260718183503_add_program_faq_and_public_poll_link`) alongside the `ProgramFAQ` table
+— same "never `prisma db push` against this schema" warning as the two alumni-polls
+migrations before it, for the same hand-written-CHECK-constraint reason.
+
+### Homepage hero video: an optional, site-wide YouTube/Vimeo feature (not per-program)
+`/admin/settings`' "Homepage Video" section (`components/HomeVideoForm.tsx` →
+`PATCH /api/admin/home-video`) configures one featured video shown on the homepage
+below the welcome heading, above Featured/Recently Added
+(`components/HomeVideoHero.tsx`, rendered from `app/page.tsx`). Off by default; two
+independent `SiteContent` keys (`homeVideoEnabled`, `homeVideo`) mean hiding the
+section never loses the saved config and editing the config while hidden never
+silently turns it on (`lib/homeVideo.ts`'s `setHomeVideoEnabled`/`saveHomeVideoConfig`
+each touch only their own key). Same client/server split precedent as `lib/tagTints.ts`:
+`lib/homeVideoConfig.ts` holds the pure zod schema/types/parsers `HomeVideoForm.tsx`
+and `HomeVideoHero.tsx` need (`"use client"` components can't import `lib/homeVideo.ts`,
+which pulls in `lib/siteContent.ts` → `lib/prisma.ts` → `pg`), while `lib/homeVideo.ts`
+keeps the Prisma-backed reads/writes and re-exports the split file's symbols.
+
+Reuses `lib/videoEmbed.ts`'s `parseVideoLink` for the same canonicalized-URL discipline
+the per-program video system relies on (the route only ever stores the canonical
+`embedUrl`/`watchUrl` it derives, never the raw pasted string), and imports
+`components/VideoList.tsx`'s exported `EMBED_SANDBOX`/`EMBED_ALLOW`/
+`EMBED_REFERRER_POLICY` constants so the homepage hero's iframe gets identical
+sandboxing instead of a parallel copy. Posters: Vimeo's is resolved via oEmbed at save
+time (`lib/homeVideo.ts`'s `fetchVimeoPosterUrl` — any failure degrades to a
+poster-less facade, never blocks the save); YouTube's is derived from the video id with
+no network call (`lib/homeVideoConfig.ts`'s `youtubePosterFromEmbedUrl` builds
+`https://img.youtube.com/vi/<id>/hqdefault.jpg` directly). An admin-supplied
+`posterOverrideUrl` always wins over the derived one (`effectivePosterUrl`). `next.config.ts`'s
+CSP `img-src` allowlists both `img.youtube.com` and `i.vimeocdn.com` for these thumbnails.
 
 ## Local setup essentials
 

@@ -113,7 +113,13 @@ export default async function RateProgramPage({
       {core.length === 0 ? (
         <p className="text-sm text-muted">Ratings aren&apos;t set up for this program yet.</p>
       ) : (
-        <RateForm mode="signed-in" programId={program.id} questions={core} existingAnswers={existingAnswers} />
+        <RateForm
+          mode="signed-in"
+          programId={program.id}
+          questions={core}
+          existingAnswers={existingAnswers}
+          existingNaQuestionIds={existing?.naQuestionIds}
+        />
       )}
     </PageContainer>
   );
