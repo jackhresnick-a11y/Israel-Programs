@@ -433,6 +433,44 @@ function relevanceTier(
   return 4; // fuzzy-only match (location/goodFor/description or typo-distance)
 }
 
+// Structured filters (status/tags/duration/etc.) run in Postgres; the free-text term is
+// ranked here in memory. At ~393 published programs this is effectively free and avoids
+// a pg_trgm migration + raw SQL for a dataset this size. The candidate set is the UNION
+// of Fuse's fuzzy matches (typo tolerance) and a deterministic per-token substring match
+// (so a program whose tags collectively cover every query word is never dropped just
+// because no single field contains the whole phrase -- see matchesAllTokens above).
+// relevanceTier then ranks the union so the closest match always surfaces first, with
+// Fuse's own score breaking ties within a tier. Shared by listPrograms and getFacetData
+// below -- the latter needs the identical candidate set so dropdown option counts and
+// empty-state suggestions stay scoped to whatever the user has typed, not the full
+// unfiltered catalog.
+function rankBySearchTerm<T extends Searchable & { id: string }>(programs: T[], term: string): T[] {
+  const fuse = new Fuse(programs, {
+    keys: SEARCH_KEYS,
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+    includeScore: true,
+  });
+
+  const termLower = term.toLowerCase();
+  const tokens = tokenize(term);
+  const fuseScores = new Map(fuse.search(term).map((r) => [r.item.id, r.score ?? 1]));
+
+  const candidates = programs.filter(
+    (p) => fuseScores.has(p.id) || (tokens.length > 0 && matchesAllTokens(p, tokens))
+  );
+
+  return candidates
+    .map((item) => ({
+      item,
+      tier: relevanceTier(item, termLower, tokens),
+      score: fuseScores.get(item.id) ?? 1,
+    }))
+    .sort((a, b) => a.tier - b.tier || a.score - b.score || a.item.name.localeCompare(b.item.name))
+    .map((result) => result.item);
+}
+
 export async function listPrograms(filters: ProgramFilters) {
   // Users are invited to type "#hashtag" into the same box, so strip a
   // leading "#" -- Fuse fuzzily matches the term against tag name/slug
@@ -460,40 +498,29 @@ export async function listPrograms(filters: ProgramFilters) {
 
   if (!term) return programs;
 
-  // Structured filters (status/tags/duration/etc.) run in Postgres above;
-  // the free-text term is ranked here in memory. At ~183 published programs
-  // this is effectively free and avoids a pg_trgm migration + raw SQL for a
-  // dataset this size. The candidate set is the UNION of Fuse's fuzzy matches
-  // (typo tolerance) and a deterministic per-token substring match (so a
-  // program whose tags collectively cover every query word is never dropped
-  // just because no single field contains the whole phrase -- see
-  // matchesAllTokens above). relevanceTier then ranks the union so the
-  // closest match always surfaces first, with Fuse's own score breaking ties
-  // within a tier.
-  const fuse = new Fuse(programs, {
-    keys: SEARCH_KEYS,
-    threshold: 0.35,
-    ignoreLocation: true,
-    minMatchCharLength: 2,
-    includeScore: true,
+  return rankBySearchTerm(programs, term);
+}
+
+export type FacetProgram = { id: string; durationType: DurationType; tagSlugs: string[] };
+
+/** Every PUBLISHED program reduced to just id/duration/tag-slugs, optionally narrowed to
+ * the same q-term candidate set listPrograms uses -- feeds lib/facetCounts.ts's
+ * leave-one-out math for the browse page's dropdown option counts and empty-state
+ * suggestions. Deliberately returns the FULL matching universe (not narrowed by the
+ * current tag/duration selections) since computeFacetCounts/dropOneCounts apply those
+ * selections themselves. */
+export async function getFacetData(q?: string): Promise<FacetProgram[]> {
+  const term = q?.trim().replace(/^#/, "").trim();
+  const programs = await prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    include: { tags: true },
   });
-
-  const termLower = term.toLowerCase();
-  const tokens = tokenize(term);
-  const fuseScores = new Map(fuse.search(term).map((r) => [r.item.id, r.score ?? 1]));
-
-  const candidates = programs.filter(
-    (p) => fuseScores.has(p.id) || (tokens.length > 0 && matchesAllTokens(p, tokens))
-  );
-
-  return candidates
-    .map((item) => ({
-      item,
-      tier: relevanceTier(item, termLower, tokens),
-      score: fuseScores.get(item.id) ?? 1,
-    }))
-    .sort((a, b) => a.tier - b.tier || a.score - b.score || a.item.name.localeCompare(b.item.name))
-    .map((result) => result.item);
+  const matched = term ? rankBySearchTerm(programs, term) : programs;
+  return matched.map((p) => ({
+    id: p.id,
+    durationType: p.durationType,
+    tagSlugs: p.tags.map((t) => t.slug),
+  }));
 }
 
 export async function getProgramBySlug(slug: string) {

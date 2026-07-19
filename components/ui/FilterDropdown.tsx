@@ -13,6 +13,11 @@ type FilterDropdownProps = {
   selected: string[];
   onToggle: (value: string) => void;
   tint: FilterDropdownTint;
+  /** Leave-one-out result count per option value (see lib/facetCounts.ts) -- shown next
+   * to each checkbox so a user sees a zero coming before they click into a combination
+   * that empties the results. Options stay clickable at zero (removing a different
+   * filter can revive them, and within-dimension multi-select must stay reachable). */
+  counts?: Record<string, number>;
 };
 
 // Subtle per-dropdown hover/open hue, built entirely from existing palette tokens so
@@ -65,6 +70,7 @@ export default function FilterDropdown({
   selected,
   onToggle,
   tint,
+  counts,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const [flip, setFlip] = useState(false);
@@ -150,20 +156,32 @@ export default function FilterDropdown({
             flip ? "right-0" : "left-0"
           )}
         >
-          {options.map((option) => (
-            <label
-              key={option.value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
-            >
-              <input
-                type="checkbox"
-                checked={selected.includes(option.value)}
-                onChange={() => onToggle(option.value)}
-                className="accent-accent"
-              />
-              {option.label}
-            </label>
-          ))}
+          {options.map((option) => {
+            const count = counts?.[option.value];
+            const isZero = count === 0 && !selected.includes(option.value);
+            return (
+              <label
+                key={option.value}
+                className={cn(
+                  "flex cursor-pointer items-center justify-between gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-surface-muted",
+                  isZero ? "text-muted" : "text-foreground"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(option.value)}
+                    onChange={() => onToggle(option.value)}
+                    className="accent-accent"
+                  />
+                  {option.label}
+                </span>
+                {count !== undefined && (
+                  <span className="text-xs tabular-nums text-muted">{count}</span>
+                )}
+              </label>
+            );
+          })}
         </div>
       )}
     </div>

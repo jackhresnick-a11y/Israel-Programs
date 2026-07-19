@@ -19,6 +19,13 @@ type SearchBarProps = {
   regions: RegionRow[];
   durationFilter: FilterHeaderConfig;
   regionFilter: FilterHeaderConfig;
+  /** Leave-one-out counts (lib/facetCounts.ts), computed server-side from the current
+   * selections -- durationCounts keyed by DurationType value, tagCounts keyed by tag
+   * slug (flat across every category, since slugs are globally unique), regionCounts
+   * keyed by Region.slug. */
+  durationCounts: Record<string, number>;
+  tagCounts: Record<string, number>;
+  regionCounts: Record<string, number>;
 };
 
 export default function SearchBar({
@@ -28,6 +35,9 @@ export default function SearchBar({
   regions,
   durationFilter,
   regionFilter,
+  durationCounts,
+  tagCounts,
+  regionCounts,
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,6 +147,7 @@ export default function SearchBar({
             selected={activeDurations}
             onToggle={toggleDuration}
             tint={coerceTint(durationFilter.tint)}
+            counts={durationCounts}
           />
         )}
         {categoryDropdowns.map(({ category, options, selected }) => (
@@ -147,6 +158,7 @@ export default function SearchBar({
             selected={selected}
             onToggle={(slug) => toggleSlugs([slug])}
             tint={coerceTint(category.tint)}
+            counts={tagCounts}
           />
         ))}
         {regionFilter.show && (
@@ -156,6 +168,7 @@ export default function SearchBar({
             selected={activeRegions}
             onToggle={(regionSlug) => toggleSlugs(regionBySlug.get(regionSlug)?.memberSlugs ?? [])}
             tint={coerceTint(regionFilter.tint)}
+            counts={regionCounts}
           />
         )}
 
