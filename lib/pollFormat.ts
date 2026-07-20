@@ -17,6 +17,14 @@ export function formatStarsMean(mean: number): string {
   return mean.toFixed(1);
 }
 
+/** Where a DESCRIPTIVE question's mean sits on its 1-5 low->high track, as a percent
+ * (0 = value 1, 100 = value 5) for positioning the spectrum marker. Same one-decimal
+ * `x.x` string as formatStarsMean backs the "x.x / 5" number shown alongside it --
+ * deliberately not a separate format, so the two never drift apart. */
+export function meanToSpectrumPercent(mean: number): number {
+  return Math.max(0, Math.min(100, ((mean - 1) / 4) * 100));
+}
+
 /**
  * Which of the four program-page summary states applies. `counted` is not simply "how
  * many responses are COUNTED" -- since questions became skippable, a response can be

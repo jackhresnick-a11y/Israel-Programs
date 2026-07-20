@@ -4,7 +4,13 @@ import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { summaryState } from "@/lib/pollFormat";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
-import { flattenResolvedQuestionIds, type PollSummaryDTO, type PollReviewGroupDTO } from "@/lib/pollShared";
+import {
+  flattenResolvedQuestionIds,
+  type PollSummaryDTO,
+  type PollSummaryQuestionDTO,
+  type PollSummaryBucketDTO,
+  type PollReviewGroupDTO,
+} from "@/lib/pollShared";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
 
@@ -29,6 +35,16 @@ const EMPTY_HISTOGRAM: [number, number, number, number, number] = [0, 0, 0, 0, 0
  * actually "published" (results unlock at minResponsesToPublish, gated by
  * resultsVisible AND the kill switch) -- the common "ships dark" case needs only the
  * overall-answer count, not the full aggregation.
+ *
+ * `questions` is built from the program's live *resolved* question set
+ * (getQuestionsForProgram), not just questions that happen to have answers -- so a
+ * newly-added or so-far-unanswered question still gets a circle (mean: null, count: 0,
+ * rendered as "---" by the results grid) instead of silently vanishing. Each entry
+ * carries its owning bucket id (core questions get the core bucket's id) for the
+ * results grid's per-bucket coloring, and its `scaleType` + endpoint labels
+ * (labels[0]/labels[4]) so a DESCRIPTIVE question's bare number stays interpretable.
+ * `buckets` is the distinct, ordered set of buckets behind the non-"overall"
+ * questions -- the results grid's color legend.
  *
  * The publish gate, headline, and progress bar all read the count of COUNTED
  * responses that *answered* the `overall` question -- not the count of COUNTED
@@ -63,31 +79,62 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     placeholderOverride: config.placeholderOverride,
     overallMean: null,
     questions: [],
+    buckets: [],
     overallHistogram: EMPTY_HISTOGRAM,
   };
 
   if (state !== "published") return base;
 
-  const answerStats = await prisma.pollAnswer.groupBy({
-    by: ["questionId"],
-    where: { response: { programId, status: "COUNTED" } },
-    _avg: { value: true },
-    _count: { _all: true },
+  const [resolved, coreBucket, answerStats] = await Promise.all([
+    getQuestionsForProgram(programId),
+    prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true, name: true } }),
+    prisma.pollAnswer.groupBy({
+      by: ["questionId"],
+      where: { response: { programId, status: "COUNTED" } },
+      _avg: { value: true },
+      _count: { _all: true },
+    }),
+  ]);
+
+  // Flatten the resolved set (core first, then extras) into one ordered list, each
+  // question paired with the bucket it's presented under -- the same order the
+  // rating form itself uses.
+  const flat = [
+    ...resolved.core.map((question) => ({
+      question,
+      bucketId: coreBucket?.id ?? null,
+      bucketName: coreBucket?.name ?? null,
+    })),
+    ...resolved.extras.flatMap(({ bucket, questions: bucketQuestions }) =>
+      bucketQuestions.map((question) => ({ question, bucketId: bucket.id, bucketName: bucket.name }))
+    ),
+  ];
+
+  const statsByQuestionId = new Map(answerStats.map((s) => [s.questionId, s]));
+
+  const questions: PollSummaryQuestionDTO[] = flat.map(({ question, bucketId }) => {
+    const stats = statsByQuestionId.get(question.id);
+    return {
+      key: question.key,
+      text: question.text,
+      mean: stats?._avg.value ?? null,
+      count: stats?._count._all ?? 0,
+      scaleType: question.scaleType,
+      bucketId,
+      endpointLabels: [question.labels[0], question.labels[4]],
+    };
   });
 
-  const questionRows = await prisma.pollQuestion.findMany({
-    where: { id: { in: answerStats.map((s) => s.questionId) } },
-    select: { id: true, key: true, text: true },
-  });
-  const questionById = new Map(questionRows.map((q) => [q.id, q]));
-
-  const questions = answerStats
-    .map((s) => {
-      const q = questionById.get(s.questionId);
-      if (!q || s._avg.value === null) return null;
-      return { key: q.key, text: q.text, mean: s._avg.value, count: s._count._all };
-    })
-    .filter((q): q is PollSummaryDTO["questions"][number] => q !== null);
+  // Legend: distinct buckets behind the non-"overall" questions, in resolved order.
+  const buckets: PollSummaryBucketDTO[] = [];
+  const seenBucketIds = new Set<string>();
+  for (const { question, bucketId, bucketName } of flat) {
+    if (question.key === "overall" || !bucketId || !bucketName) continue;
+    if (!seenBucketIds.has(bucketId)) {
+      seenBucketIds.add(bucketId);
+      buckets.push({ id: bucketId, name: bucketName });
+    }
+  }
 
   const overallHistogram: [number, number, number, number, number] = [...EMPTY_HISTOGRAM];
   let overallMean: number | null = null;
@@ -104,7 +151,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     overallMean = questions.find((q) => q.key === "overall")?.mean ?? null;
   }
 
-  return { ...base, questions, overallMean, overallHistogram };
+  return { ...base, questions, buckets, overallMean, overallHistogram };
 });
 
 /**

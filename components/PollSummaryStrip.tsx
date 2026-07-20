@@ -1,8 +1,82 @@
 import Link from "next/link";
 import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
-import { meanToPercent, formatStarsMean } from "@/lib/pollFormat";
-import type { PollSummaryDTO } from "@/lib/pollShared";
+import { meanToPercent, formatStarsMean, meanToSpectrumPercent } from "@/lib/pollFormat";
+import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
+
+/** Six-slot categorical palette for question-group (bucket) identity in the results
+ * grid -- CSS custom properties defined in app/globals.css (both light and dark),
+ * kept deliberately separate from the info/success/warning/danger tokens (those carry
+ * status meaning elsewhere; reusing them here would make a bucket's color read as
+ * "good"/"bad"). Assigned by each bucket's position in `summary.buckets` -- fixed
+ * order, never cycled; a 7th+ bucket falls back to neutral rather than repeating a
+ * hue. Referenced via inline style (not Tailwind classes) since the color is
+ * data-driven and a dynamically-built class name wouldn't survive Tailwind's static
+ * content scan. */
+const BUCKET_COLOR_VARS = [
+  "--poll-bucket-1",
+  "--poll-bucket-2",
+  "--poll-bucket-3",
+  "--poll-bucket-4",
+  "--poll-bucket-5",
+  "--poll-bucket-6",
+] as const;
+
+function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]): string | null {
+  if (!bucketId) return null;
+  const index = buckets.findIndex((b) => b.id === bucketId);
+  if (index < 0 || index >= BUCKET_COLOR_VARS.length) return null;
+  return `var(${BUCKET_COLOR_VARS[index]})`;
+}
+
+/** One question's result cell in the results grid. EVALUATIVE reads as a grade (star +
+ * mean, bucket-tinted fill) -- higher is better. DESCRIPTIVE never shows a star or a
+ * graded fill: a neutral low->high track with a bucket-colored marker, the bare "x.x /
+ * 5" number, and the question's own endpoint labels (labels[0]/labels[4]) underneath,
+ * so the number reads as "where this program sits on a spectrum" rather than a score.
+ * Mean text always stays in the ordinary foreground ink, never the bucket color --
+ * identity is carried by the circle/marker, not by tinting the number itself. */
+function QuestionCell({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
+  const { text, mean, count, scaleType, endpointLabels } = question;
+
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-center">
+      <p className="text-xs font-medium text-foreground">{text}</p>
+      {scaleType === "DESCRIPTIVE" ? (
+        <div className="flex w-full flex-col gap-1.5">
+          <p className="text-sm font-semibold text-foreground">
+            {mean !== null ? `${formatStarsMean(mean)} / 5` : "---"}
+          </p>
+          <div className="relative h-1.5 w-full rounded-full bg-surface-muted">
+            {mean !== null && (
+              <span
+                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface"
+                style={{ left: `${meanToSpectrumPercent(mean)}%`, backgroundColor: colorVar ?? "var(--muted)" }}
+              />
+            )}
+          </div>
+          <div className="flex justify-between gap-2 text-[10px] text-muted">
+            <span>{endpointLabels[0]}</span>
+            <span className="text-right">{endpointLabels[1]}</span>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
+          style={{
+            borderColor: colorVar ?? "var(--border)",
+            backgroundColor: colorVar
+              ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
+              : "var(--surface-muted)",
+          }}
+        >
+          {mean !== null ? `${formatStarsMean(mean)}★` : "---"}
+        </div>
+      )}
+      <span className="text-[10px] text-muted">n={count}</span>
+    </div>
+  );
+}
 
 /**
  * Server component -- props are the aggregate PollSummaryDTO only, never a raw
@@ -106,21 +180,29 @@ export default function PollSummaryStrip({
       </div>
 
       {otherQuestions.length > 0 && (
-        <details className="text-sm">
-          <summary className="cursor-pointer font-medium text-accent-hover dark:text-accent">
-            See all questions
-          </summary>
-          <div className="mt-2 flex flex-col gap-1.5">
-            {otherQuestions.map((q) => (
-              <div key={q.key} className="flex items-center justify-between gap-3 text-xs text-muted">
-                <span>{q.text}</span>
-                <span className="shrink-0">
-                  {formatStarsMean(q.mean)} ★ ({q.count})
+        <div className="flex flex-col gap-3">
+          {summary.buckets.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted">
+              {summary.buckets.map((bucket, i) => (
+                <span key={bucket.id} className="flex items-center gap-1.5">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{
+                      backgroundColor:
+                        i < BUCKET_COLOR_VARS.length ? `var(${BUCKET_COLOR_VARS[i]})` : "var(--muted)",
+                    }}
+                  />
+                  {bucket.name}
                 </span>
-              </div>
+              ))}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {otherQuestions.map((q) => (
+              <QuestionCell key={q.key} question={q} colorVar={bucketColorVar(q.bucketId, summary.buckets)} />
             ))}
           </div>
-        </details>
+        </div>
       )}
     </Card>
   );

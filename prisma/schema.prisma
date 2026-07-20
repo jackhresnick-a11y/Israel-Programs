@@ -99,6 +99,17 @@ enum PollLifecycleStatus {
   RETIRED
 }
 
+/// EVALUATIVE: higher is better (Overall, Recommend, Mentorship). DESCRIPTIVE: the
+/// number describes how much of something, not a grade -- low is not bad (e.g. "how
+/// much did experience depend on staff"). Drives whether results show a star + mean
+/// (EVALUATIVE) or a neutral spectrum position + endpoint labels, no star
+/// (DESCRIPTIVE). Default EVALUATIVE so every existing question is unaffected until
+/// an admin reclassifies it.
+enum PollScaleType {
+  EVALUATIVE
+  DESCRIPTIVE
+}
+
 enum PollResponseStatus {
   /// Vestigial -- no new response is ever written PENDING since the after-submit email
   /// verification step was removed (see FLAGGED below). Kept because Postgres can't
@@ -628,6 +639,7 @@ model PollQuestion {
   labels          String[]
   dropdownOptions Json?
   status          PollLifecycleStatus @default(ACTIVE)
+  scaleType       PollScaleType       @default(EVALUATIVE)
   version         Int                 @default(1)
   answers         PollAnswer[]
   reviews         PollReview[]

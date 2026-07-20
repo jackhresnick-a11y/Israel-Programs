@@ -15,6 +15,7 @@ export type QuestionRow = {
   type: "STARS" | "RADIO" | "DROPDOWN";
   labels: string[];
   status: "ACTIVE" | "RETIRED";
+  scaleType: "EVALUATIVE" | "DESCRIPTIVE";
   version: number;
   answerCount: number;
 };
@@ -41,7 +42,13 @@ function QuestionForm({
   busy,
 }: {
   initial?: QuestionRow;
-  onSubmit: (input: { key?: string; text: string; type: QuestionRow["type"]; labels: string[] }) => void;
+  onSubmit: (input: {
+    key?: string;
+    text: string;
+    type: QuestionRow["type"];
+    labels: string[];
+    scaleType: QuestionRow["scaleType"];
+  }) => void;
   submitLabel: string;
   busy: boolean;
 }) {
@@ -49,6 +56,7 @@ function QuestionForm({
   const [text, setText] = useState(initial?.text ?? "");
   const [type, setType] = useState<QuestionRow["type"]>(initial?.type ?? "STARS");
   const [labels, setLabels] = useState<string[]>(initial?.labels ?? [...EMPTY_LABELS]);
+  const [scaleType, setScaleType] = useState<QuestionRow["scaleType"]>(initial?.scaleType ?? "EVALUATIVE");
 
   const valid = text.trim().length > 0 && labels.every((l) => l.trim().length > 0) && (initial || key.trim().length > 0);
 
@@ -72,6 +80,17 @@ function QuestionForm({
           <option value="DROPDOWN">Dropdown</option>
         </Select>
       </label>
+      <label className="flex flex-col gap-1 text-xs text-muted">
+        Scale type
+        <Select
+          value={scaleType}
+          onChange={(e) => setScaleType(e.target.value as QuestionRow["scaleType"])}
+          className="w-40"
+        >
+          <option value="EVALUATIVE">Evaluative (higher = better)</option>
+          <option value="DESCRIPTIVE">Descriptive (neutral spectrum)</option>
+        </Select>
+      </label>
       <div className="flex flex-col gap-1 text-xs text-muted">
         Labels (value 1 through 5)
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-5">
@@ -90,7 +109,9 @@ function QuestionForm({
         size="sm"
         className="self-start"
         disabled={!valid || busy}
-        onClick={() => onSubmit({ key: initial ? undefined : key.trim(), text: text.trim(), type, labels })}
+        onClick={() =>
+          onSubmit({ key: initial ? undefined : key.trim(), text: text.trim(), type, labels, scaleType })
+        }
       >
         {busy ? "Saving..." : submitLabel}
       </Button>
@@ -118,7 +139,10 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
     }
   }
 
-  function handleSaveEdit(question: QuestionRow, input: { text: string; type: QuestionRow["type"]; labels: string[] }) {
+  function handleSaveEdit(
+    question: QuestionRow,
+    input: { text: string; type: QuestionRow["type"]; labels: string[]; scaleType: QuestionRow["scaleType"] }
+  ) {
     const textChanged = input.text !== question.text;
     if (textChanged && question.answerCount > 0) {
       const confirmed = confirm(
@@ -144,7 +168,13 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
     withBusy(question.id, () => api(`/api/admin/polls/questions/${question.id}`, "DELETE"));
   }
 
-  async function handleCreate(input: { key?: string; text: string; type: QuestionRow["type"]; labels: string[] }) {
+  async function handleCreate(input: {
+    key?: string;
+    text: string;
+    type: QuestionRow["type"];
+    labels: string[];
+    scaleType: QuestionRow["scaleType"];
+  }) {
     setCreating(true);
     setError(null);
     try {
@@ -168,6 +198,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
               <Badge tone="tag">{question.key}</Badge>
               <span className="text-sm font-medium text-foreground">{question.text}</span>
               <Badge tone="neutral">{question.type}</Badge>
+              {question.scaleType === "DESCRIPTIVE" && <Badge tone="tag">Descriptive</Badge>}
               {question.status === "RETIRED" && <Badge tone="warning">Retired</Badge>}
               <span className="ml-auto text-xs text-muted">
                 v{question.version} · {question.answerCount} answer{question.answerCount === 1 ? "" : "s"}

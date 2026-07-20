@@ -9,7 +9,10 @@ import type {
   PollQuestionType,
   PollLifecycleStatus,
   PollDisplayFormat,
+  PollScaleType,
 } from "@/app/generated/prisma/enums";
+
+export const scaleTypeSchema = z.enum(["EVALUATIVE", "DESCRIPTIVE"]);
 
 /** Integrity signals a response can carry without being dropped -- see the
  * PollResponse.flags doc comment in schema.prisma. A response can carry several.
@@ -41,6 +44,7 @@ export type PollQuestionDTO = {
   dropdownOptions: unknown;
   version: number;
   status: PollLifecycleStatus;
+  scaleType: PollScaleType;
 };
 
 export type PollBucketDTO = {
@@ -63,6 +67,30 @@ export type ResolvedPollQuestionSet = {
 
 export type PollSummaryState = "be_first" | "collecting" | "under_review" | "published";
 
+/** One resolved (non-retired) question's result, whether or not it has any answers yet
+ * -- `mean`/`count` are null/0 when nobody has answered it, which the results grid
+ * renders as "---" rather than omitting the circle entirely. `bucketId` is the owning
+ * QuestionBucket's id (core questions get the core bucket's id) and drives the
+ * results grid's per-bucket color, matched against `PollSummaryDTO.buckets`.
+ * `endpointLabels` is the question's own `labels[0]`/`labels[4]` -- the only thing
+ * that makes a DESCRIPTIVE question's bare number interpretable. */
+export type PollSummaryQuestionDTO = {
+  key: string;
+  text: string;
+  mean: number | null;
+  count: number;
+  scaleType: PollScaleType;
+  bucketId: string | null;
+  endpointLabels: [string, string];
+};
+
+/** One legend entry for the results grid -- ordered Core-first then extras, same
+ * order the rating form itself presents buckets in (see resolvePollQuestionSet). */
+export type PollSummaryBucketDTO = {
+  id: string;
+  name: string;
+};
+
 export type PollSummaryDTO = {
   state: PollSummaryState;
   counted: number;
@@ -70,7 +98,8 @@ export type PollSummaryDTO = {
   displayFormat: PollDisplayFormat;
   placeholderOverride: string | null;
   overallMean: number | null;
-  questions: { key: string; text: string; mean: number; count: number }[];
+  questions: PollSummaryQuestionDTO[];
+  buckets: PollSummaryBucketDTO[];
   overallHistogram: [number, number, number, number, number];
 };
 

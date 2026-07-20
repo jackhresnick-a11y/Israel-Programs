@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { meanToPercent, formatStarsMean, summaryState } from "./pollFormat";
+import { meanToPercent, formatStarsMean, meanToSpectrumPercent, summaryState } from "./pollFormat";
 
 describe("meanToPercent / formatStarsMean: same mean, arithmetically consistent", () => {
   it("4.2 -> 84/100 and 4.2 stars", () => {
@@ -18,6 +18,19 @@ describe("meanToPercent / formatStarsMean: same mean, arithmetically consistent"
   it("stars always render one decimal place, even for whole numbers", () => {
     expect(formatStarsMean(5)).toBe("5.0");
     expect(formatStarsMean(1)).toBe("1.0");
+  });
+});
+
+describe("meanToSpectrumPercent", () => {
+  it("maps the 1-5 range onto 0-100", () => {
+    expect(meanToSpectrumPercent(1)).toBe(0);
+    expect(meanToSpectrumPercent(5)).toBe(100);
+    expect(meanToSpectrumPercent(3)).toBe(50);
+  });
+
+  it("clamps out-of-range means rather than producing an off-track position", () => {
+    expect(meanToSpectrumPercent(0.5)).toBe(0);
+    expect(meanToSpectrumPercent(5.5)).toBe(100);
   });
 });
 

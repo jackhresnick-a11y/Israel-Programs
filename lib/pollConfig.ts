@@ -10,7 +10,7 @@ import {
 } from "@/lib/pollShared";
 import { getRuleAttachedBucketIds } from "@/lib/pollBucketRules";
 import { mintReferrerToken } from "@/lib/pollTokens";
-import type { PollDisplayFormat } from "@/app/generated/prisma/enums";
+import type { PollDisplayFormat, PollScaleType } from "@/app/generated/prisma/enums";
 
 export type ProgramPollConfigDTO = {
   bucketIds: string[];
@@ -75,6 +75,7 @@ function toQuestionDTO(q: {
   dropdownOptions: unknown;
   version: number;
   status: "ACTIVE" | "RETIRED";
+  scaleType: PollScaleType;
 }): PollQuestionDTO {
   return q;
 }

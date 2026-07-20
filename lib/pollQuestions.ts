@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { questionLabelsSchema } from "@/lib/pollShared";
+import { questionLabelsSchema, scaleTypeSchema } from "@/lib/pollShared";
 
 /** dropdownOptions is a nullable Json column; Prisma requires the Prisma.JsonNull
  * sentinel (not plain `null`) to explicitly clear it, so a bare `null` from the zod
@@ -25,6 +25,7 @@ export const questionInputSchema = z.object({
   type: z.enum(["STARS", "RADIO", "DROPDOWN"]),
   labels: questionLabelsSchema,
   dropdownOptions: z.unknown().nullable().optional(),
+  scaleType: scaleTypeSchema.default("EVALUATIVE"),
 });
 
 export const questionUpdateSchema = z.object({
@@ -33,6 +34,7 @@ export const questionUpdateSchema = z.object({
   labels: questionLabelsSchema.optional(),
   dropdownOptions: z.unknown().nullable().optional(),
   status: z.enum(["ACTIVE", "RETIRED"]).optional(),
+  scaleType: scaleTypeSchema.optional(),
 });
 
 export async function listQuestions({ includeRetired = true }: { includeRetired?: boolean } = {}) {
@@ -52,6 +54,7 @@ export async function createQuestion(input: z.infer<typeof questionInputSchema>)
       type: input.type,
       labels: input.labels,
       dropdownOptions: toJsonInput(input.dropdownOptions),
+      scaleType: input.scaleType,
     },
   });
 }

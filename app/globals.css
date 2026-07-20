@@ -31,6 +31,21 @@
   --danger-bg: #fbecea;
   --violet: #7c5cbf;
   --violet-bg: #f1ecfa;
+
+  /* Poll-results question-group (bucket) identity colors -- deliberately separate
+     from info/success/warning/danger above: those carry status meaning elsewhere in
+     the app (error banners, verified badges), and reusing them here would make a
+     bucket's color read as "good"/"bad" rather than "which group" -- exactly what
+     the descriptive-question spectrum is designed to avoid. Six-slot categorical
+     palette, CVD-validated (dataviz skill's scripts/validate_palette.js) against
+     this app's light/dark surfaces; ordering is the CVD-safety mechanism, not
+     cosmetic -- don't reorder. */
+  --poll-bucket-1: #2a78d6;
+  --poll-bucket-2: #1baf7a;
+  --poll-bucket-3: #eda100;
+  --poll-bucket-4: #008300;
+  --poll-bucket-5: #4a3aa7;
+  --poll-bucket-6: #e34948;
 }
 
 @theme inline {
@@ -59,6 +74,13 @@
   --color-danger-bg: var(--danger-bg);
   --color-violet: var(--violet);
   --color-violet-bg: var(--violet-bg);
+
+  --color-poll-bucket-1: var(--poll-bucket-1);
+  --color-poll-bucket-2: var(--poll-bucket-2);
+  --color-poll-bucket-3: var(--poll-bucket-3);
+  --color-poll-bucket-4: var(--poll-bucket-4);
+  --color-poll-bucket-5: var(--poll-bucket-5);
+  --color-poll-bucket-6: var(--poll-bucket-6);
 
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-fraunces);
@@ -91,6 +113,13 @@
   --danger-bg: #3a201a;
   --violet: #b79ce8;
   --violet-bg: #2a2140;
+
+  --poll-bucket-1: #3987e5;
+  --poll-bucket-2: #199e70;
+  --poll-bucket-3: #c98500;
+  --poll-bucket-4: #008300;
+  --poll-bucket-5: #9085e9;
+  --poll-bucket-6: #e66767;
 }
 
 body {
