@@ -4,7 +4,7 @@ import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { summaryState } from "@/lib/pollFormat";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
-import type { PollSummaryDTO, PollReviewGroupDTO } from "@/lib/pollShared";
+import { flattenResolvedQuestionIds, type PollSummaryDTO, type PollReviewGroupDTO } from "@/lib/pollShared";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
 
@@ -161,7 +161,7 @@ export const listPublicReviews = cache(async (programId: string): Promise<PollRe
   // review for a question no longer in that resolved set (e.g. removed from the
   // program since) still appears, appended after the ordered groups, rather than
   // silently dropped.
-  const orderedQuestionIds = [...resolved.core, ...resolved.extras.flatMap((e) => e.questions)].map((q) => q.id);
+  const orderedQuestionIds = flattenResolvedQuestionIds(resolved);
   const ordered: PollReviewGroupDTO[] = [];
   const seen = new Set<string>();
   for (const questionId of orderedQuestionIds) {

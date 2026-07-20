@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { auth } from "@clerk/nextjs/server";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { hashIp } from "@/lib/pollIntegrity";
-import { signedInSubmitSchema, anonymousSubmitSchema } from "@/lib/pollShared";
+import { signedInSubmitSchema, anonymousSubmitSchema, flattenResolvedQuestionIds } from "@/lib/pollShared";
 import { submitSignedInResponse, submitAnonymousResponse } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { validateReferrerToken } from "@/lib/pollTokens";
@@ -34,10 +34,14 @@ export async function POST(request: Request) {
       const body = signedInSubmitSchema.parse(json);
 
       // Never trust the client's questionId set -- only accept answers/reviews/N/A
-      // marks for questions that are actually part of this program's live (Core)
-      // question set.
-      const { core } = await getQuestionsForProgram(body.programId);
-      const allowedIds = new Set(core.map((q) => q.id));
+      // marks for questions that are actually part of this program's live RESOLVED
+      // question set. The signed-in form renders Core plus every extra bucket inline
+      // (components/polls/RateForm.tsx's SignedInRateForm), so the allowlist must be
+      // the full resolved set, not Core alone -- Core-only here previously rejected
+      // legitimate answers to the extra questions the form itself just displayed.
+      const resolved = await getQuestionsForProgram(body.programId);
+      const allQuestionIds = flattenResolvedQuestionIds(resolved);
+      const allowedIds = new Set(allQuestionIds);
       const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
       const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
       const invalidNa = body.naQuestionIds.filter((id) => !allowedIds.has(id));
@@ -51,7 +55,7 @@ export async function POST(request: Request) {
         answers: body.answers,
         naQuestionIds: body.naQuestionIds,
         reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
-        presentedQuestionIds: core.map((q) => q.id),
+        presentedQuestionIds: allQuestionIds,
         ipHash: hashIp(ip),
       });
       return NextResponse.json({
@@ -93,8 +97,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "This rating link doesn't match this program" }, { status: 400 });
     }
 
-    const { core } = await getQuestionsForProgram(body.programId);
-    const allowedIds = new Set(core.map((q) => q.id));
+    const resolved = await getQuestionsForProgram(body.programId);
+    // The allowlist here is deliberately the FULL resolved set (core + extras), not
+    // just what's presented at this initial step -- accept any answer whose questionId
+    // is genuinely part of this program's poll, reject only a bogus id (see
+    // flattenResolvedQuestionIds's doc comment). In practice the initial anonymous
+    // submit only ever sends core (extras live behind the post-submit "add more
+    // detail" expander), so this only matters for the presentedQuestionIds distinction
+    // below, not for what answers get accepted.
+    const allowedIds = new Set(flattenResolvedQuestionIds(resolved));
     const invalidAnswers = body.answers.filter((a) => !allowedIds.has(a.questionId));
     const invalidReviews = body.reviews.filter((r) => !allowedIds.has(r.questionId));
     const invalidNa = body.naQuestionIds.filter((id) => !allowedIds.has(id));
@@ -113,7 +124,12 @@ export async function POST(request: Request) {
       answers: body.answers,
       naQuestionIds: body.naQuestionIds,
       reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
-      presentedQuestionIds: core.map((q) => q.id),
+      // Only Core is actually *presented* at initial anonymous submit -- extras live
+      // behind the post-submit "add more detail" expander and get appended to
+      // presentedQuestionIds there (app/api/polls/responses/[id]/details/route.ts),
+      // not here. Stamping the full resolved set here would falsely mark every extra
+      // as "shown but skipped" for a respondent who never opened the expander.
+      presentedQuestionIds: resolved.core.map((q) => q.id),
       yearAttended: body.yearAttended ?? null,
       completion: body.completion ?? null,
       ipHash: hashIp(ip),

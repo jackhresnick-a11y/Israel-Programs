@@ -305,6 +305,16 @@ export function resolvePollQuestionSet(
   return { core, extras };
 }
 
+/** The full set of question ids a resolved question set covers -- core plus every extra
+ * bucket's questions, deduped. This is "everything the poll form could have presented,"
+ * and is the single derivation both the render path and the submit-validation allowlist
+ * must use: a route that grabs `.core` alone and forgets `.extras` will reject answers
+ * to questions the form itself just rendered (see app/api/polls/responses/route.ts's
+ * fix for exactly that bug). */
+export function flattenResolvedQuestionIds(resolved: ResolvedPollQuestionSet): string[] {
+  return [...new Set([...resolved.core, ...resolved.extras.flatMap((e) => e.questions)].map((q) => q.id))];
+}
+
 /** Why one resolved question is on a program's poll -- see resolveProgramQuestionProvenance. */
 export type QuestionSource =
   | { type: "core" }

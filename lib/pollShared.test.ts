@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   resolvePollQuestionSet,
   resolveProgramQuestionProvenance,
+  flattenResolvedQuestionIds,
   ruleMatchesTags,
   mergeRuleAttachedBucketIds,
   signedInSubmitSchema,
@@ -159,6 +160,38 @@ describe("resolvePollQuestionSet", () => {
     );
     expect(result.core).toEqual([]);
     expect(result.extras).toEqual([]);
+  });
+});
+
+describe("flattenResolvedQuestionIds: the full set render and submit-validation must agree on", () => {
+  it("includes core and every extra bucket's question ids", () => {
+    const extraA = bucket("extraA", { questionIds: ["q4"] });
+    const extraB = bucket("extraB", { questionIds: ["q5"] });
+    const resolved = resolvePollQuestionSet(
+      { bucketIds: ["extraA", "extraB"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraA, extraB],
+      questions
+    );
+    expect(flattenResolvedQuestionIds(resolved).sort()).toEqual(["q1", "q2", "q3", "q4", "q5"]);
+  });
+
+  it("returns just core ids when there are no extras", () => {
+    const resolved = resolvePollQuestionSet(
+      { bucketIds: [], addedQuestionIds: [], removedQuestionIds: [] },
+      [core],
+      questions
+    );
+    expect(flattenResolvedQuestionIds(resolved)).toEqual(["q1", "q2", "q3"]);
+  });
+
+  it("dedupes if the same question id somehow appears in both core and an extra", () => {
+    const overlapping = bucket("overlap", { questionIds: ["q1", "q4"] });
+    const resolved = resolvePollQuestionSet(
+      { bucketIds: ["overlap"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, overlapping],
+      questions
+    );
+    expect(flattenResolvedQuestionIds(resolved).sort()).toEqual(["q1", "q2", "q3", "q4"]);
   });
 });
 
