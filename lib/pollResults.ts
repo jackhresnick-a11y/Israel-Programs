@@ -41,9 +41,10 @@ const EMPTY_HISTOGRAM: [number, number, number, number, number] = [0, 0, 0, 0, 0
  * newly-added or so-far-unanswered question still gets a circle (mean: null, count: 0,
  * rendered as "---" by the results grid) instead of silently vanishing. Each entry
  * carries its owning bucket id (core questions get the core bucket's id) for the
- * results grid's per-bucket coloring, and its `scaleType` + full `labels` (all 5) so a
- * DESCRIPTIVE question's results cell can pick the two labels nearest its mean.
- * `buckets` is the distinct, ordered set of buckets behind the non-"overall"
+ * results grid's per-bucket coloring, and its `scaleType` (a DESCRIPTIVE question's
+ * results cell shows the bare mean with no star, never its word labels -- those only
+ * appear on the fill-out form). `buckets` is the distinct, ordered set of buckets
+ * behind the non-"overall"
  * questions -- the results grid's color legend.
  *
  * The publish gate, headline, and progress bar all read the count of COUNTED
@@ -121,7 +122,6 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       count: stats?._count._all ?? 0,
       scaleType: question.scaleType,
       bucketId,
-      labels: question.labels,
     };
   });
 

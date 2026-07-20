@@ -71,10 +71,10 @@ export type PollSummaryState = "be_first" | "collecting" | "under_review" | "pub
  * -- `mean`/`count` are null/0 when nobody has answered it, which the results grid
  * renders as "---" rather than omitting the circle entirely. `bucketId` is the owning
  * QuestionBucket's id (core questions get the core bucket's id) and drives the
- * results grid's per-bucket color, matched against `PollSummaryDTO.buckets`.
- * `labels` is the question's own full 5-value label set -- a DESCRIPTIVE question's
- * results cell picks the two labels nearest the mean (floor/ceil) out of this array,
- * not just the two endpoints, so it needs all 5, not just labels[0]/labels[4]. */
+ * results grid's per-bucket color, matched against `PollSummaryDTO.buckets`. The
+ * question's own `labels` aren't part of this DTO -- the results grid only ever shows
+ * the bare mean (no star for `scaleType: "DESCRIPTIVE"`, since a star implies
+ * good/bad); labels are shown only on the fill-out form, next to the answer options. */
 export type PollSummaryQuestionDTO = {
   key: string;
   text: string;
@@ -82,7 +82,6 @@ export type PollSummaryQuestionDTO = {
   count: number;
   scaleType: PollScaleType;
   bucketId: string | null;
-  labels: string[];
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same

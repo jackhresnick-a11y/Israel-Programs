@@ -2,7 +2,6 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import { meanToPercent, formatStarsMean } from "@/lib/pollFormat";
-import DescriptiveQuestionCell from "@/components/polls/DescriptiveQuestionCell";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Six-slot categorical palette for question-group (bucket) identity in the results
@@ -30,37 +29,40 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
   return `var(${BUCKET_COLOR_VARS[index]})`;
 }
 
-/** One question's result cell in the results grid. EVALUATIVE reads as a grade (star +
- * mean, bucket-tinted fill) -- higher is better. DESCRIPTIVE never shows a star or a
- * graded fill -- see DescriptiveQuestionCell, which defaults to the bare "x.x / 5"
- * number with a per-question toggle to a floor/ceil words track, so the result reads
- * as "where this program sits on a spectrum" rather than a score. Mean text always
- * stays in the ordinary foreground ink, never the bucket color -- identity is carried
- * by the circle/marker, not by tinting the number itself. */
+/** One question's result cell in the results grid. Same bucket-tinted circle shape for
+ * both scale types -- only the inner content differs. EVALUATIVE reads as a grade
+ * ("N★", higher is better). DESCRIPTIVE never shows a star (a star implies good/bad,
+ * which is wrong for a neutral spectrum question) -- just the bare mean with a small
+ * "/5" underneath. Mean text always stays in the ordinary foreground ink, never the
+ * bucket color -- identity is carried by the circle's border/fill, not by tinting the
+ * number itself. */
 function QuestionCell({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
-  const { text, mean, count, scaleType, labels } = question;
+  const { text, mean, count, scaleType } = question;
 
   return (
     <div className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-center">
       <p className="text-xs font-medium text-foreground">{text}</p>
-      {scaleType === "DESCRIPTIVE" ? (
-        <DescriptiveQuestionCell mean={mean} count={count} labels={labels} colorVar={colorVar} />
-      ) : (
-        <>
-          <div
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
-            style={{
-              borderColor: colorVar ?? "var(--border)",
-              backgroundColor: colorVar
-                ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
-                : "var(--surface-muted)",
-            }}
-          >
-            {mean !== null ? `${formatStarsMean(mean)}★` : "---"}
-          </div>
-          <span className="text-[10px] text-muted">n={count}</span>
-        </>
-      )}
+      <div
+        className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
+        style={{
+          borderColor: colorVar ?? "var(--border)",
+          backgroundColor: colorVar
+            ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
+            : "var(--surface-muted)",
+        }}
+      >
+        {mean === null ? (
+          "---"
+        ) : scaleType === "DESCRIPTIVE" ? (
+          <>
+            <span>{formatStarsMean(mean)}</span>
+            <span className="text-[9px] font-normal text-muted">/5</span>
+          </>
+        ) : (
+          `${formatStarsMean(mean)}★`
+        )}
+      </div>
+      <span className="text-[10px] text-muted">n={count}</span>
     </div>
   );
 }
