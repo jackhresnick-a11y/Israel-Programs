@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { summaryState } from "@/lib/pollFormat";
+import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
 import type { PollSummaryDTO, PollReviewGroupDTO } from "@/lib/pollShared";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
@@ -172,17 +173,32 @@ export const listPublicReviews = cache(async (programId: string): Promise<PollRe
   return ordered;
 });
 
+/** The program page's unified Reviews section data -- poll reviews (grouped by
+ * question) and standalone written reviews together, both gated identically. See
+ * getProgramReviewsSummary below. */
+export type ProgramReviewsSummaryDTO = {
+  pollGroups: PollReviewGroupDTO[];
+  standaloneReviews: PublicStandaloneReview[];
+};
+
 /**
  * The program page reviews section's data -- gates on kill switch off AND
  * `resultsVisible` true, deliberately *not* the minResponsesToPublish threshold the
- * score itself additionally requires: every review was individually approved by an
- * admin, so a program can show a couple of reviews while its score is still
- * collecting toward the publish threshold. Short-circuits to an empty array without
- * querying PollReview at all when the gate fails, same "don't do the expensive
- * aggregation unless it'll actually render" posture as getProgramPollSummary.
+ * score itself additionally requires: every review (poll or standalone) was
+ * individually approved by an admin, so a program can show a couple of reviews while
+ * its score is still collecting toward the publish threshold. Short-circuits to an
+ * empty result without querying either PollReview or Review at all when the gate
+ * fails, same "don't do the expensive aggregation unless it'll actually render"
+ * posture as getProgramPollSummary. Both review types share this one gate -- there is
+ * no separate visibility toggle for standalone reviews.
  */
-export async function getProgramReviewsSummary(programId: string): Promise<PollReviewGroupDTO[]> {
+export async function getProgramReviewsSummary(programId: string): Promise<ProgramReviewsSummaryDTO> {
   const [config, killSwitchOn] = await Promise.all([getProgramPollConfig(programId), isPollKillSwitchOn()]);
-  if (killSwitchOn || !config.resultsVisible) return [];
-  return listPublicReviews(programId);
+  if (killSwitchOn || !config.resultsVisible) return { pollGroups: [], standaloneReviews: [] };
+
+  const [pollGroups, standaloneReviews] = await Promise.all([
+    listPublicReviews(programId),
+    listPublicStandaloneReviews(programId),
+  ]);
+  return { pollGroups, standaloneReviews };
 }

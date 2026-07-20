@@ -9,6 +9,7 @@ type Params = { params: Promise<{ id: string }> };
 const reviewSchema = z.object({
   rating: z.coerce.number().int().min(1).max(5),
   text: z.string().trim().min(1, "Review text is required").max(3000),
+  isAnonymous: z.boolean().default(false),
 });
 
 export async function POST(request: Request, { params }: Params) {
@@ -30,10 +31,14 @@ export async function POST(request: Request, { params }: Params) {
 
   try {
     const body = await request.json();
-    const { rating, text } = reviewSchema.parse(body);
+    const { rating, text, isAnonymous } = reviewSchema.parse(body);
 
+    // Always captured regardless of isAnonymous -- moderation needs to see who wrote
+    // it even when the public display won't (same capture-internally/display-per-choice
+    // split as PollResponse.ipHash). Nothing publishes instantly anymore: every review
+    // starts PENDING and needs moderator approval, same as PollReview.
     const review = await prisma.review.create({
-      data: { programId: id, rating, text, reviewerName, userId },
+      data: { programId: id, rating, text, reviewerName, userId, isAnonymous, status: "PENDING" },
     });
     return NextResponse.json(review, { status: 201 });
   } catch (err) {

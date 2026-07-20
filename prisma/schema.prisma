@@ -123,6 +123,17 @@ enum PollReviewStatus {
   REJECTED
 }
 
+/// Moderation status for the standalone `Review` model -- same PENDING-first,
+/// nothing-auto-approves, reject-never-deletes posture as PollReviewStatus, kept as its
+/// own enum (not a reuse of ProgramStatus) since a Review's moderation lifecycle is a
+/// separate concern from a Program's publish lifecycle even though the value sets
+/// happen to match.
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
 enum ProgramFaqStatus {
   DRAFT
   PUBLISHED
@@ -392,17 +403,31 @@ model Video {
   createdAt DateTime @default(now())
 }
 
+/// Standalone star + free-text reviews -- the "just write a review" path that doesn't
+/// require going through the /rate poll flow. Moderated the same way PollReview is:
+/// PENDING by default, nothing auto-publishes, REJECTED rows are retained (never
+/// deleted). `reviewerName`/`userId` are always captured regardless of `isAnonymous` --
+/// moderation needs to see who wrote it even when the public display doesn't (same
+/// "capture internally, display per choice" split as PollResponse.ipHash). Public reads
+/// must select `reviewerName` only when `!isAnonymous`, and must never select `userId`
+/// -- same RSC-payload-leak discipline as every other public/sensitive-split model.
 model Review {
-  id           String   @id @default(cuid())
-  programId    String
-  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
-  rating       Int
-  text         String
-  reviewerName String
-  userId       String?
-  createdAt    DateTime @default(now())
+  id            String       @id @default(cuid())
+  programId     String
+  program       Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
+  rating        Int
+  text          String
+  reviewerName  String
+  userId        String?
+  isAnonymous   Boolean      @default(false)
+  status        ReviewStatus @default(PENDING)
+  moderatedBy   String?
+  moderatedAt   DateTime?
+  moderatorNote String?
+  createdAt     DateTime     @default(now())
 
-  @@index([programId])
+  @@index([programId, status])
+  @@index([status])
 }
 
 model SiteContent {

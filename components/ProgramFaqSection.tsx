@@ -4,8 +4,9 @@ import AskQuestionForm from "@/components/AskQuestionForm";
 /**
  * Server component -- `faqs` is the public DTO from lib/programFaq.ts's
  * listPublishedFaqs, never a raw ProgramFAQ row. A program with zero published entries
- * still renders the "Ask a question" button (no empty-state graveyard), same posture as
- * PollReviewsSection returning null but distinct in that the Ask button always shows.
+ * still renders the "Ask a question" button (no empty-state graveyard), same
+ * capture-stays-open-even-when-display-is-empty posture as ReviewsSection's submit box,
+ * but distinct in that the Ask button always shows regardless of any gate.
  */
 export default function ProgramFaqSection({ programId, faqs }: { programId: string; faqs: ProgramFaqDTO[] }) {
   return (

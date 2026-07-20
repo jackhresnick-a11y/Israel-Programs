@@ -67,7 +67,7 @@ export async function resolveManualItems(
   const slugs = items.map((item) => item.slug);
   const programs = await prisma.program.findMany({
     where: { slug: { in: slugs }, status: "PUBLISHED" },
-    include: { tags: true, reviews: true, videos: true },
+    include: { tags: true, reviews: { where: { status: "PUBLISHED" } }, videos: true },
   });
   const bySlug = new Map(programs.map((p) => [p.slug, p]));
 

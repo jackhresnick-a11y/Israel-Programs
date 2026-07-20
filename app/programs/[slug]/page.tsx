@@ -14,8 +14,6 @@ import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResul
 import { getPublicPollLink } from "@/lib/pollConfig";
 import { listPublishedFaqs } from "@/lib/programFaq";
 import { SITE_NAME } from "@/lib/siteUrl";
-import ReviewForm from "@/components/ReviewForm";
-import ReviewList from "@/components/ReviewList";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
 import DeleteProgramButton from "@/components/DeleteProgramButton";
@@ -23,7 +21,7 @@ import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
 import PollSummaryStrip from "@/components/PollSummaryStrip";
-import PollReviewsSection from "@/components/PollReviewsSection";
+import ReviewsSection from "@/components/ReviewsSection";
 import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
 import PageContainer from "@/components/ui/PageContainer";
@@ -199,8 +197,6 @@ export default async function ProgramDetailPage({
 
       {publicPollLink && <PublicPollLink link={publicPollLink} />}
 
-      <PollReviewsSection groups={await getProgramReviewsSummary(program.id)} />
-
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
       {program.goodFor && (
@@ -299,24 +295,7 @@ export default async function ProgramDetailPage({
         </Show>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          Reviews
-        </h2>
-        <ReviewList reviews={program.reviews} isModerator={isModerator} />
-        <Show
-          when="signed-in"
-          fallback={
-            <SignInButton mode="modal">
-              <button className={buttonVariants({ variant: "secondary" })}>
-                Sign in to leave a review
-              </button>
-            </SignInButton>
-          }
-        >
-          <ReviewForm programId={program.id} />
-        </Show>
-      </section>
+      <ReviewsSection programId={program.id} summary={await getProgramReviewsSummary(program.id)} />
 
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">

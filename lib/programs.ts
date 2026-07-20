@@ -492,7 +492,7 @@ export async function listPrograms(filters: ProgramFilters) {
 
   const programs = await prisma.program.findMany({
     where,
-    include: { tags: true, reviews: true },
+    include: { tags: true, reviews: { where: { status: "PUBLISHED" } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -529,7 +529,7 @@ export async function getProgramBySlug(slug: string) {
     include: {
       tags: true,
       videos: { orderBy: { createdAt: "desc" } },
-      reviews: { orderBy: { createdAt: "desc" } },
+      reviews: { where: { status: "PUBLISHED" }, orderBy: { createdAt: "desc" } },
     },
   });
 }
@@ -548,7 +548,7 @@ export async function getProgramsBySlugs(slugs: string[]) {
   if (slugs.length === 0) return [];
   const programs = await prisma.program.findMany({
     where: { slug: { in: slugs }, status: "PUBLISHED" },
-    include: { tags: true, reviews: true },
+    include: { tags: true, reviews: { where: { status: "PUBLISHED" } } },
   });
   const bySlug = new Map(programs.map((p) => [p.slug, p]));
   return slugs.map((s) => bySlug.get(s)).filter((p): p is NonNullable<typeof p> => Boolean(p));

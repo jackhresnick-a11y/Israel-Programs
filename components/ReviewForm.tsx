@@ -12,6 +12,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
   const { toast } = useToast();
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +24,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
       const res = await fetch(`/api/programs/${programId}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, text }),
+        body: JSON.stringify({ rating, text, isAnonymous }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -31,7 +32,8 @@ export default function ReviewForm({ programId }: { programId: string }) {
       }
       setText("");
       setRating(5);
-      toast("Your review has been submitted into the database");
+      setIsAnonymous(false);
+      toast("Thanks -- your review is awaiting moderator approval");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit review");
@@ -64,12 +66,21 @@ export default function ReviewForm({ programId }: { programId: string }) {
       <Textarea
         required
         rows={3}
-        placeholder="Share your experience with this program..."
+        placeholder="Share your experience with this program... Reviews are moderated before they appear publicly."
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
+      <label className="flex items-center gap-2 text-xs text-muted">
+        <input
+          type="checkbox"
+          checked={isAnonymous}
+          onChange={(e) => setIsAnonymous(e.target.checked)}
+          className="accent-accent"
+        />
+        Post anonymously (hide my name)
+      </label>
       <Button type="submit" size="sm" disabled={submitting} className="w-fit">
-        {submitting ? "Posting..." : "Post review"}
+        {submitting ? "Submitting..." : "Submit review"}
       </Button>
     </form>
   );

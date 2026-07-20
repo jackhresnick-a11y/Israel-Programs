@@ -13,12 +13,33 @@ export async function GET(_request: Request, { params }: Params) {
     // PUBLISHED-only: PENDING/REJECTED rows aren't public yet, so an unguessable id
     // shouldn't surface them here any more than the moderation queue itself does.
     where: { id, status: "PUBLISHED" },
-    include: { tags: true, videos: true, reviews: true },
+    include: {
+      tags: true,
+      videos: true,
+      reviews: {
+        where: { status: "PUBLISHED" },
+        // Never select userId/moderatedBy/moderatorNote -- this is a public API
+        // response, same RSC-payload-leak discipline as every other public/sensitive
+        // split in this codebase.
+        select: { id: true, rating: true, text: true, reviewerName: true, isAnonymous: true, createdAt: true },
+      },
+    },
   });
   if (!program) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(toPublicProgram(program));
+  // Same anonymity masking as lib/reviews.ts's listPublicStandaloneReviews -- this
+  // route needs the program's other public fields in one query so it can't just
+  // delegate to that helper, but the masking itself must match: reviewerName is only
+  // returned when the reviewer didn't choose to post anonymously.
+  const reviews = program.reviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    text: r.text,
+    reviewerName: r.isAnonymous ? null : r.reviewerName,
+    createdAt: r.createdAt,
+  }));
+  return NextResponse.json(toPublicProgram({ ...program, reviews }));
 }
 
 export async function PATCH(request: Request, { params }: Params) {
