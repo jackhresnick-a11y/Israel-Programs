@@ -256,6 +256,7 @@ type Draft = {
   naFlags: Record<string, boolean>;
   reviewTexts: Record<string, string>;
   yearAttended: number | null;
+  email: string;
 };
 
 function loadDraft(programSlug: string): Draft | null {
@@ -344,6 +345,10 @@ function AnonymousRateForm({
   const [consentGiven, setConsentGiven] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [yearAttended, setYearAttended] = useState<number | null>(null);
+  // Optional, upfront -- never required, never gates counting (see
+  // lib/pollShared.ts's anonymousSubmitSchema). Persisted to the draft like any other
+  // form field (unlike consent, entering an email isn't a legal affirmation).
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | null>(null);
@@ -358,12 +363,13 @@ function AnonymousRateForm({
     if (savedDraft.yearAttended !== null && savedDraft.yearAttended !== undefined) {
       setYearAttended(savedDraft.yearAttended);
     }
+    if (savedDraft.email) setEmail(savedDraft.email);
   }
 
   useEffect(() => {
     if (responseId) return; // already submitted -- stop autosaving over a cleared draft
-    saveDraft(programSlug, { values, naFlags, reviewTexts, yearAttended });
-  }, [programSlug, values, naFlags, reviewTexts, yearAttended, responseId]);
+    saveDraft(programSlug, { values, naFlags, reviewTexts, yearAttended, email });
+  }, [programSlug, values, naFlags, reviewTexts, yearAttended, email, responseId]);
 
   async function handleSubmit() {
     const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
@@ -396,6 +402,7 @@ function AnonymousRateForm({
           naQuestionIds,
           reviews,
           yearAttended,
+          email: email.trim() || undefined,
         }),
       });
       if (!res.ok) {
@@ -446,6 +453,18 @@ function AnonymousRateForm({
           ))}
         </Select>
       </label>
+      <label className="flex max-w-xs flex-col gap-1">
+        <span className="text-sm font-medium text-foreground">Email (optional)</span>
+        <Input
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <span className="text-xs text-muted">
+          Only if you&rsquo;re open to being contacted -- never required, and your rating counts either way.
+        </span>
+      </label>
       <ReviewConsentCheckbox
         checked={consentGiven}
         onChange={(checked) => {
@@ -470,10 +489,6 @@ function ThankYouScreen({
   programName: string;
   extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
 }) {
-  const [email, setEmail] = useState("");
-  const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [emailError, setEmailError] = useState<string | null>(null);
-
   const extraQuestions = extras.flatMap((e) => e.questions);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailValues, setDetailValues] = useState<Record<string, number | null>>(() =>
@@ -484,26 +499,6 @@ function ThankYouScreen({
   const [detailConsentGiven, setDetailConsentGiven] = useState(false);
   const [detailConsentError, setDetailConsentError] = useState(false);
   const [detailStatus, setDetailStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-
-  async function handleConfirmEmail() {
-    setEmailStatus("sending");
-    setEmailError(null);
-    try {
-      const res = await fetch(`/api/polls/responses/${responseId}/email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to send verification email");
-      }
-      setEmailStatus("sent");
-    } catch (err) {
-      setEmailStatus("error");
-      setEmailError(err instanceof Error ? err.message : "Something went wrong");
-    }
-  }
 
   async function handleSaveDetail() {
     const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
@@ -539,38 +534,8 @@ function ThankYouScreen({
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-4">
       <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
-        Thanks for rating {programName}!
+        Thanks -- your rating of {programName} has been recorded!
       </div>
-
-      {emailStatus === "sent" ? (
-        <Card className="p-4 text-sm text-success">Check your inbox to confirm -- once verified, your rating counts toward the public score.</Card>
-      ) : (
-        <Card className="flex flex-col gap-2 p-4">
-          <p className="text-sm font-medium text-foreground">
-            Want your rating to count toward the public score?
-          </p>
-          <p className="text-xs text-muted">Confirm your email and we&rsquo;ll send a one-click verification link. Totally optional.</p>
-          {emailError && <p className="text-xs text-danger">{emailError}</p>}
-          <div className="flex flex-wrap gap-2">
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="max-w-xs"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={!email.trim() || emailStatus === "sending"}
-              onClick={handleConfirmEmail}
-            >
-              {emailStatus === "sending" ? "Sending..." : "Confirm your email"}
-            </Button>
-          </div>
-        </Card>
-      )}
 
       {extras.length > 0 && (
         <div className="flex flex-col gap-2">

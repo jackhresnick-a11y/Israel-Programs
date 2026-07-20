@@ -130,19 +130,21 @@ export async function countPendingReviews(): Promise<number> {
 export type ModerateReviewResult = { ok: true } | { ok: false; reason: string };
 
 /**
- * Approves a review -- refuses unless the parent PollResponse is already `COUNTED`
- * AND `verified`. An unverified anonymous response's reviews sit PENDING and
- * unapprovable until the magic link is clicked (or the response is voided, at which
- * point approving it is moot). Nothing here or anywhere else auto-approves.
+ * Approves a review -- refuses unless the parent PollResponse is already `COUNTED`.
+ * `verified` is no longer part of this gate (see the PollResponse doc comment in
+ * schema.prisma): an anonymous response counts immediately on submit unless it tripped
+ * an anti-abuse check, in which case it's `FLAGGED` and its reviews stay unapprovable
+ * until an admin approves the response itself (or it's voided, at which point approving
+ * its reviews is moot). Nothing here or anywhere else auto-approves.
  */
 export async function approvePollReview(id: string, moderatorId: string): Promise<ModerateReviewResult> {
   const review = await prisma.pollReview.findUnique({
     where: { id },
-    select: { response: { select: { status: true, verified: true } } },
+    select: { response: { select: { status: true } } },
   });
   if (!review) return { ok: false, reason: "Review not found" };
-  if (review.response.status !== "COUNTED" || !review.response.verified) {
-    return { ok: false, reason: "The parent response isn't verified and counted yet" };
+  if (review.response.status !== "COUNTED") {
+    return { ok: false, reason: "The parent response isn't counted yet" };
   }
 
   await prisma.pollReview.update({

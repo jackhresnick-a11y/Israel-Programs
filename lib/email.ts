@@ -186,58 +186,6 @@ export async function sendOutreachEmail(input: OutreachEmailInput): Promise<Outr
   }
 }
 
-export type PollVerifyEmailInput = {
-  to: string;
-  programName: string;
-  verifyUrl: string;
-};
-
-/**
- * Sends the alumni-ratings magic-link verification email. Reuses getOutreachFromAddress
- * -- this is a program-facing, alum-facing transactional email just like outreach, so it
- * needs the same domain-valid sender, not the onboarding@resend.dev fallback. Simpler
- * than sendOutreachEmail otherwise (no BCC -- this isn't a batch send an admin needs a
- * copy of). Never throws, following this file's convention: lib/pollResponses.ts's
- * attachEmailAndSendVerification leaves the response PENDING on a failed send rather
- * than erroring the request, and surfaces the failure to the thank-you screen so the
- * alum can retry.
- */
-export async function sendPollVerifyEmail(input: PollVerifyEmailInput): Promise<OutreachSendResult> {
-  const from = getOutreachFromAddress();
-  if (!from) {
-    return { ok: false, error: "RESEND_FROM is not set to an address on israelprogramswiki.com" };
-  }
-
-  const resend = getResend();
-  if (!resend) {
-    return { ok: false, error: "RESEND_API_KEY is not configured" };
-  }
-
-  const subject = `Confirm your rating of ${input.programName}`;
-  const text =
-    `Thanks for rating ${input.programName}!\n\n` +
-    `Click this link to confirm your email and make your rating count toward the public score:\n${input.verifyUrl}\n\n` +
-    `This link expires in 7 days. If you didn't submit a rating, you can ignore this email.`;
-
-  try {
-    const { data, error } = await resend.emails.send({
-      from,
-      to: input.to,
-      replyTo: getOutreachReplyToAddress(),
-      subject,
-      text,
-    });
-    if (error || !data) {
-      console.error("[poll verify email] Resend returned an error", error);
-      return { ok: false, error: error?.message ?? "Resend returned no message id" };
-    }
-    return { ok: true, resendId: data.id };
-  } catch (err) {
-    console.error("[poll verify email] send failed", err);
-    return { ok: false, error: err instanceof Error ? err.message : "Unknown send error" };
-  }
-}
-
 export type TestEmailTemplate = "contact" | "verification" | "outreach";
 
 export type TestEmailResult = OutreachSendResult & { from?: string };

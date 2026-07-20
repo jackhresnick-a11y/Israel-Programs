@@ -173,7 +173,7 @@ export default function PollLinkManager({
           const program = programsById.get(token.programId);
           const url = program ? tokenUrl(program.slug, token.token) : tokenUrl(token.programSlug, token.token);
           const expired = token.expiresAt !== null && token.expiresAt < new Date();
-          const overCap = token.maxResponses !== null && token.verifiedCount + token.pendingCount >= token.maxResponses;
+          const overCap = token.maxResponses !== null && token.countedCount + token.flaggedCount >= token.maxResponses;
           return (
             <div key={token.id} className="flex flex-col gap-2 px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -183,7 +183,7 @@ export default function PollLinkManager({
                 {expired && !token.revoked && <Badge tone="warning">Expired</Badge>}
                 {overCap && <Badge tone="warning">Over cap</Badge>}
                 <span className="ml-auto text-xs text-muted">
-                  {token.verifiedCount} verified · {token.pendingCount} pending
+                  {token.countedCount} counted · {token.flaggedCount} flagged
                   {token.maxResponses !== null ? ` · cap ${token.maxResponses}` : ""}
                 </span>
               </div>

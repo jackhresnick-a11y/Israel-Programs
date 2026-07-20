@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
-import { voidPollResponse, restorePollResponse } from "@/lib/pollResponses";
+import { voidPollResponse, restorePollResponse, approvePollResponse } from "@/lib/pollResponses";
 
-const bodySchema = z.object({ action: z.enum(["void", "restore"]) });
+const bodySchema = z.object({ action: z.enum(["void", "restore", "approve"]) });
 
 export async function PATCH(
   request: Request,
@@ -21,6 +21,14 @@ export async function PATCH(
 
     if (action === "void") {
       await voidPollResponse(id);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === "approve") {
+      const result = await approvePollResponse(id);
+      if (!result.ok) {
+        return NextResponse.json({ error: result.reason }, { status: 409 });
+      }
       return NextResponse.json({ ok: true });
     }
 

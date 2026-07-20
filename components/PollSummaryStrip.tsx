@@ -8,7 +8,8 @@ import type { PollSummaryDTO } from "@/lib/pollShared";
  * Server component -- props are the aggregate PollSummaryDTO only, never a raw
  * PollResponse/answer/email/ipHash. Renders one of four states (see build spec's copy
  * table): be_first, collecting (with a live progress bar), under_review, or the
- * published score. The word "verified" in the published copy is load-bearing per spec.
+ * published score. `summary.counted` is COUNTED-only (not COUNTED+verified -- see
+ * lib/pollResults.ts) so the copy here says "rating(s)", not "verified rating(s)".
  */
 export default function PollSummaryStrip({
   summary,
@@ -33,14 +34,14 @@ export default function PollSummaryStrip({
   if (summary.state === "collecting") {
     const progressPct = Math.min(
       100,
-      Math.round((summary.countedVerified / summary.minResponsesToPublish) * 100)
+      Math.round((summary.counted / summary.minResponsesToPublish) * 100)
     );
     return (
       <Card className="flex flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-foreground">
             {summary.placeholderOverride ??
-              `Ratings unlock at ${summary.minResponsesToPublish} responses — ${summary.countedVerified} so far`}
+              `Ratings unlock at ${summary.minResponsesToPublish} responses — ${summary.counted} so far`}
           </p>
           <Link href={`/rate/${programSlug}`} className={buttonVariants({ variant: "primary", size: "sm" })}>
             Rate this program
@@ -84,7 +85,7 @@ export default function PollSummaryStrip({
       <p className="text-lg font-semibold text-foreground">
         {scoreText}{" "}
         <span className="text-sm font-normal text-muted">
-          · {summary.countedVerified} verified rating{summary.countedVerified === 1 ? "" : "s"}
+          · {summary.counted} rating{summary.counted === 1 ? "" : "s"}
         </span>
       </p>
 

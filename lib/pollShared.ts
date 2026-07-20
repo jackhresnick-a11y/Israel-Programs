@@ -12,12 +12,19 @@ import type {
 } from "@/app/generated/prisma/enums";
 
 /** Integrity signals a response can carry without being dropped -- see the
- * PollResponse.flags doc comment in schema.prisma. A response can carry several. */
+ * PollResponse.flags doc comment in schema.prisma. A response can carry several.
+ * TOKEN_OVER_CAP/TOKEN_REVOKED/TOKEN_EXPIRED/REPEAT_IP/REPEAT_BROWSER are the
+ * submit-time anti-abuse checks that route an anonymous response to FLAGGED instead of
+ * COUNTED (see lib/pollResponses.ts's submitAnonymousResponse) -- they're the main
+ * integrity layer now that there's no after-submit email verification step.
+ * DUPLICATE_EMAIL is a historical flag from that removed flow, kept only because past
+ * responses may still carry it (the moderation UI still labels it). */
 export const POLL_FLAGS = {
   TOKEN_OVER_CAP: "token_over_cap",
   TOKEN_REVOKED: "token_revoked",
   TOKEN_EXPIRED: "token_expired",
   REPEAT_IP: "repeat_ip",
+  REPEAT_BROWSER: "repeat_browser",
   DUPLICATE_EMAIL: "duplicate_email",
 } as const;
 
@@ -58,7 +65,7 @@ export type PollSummaryState = "be_first" | "collecting" | "under_review" | "pub
 
 export type PollSummaryDTO = {
   state: PollSummaryState;
-  countedVerified: number;
+  counted: number;
   minResponsesToPublish: number;
   displayFormat: PollDisplayFormat;
   placeholderOverride: string | null;
@@ -176,6 +183,11 @@ export const anonymousSubmitSchema = z
     yearAttended: yearAttendedSchema,
     completion: completionSchema,
     website: z.string().optional(),
+    // Optional, upfront -- never required and never gates counting (there's no
+    // after-submit email-verification step anymore). Omitted entirely by the client
+    // when left blank, same "absence over empty string" convention as an unchecked
+    // review.
+    email: z.string().trim().email().max(320).optional(),
   })
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
@@ -191,10 +203,6 @@ export const detailsSubmitSchema = z
     naQuestionIds: naQuestionIdsSchema,
   })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
-
-export const emailAttachSchema = z.object({
-  email: z.string().email(),
-});
 
 export const questionLabelsSchema = z.array(z.string().min(1)).length(5);
 

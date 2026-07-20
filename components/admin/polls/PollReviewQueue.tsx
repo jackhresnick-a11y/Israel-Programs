@@ -21,7 +21,7 @@ export type PollReviewRow = {
   program: { name: string; slug: string };
   response: {
     id: string;
-    status: "PENDING" | "COUNTED" | "VOIDED";
+    status: "PENDING" | "COUNTED" | "FLAGGED" | "VOIDED";
     verified: boolean;
     email: string | null;
     ipHash: string;
@@ -95,7 +95,7 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const parentReady = review.response.status === "COUNTED" && review.response.verified;
+  const parentReady = review.response.status === "COUNTED";
 
   async function handleApprove() {
     setBusy(true);
@@ -139,7 +139,7 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="tag">{review.program.name}</Badge>
             <span className="text-xs font-medium text-foreground">{review.question.text}</span>
-            <Badge tone={parentReady ? "success" : "warning"}>{parentReady ? "Verified & counted" : "Not yet verified"}</Badge>
+            <Badge tone={parentReady ? "success" : "warning"}>{parentReady ? "Counted" : "Not yet counted"}</Badge>
             {review.response.referrerToken && <Badge tone="neutral">via: {review.response.referrerToken.label}</Badge>}
             {review.attentionFlags.map((f) => (
               <Badge key={f} tone="danger">

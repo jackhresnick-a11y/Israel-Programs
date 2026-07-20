@@ -100,8 +100,16 @@ enum PollLifecycleStatus {
 }
 
 enum PollResponseStatus {
+  /// Vestigial -- no new response is ever written PENDING since the after-submit email
+  /// verification step was removed (see FLAGGED below). Kept because Postgres can't
+  /// drop an enum value in place, same posture as DurationType.CUSTOM.
   PENDING
   COUNTED
+  /// An anonymous link submission that tripped an anti-abuse signal at submit time
+  /// (repeat ipHash, repeat browser cookie, token over cap/revoked/expired) -- not in
+  /// public math until an admin approves it in /admin/polls/moderation. Replaces the
+  /// old PENDING-awaiting-email-click state; nothing sits waiting on an email anymore.
+  FLAGGED
   VOIDED
 }
 
@@ -696,18 +704,24 @@ model ProgramPollConfig {
   publicToken           ReferrerToken?    @relation(fields: [publicTokenId], references: [id], onDelete: SetNull)
 }
 
-/// One rating submission. A response counts toward public math only when
-/// `status = COUNTED` AND `verified = true` -- see lib/pollResults.ts. The signed-in
-/// flow sets both immediately on submit (no email step, ever); the anonymous link flow
-/// (`referrerTokenId` set) creates a PENDING, unverified row and only flips to
-/// COUNTED/verified after the alum clicks the magic link sent to `email` (see
-/// verifyToken/verifyTokenExpiresAt below -- lib/pollResponses.ts's verifyPollResponse).
-/// `email` and `ipHash` (a salted SHA-256, never the raw IP -- lib/pollIntegrity.ts) must
-/// never be selected into any public page or client-component prop, same rule as
-/// Reference.contactEmail elsewhere in this schema. `flags` records integrity signals
-/// (token over its cap, a revoked/expired token still accepted, a repeated ipHash on the
-/// same program, a duplicate verified email) that don't block the submission but surface
-/// it in /admin/polls/moderation -- see lib/pollShared.ts's POLL_FLAGS for the value set.
+/// One rating submission. A response counts toward public math when `status = COUNTED`
+/// -- `verified` is no longer part of the count gate (see below), only an
+/// identity-established signal. The signed-in flow sets `verified: true, status:
+/// COUNTED` immediately on submit, no email step, ever. The anonymous link flow
+/// (`referrerTokenId` set) also counts immediately on submit (`verified` stays false --
+/// there is no email verification step anymore) UNLESS submit-time anti-abuse checks
+/// trip (repeat ipHash, repeat browser cookie, token over cap/revoked/expired), in which
+/// case it lands `FLAGGED` instead and needs an admin's explicit approve in
+/// /admin/polls/moderation before it counts -- see lib/pollResponses.ts's
+/// submitAnonymousResponse. `verifyToken`/`verifyTokenExpiresAt`/`verifyEmailSentAt`
+/// below are dormant leftovers of the removed email-verification flow (kept rather than
+/// dropped -- no live code path writes or reads them anymore). `email` is now purely
+/// optional, informational (never gates counting) and, like `ipHash` (a salted SHA-256,
+/// never the raw IP -- lib/pollIntegrity.ts), must never be selected into any public page
+/// or client-component prop, same rule as Reference.contactEmail elsewhere in this
+/// schema. `flags` records integrity signals (token over its cap, a revoked/expired
+/// token still accepted, a repeated ipHash or browser cookie on the same program) that
+/// route a FLAGGED response to moderation -- see lib/pollShared.ts's POLL_FLAGS.
 model PollResponse {
   id                   String             @id @default(cuid())
   programId            String
@@ -722,9 +736,10 @@ model PollResponse {
   status               PollResponseStatus @default(PENDING)
   flags                String[]           @default([])
   ipHash               String
-  /// Magic-link verification token, nulled out once verifyPollResponse succeeds.
-  /// Re-attaching an email regenerates a fresh token rather than reusing a stale one --
-  /// same "always mint fresh, never toggle a reuse flag" spirit as Folder.shareToken.
+  /// Dormant -- leftover from the removed magic-link email-verification flow. No live
+  /// code path writes or reads these three columns anymore; kept rather than dropped
+  /// (a destructive migration for no benefit) since historical rows may still carry
+  /// values here.
   verifyToken          String?            @unique
   verifyTokenExpiresAt DateTime?
   verifyEmailSentAt    DateTime?

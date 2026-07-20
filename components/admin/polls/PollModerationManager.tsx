@@ -21,7 +21,7 @@ export type PollResponseRow = {
   referrerToken: { label: string } | null;
   yearAttended: number | null;
   completion: "FULL" | "PARTIAL" | "DROPPED" | null;
-  status: "PENDING" | "COUNTED" | "VOIDED";
+  status: "PENDING" | "COUNTED" | "FLAGGED" | "VOIDED";
   flags: string[];
   ipHash: string;
   createdAt: Date;
@@ -71,12 +71,14 @@ const FLAG_LABELS: Record<PollFlag, string> = {
   token_revoked: "Token revoked",
   token_expired: "Token expired",
   repeat_ip: "Repeat IP",
+  repeat_browser: "Repeat browser",
   duplicate_email: "Duplicate email",
 };
 
-const STATUS_TONE: Record<PollResponseRow["status"], "neutral" | "success" | "danger"> = {
+const STATUS_TONE: Record<PollResponseRow["status"], "neutral" | "success" | "warning" | "danger"> = {
   PENDING: "neutral",
   COUNTED: "success",
+  FLAGGED: "warning",
   VOIDED: "danger",
 };
 
@@ -108,8 +110,9 @@ function FilterBar({ programs, filters }: { programs: ProgramOption[]; filters: 
         Status
         <Select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)} className="w-36">
           <option value="">Any status</option>
-          <option value="PENDING">Pending</option>
+          <option value="PENDING">Pending (legacy)</option>
           <option value="COUNTED">Counted</option>
+          <option value="FLAGGED">Flagged</option>
           <option value="VOIDED">Voided</option>
         </Select>
       </label>
@@ -175,7 +178,7 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleAction(action: "void" | "restore") {
+  async function handleAction(action: "void" | "restore" | "approve") {
     setBusy(true);
     setError(null);
     try {
@@ -217,6 +220,11 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
             ? "Hide details"
             : `Show details (${response.answers.length} answered, ${response.naQuestions.length} N/A, ${response.skippedQuestions.length} skipped, ${response.reviews.length} reviews)`}
         </Button>
+        {(response.status === "FLAGGED" || response.status === "PENDING") && (
+          <Button type="button" size="sm" disabled={busy} onClick={() => handleAction("approve")}>
+            Approve / count
+          </Button>
+        )}
         {response.status !== "VOIDED" ? (
           <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => handleAction("void")}>
             Void

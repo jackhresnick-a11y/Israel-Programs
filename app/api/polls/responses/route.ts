@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { ZodError } from "zod";
 import { auth } from "@clerk/nextjs/server";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
@@ -7,6 +8,16 @@ import { signedInSubmitSchema, anonymousSubmitSchema } from "@/lib/pollShared";
 import { submitSignedInResponse, submitAnonymousResponse } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { validateReferrerToken } from "@/lib/pollTokens";
+
+/** One-per-program browser marker, set only on a COUNTED anonymous submit and read on
+ * the next one -- the REPEAT_BROWSER anti-abuse signal (see
+ * lib/pollResponses.ts's submitAnonymousResponse). httpOnly so client JS can't read or
+ * forge it; ~1 year TTL is long enough that "already rated this" stays true across a
+ * normal browsing session without needing indefinite persistence. */
+function browserMarkerCookieName(programId: string): string {
+  return `poll_v_${programId}`;
+}
+const BROWSER_MARKER_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -59,7 +70,7 @@ export async function POST(request: Request) {
     // anything, so a bot can't distinguish a honeypot trip from a real submission --
     // same posture as app/api/contact/route.ts.
     if (body.website) {
-      return NextResponse.json({ ok: true, responseId: "ok", status: "PENDING" });
+      return NextResponse.json({ ok: true, responseId: "ok", status: "COUNTED" });
     }
 
     if (!checkRateLimit(`poll-anon:${ip}:${body.programId}`, { limit: 10, windowMs: 10 * 60_000 })) {
@@ -91,6 +102,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
     }
 
+    const cookieStore = await cookies();
+    const markerCookieName = browserMarkerCookieName(body.programId);
+    const hasBrowserMarker = cookieStore.has(markerCookieName);
+
     const { response, skippedReviewQuestionIds } = await submitAnonymousResponse({
       programId: body.programId,
       referrerTokenId: validation.token.id,
@@ -102,13 +117,28 @@ export async function POST(request: Request) {
       yearAttended: body.yearAttended ?? null,
       completion: body.completion ?? null,
       ipHash: hashIp(ip),
+      email: body.email ?? null,
+      hasBrowserMarker,
     });
+
+    // Only a clean, COUNTED submit sets the marker -- a FLAGGED one doesn't, so a
+    // respondent whose first attempt got flagged (e.g. a shared office IP) isn't
+    // additionally penalized with REPEAT_BROWSER on a legitimate retry later.
+    if (response.status === "COUNTED") {
+      cookieStore.set(markerCookieName, "1", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: BROWSER_MARKER_MAX_AGE_SECONDS,
+        path: "/",
+      });
+    }
 
     return NextResponse.json({
       ok: true,
       responseId: response.id,
       verified: false,
-      status: "PENDING",
+      status: response.status,
       skippedReviewQuestionIds,
     });
   } catch (err) {

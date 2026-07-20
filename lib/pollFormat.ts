@@ -18,22 +18,22 @@ export function formatStarsMean(mean: number): string {
 }
 
 /**
- * Which of the four program-page summary states applies. `countedVerified` is not
- * simply "how many responses are COUNTED+verified" -- since questions became skippable,
- * a response can be COUNTED+verified but have skipped `overall` entirely. The publish
- * gate (and the headline/progress-bar counts derived from it) reads the number of
- * COUNTED+verified responses that actually *answered* `overall` -- see
- * lib/pollResults.ts's getProgramPollSummary, which computes this as an answer count,
- * not a response count, before calling this function.
+ * Which of the four program-page summary states applies. `counted` is not simply "how
+ * many responses are COUNTED" -- since questions became skippable, a response can be
+ * COUNTED but have skipped `overall` entirely. The publish gate (and the
+ * headline/progress-bar counts derived from it) reads the number of COUNTED responses
+ * that actually *answered* `overall` -- see lib/pollResults.ts's getProgramPollSummary,
+ * which computes this as an answer count, not a response count, before calling this
+ * function.
  */
 export function summaryState(
-  countedVerified: number,
+  counted: number,
   minResponsesToPublish: number,
   resultsVisible: boolean,
   killSwitchOn: boolean
 ): PollSummaryState {
-  if (countedVerified === 0) return "be_first";
-  if (countedVerified < minResponsesToPublish) return "collecting";
+  if (counted === 0) return "be_first";
+  if (counted < minResponsesToPublish) return "collecting";
   if (killSwitchOn || !resultsVisible) return "under_review";
   return "published";
 }

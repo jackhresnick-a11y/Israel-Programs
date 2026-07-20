@@ -53,14 +53,15 @@ export type ReferrerTokenRow = {
   expiresAt: Date | null;
   revoked: boolean;
   createdAt: Date;
-  verifiedCount: number;
-  pendingCount: number;
+  countedCount: number;
+  flaggedCount: number;
 };
 
-/** Every referrer token (optionally scoped to one program), each with its verified vs.
- * pending response split -- feeds the /admin/polls/links table. Voided responses count
- * toward neither bucket (they're neither a live pending submission nor part of the
- * public math). */
+/** Every referrer token (optionally scoped to one program), each with its counted vs.
+ * flagged response split -- feeds the /admin/polls/links table. Voided responses count
+ * toward neither bucket (they're neither a live flagged submission nor part of the
+ * public math). Legacy PENDING rows (pre-dating the removal of email verification) fold
+ * into `flaggedCount` -- both are "not yet counted, needs an admin look" states. */
 export async function listReferrerTokens(programId?: string): Promise<ReferrerTokenRow[]> {
   const tokens = await prisma.referrerToken.findMany({
     where: programId ? { programId } : undefined,
@@ -70,22 +71,22 @@ export async function listReferrerTokens(programId?: string): Promise<ReferrerTo
   if (tokens.length === 0) return [];
 
   const counts = await prisma.pollResponse.groupBy({
-    by: ["referrerTokenId", "verified"],
+    by: ["referrerTokenId", "status"],
     where: { referrerTokenId: { in: tokens.map((t) => t.id) }, status: { not: "VOIDED" } },
     _count: { _all: true },
   });
 
-  const countsByToken = new Map<string, { verified: number; pending: number }>();
+  const countsByToken = new Map<string, { counted: number; flagged: number }>();
   for (const row of counts) {
     if (!row.referrerTokenId) continue;
-    const entry = countsByToken.get(row.referrerTokenId) ?? { verified: 0, pending: 0 };
-    if (row.verified) entry.verified += row._count._all;
-    else entry.pending += row._count._all;
+    const entry = countsByToken.get(row.referrerTokenId) ?? { counted: 0, flagged: 0 };
+    if (row.status === "COUNTED") entry.counted += row._count._all;
+    else entry.flagged += row._count._all;
     countsByToken.set(row.referrerTokenId, entry);
   }
 
   return tokens.map((t) => {
-    const counts = countsByToken.get(t.id) ?? { verified: 0, pending: 0 };
+    const counts = countsByToken.get(t.id) ?? { counted: 0, flagged: 0 };
     return {
       id: t.id,
       token: t.token,
@@ -98,8 +99,8 @@ export async function listReferrerTokens(programId?: string): Promise<ReferrerTo
       expiresAt: t.expiresAt,
       revoked: t.revoked,
       createdAt: t.createdAt,
-      verifiedCount: counts.verified,
-      pendingCount: counts.pending,
+      countedCount: counts.counted,
+      flaggedCount: counts.flagged,
     };
   });
 }

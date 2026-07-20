@@ -15,7 +15,3 @@ export function programUrl(slug: string): string {
 export function folderShareUrl(token: string): string {
   return `${SITE_URL}/s/${token}`;
 }
-
-export function pollVerifyUrl(token: string): string {
-  return `${SITE_URL}/rate/verify?token=${token}`;
-}

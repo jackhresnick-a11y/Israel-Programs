@@ -1,15 +1,10 @@
-import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { POLL_FLAGS, type PollFlag } from "@/lib/pollShared";
-import { sendPollVerifyEmail } from "@/lib/email";
-import { pollVerifyUrl } from "@/lib/siteUrl";
 import type { PollCompletion, PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
   return Boolean(err && typeof err === "object" && "code" in err && err.code === "P2002");
 }
-
-const VERIFY_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 type ReviewInput = { questionId: string; text: string };
 
@@ -166,17 +161,29 @@ type AnonymousSubmitInput = {
   yearAttended: number | null;
   completion: PollCompletion | null;
   ipHash: string;
+  /** Optional, informational only -- never required, never gates counting (see
+   * lib/pollShared.ts's anonymousSubmitSchema). */
+  email: string | null;
+  /** Whether the request already carried this program's `poll_v_<programId>` browser
+   * cookie -- the route reads/sets this, this function only makes the counting decision
+   * from it. See the POLL_FLAGS.REPEAT_BROWSER case below. */
+  hasBrowserMarker: boolean;
 };
 
 /**
- * Anonymous link-path submission: always PENDING, unverified -- only the magic-link
- * click in verifyPollResponse below flips it to COUNTED+verified. Carries forward
- * whatever flags the token validation already found (over cap, revoked, expired -- see
- * lib/pollTokens.ts's validateReferrerToken) and adds `repeat_ip` if this ipHash has
- * already submitted a non-voided response for this same program, so moderation can see
- * the signal without anything being silently dropped. Reviews from an unverified
- * response are still stored (PENDING, same as any review) but are unapprovable until
- * the parent verifies -- see lib/pollReviews.ts's approvePollReview.
+ * Anonymous link-path submission: counts immediately (`status: COUNTED`) unless a
+ * submit-time anti-abuse check trips, in which case it lands `FLAGGED` instead --
+ * replaces the old after-submit email-verification step, which caused too much
+ * drop-off (real completions sat PENDING forever because the follow-up click never
+ * happened). `verified` stays false either way -- it no longer gates counting, see the
+ * PollResponse doc comment in schema.prisma. Three checks route to FLAGGED, each
+ * additive (a response can carry several): the token's own flags (over cap, revoked,
+ * expired -- lib/pollTokens.ts's validateReferrerToken), a prior non-voided response
+ * from this same ipHash on this program (`REPEAT_IP`), and this browser already having
+ * a counted response for this program per its `poll_v_<programId>` cookie
+ * (`REPEAT_BROWSER`). A clean submission is the only way to land COUNTED. Reviews on a
+ * FLAGGED response are stored (PENDING, same as any review) but stay unapprovable until
+ * the parent is approved to COUNTED -- see lib/pollReviews.ts's approvePollReview.
  */
 export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
   const allQuestionIds = [...new Set([...input.answers.map((a) => a.questionId), ...input.reviews.map((r) => r.questionId)])];
@@ -189,14 +196,20 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
   const priorFromSameIp = await prisma.pollResponse.count({
     where: { programId: input.programId, ipHash: input.ipHash, status: { not: "VOIDED" } },
   });
-  const flags = priorFromSameIp > 0 ? [...input.tokenFlags, POLL_FLAGS.REPEAT_IP] : input.tokenFlags;
+  const flags = [
+    ...input.tokenFlags,
+    ...(priorFromSameIp > 0 ? [POLL_FLAGS.REPEAT_IP] : []),
+    ...(input.hasBrowserMarker ? [POLL_FLAGS.REPEAT_BROWSER] : []),
+  ];
+  const status: PollResponseStatus = flags.length > 0 ? "FLAGGED" : "COUNTED";
 
   const response = await prisma.pollResponse.create({
     data: {
       programId: input.programId,
       referrerTokenId: input.referrerTokenId,
-      status: "PENDING",
+      status,
       verified: false,
+      email: input.email,
       yearAttended: input.yearAttended,
       completion: input.completion,
       ipHash: input.ipHash,
@@ -222,10 +235,14 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
 }
 
 /**
- * Adds non-core "add more detail" answers, reviews, and N/A marks to a still-pending
- * response, after the initial submit. Restricted to PENDING responses only -- the
- * responseId is a bare cuid capability (no auth), so this must never be able to mutate
- * a response that's already COUNTED or VOIDED. `skipDuplicates` makes a
+ * Adds non-core "add more detail" answers, reviews, and N/A marks to a response, right
+ * after the initial submit (the thank-you screen's expander). Restricted to non-VOIDED
+ * responses -- the responseId is a bare cuid capability (no auth), so this must never
+ * be able to mutate a response that's been voided. Anonymous responses are now COUNTED
+ * (or FLAGGED) immediately on initial submit rather than sitting PENDING, so this no
+ * longer needs a PENDING-only guard; appended answers are always non-core (extra
+ * buckets only, never `overall` or any other core question), so they can never
+ * retroactively change an already-locked score. `skipDuplicates` makes a
  * retried/double-submitted expander harmless rather than a 500 for answers (the
  * composite PollAnswer PK would otherwise reject it); reviews go through the same
  * per-row insertReviews as initial submission. `extraQuestionIds` is the full set of
@@ -247,7 +264,7 @@ export async function addDetailAnswersAndReviews(
     where: { id: responseId },
     select: { status: true, programId: true, presentedQuestionIds: true, naQuestionIds: true },
   });
-  if (!response || response.status !== "PENDING") {
+  if (!response || response.status === "VOIDED") {
     throw new Error("This response can no longer be edited");
   }
 
@@ -279,87 +296,6 @@ export async function addDetailAnswersAndReviews(
 
   const { skippedQuestionIds } = await insertReviews(responseId, response.programId, reviews, versionById);
   return { skippedReviewQuestionIds: skippedQuestionIds };
-}
-
-export type AttachEmailResult = { ok: true } | { ok: false; reason: string };
-
-/**
- * Attaches an email to a pending response and sends the magic-link verification email.
- * Re-attaching (the alum re-enters their address) regenerates a fresh token rather than
- * reusing a stale one -- same "always mint fresh" posture as Folder.shareToken. A failed
- * send leaves the response PENDING (still admin-visible/moderatable) and reports the
- * failure back to the caller so the thank-you screen can say so, rather than silently
- * pretending the email went out.
- */
-export async function attachEmailAndSendVerification(
-  responseId: string,
-  email: string,
-  programName: string
-): Promise<AttachEmailResult> {
-  const response = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
-  if (!response || response.status !== "PENDING") {
-    return { ok: false, reason: "This response can no longer be verified" };
-  }
-
-  const normalizedEmail = email.trim().toLowerCase();
-  const token = randomBytes(24).toString("base64url");
-  const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_MS);
-
-  await prisma.pollResponse.update({
-    where: { id: responseId },
-    data: { email: normalizedEmail, verifyToken: token, verifyTokenExpiresAt: expiresAt, verifyEmailSentAt: null },
-  });
-
-  const sendResult = await sendPollVerifyEmail({
-    to: normalizedEmail,
-    programName,
-    verifyUrl: pollVerifyUrl(token),
-  });
-  if (!sendResult.ok) {
-    return { ok: false, reason: "We couldn't send that email -- double check the address and try again" };
-  }
-
-  await prisma.pollResponse.update({ where: { id: responseId }, data: { verifyEmailSentAt: new Date() } });
-  return { ok: true };
-}
-
-export type VerifyResult =
-  | { ok: true; programSlug: string }
-  | { ok: false; reason: "invalid" | "expired" | "already_counted" };
-
-/**
- * The magic-link click. A second verification attempt for an email that's already
- * counted+verified for this program hits the partial unique index and gets voided with
- * a duplicate_email flag rather than double-counting -- "already counted" is a normal,
- * expected outcome here (e.g. the alum clicked an old email a second time), not an
- * error to surface as a 500.
- */
-export async function verifyPollResponse(token: string): Promise<VerifyResult> {
-  const response = await prisma.pollResponse.findUnique({
-    where: { verifyToken: token },
-    include: { program: { select: { slug: true } } },
-  });
-  if (!response) return { ok: false, reason: "invalid" };
-  if (response.verifyTokenExpiresAt && response.verifyTokenExpiresAt < new Date()) {
-    return { ok: false, reason: "expired" };
-  }
-
-  try {
-    await prisma.pollResponse.update({
-      where: { id: response.id },
-      data: { verified: true, status: "COUNTED", verifyToken: null },
-    });
-    return { ok: true, programSlug: response.program.slug };
-  } catch (err) {
-    if (isUniqueConstraintError(err)) {
-      await prisma.pollResponse.update({
-        where: { id: response.id },
-        data: { status: "VOIDED", verifyToken: null, flags: { push: POLL_FLAGS.DUPLICATE_EMAIL } },
-      });
-      return { ok: false, reason: "already_counted" };
-    }
-    throw err;
-  }
 }
 
 export type PollResponseFilter = {
@@ -440,19 +376,47 @@ export async function voidPollResponse(id: string) {
 export type RestoreResult = { ok: true } | { ok: false; reason: "conflict" };
 
 /**
- * Restores a voided response, "recomputing" its status from the `verified` flag it
- * already carries rather than requiring a separate "what was it before" field: a
- * response that was verified (i.e. had completed the magic-link click, or was a
- * signed-in submission) goes back to COUNTED; an unverified one goes back to PENDING.
- * Can collide with the partial unique indexes (e.g. the same email has since verified
- * a different response for this program) -- reported as a conflict rather than thrown,
- * since that's an expected, recoverable outcome for an admin to see and decide on.
+ * Restores a voided response -- always back to COUNTED, since an admin's explicit
+ * "restore" click *is* the approval (there's no separate prior-status to recompute
+ * anymore now that anonymous responses count immediately on submit rather than sitting
+ * PENDING/unverified). Can still collide with the signed-in partial unique index (e.g.
+ * that user has since submitted a fresh counted response for this program) -- reported
+ * as a conflict rather than thrown, since that's an expected, recoverable outcome for
+ * an admin to see and decide on.
  */
 export async function restorePollResponse(id: string): Promise<RestoreResult> {
-  const response = await prisma.pollResponse.findUniqueOrThrow({ where: { id } });
-  const nextStatus: PollResponseStatus = response.verified ? "COUNTED" : "PENDING";
   try {
-    await prisma.pollResponse.update({ where: { id }, data: { status: nextStatus } });
+    await prisma.pollResponse.update({ where: { id }, data: { status: "COUNTED" } });
+    return { ok: true };
+  } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      return { ok: false, reason: "conflict" };
+    }
+    throw err;
+  }
+}
+
+export type ApproveResult = { ok: true } | { ok: false; reason: string };
+
+/**
+ * The moderation queue's "Approve / count" action for a FLAGGED (or legacy PENDING)
+ * response -- an admin looked at whatever tripped the anti-abuse check (repeat
+ * ip/browser, token over cap/revoked/expired) and decided it's legitimate. Guarded to
+ * FLAGGED/PENDING only, same "don't let an already-COUNTED or VOIDED response be
+ * re-approved" posture as restorePollResponse's index-conflict handling below, which
+ * this mirrors for the same reason: a signed-in response can't collide here (it's
+ * never FLAGGED/PENDING to begin with), but the partial unique index is still the
+ * DB-level backstop.
+ */
+export async function approvePollResponse(id: string): Promise<ApproveResult> {
+  const response = await prisma.pollResponse.findUnique({ where: { id }, select: { status: true } });
+  if (!response) return { ok: false, reason: "Response not found" };
+  if (response.status !== "FLAGGED" && response.status !== "PENDING") {
+    return { ok: false, reason: "This response isn't flagged or pending" };
+  }
+
+  try {
+    await prisma.pollResponse.update({ where: { id }, data: { status: "COUNTED" } });
     return { ok: true };
   } catch (err) {
     if (isUniqueConstraintError(err)) {

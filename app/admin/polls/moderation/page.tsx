@@ -6,7 +6,7 @@ import { isPollKillSwitchOn } from "@/lib/pollResults";
 import PollModerationManager from "@/components/admin/polls/PollModerationManager";
 import type { PollResponseStatus } from "@/app/generated/prisma/enums";
 
-const VALID_STATUSES: PollResponseStatus[] = ["PENDING", "COUNTED", "VOIDED"];
+const VALID_STATUSES: PollResponseStatus[] = ["PENDING", "COUNTED", "FLAGGED", "VOIDED"];
 
 export default async function AdminPollsModerationPage({
   searchParams,

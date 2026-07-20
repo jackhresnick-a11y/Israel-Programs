@@ -20,21 +20,25 @@ const EMPTY_HISTOGRAM: [number, number, number, number, number] = [0, 0, 0, 0, 0
 
 /**
  * The program page summary strip's data. Public math only ever counts responses that
- * are `status = COUNTED` AND `verified = true` -- every query below is scoped to that
- * pair. Per-question means and the overall histogram are only computed when the state
- * is actually "published" (results unlock at minResponsesToPublish, gated by
+ * are `status = COUNTED` -- every query below is scoped to that. `verified` is no
+ * longer part of the count gate (see the PollResponse doc comment in schema.prisma):
+ * a signed-in response is COUNTED+verified immediately as before, and an anonymous
+ * link response is now COUNTED (verified stays false) unless a submit-time anti-abuse
+ * check routed it to FLAGGED instead -- so COUNTED alone is the complete, correct gate.
+ * Per-question means and the overall histogram are only computed when the state is
+ * actually "published" (results unlock at minResponsesToPublish, gated by
  * resultsVisible AND the kill switch) -- the common "ships dark" case needs only the
  * overall-answer count, not the full aggregation.
  *
- * The publish gate, headline, and progress bar all read the count of COUNTED+verified
- * responses that *answered* the `overall` question -- not the count of COUNTED+verified
- * responses overall. Since questions became skippable, a response can be
- * COUNTED+verified but have skipped `overall` entirely; counting it toward the gate
- * would publish a score partly built on responses that never actually rated
- * "overall," and the headline number wouldn't match what the histogram/mean are
- * computed from. A program whose config has removed `overall` entirely reads 0 here
- * and stays in "be_first" -- a deliberate, if unusual, consequence of the gate always
- * being anchored to that one question.
+ * The publish gate, headline, and progress bar all read the count of COUNTED
+ * responses that *answered* the `overall` question -- not the count of COUNTED
+ * responses overall. Since questions became skippable, a response can be COUNTED but
+ * have skipped `overall` entirely; counting it toward the gate would publish a score
+ * partly built on responses that never actually rated "overall," and the headline
+ * number wouldn't match what the histogram/mean are computed from. A program whose
+ * config has removed `overall` entirely reads 0 here and stays in "be_first" -- a
+ * deliberate, if unusual, consequence of the gate always being anchored to that one
+ * question.
  */
 export const getProgramPollSummary = cache(async (programId: string): Promise<PollSummaryDTO> => {
   const [config, killSwitchOn, overallQuestion] = await Promise.all([
@@ -43,17 +47,17 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } }),
   ]);
 
-  const countedVerified = overallQuestion
+  const counted = overallQuestion
     ? await prisma.pollAnswer.count({
-        where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED", verified: true } },
+        where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED" } },
       })
     : 0;
 
-  const state = summaryState(countedVerified, config.minResponsesToPublish, config.resultsVisible, killSwitchOn);
+  const state = summaryState(counted, config.minResponsesToPublish, config.resultsVisible, killSwitchOn);
 
   const base: PollSummaryDTO = {
     state,
-    countedVerified,
+    counted,
     minResponsesToPublish: config.minResponsesToPublish,
     displayFormat: config.displayFormat,
     placeholderOverride: config.placeholderOverride,
@@ -66,7 +70,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   const answerStats = await prisma.pollAnswer.groupBy({
     by: ["questionId"],
-    where: { response: { programId, status: "COUNTED", verified: true } },
+    where: { response: { programId, status: "COUNTED" } },
     _avg: { value: true },
     _count: { _all: true },
   });
@@ -91,7 +95,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   if (overallQuestion) {
     const histRows = await prisma.pollAnswer.groupBy({
       by: ["value"],
-      where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED", verified: true } },
+      where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED" } },
       _count: { _all: true },
     });
     for (const row of histRows) {
@@ -109,9 +113,10 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
  * order the rating form itself presents via resolvePollQuestionSet, so the reviews
  * section and the rating form never disagree about question order. A question with
  * zero approved reviews doesn't appear as an empty group. "Published" is a query-time
- * join against the parent response's live status/verified, not a stored flag on the
- * review row -- a voided response's approved reviews disappear from this query
- * immediately with no write to PollReview, and restoring the response brings them back
+ * join against the parent response's live status (COUNTED only -- `verified` isn't
+ * part of the gate, same as getProgramPollSummary above), not a stored flag on the
+ * review row -- a voided or still-FLAGGED response's reviews are absent from this query
+ * with no write to PollReview, and approving/restoring the response surfaces them
  * automatically. Selects only the fields a reader may see: never responseId, email,
  * ipHash, consent metadata, or moderator notes -- same RSC-payload-leak rule as every
  * other public/sensitive-split model in this codebase.
@@ -122,7 +127,7 @@ export const listPublicReviews = cache(async (programId: string): Promise<PollRe
       where: {
         programId,
         status: "APPROVED",
-        response: { status: "COUNTED", verified: true },
+        response: { status: "COUNTED" },
       },
       select: {
         text: true,
