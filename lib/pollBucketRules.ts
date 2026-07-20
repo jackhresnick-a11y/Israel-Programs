@@ -8,8 +8,8 @@ export const bucketRuleInputSchema = z
     tagSlugs: z.array(z.string().min(1)),
   })
   .transform((input) => ({ ...input, tagSlugs: [...new Set(input.tagSlugs)] }))
-  .refine((input) => input.tagSlugs.length >= 2, {
-    message: "A rule needs at least two distinct tag conditions",
+  .refine((input) => input.tagSlugs.length >= 1, {
+    message: "A rule needs at least one tag condition",
     path: ["tagSlugs"],
   });
 
@@ -23,8 +23,8 @@ export const bucketRuleUpdateSchema = z
     ...input,
     tagSlugs: input.tagSlugs ? [...new Set(input.tagSlugs)] : undefined,
   }))
-  .refine((input) => input.tagSlugs === undefined || input.tagSlugs.length >= 2, {
-    message: "A rule needs at least two distinct tag conditions",
+  .refine((input) => input.tagSlugs === undefined || input.tagSlugs.length >= 1, {
+    message: "A rule needs at least one tag condition",
     path: ["tagSlugs"],
   });
 
@@ -119,7 +119,7 @@ export async function getRuleAttachedBucketIds(programTagSlugs: string[]): Promi
 
 export const bucketRulePreviewSchema = z.object({
   bucketId: z.string().min(1),
-  tagSlugs: z.array(z.string().min(1)).min(2),
+  tagSlugs: z.array(z.string().min(1)).min(1),
   excludeRuleId: z.string().min(1).optional(),
 });
 

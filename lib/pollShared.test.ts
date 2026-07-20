@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   resolvePollQuestionSet,
+  resolveProgramQuestionProvenance,
   ruleMatchesTags,
   mergeRuleAttachedBucketIds,
   signedInSubmitSchema,
@@ -309,6 +310,14 @@ describe("ruleMatchesTags: bucket-attachment-rule AND semantics", () => {
   it("an empty rule tag list never matches (guards the vacuous every()-on-[] case)", () => {
     expect(ruleMatchesTags([], ["a", "b"])).toBe(false);
   });
+
+  it("a single-tag rule matches any program carrying that one tag", () => {
+    expect(ruleMatchesTags(["essence-spiritual-growth"], ["essence-spiritual-growth", "gap-year"])).toBe(true);
+  });
+
+  it("a single-tag rule does not match a program missing that tag", () => {
+    expect(ruleMatchesTags(["essence-spiritual-growth"], ["gap-year"])).toBe(false);
+  });
 });
 
 describe("mergeRuleAttachedBucketIds: composing manual + rule-attached buckets", () => {
@@ -366,5 +375,96 @@ describe("resolvePollQuestionSet: rule-attached buckets go through the same reso
       questions
     );
     expect(result.extras).toEqual([]);
+  });
+});
+
+describe("resolveProgramQuestionProvenance: labels each resolved question by why it's on the program's poll", () => {
+  it("labels core questions", () => {
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: [], addedQuestionIds: [], removedQuestionIds: [] },
+      [core],
+      questions,
+      []
+    );
+    expect(result.questions.map((r) => [r.question.id, r.source.type])).toEqual([
+      ["q1", "core"],
+      ["q2", "core"],
+      ["q3", "core"],
+    ]);
+  });
+
+  it("labels a rule-matched bucket's questions with the matching tag slugs", () => {
+    const armyPrep = bucket("armyPrep", { questionIds: ["q4"] });
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: [], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, armyPrep],
+      questions,
+      [{ bucketId: "armyPrep", tagSlugs: ["essence-pre-military"] }]
+    );
+    const q4 = result.questions.find((r) => r.question.id === "q4");
+    expect(q4?.source).toEqual({
+      type: "rule",
+      bucketId: "armyPrep",
+      bucketName: "armyPrep",
+      tagSlugs: ["essence-pre-military"],
+    });
+  });
+
+  it("labels a manually-attached bucket's questions with the bucket name", () => {
+    const extraA = bucket("extraA", { name: "Torah Learning", questionIds: ["q4"] });
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraA],
+      questions,
+      []
+    );
+    const q4 = result.questions.find((r) => r.question.id === "q4");
+    expect(q4?.source).toEqual({ type: "manual", bucketId: "extraA", bucketName: "Torah Learning" });
+  });
+
+  it("labels a one-off admin-added question as 'added'", () => {
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: [], addedQuestionIds: ["q4"], removedQuestionIds: [] },
+      [core],
+      questions,
+      []
+    );
+    const q4 = result.questions.find((r) => r.question.id === "q4");
+    expect(q4?.source).toEqual({ type: "added" });
+  });
+
+  it("excludes a removed question from the resolved list and reports its id separately", () => {
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: [], addedQuestionIds: [], removedQuestionIds: ["q2"] },
+      [core],
+      questions,
+      []
+    );
+    expect(result.questions.map((r) => r.question.id)).toEqual(["q1", "q3"]);
+    expect(result.removedQuestionIds).toEqual(["q2"]);
+  });
+
+  it("a bucket that's both manually attached AND rule-matched labels as 'rule', not 'manual'", () => {
+    const extraA = bucket("extraA", { name: "Torah Learning", questionIds: ["q4"] });
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraA],
+      questions,
+      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"] }]
+    );
+    const q4 = result.questions.find((r) => r.question.id === "q4");
+    expect(q4?.source.type).toBe("rule");
+  });
+
+  it("removing a question wins over it also being rule-attached, manually attached, or added", () => {
+    const extraA = bucket("extraA", { questionIds: ["q4"] });
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: ["extraA"], addedQuestionIds: ["q4"], removedQuestionIds: ["q4"] },
+      [core, extraA],
+      questions,
+      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"] }]
+    );
+    expect(result.questions.map((r) => r.question.id)).not.toContain("q4");
+    expect(result.removedQuestionIds).toEqual(["q4"]);
   });
 });

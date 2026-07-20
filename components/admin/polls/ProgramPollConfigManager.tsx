@@ -7,6 +7,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import { resolveProgramQuestionProvenance, type QuestionSource } from "@/lib/pollShared";
 import type { BucketRow } from "@/components/admin/polls/BucketManager";
 import type { QuestionRow } from "@/components/admin/polls/QuestionManager";
 
@@ -31,6 +32,9 @@ export type PollProgramRow = {
    * checkbox off here can't detach one -- only retiring the rule or changing the
    * program's tags can. */
   ruleAttachedBucketIds: string[];
+  /** Same match as ruleAttachedBucketIds, with each bucket's matched tag slugs kept --
+   * feeds the resolved-question provenance view below. */
+  ruleMatches: { bucketId: string; tagSlugs: string[] }[];
 };
 
 type TagOption = { slug: string; name: string };
@@ -180,7 +184,32 @@ function BulkAssignPanel({ buckets, tags }: { buckets: BucketRow[]; tags: TagOpt
   );
 }
 
-function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; buckets: BucketRow[]; questions: QuestionRow[] }) {
+/** One badge per resolved question explaining why it's on this program's poll --
+ * mirrors QuestionSource's discriminated union one-for-one. */
+function ProvenanceBadge({ source }: { source: QuestionSource }) {
+  switch (source.type) {
+    case "core":
+      return <Badge tone="neutral">Core</Badge>;
+    case "rule":
+      return <Badge tone="info">via filter: {source.tagSlugs.map((s) => `#${s}`).join(" + ")}</Badge>;
+    case "manual":
+      return <Badge tone="tag">manually attached ({source.bucketName})</Badge>;
+    case "added":
+      return <Badge tone="tag">added (one-off)</Badge>;
+  }
+}
+
+function ProgramRow({
+  program,
+  buckets,
+  allBuckets,
+  questions,
+}: {
+  program: PollProgramRow;
+  buckets: BucketRow[];
+  allBuckets: BucketRow[];
+  questions: QuestionRow[];
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -195,6 +224,25 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
   const [minResponses, setMinResponses] = useState(String(program.config.minResponsesToPublish));
   const [displayFormat, setDisplayFormat] = useState(program.config.displayFormat);
   const [placeholderOverride, setPlaceholderOverride] = useState(program.config.placeholderOverride ?? "");
+
+  // The "why is each question here" view, resolved from this program's live (saved)
+  // config -- reflects what's actually on the poll right now, not unsaved checkbox
+  // edits below (which only take effect after Save, same as every other field here).
+  const provenance = useMemo(
+    () =>
+      resolveProgramQuestionProvenance(
+        {
+          manualBucketIds: program.config.bucketIds,
+          addedQuestionIds: program.config.addedQuestionIds,
+          removedQuestionIds: program.config.removedQuestionIds,
+        },
+        allBuckets,
+        questions,
+        program.ruleMatches
+      ),
+    [program.config.bucketIds, program.config.addedQuestionIds, program.config.removedQuestionIds, allBuckets, questions, program.ruleMatches]
+  );
+  const removedQuestions = questions.filter((q) => provenance.removedQuestionIds.includes(q.id));
 
   function toggleInSet(set: Set<string>, setSet: (s: Set<string>) => void, id: string) {
     const next = new Set(set);
@@ -330,6 +378,33 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
           </label>
 
           <div>
+            <p className="mb-1 text-xs font-semibold text-muted">
+              Resolved questions ({provenance.questions.length}) -- what&rsquo;s actually on this program&rsquo;s poll
+              right now, and why
+            </p>
+            <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+              {provenance.questions.map(({ question, source }) => (
+                <div key={question.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                  <span className="text-foreground">{question.text}</span>
+                  <ProvenanceBadge source={source} />
+                </div>
+              ))}
+              {provenance.questions.length === 0 && (
+                <p className="px-3 py-2 text-xs text-muted">No questions resolve for this program.</p>
+              )}
+            </div>
+            {removedQuestions.length > 0 && (
+              <div className="mt-2 flex flex-col gap-1">
+                {removedQuestions.map((q) => (
+                  <p key={q.id} className="px-3 text-xs text-muted line-through">
+                    {q.text}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
             <p className="mb-1 text-xs font-semibold text-muted">Core bucket</p>
             <Badge tone="info">Always attached -- can&rsquo;t be removed</Badge>
           </div>
@@ -404,11 +479,13 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
 export default function ProgramPollConfigManager({
   programs,
   buckets,
+  allBuckets,
   questions,
   tags,
 }: {
   programs: PollProgramRow[];
   buckets: BucketRow[];
+  allBuckets: BucketRow[];
   questions: QuestionRow[];
   tags: TagOption[];
 }) {
@@ -433,7 +510,7 @@ export default function ProgramPollConfigManager({
 
       <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
         {filtered.map((program) => (
-          <ProgramRow key={program.id} program={program} buckets={buckets} questions={questions} />
+          <ProgramRow key={program.id} program={program} buckets={buckets} allBuckets={allBuckets} questions={questions} />
         ))}
         {filtered.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted">No programs match.</p>}
       </div>

@@ -22,6 +22,7 @@ export default async function AdminPollsProgramsPage() {
     <ProgramPollConfigManager
       programs={programs}
       buckets={extraBuckets}
+      allBuckets={buckets}
       questions={questions}
       tags={tags.map((t) => ({ slug: t.slug, name: t.name }))}
     />

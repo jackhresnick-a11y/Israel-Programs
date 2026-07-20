@@ -91,7 +91,7 @@ export default async function RateProgramPage({
     );
   }
 
-  const [{ core }, existing] = await Promise.all([
+  const [{ core, extras }, existing] = await Promise.all([
     getQuestionsForProgram(program.id),
     getExistingSignedInResponse(program.id, userId),
   ]);
@@ -107,7 +107,11 @@ export default async function RateProgramPage({
           Rate {program.name}
         </h1>
         <p className="mt-1 text-sm text-muted">
-          {existing ? "Update your rating below." : "Five quick questions -- takes about a minute."}
+          {existing
+            ? "Update your rating below."
+            : extras.length > 0
+              ? "A few quick questions, plus more specific to this program."
+              : "Five quick questions -- takes about a minute."}
         </p>
       </div>
       {core.length === 0 ? (
@@ -117,6 +121,7 @@ export default async function RateProgramPage({
           mode="signed-in"
           programId={program.id}
           questions={core}
+          extras={extras}
           existingAnswers={existingAnswers}
           existingNaQuestionIds={existing?.naQuestionIds}
         />

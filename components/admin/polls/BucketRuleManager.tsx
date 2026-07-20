@@ -60,7 +60,7 @@ function RuleForm({
   busy: boolean;
 }) {
   const [bucketId, setBucketId] = useState(initial?.bucketId ?? "");
-  const [tagSlugs, setTagSlugs] = useState<string[]>(initial?.tagSlugs ?? ["", ""]);
+  const [tagSlugs, setTagSlugs] = useState<string[]>(initial?.tagSlugs ?? [""]);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -68,7 +68,7 @@ function RuleForm({
 
   const selectedSlugs = tagSlugs.filter((s) => s.trim().length > 0);
   const distinctSlugs = new Set(selectedSlugs);
-  const selectionValid = bucketId.length > 0 && selectedSlugs.length >= 2 && distinctSlugs.size === selectedSlugs.length;
+  const selectionValid = bucketId.length > 0 && selectedSlugs.length >= 1 && distinctSlugs.size === selectedSlugs.length;
   const currentKey = selectionValid ? `${bucketId}::${[...distinctSlugs].sort().join(",")}` : null;
 
   useEffect(() => {
@@ -122,7 +122,7 @@ function RuleForm({
   }
 
   function removeCondition(index: number) {
-    setTagSlugs((prev) => (prev.length <= 2 ? prev : prev.filter((_, i) => i !== index)));
+    setTagSlugs((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
   }
 
   return (
@@ -151,7 +151,7 @@ function RuleForm({
                 </option>
               ))}
             </Select>
-            {tagSlugs.length > 2 && (
+            {tagSlugs.length > 1 && (
               <Button type="button" variant="ghost" size="sm" onClick={() => removeCondition(i)}>
                 Remove
               </Button>

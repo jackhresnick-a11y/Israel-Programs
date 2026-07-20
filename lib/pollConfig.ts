@@ -117,6 +117,11 @@ export type ProgramWithPollConfig = {
    * ProgramPollConfigManager.tsx can badge them as "auto via rule" rather than
    * rendering them as if an admin had picked them by hand. */
   ruleAttachedBucketIds: string[];
+  /** Same match as ruleAttachedBucketIds, but keeping each bucket's matched tag slugs
+   * (first matching rule wins if more than one active rule targets the same bucket) --
+   * feeds resolveProgramQuestionProvenance's "via filter: #tag" labeling in the Edit
+   * panel's resolved-question view. */
+  ruleMatches: { bucketId: string; tagSlugs: string[] }[];
 };
 
 /** Every published program with its poll config (or the schema defaults, for a program
@@ -141,14 +146,18 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
 
   return programs.map((p) => {
     const programTagSlugs = p.tags.map((t) => t.slug);
-    const ruleAttachedBucketIds = [
-      ...new Set(activeRules.filter((r) => ruleMatchesTags(r.tagSlugs, programTagSlugs)).map((r) => r.bucketId)),
-    ];
+    const matchedRules = activeRules.filter((r) => ruleMatchesTags(r.tagSlugs, programTagSlugs));
+    const ruleAttachedBucketIds = [...new Set(matchedRules.map((r) => r.bucketId))];
+    const ruleMatches = ruleAttachedBucketIds.map((bucketId) => ({
+      bucketId,
+      tagSlugs: matchedRules.find((r) => r.bucketId === bucketId)!.tagSlugs,
+    }));
     return {
       id: p.id,
       name: p.name,
       slug: p.slug,
       ruleAttachedBucketIds,
+      ruleMatches,
       config: p.pollConfig
         ? {
             bucketIds: p.pollConfig.bucketIds,

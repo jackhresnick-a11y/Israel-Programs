@@ -221,11 +221,12 @@ export type BucketAttachmentRuleDTO = {
 };
 
 /** A rule matches a program when the program carries EVERY one of the rule's tag slugs
- * (ANDed) -- an empty tagSlugs list never matches anything (guards against the vacuous
- * `[].every(...) === true` case; real rules always carry >= 2 via
- * lib/pollBucketRules.ts's bucketRuleInputSchema, but this function doesn't assume that
- * invariant itself). Pure and client-safe so it's usable both server-side
- * (lib/pollBucketRules.ts's getRuleAttachedBucketIds) and in tests without a database. */
+ * (ANDed -- a single-tag rule just requires that one tag) -- an empty tagSlugs list
+ * never matches anything (guards against the vacuous `[].every(...) === true` case;
+ * real rules always carry >= 1 via lib/pollBucketRules.ts's bucketRuleInputSchema, but
+ * this function doesn't assume that invariant itself). Pure and client-safe so it's
+ * usable both server-side (lib/pollBucketRules.ts's getRuleAttachedBucketIds) and in
+ * tests without a database. */
 export function ruleMatchesTags(ruleTagSlugs: string[], programTagSlugs: string[]): boolean {
   if (ruleTagSlugs.length === 0) return false;
   const programSlugSet = new Set(programTagSlugs);
@@ -302,4 +303,99 @@ export function resolvePollQuestionSet(
     .filter((entry) => entry.questions.length > 0);
 
   return { core, extras };
+}
+
+/** Why one resolved question is on a program's poll -- see resolveProgramQuestionProvenance. */
+export type QuestionSource =
+  | { type: "core" }
+  | { type: "rule"; bucketId: string; bucketName: string; tagSlugs: string[] }
+  | { type: "manual"; bucketId: string; bucketName: string }
+  | { type: "added" };
+
+export type ProvenanceQuestionDTO<Q = PollQuestionDTO> = {
+  question: Q;
+  source: QuestionSource;
+};
+
+/**
+ * Same resolution as resolvePollQuestionSet, but returns a flat list of every resolved
+ * question labeled with WHY it's on this program's poll -- Core, a matching filter rule,
+ * a manual bucket attachment, or a one-off admin add -- for the admin Edit panel's "why
+ * is each question here, what would I be overriding" view. resolvePollQuestionSet (via
+ * lib/pollConfig.ts's getQuestionsForProgram) remains the single source of truth for
+ * what actually renders on the poll; this is presentation only.
+ *
+ * Generic over the question shape (`Q`) -- the admin UI's QuestionRow type (no
+ * `dropdownOptions`) doesn't structurally match PollQuestionDTO, and this function only
+ * ever reads `id`/`status` off a question, so there's no reason to force callers to the
+ * wider DTO shape.
+ *
+ * Unlike resolvePollQuestionSet's already-merged `config.bucketIds`, `manualBucketIds`
+ * and `ruleMatches` are passed SEPARATELY here so a bucket's origin can be labeled.
+ * Precedence for a bucket reachable more than one way (both manually attached AND
+ * matching an active filter rule): labeled "rule", not "manual" -- that's the more
+ * informative fact, since the bucket would attach on its own even if the manual
+ * attachment were removed. A question itself can only be reached one way in practice
+ * (buckets don't share questions), so the only real ambiguity is at the bucket level.
+ */
+export function resolveProgramQuestionProvenance<Q extends { id: string; status: PollLifecycleStatus }>(
+  config: { manualBucketIds: string[]; addedQuestionIds: string[]; removedQuestionIds: string[] },
+  buckets: PollBucketDTO[],
+  questions: Q[],
+  ruleMatches: { bucketId: string; tagSlugs: string[] }[]
+): { questions: ProvenanceQuestionDTO<Q>[]; removedQuestionIds: string[] } {
+  const questionsById = new Map(questions.map((q) => [q.id, q]));
+  const bucketsById = new Map(buckets.map((b) => [b.id, b]));
+  const removed = new Set(config.removedQuestionIds);
+  const ruleTagSlugsByBucketId = new Map(ruleMatches.map((r) => [r.bucketId, r.tagSlugs]));
+
+  const activeQuestion = (id: string): Q | undefined => {
+    const q = questionsById.get(id);
+    if (!q || q.status !== "ACTIVE") return undefined;
+    return q;
+  };
+
+  const result: ProvenanceQuestionDTO<Q>[] = [];
+  const seenQuestionIds = new Set<string>();
+
+  const coreBucket = buckets.find((b) => b.isCore && b.status === "ACTIVE");
+  const coreIds = (coreBucket?.questionIds ?? []).filter((id) => !removed.has(id));
+  for (const id of coreIds) {
+    const q = activeQuestion(id);
+    if (!q || seenQuestionIds.has(id)) continue;
+    seenQuestionIds.add(id);
+    result.push({ question: q, source: { type: "core" } });
+  }
+
+  // Manual attachments keep their stored order and come first, same convention as
+  // mergeRuleAttachedBucketIds; rule-matched ids not already in that list follow.
+  // Labeling itself doesn't depend on this order -- a bucket in both sets always labels
+  // "rule" via the lookup below, regardless of which array contributed its position.
+  const effectiveBucketIds = [...new Set([...config.manualBucketIds, ...ruleMatches.map((r) => r.bucketId)])];
+  for (const bucketId of effectiveBucketIds) {
+    const bucket = bucketsById.get(bucketId);
+    if (!bucket || bucket.status !== "ACTIVE" || bucket.isCore) continue;
+    const tagSlugs = ruleTagSlugsByBucketId.get(bucketId);
+    const source: QuestionSource = tagSlugs
+      ? { type: "rule", bucketId, bucketName: bucket.name, tagSlugs }
+      : { type: "manual", bucketId, bucketName: bucket.name };
+    for (const id of bucket.questionIds) {
+      if (removed.has(id)) continue;
+      const q = activeQuestion(id);
+      if (!q || seenQuestionIds.has(id)) continue;
+      seenQuestionIds.add(id);
+      result.push({ question: q, source });
+    }
+  }
+
+  // One-off admin adds -- a question pulled from a bucket not otherwise effective here.
+  for (const id of config.addedQuestionIds) {
+    if (removed.has(id) || seenQuestionIds.has(id)) continue;
+    const q = activeQuestion(id);
+    if (!q) continue;
+    seenQuestionIds.add(id);
+    result.push({ question: q, source: { type: "added" } });
+  }
+
+  return { questions: result, removedQuestionIds: config.removedQuestionIds };
 }

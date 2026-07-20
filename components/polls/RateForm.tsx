@@ -15,6 +15,7 @@ type RateFormProps =
       mode: "signed-in";
       programId: string;
       questions: PollQuestionDTO[];
+      extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
       existingAnswers?: Record<string, number>;
       existingNaQuestionIds?: string[];
     }
@@ -152,16 +153,24 @@ function buildSubmission(
 function SignedInRateForm({
   programId,
   questions,
+  extras,
   existingAnswers,
   existingNaQuestionIds,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
+  // The signed-in on-site form shows the FULL resolved question set inline (Core plus
+  // every extra bucket auto-attached by a filter rule or manually) -- unlike the
+  // anonymous link form, which keeps extras behind the "add more detail" expander to
+  // avoid dumping 20+ questions on someone who followed a link. allQuestions backs
+  // state init and submission; the render below still walks `questions` (Core) and
+  // `extras` separately so each extra bucket gets its own labeled group heading.
+  const allQuestions = [...questions, ...extras.flatMap((e) => e.questions)];
   const [values, setValues] = useState<Record<string, number | null>>(() =>
-    Object.fromEntries(questions.map((q) => [q.id, existingAnswers?.[q.id] ?? null]))
+    Object.fromEntries(allQuestions.map((q) => [q.id, existingAnswers?.[q.id] ?? null]))
   );
   const [naFlags, setNaFlags] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(questions.map((q) => [q.id, existingNaQuestionIds?.includes(q.id) ?? false]))
+    Object.fromEntries(allQuestions.map((q) => [q.id, existingNaQuestionIds?.includes(q.id) ?? false]))
   );
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   const [consentGiven, setConsentGiven] = useState(false);
@@ -172,7 +181,7 @@ function SignedInRateForm({
 
   async function handleSubmit() {
     const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
-      questions,
+      allQuestions,
       values,
       naFlags,
       reviewTexts,
@@ -235,6 +244,23 @@ function SignedInRateForm({
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
         />
+      ))}
+      {extras.map(({ bucket, questions: bucketQuestions }) => (
+        <div key={bucket.id} className="flex flex-col gap-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
+          {bucketQuestions.map((q) => (
+            <QuestionWithReview
+              key={q.id}
+              question={q}
+              value={values[q.id]}
+              onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
+              na={naFlags[q.id] ?? false}
+              onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
+              reviewText={reviewTexts[q.id] ?? ""}
+              onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
+            />
+          ))}
+        </div>
       ))}
       <ReviewConsentCheckbox
         checked={consentGiven}
