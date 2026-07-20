@@ -184,6 +184,7 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [bucketIds, setBucketIds] = useState(new Set(program.config.bucketIds));
@@ -224,13 +225,43 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
     }
   }
 
+  /** One-click toggle for the single most-needed control on this row -- whether the
+   * program's score AND approved reviews show on its public page -- without opening
+   * the full Edit panel first. Only this one field is sent, via the same PATCH route
+   * and partial-update schema handleSave uses, so it never clobbers unsaved edits to
+   * buckets/questions sitting in the (possibly still-open) Edit panel below. Reverts
+   * optimistic state on failure. */
+  async function handleQuickToggleVisible() {
+    const next = !resultsVisible;
+    setResultsVisible(next);
+    setToggling(true);
+    setError(null);
+    try {
+      await api(`/api/admin/polls/programs/${program.id}`, "PATCH", { resultsVisible: next });
+      router.refresh();
+    } catch (err) {
+      setResultsVisible(!next);
+      setError(err instanceof Error ? err.message : "Failed to update visibility");
+    } finally {
+      setToggling(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-foreground">{program.name}</span>
-        <Badge tone={program.config.resultsVisible ? "success" : "neutral"}>
-          {program.config.resultsVisible ? "Visible" : "Hidden"}
-        </Badge>
+        <button
+          type="button"
+          onClick={handleQuickToggleVisible}
+          disabled={toggling}
+          title="Click to toggle whether this program's score and approved reviews show on its public page"
+          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Badge tone={resultsVisible ? "success" : "neutral"}>
+            {toggling ? "Updating..." : resultsVisible ? "Results visible ✓" : "Results hidden -- click to show"}
+          </Badge>
+        </button>
         {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}
         {program.ruleAttachedBucketIds.length > 0 && (
           <Badge tone="info">
@@ -246,10 +277,10 @@ function ProgramRow({ program, buckets, questions }: { program: PollProgramRow; 
         </Button>
       </div>
 
+      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+
       {open && (
         <Card className="flex flex-col gap-4 p-4">
-          {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
-
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-foreground">
               <input
