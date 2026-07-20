@@ -290,16 +290,29 @@ export function resolvePollQuestionSet(
     .map((id) => activeQuestion(id))
     .filter((q): q is PollQuestionDTO => q !== undefined);
 
+  // A question can be listed in more than one bucket (a real case in this question
+  // bank: one question lives in both Core and an extra bucket) -- `seen` tracks every
+  // question id already placed (starting with core's, then accumulating as extras are
+  // processed in config.bucketIds order) so the same question never appears twice in
+  // the resolved set. This matters beyond display: the signed-in rate form submits
+  // core+extras as one flat answers array, and a question appearing twice there
+  // produces two PollAnswer rows for the same (responseId, questionId), which throws
+  // a P2002 unique-constraint violation on submit ("Failed to submit rating"). Core
+  // always wins; between two extras, whichever comes first in bucketIds order wins. A
+  // bucket left with zero questions after dedup is dropped by the existing
+  // zero-questions filter below, same as any other empty extra.
+  const seen = new Set(core.map((q) => q.id));
   const extras = config.bucketIds
     .map((bucketId) => bucketsById.get(bucketId))
     .filter((bucket): bucket is PollBucketDTO => bucket !== undefined && bucket.status === "ACTIVE" && !bucket.isCore)
-    .map((bucket) => ({
-      bucket,
-      questions: bucket.questionIds
-        .filter((id) => !removed.has(id))
+    .map((bucket) => {
+      const bucketQuestions = bucket.questionIds
+        .filter((id) => !removed.has(id) && !seen.has(id))
         .map((id) => activeQuestion(id))
-        .filter((q): q is PollQuestionDTO => q !== undefined),
-    }))
+        .filter((q): q is PollQuestionDTO => q !== undefined);
+      for (const q of bucketQuestions) seen.add(q.id);
+      return { bucket, questions: bucketQuestions };
+    })
     .filter((entry) => entry.questions.length > 0);
 
   return { core, extras };

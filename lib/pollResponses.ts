@@ -109,7 +109,12 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
     }
 
     // Skips are absence, not a row -- only questions the respondent actually answered
-    // get a PollAnswer at all.
+    // get a PollAnswer at all. `skipDuplicates` is defense-in-depth, same posture as
+    // addDetailAnswersAndReviews's answer insert below: resolvePollQuestionSet already
+    // dedups a question that's reachable via more than one bucket, so `input.answers`
+    // shouldn't contain a repeated questionId in practice -- but if it ever did (a
+    // resolver edge case, a tampered client), this makes it a harmless no-op on the
+    // second row instead of a P2002 that fails the whole submit.
     if (input.answers.length > 0) {
       await tx.pollAnswer.createMany({
         data: input.answers.map((a) => ({
@@ -118,6 +123,7 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
           questionVersion: versionById.get(a.questionId) ?? 1,
           value: a.value,
         })),
+        skipDuplicates: true,
       });
     }
 
@@ -227,6 +233,8 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
         questionVersion: versionById.get(a.questionId) ?? 1,
         value: a.value,
       })),
+      // Same defense-in-depth as attemptSignedInSubmit's createMany above.
+      skipDuplicates: true,
     });
   }
 

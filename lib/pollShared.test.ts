@@ -163,6 +163,53 @@ describe("resolvePollQuestionSet", () => {
   });
 });
 
+describe("resolvePollQuestionSet: dedup a question reachable via more than one bucket", () => {
+  it("a question listed in both core and an extra bucket resolves into core only", () => {
+    const extraWithSharedQ = bucket("extraA", { questionIds: ["q1", "q4"] }); // q1 is also in core
+    const result = resolvePollQuestionSet(
+      { bucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraWithSharedQ],
+      questions
+    );
+    expect(result.core.map((q) => q.id)).toEqual(["q1", "q2", "q3"]);
+    expect(result.extras[0].questions.map((q) => q.id)).toEqual(["q4"]);
+  });
+
+  it("a question listed in two extra buckets resolves only into the first, by bucketIds order", () => {
+    const extraA = bucket("extraA", { questionIds: ["q4", "q5"] });
+    const extraB = bucket("extraB", { questionIds: ["q5"] }); // q5 duplicated from extraA
+    const result = resolvePollQuestionSet(
+      { bucketIds: ["extraA", "extraB"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraA, extraB],
+      questions
+    );
+    expect(result.extras.map((e) => e.bucket.id)).toEqual(["extraA"]);
+    expect(result.extras[0].questions.map((q) => q.id)).toEqual(["q4", "q5"]);
+  });
+
+  it("an extra bucket left with zero questions after dedup is dropped entirely, same as any other empty extra", () => {
+    const extraAllDuped = bucket("extraA", { questionIds: ["q1", "q2"] }); // both already in core
+    const result = resolvePollQuestionSet(
+      { bucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraAllDuped],
+      questions
+    );
+    expect(result.extras).toEqual([]);
+  });
+
+  it("flattenResolvedQuestionIds on a deduped set still has no duplicates", () => {
+    const extraA = bucket("extraA", { questionIds: ["q1", "q4"] });
+    const result = resolvePollQuestionSet(
+      { bucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, extraA],
+      questions
+    );
+    const ids = flattenResolvedQuestionIds(result);
+    expect(ids).toEqual(["q1", "q2", "q3", "q4"]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
 describe("flattenResolvedQuestionIds: the full set render and submit-validation must agree on", () => {
   it("includes core and every extra bucket's question ids", () => {
     const extraA = bucket("extraA", { questionIds: ["q4"] });
