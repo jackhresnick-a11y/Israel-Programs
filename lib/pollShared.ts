@@ -72,8 +72,9 @@ export type PollSummaryState = "be_first" | "collecting" | "under_review" | "pub
  * renders as "---" rather than omitting the circle entirely. `bucketId` is the owning
  * QuestionBucket's id (core questions get the core bucket's id) and drives the
  * results grid's per-bucket color, matched against `PollSummaryDTO.buckets`.
- * `endpointLabels` is the question's own `labels[0]`/`labels[4]` -- the only thing
- * that makes a DESCRIPTIVE question's bare number interpretable. */
+ * `labels` is the question's own full 5-value label set -- a DESCRIPTIVE question's
+ * results cell picks the two labels nearest the mean (floor/ceil) out of this array,
+ * not just the two endpoints, so it needs all 5, not just labels[0]/labels[4]. */
 export type PollSummaryQuestionDTO = {
   key: string;
   text: string;
@@ -81,7 +82,7 @@ export type PollSummaryQuestionDTO = {
   count: number;
   scaleType: PollScaleType;
   bucketId: string | null;
-  endpointLabels: [string, string];
+  labels: string[];
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same

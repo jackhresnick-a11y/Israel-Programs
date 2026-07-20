@@ -128,47 +128,43 @@ export default async function ProgramDetailPage({
           {banner.text}
         </p>
       )}
-      <div className="flex items-start gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
-          {program.logoUrl ? (
-            <Image
-              src={program.logoUrl}
-              alt={`${program.name} logo`}
-              width={64}
-              height={64}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="font-serif text-2xl font-semibold text-muted">
-              {program.name.charAt(0)}
-            </span>
-          )}
-        </div>
-        <div className="flex-1">
-          <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
-            {program.name}
-          </h1>
-          <p className="text-sm text-muted">
-            {program.organization}
-            {program.location ? ` · ${program.location}` : ""}
-          </p>
-          {rating !== null && (
-            <p className="mt-1 text-sm text-accent">
-              {"★".repeat(Math.round(rating))}
-              <span className="ml-1 text-muted">
-                {rating.toFixed(1)} ({program.reviews.length} review
-                {program.reviews.length === 1 ? "" : "s"})
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
+            {program.logoUrl ? (
+              <Image
+                src={program.logoUrl}
+                alt={`${program.name} logo`}
+                width={64}
+                height={64}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="font-serif text-2xl font-semibold text-muted">
+                {program.name.charAt(0)}
               </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="break-words font-serif text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+              {program.name}
+            </h1>
+            <p className="text-sm text-muted">
+              {program.organization}
+              {program.location ? ` · ${program.location}` : ""}
             </p>
-          )}
+            {rating !== null && (
+              <p className="mt-1 text-sm text-accent">
+                {"★".repeat(Math.round(rating))}
+                <span className="ml-1 text-muted">
+                  {rating.toFixed(1)} ({program.reviews.length} review
+                  {program.reviews.length === 1 ? "" : "s"})
+                </span>
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href={`/rate/${program.slug}`}
-            className={buttonVariants({ variant: "primary", size: "sm" })}
-          >
-            Rate this program
-          </Link>
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
           <Link
             href={`/programs/${program.slug}/edit`}
             className={buttonVariants({ variant: "secondary", size: "sm" })}

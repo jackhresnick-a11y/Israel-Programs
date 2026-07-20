@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
-import { meanToPercent, formatStarsMean, meanToSpectrumPercent } from "@/lib/pollFormat";
+import { meanToPercent, formatStarsMean } from "@/lib/pollFormat";
+import DescriptiveQuestionCell from "@/components/polls/DescriptiveQuestionCell";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Six-slot categorical palette for question-group (bucket) identity in the results
@@ -31,49 +32,35 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
 
 /** One question's result cell in the results grid. EVALUATIVE reads as a grade (star +
  * mean, bucket-tinted fill) -- higher is better. DESCRIPTIVE never shows a star or a
- * graded fill: a neutral low->high track with a bucket-colored marker, the bare "x.x /
- * 5" number, and the question's own endpoint labels (labels[0]/labels[4]) underneath,
- * so the number reads as "where this program sits on a spectrum" rather than a score.
- * Mean text always stays in the ordinary foreground ink, never the bucket color --
- * identity is carried by the circle/marker, not by tinting the number itself. */
+ * graded fill -- see DescriptiveQuestionCell, which defaults to the bare "x.x / 5"
+ * number with a per-question toggle to a floor/ceil words track, so the result reads
+ * as "where this program sits on a spectrum" rather than a score. Mean text always
+ * stays in the ordinary foreground ink, never the bucket color -- identity is carried
+ * by the circle/marker, not by tinting the number itself. */
 function QuestionCell({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
-  const { text, mean, count, scaleType, endpointLabels } = question;
+  const { text, mean, count, scaleType, labels } = question;
 
   return (
     <div className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-center">
       <p className="text-xs font-medium text-foreground">{text}</p>
       {scaleType === "DESCRIPTIVE" ? (
-        <div className="flex w-full flex-col gap-1.5">
-          <p className="text-sm font-semibold text-foreground">
-            {mean !== null ? `${formatStarsMean(mean)} / 5` : "---"}
-          </p>
-          <div className="relative h-1.5 w-full rounded-full bg-surface-muted">
-            {mean !== null && (
-              <span
-                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface"
-                style={{ left: `${meanToSpectrumPercent(mean)}%`, backgroundColor: colorVar ?? "var(--muted)" }}
-              />
-            )}
-          </div>
-          <div className="flex justify-between gap-2 text-[10px] text-muted">
-            <span>{endpointLabels[0]}</span>
-            <span className="text-right">{endpointLabels[1]}</span>
-          </div>
-        </div>
+        <DescriptiveQuestionCell mean={mean} count={count} labels={labels} colorVar={colorVar} />
       ) : (
-        <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
-          style={{
-            borderColor: colorVar ?? "var(--border)",
-            backgroundColor: colorVar
-              ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
-              : "var(--surface-muted)",
-          }}
-        >
-          {mean !== null ? `${formatStarsMean(mean)}★` : "---"}
-        </div>
+        <>
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
+            style={{
+              borderColor: colorVar ?? "var(--border)",
+              backgroundColor: colorVar
+                ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
+                : "var(--surface-muted)",
+            }}
+          >
+            {mean !== null ? `${formatStarsMean(mean)}★` : "---"}
+          </div>
+          <span className="text-[10px] text-muted">n={count}</span>
+        </>
       )}
-      <span className="text-[10px] text-muted">n={count}</span>
     </div>
   );
 }
@@ -195,6 +182,12 @@ export default function PollSummaryStrip({
             );
           })}
         </div>
+        <Link
+          href={`/rate/${programSlug}`}
+          className={buttonVariants({ variant: "primary", size: "sm", className: "ml-auto shrink-0" })}
+        >
+          Rate this program
+        </Link>
       </div>
 
       {otherQuestions.length > 0 && (
