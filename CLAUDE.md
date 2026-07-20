@@ -680,14 +680,22 @@ Two independent submission paths, both ending at the same `PollAnswer`/`PollRevi
   verification of an already-counted email voids itself with this flag rather than
   double-counting).
 
-**Reviews are optional per-question free text, gated on explicit per-review consent.**
-Each question in the form carries its own review textarea and its own consent checkbox
-directly beneath it — an unchecked review is simply never sent (never persisted as
-`consentGiven: false`, and never blocks the rating or the rest of the form). Consent is
-enforced three times over: the client only includes a review whose box was actually
-checked, `lib/pollShared.ts`'s `reviewInputSchema` requires `consent: z.literal(true)`,
-and the DB has the hand-written `CHECK ("consentGiven")` above — a non-consented row
-cannot exist even via a bug. Reviews insert one at a time after the answer transaction
+**Reviews are optional per-question free text, gated on one submission-level consent
+checkbox.** Each question carries its own review textarea (placeholder text states the
+comment may be published publicly after moderation); a single consent checkbox sits once,
+at the bottom of the form/section, directly above the submit button — not per question.
+It gates written comments only, never the rating/N/A: `components/polls/RateForm.tsx`'s
+`buildSubmission` detects whether any comment text is non-empty (`hasComments`)
+independent of consent, and the submit handler blocks (inline message at the checkbox,
+typed text preserved) only when there's a non-empty comment and the box is unchecked — a
+submission with no comments never requires checking it. When checked, `consentGiven` is
+applied to every comment in that submission, each still landing as its own `PollReview`
+row with `consentGiven: true` and its own `consentAt` timestamp (never persisted as
+`consentGiven: false`). Consent is enforced three times over: the client only includes a
+comment in `reviews` when the box was checked, `lib/pollShared.ts`'s `reviewInputSchema`
+requires `consent: z.literal(true)`, and the DB has the hand-written `CHECK
+("consentGiven")` above — a non-consented row cannot exist even via a bug. Reviews insert
+one at a time after the answer transaction
 commits (`lib/pollResponses.ts`'s `insertReviews`), not via `createMany`, so a duplicate
 `(responseId, questionId)` — e.g. a signed-in resubmit re-reviewing the same question,
 or a retried "add more detail" call — fails only that one review (reported back as

@@ -46,12 +46,12 @@ function ReviewConsentContext() {
 }
 
 /**
- * One question's rating control plus its optional review textarea and per-review
- * consent checkbox -- the same composite renders in the core form, the anonymous
- * thank-you screen's "Add more detail" expander, and (via SignedInRateForm) the
- * signed-in form, so review UX never drifts between the three. An unchecked consent
- * box means the review simply isn't included in the submission -- never sent as
- * `consent: false` (the rating and every other field on the page submit regardless).
+ * One question's rating control plus its optional review textarea -- the same
+ * composite renders in the core form, the anonymous thank-you screen's "Add more
+ * detail" expander, and (via SignedInRateForm) the signed-in form, so review UX never
+ * drifts between the three. Consent for written comments is collected once, at the
+ * bottom of the enclosing form/section -- see the single consent checkbox rendered
+ * above each surface's submit button -- not per question.
  */
 function QuestionWithReview({
   question,
@@ -61,8 +61,6 @@ function QuestionWithReview({
   onNaChange,
   reviewText,
   onReviewTextChange,
-  reviewConsent,
-  onReviewConsentChange,
 }: {
   question: PollQuestionDTO;
   value: number | null;
@@ -71,31 +69,54 @@ function QuestionWithReview({
   onNaChange: (na: boolean) => void;
   reviewText: string;
   onReviewTextChange: (text: string) => void;
-  reviewConsent: boolean;
-  onReviewConsentChange: (consent: boolean) => void;
 }) {
   return (
     <div className="flex flex-col gap-2">
       <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
       <div className="flex flex-col gap-1.5 pl-1">
         <Textarea
-          placeholder="Want to say more? (optional)"
+          placeholder="Want to say more? Your answer may be published publicly in this program's reviews after moderation. (optional)"
           value={reviewText}
           onChange={(e) => onReviewTextChange(e.target.value)}
           maxLength={1000}
           rows={2}
           className="text-sm"
         />
-        <label className="flex items-start gap-2 text-xs text-muted">
-          <input
-            type="checkbox"
-            checked={reviewConsent}
-            onChange={(e) => onReviewConsentChange(e.target.checked)}
-            className="mt-0.5 accent-accent"
-          />
-          <span>I understand this will be published publicly on this program&rsquo;s page.</span>
-        </label>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The single, once-per-submission consent checkbox for written comments -- gates
+ * `reviews` only, never the rating/N/A fields. Rendered directly above each surface's
+ * submit button. `error` renders an inline message right at the checkbox (never at the
+ * top of the form) when the respondent tried to submit non-empty comments without
+ * checking it -- the submit is blocked, not the comment text discarded.
+ */
+function ReviewConsentCheckbox({
+  checked,
+  onChange,
+  error,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  error: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="flex items-start gap-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="mt-0.5 accent-accent"
+        />
+        <span>I understand my written comments may be published publicly on this program&rsquo;s page after moderation.</span>
+      </label>
+      {error && (
+        <p className="pl-6 text-xs text-danger">Please check the box above to submit your written comments.</p>
+      )}
     </div>
   );
 }
@@ -104,24 +125,28 @@ function QuestionWithReview({
  * from per-question state -- a skipped question (value null, not N/A'd) is simply
  * absent from `answers`; an N/A'd question is excluded from `answers` (defensively,
  * even though checking N/A already clears `values[q.id]` via QuestionInput's
- * toggleNa) and instead listed in `naQuestionIds`; a review only makes it into
- * `reviews` when both text and consent are present, an unchecked or empty review is
- * silently excluded, never sent flagged. */
+ * toggleNa) and instead listed in `naQuestionIds`. Non-empty comment text is detected
+ * independent of consent (`hasComments`, used to decide whether the single consent
+ * checkbox needs to be checked at all) -- `reviews` itself only carries those comments
+ * when `consentGiven` is true, so an unconsented comment is never sent, never flagged
+ * as `consent: false`. */
 function buildSubmission(
   questions: PollQuestionDTO[],
   values: Record<string, number | null>,
   naValues: Record<string, boolean>,
   reviewTexts: Record<string, string>,
-  reviewConsents: Record<string, boolean>
+  consentGiven: boolean
 ) {
   const answers = questions
     .filter((q) => values[q.id] !== null && !naValues[q.id])
     .map((q) => ({ questionId: q.id, value: values[q.id] as number }));
   const naQuestionIds = questions.filter((q) => naValues[q.id]).map((q) => q.id);
-  const reviews = questions
-    .filter((q) => reviewConsents[q.id] && reviewTexts[q.id]?.trim())
-    .map((q) => ({ questionId: q.id, text: reviewTexts[q.id].trim(), consent: true as const }));
-  return { answers, naQuestionIds, reviews };
+  const comments = questions
+    .filter((q) => reviewTexts[q.id]?.trim())
+    .map((q) => ({ questionId: q.id, text: reviewTexts[q.id].trim() }));
+  const hasComments = comments.length > 0;
+  const reviews = consentGiven ? comments.map((c) => ({ ...c, consent: true as const })) : [];
+  return { answers, naQuestionIds, reviews, hasComments };
 }
 
 function SignedInRateForm({
@@ -139,18 +164,30 @@ function SignedInRateForm({
     Object.fromEntries(questions.map((q) => [q.id, existingNaQuestionIds?.includes(q.id) ?? false]))
   );
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
-  const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [consentError, setConsentError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit() {
-    const { answers, naQuestionIds, reviews } = buildSubmission(questions, values, naFlags, reviewTexts, reviewConsents);
+    const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
+      questions,
+      values,
+      naFlags,
+      reviewTexts,
+      consentGiven
+    );
+    if (hasComments && !consentGiven) {
+      setConsentError(true);
+      return;
+    }
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
     }
 
+    setConsentError(false);
     setSubmitting(true);
     setError(null);
     try {
@@ -197,10 +234,16 @@ function SignedInRateForm({
           onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-          reviewConsent={reviewConsents[q.id] ?? false}
-          onReviewConsentChange={(consent) => setReviewConsents((prev) => ({ ...prev, [q.id]: consent }))}
         />
       ))}
+      <ReviewConsentCheckbox
+        checked={consentGiven}
+        onChange={(checked) => {
+          setConsentGiven(checked);
+          if (checked) setConsentError(false);
+        }}
+        error={consentError}
+      />
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
         {submitting ? "Submitting..." : isUpdate ? "Update rating" : "Submit rating"}
       </Button>
@@ -293,12 +336,13 @@ function AnonymousRateForm({
   const [naFlags, setNaFlags] = useState<Record<string, boolean>>({});
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   // Consent is deliberately NOT persisted to the draft (see saveDraft's payload below)
-  // -- restoring a draft always starts every consent box unchecked, even if it was
+  // -- restoring a draft always starts the consent checkbox unchecked, even if it was
   // checked before the page reloaded. Review *text* is preserved so nothing is lost,
   // but re-affirming consent is a fresh, deliberate act every time. N/A marks *are*
   // persisted -- unlike consent, checking N/A isn't a legal affirmation, just a data
   // choice, so there's no reason to make the respondent re-mark it after a reload.
-  const [reviewConsents, setReviewConsents] = useState<Record<string, boolean>>({});
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [consentError, setConsentError] = useState(false);
   const [yearAttended, setYearAttended] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -322,12 +366,23 @@ function AnonymousRateForm({
   }, [programSlug, values, naFlags, reviewTexts, yearAttended, responseId]);
 
   async function handleSubmit() {
-    const { answers, naQuestionIds, reviews } = buildSubmission(questions, values, naFlags, reviewTexts, reviewConsents);
+    const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
+      questions,
+      values,
+      naFlags,
+      reviewTexts,
+      consentGiven
+    );
+    if (hasComments && !consentGiven) {
+      setConsentError(true);
+      return;
+    }
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
     }
 
+    setConsentError(false);
     setSubmitting(true);
     setError(null);
     try {
@@ -375,8 +430,6 @@ function AnonymousRateForm({
           onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-          reviewConsent={reviewConsents[q.id] ?? false}
-          onReviewConsentChange={(consent) => setReviewConsents((prev) => ({ ...prev, [q.id]: consent }))}
         />
       ))}
       <label className="flex max-w-xs flex-col gap-1">
@@ -393,6 +446,14 @@ function AnonymousRateForm({
           ))}
         </Select>
       </label>
+      <ReviewConsentCheckbox
+        checked={consentGiven}
+        onChange={(checked) => {
+          setConsentGiven(checked);
+          if (checked) setConsentError(false);
+        }}
+        error={consentError}
+      />
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
         {submitting ? "Submitting..." : "Submit rating"}
       </Button>
@@ -420,7 +481,8 @@ function ThankYouScreen({
   );
   const [detailNaFlags, setDetailNaFlags] = useState<Record<string, boolean>>({});
   const [detailReviewTexts, setDetailReviewTexts] = useState<Record<string, string>>({});
-  const [detailReviewConsents, setDetailReviewConsents] = useState<Record<string, boolean>>({});
+  const [detailConsentGiven, setDetailConsentGiven] = useState(false);
+  const [detailConsentError, setDetailConsentError] = useState(false);
   const [detailStatus, setDetailStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function handleConfirmEmail() {
@@ -444,17 +506,22 @@ function ThankYouScreen({
   }
 
   async function handleSaveDetail() {
-    const { answers, naQuestionIds, reviews } = buildSubmission(
+    const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
       extraQuestions,
       detailValues,
       detailNaFlags,
       detailReviewTexts,
-      detailReviewConsents
+      detailConsentGiven
     );
+    if (hasComments && !detailConsentGiven) {
+      setDetailConsentError(true);
+      return;
+    }
     if (answers.length === 0 && naQuestionIds.length === 0 && reviews.length === 0) {
       setDetailStatus("saved");
       return;
     }
+    setDetailConsentError(false);
     setDetailStatus("saving");
     try {
       const res = await fetch(`/api/polls/responses/${responseId}/details`, {
@@ -530,14 +597,18 @@ function ThankYouScreen({
                           onNaChange={(na) => setDetailNaFlags((prev) => ({ ...prev, [q.id]: na }))}
                           reviewText={detailReviewTexts[q.id] ?? ""}
                           onReviewTextChange={(text) => setDetailReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-                          reviewConsent={detailReviewConsents[q.id] ?? false}
-                          onReviewConsentChange={(consent) =>
-                            setDetailReviewConsents((prev) => ({ ...prev, [q.id]: consent }))
-                          }
                         />
                       ))}
                     </div>
                   ))}
+                  <ReviewConsentCheckbox
+                    checked={detailConsentGiven}
+                    onChange={(checked) => {
+                      setDetailConsentGiven(checked);
+                      if (checked) setDetailConsentError(false);
+                    }}
+                    error={detailConsentError}
+                  />
                   <Button type="button" size="sm" className="self-start" disabled={detailStatus === "saving"} onClick={handleSaveDetail}>
                     {detailStatus === "saving" ? "Saving..." : "Save additional details"}
                   </Button>
