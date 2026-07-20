@@ -154,54 +154,86 @@ export default function PollSummaryStrip({
   const maxCount = Math.max(1, ...summary.overallHistogram);
   const otherQuestions = summary.questions.filter((q) => q.key !== "overall");
 
-  return (
-    <Card className="flex flex-col gap-4 p-4">
-      <p className="text-lg font-semibold text-foreground">
-        {scoreText}{" "}
-        <span className="text-sm font-normal text-muted">
-          · {summary.counted} rating{summary.counted === 1 ? "" : "s"}
-        </span>
-      </p>
+  // Grouped by bucket, in summary.buckets' order (Core/General first, then extras --
+  // see getProgramPollSummary). A question whose bucketId doesn't match any known
+  // bucket (only possible when a program has no Core bucket at all) falls into a
+  // trailing "Other" group rather than silently vanishing from the results.
+  const groupedBucketIds = new Set(summary.buckets.map((b) => b.id));
+  const ungroupedQuestions = otherQuestions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
 
-      <div className="flex flex-col gap-1">
-        {summary.overallHistogram.map((count, i) => {
-          const starCount = i + 1;
-          const width = (count / maxCount) * 100;
-          return (
-            <div key={starCount} className="flex items-center gap-2 text-xs text-muted">
-              <span className="w-3 text-right">{starCount}★</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-muted">
-                <div className="h-full rounded-full bg-accent" style={{ width: `${width}%` }} />
+  return (
+    <Card className="flex flex-col gap-5 p-4">
+      {/* Overall is the headline this block leads with -- gold-tinted hero card,
+          set apart from the plain bucket-group cards below (per frontend-design:
+          spend the one visual accent on the thing that's actually the thesis). */}
+      <div
+        className="flex flex-wrap items-center gap-6 rounded-xl border p-4"
+        style={{
+          background: "color-mix(in srgb, var(--accent) 12%, var(--surface))",
+          borderColor: "color-mix(in srgb, var(--accent) 45%, var(--border))",
+        }}
+      >
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">Overall rating</p>
+          <p className="font-serif text-4xl font-semibold text-foreground sm:text-5xl">{scoreText}</p>
+          <p className="text-sm text-muted">
+            {summary.counted} rating{summary.counted === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="flex min-w-[180px] flex-1 flex-col gap-1">
+          {summary.overallHistogram.map((count, i) => {
+            const starCount = i + 1;
+            const width = (count / maxCount) * 100;
+            return (
+              <div key={starCount} className="flex items-center gap-2 text-xs text-muted">
+                <span className="w-3 text-right">{starCount}★</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-muted">
+                  <div className="h-full rounded-full bg-accent" style={{ width: `${width}%` }} />
+                </div>
+                <span className="w-6 text-right">{count}</span>
               </div>
-              <span className="w-6 text-right">{count}</span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {otherQuestions.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {summary.buckets.length > 0 && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted">
-              {summary.buckets.map((bucket, i) => (
-                <span key={bucket.id} className="flex items-center gap-1.5">
+        <div className="flex flex-col gap-5">
+          {summary.buckets.map((bucket) => {
+            const bucketQuestions = otherQuestions.filter((q) => q.bucketId === bucket.id);
+            if (bucketQuestions.length === 0) return null;
+            const colorVar = bucketColorVar(bucket.id, summary.buckets);
+            return (
+              <div key={bucket.id} className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 text-sm font-medium text-foreground">{bucket.name}</span>
                   <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{
-                      backgroundColor:
-                        i < BUCKET_COLOR_VARS.length ? `var(${BUCKET_COLOR_VARS[i]})` : "var(--muted)",
-                    }}
+                    className="h-0.5 flex-1 rounded-full"
+                    style={{ backgroundColor: colorVar ?? "var(--border)" }}
                   />
-                  {bucket.name}
-                </span>
-              ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {bucketQuestions.map((q) => (
+                    <QuestionCell key={q.key} question={q} colorVar={colorVar} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {ungroupedQuestions.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="shrink-0 text-sm font-medium text-foreground">Other</span>
+                <span className="h-0.5 flex-1 rounded-full bg-border" />
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {ungroupedQuestions.map((q) => (
+                  <QuestionCell key={q.key} question={q} colorVar={null} />
+                ))}
+              </div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {otherQuestions.map((q) => (
-              <QuestionCell key={q.key} question={q} colorVar={bucketColorVar(q.bucketId, summary.buckets)} />
-            ))}
-          </div>
         </div>
       )}
     </Card>
