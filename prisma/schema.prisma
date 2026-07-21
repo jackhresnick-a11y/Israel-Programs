@@ -709,24 +709,29 @@ model QuestionBucket {
   status      PollLifecycleStatus @default(ACTIVE)
 }
 
-/// Auto-attaches `bucketId` to every program carrying ALL of `tagSlugs` (ANDed, at
-/// least two conditions -- enforced in lib/pollBucketRules.ts, not the DB). Both fields
-/// are soft references (same posture as Region.memberSlugs / QuestionBucket.questionIds
-/// elsewhere in this schema): a rule pointing at a deleted bucket or a dead tag slug
-/// simply attaches nothing rather than breaking resolution. This is additive to Core and
-/// to a program's manually-attached `ProgramPollConfig.bucketIds` -- see
-/// lib/pollConfig.ts's getQuestionsForProgram, which merges rule-attached bucket ids in
-/// before calling the pure resolver, so removedQuestionIds/retired-bucket/dead-id
-/// handling there apply identically regardless of how a bucket got attached. Retire,
-/// don't delete -- a RETIRED rule stops attaching but its row (and the responses already
-/// collected against the bucket while it applied) stay untouched; there is no delete path.
+/// Auto-attaches `bucketId` to every program carrying ALL of `tagSlugs` (ANDed) AND
+/// whose `durationType` is one of `durationTypes` (ORed within duration, since a
+/// program has exactly one; empty means no duration condition) -- at least one
+/// condition (a tag or a duration) required, enforced in lib/pollBucketRules.ts, not
+/// the DB. `tagSlugs` is a soft reference (same posture as Region.memberSlugs /
+/// QuestionBucket.questionIds elsewhere in this schema): a rule pointing at a deleted
+/// bucket or a dead tag slug simply attaches nothing rather than breaking resolution.
+/// `durationTypes` references the real `DurationType` enum, not a soft ref. This is
+/// additive to Core and to a program's manually-attached `ProgramPollConfig.bucketIds`
+/// -- see lib/pollConfig.ts's getQuestionsForProgram, which merges rule-attached bucket
+/// ids in before calling the pure resolver, so removedQuestionIds/retired-bucket/
+/// dead-id handling there apply identically regardless of how a bucket got attached.
+/// Retire, don't delete -- a RETIRED rule stops attaching but its row (and the
+/// responses already collected against the bucket while it applied) stay untouched;
+/// there is no delete path.
 model BucketAttachmentRule {
-  id        String              @id @default(cuid())
-  bucketId  String
-  tagSlugs  String[]
-  status    PollLifecycleStatus @default(ACTIVE)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id            String              @id @default(cuid())
+  bucketId      String
+  tagSlugs      String[]
+  durationTypes DurationType[]      @default([])
+  status        PollLifecycleStatus @default(ACTIVE)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 }
 
 /// Per-program poll settings -- one row per Program, created by prisma/seed-polls.ts for

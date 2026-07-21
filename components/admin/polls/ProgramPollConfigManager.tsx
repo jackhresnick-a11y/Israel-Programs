@@ -10,6 +10,7 @@ import Card from "@/components/ui/Card";
 import { resolveProgramQuestionProvenance, type QuestionSource } from "@/lib/pollShared";
 import type { BucketRow } from "@/components/admin/polls/BucketManager";
 import type { QuestionRow } from "@/components/admin/polls/QuestionManager";
+import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type PollProgramRow = {
   id: string;
@@ -32,9 +33,13 @@ export type PollProgramRow = {
    * checkbox off here can't detach one -- only retiring the rule or changing the
    * program's tags can. */
   ruleAttachedBucketIds: string[];
-  /** Same match as ruleAttachedBucketIds, with each bucket's matched tag slugs kept --
-   * feeds the resolved-question provenance view below. */
-  ruleMatches: { bucketId: string; tagSlugs: string[] }[];
+  /** Same match as ruleAttachedBucketIds, with each bucket's matched tag slugs and
+   * duration types kept -- feeds the resolved-question provenance view below. Badges
+   * show the raw duration code (e.g. "GAP_YEAR") the same way they already show raw tag
+   * slugs (e.g. `#gap-year`) rather than resolving through the admin-editable
+   * DurationOption label map, so no extra props/fetch are needed just for this
+   * read-only view. */
+  ruleMatches: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }[];
 };
 
 type TagOption = { slug: string; name: string };
@@ -190,8 +195,10 @@ function ProvenanceBadge({ source }: { source: QuestionSource }) {
   switch (source.type) {
     case "core":
       return <Badge tone="neutral">Core</Badge>;
-    case "rule":
-      return <Badge tone="info">via filter: {source.tagSlugs.map((s) => `#${s}`).join(" + ")}</Badge>;
+    case "rule": {
+      const conditions = [...source.tagSlugs.map((s) => `#${s}`), ...source.durationTypes];
+      return <Badge tone="info">via filter: {conditions.join(" + ")}</Badge>;
+    }
     case "manual":
       return <Badge tone="tag">manually attached ({source.bucketName})</Badge>;
     case "added":

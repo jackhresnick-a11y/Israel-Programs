@@ -5,6 +5,7 @@
  * following the same split as lib/tagTints.ts / lib/missionBlocks.ts.
  */
 import { z } from "zod";
+import { DurationType } from "@/app/generated/prisma/enums";
 import type {
   PollQuestionType,
   PollLifecycleStatus,
@@ -13,6 +14,17 @@ import type {
 } from "@/app/generated/prisma/enums";
 
 export const scaleTypeSchema = z.enum(["EVALUATIVE", "DESCRIPTIVE"]);
+
+export const durationTypeSchema = z.enum([
+  DurationType.TEN_DAY,
+  DurationType.SHORT,
+  DurationType.SUMMER,
+  DurationType.SEMESTER,
+  DurationType.GAP_YEAR,
+  DurationType.MULTI_YEAR,
+  DurationType.ONGOING,
+  DurationType.CUSTOM,
+]);
 
 /** Integrity signals a response can carry without being dropped -- see the
  * PollResponse.flags doc comment in schema.prisma. A response can carry several.
@@ -248,6 +260,7 @@ export type BucketAttachmentRuleDTO = {
   id: string;
   bucketId: string;
   tagSlugs: string[];
+  durationTypes: DurationType[];
   status: PollLifecycleStatus;
   createdAt: Date;
 };
@@ -255,14 +268,36 @@ export type BucketAttachmentRuleDTO = {
 /** A rule matches a program when the program carries EVERY one of the rule's tag slugs
  * (ANDed -- a single-tag rule just requires that one tag) -- an empty tagSlugs list
  * never matches anything (guards against the vacuous `[].every(...) === true` case;
- * real rules always carry >= 1 via lib/pollBucketRules.ts's bucketRuleInputSchema, but
- * this function doesn't assume that invariant itself). Pure and client-safe so it's
- * usable both server-side (lib/pollBucketRules.ts's getRuleAttachedBucketIds) and in
- * tests without a database. */
+ * real rules always carry >= 1 tag or duration via lib/pollBucketRules.ts's
+ * bucketRuleInputSchema, but this function doesn't assume that invariant itself). Kept
+ * as a standalone export (rather than folded into ruleMatchesProgram) since duration-free
+ * tag matching is still the common case and some callers only ever have tags in hand.
+ * Pure and client-safe so it's usable both server-side and in tests without a database. */
 export function ruleMatchesTags(ruleTagSlugs: string[], programTagSlugs: string[]): boolean {
   if (ruleTagSlugs.length === 0) return false;
   const programSlugSet = new Set(programTagSlugs);
   return ruleTagSlugs.every((slug) => programSlugSet.has(slug));
+}
+
+/** Full rule match: tags ANDed (ruleMatchesTags) AND duration ORed within
+ * `ruleDurationTypes` (a program has exactly one durationType, so "any of" is the only
+ * sensible combinator there) -- the two dimensions themselves are ANDed together,
+ * mirroring lib/programs.ts's browse-filter convention (OR within a dimension, AND
+ * across dimensions). An empty `ruleTagSlugs` skips the tag condition instead of
+ * failing it (unlike the bare ruleMatchesTags, which treats empty as "never matches" --
+ * that guard exists there because tags used to be a rule's only possible condition; here
+ * a rule expressing "duration only" legitimately has no tags to check). Likewise empty
+ * `ruleDurationTypes` skips the duration condition. A rule with neither never matches --
+ * lib/pollBucketRules.ts's bucketRuleInputSchema requires at least one of the two, but
+ * this function doesn't assume that invariant either. */
+export function ruleMatchesProgram(
+  rule: { tagSlugs: string[]; durationTypes: DurationType[] },
+  program: { tagSlugs: string[]; durationType: DurationType }
+): boolean {
+  if (rule.tagSlugs.length === 0 && rule.durationTypes.length === 0) return false;
+  const tagsMatch = rule.tagSlugs.length === 0 || ruleMatchesTags(rule.tagSlugs, program.tagSlugs);
+  const durationMatches = rule.durationTypes.length === 0 || rule.durationTypes.includes(program.durationType);
+  return tagsMatch && durationMatches;
 }
 
 /**
@@ -363,7 +398,7 @@ export function flattenResolvedQuestionIds(resolved: ResolvedPollQuestionSet): s
 /** Why one resolved question is on a program's poll -- see resolveProgramQuestionProvenance. */
 export type QuestionSource =
   | { type: "core" }
-  | { type: "rule"; bucketId: string; bucketName: string; tagSlugs: string[] }
+  | { type: "rule"; bucketId: string; bucketName: string; tagSlugs: string[]; durationTypes: DurationType[] }
   | { type: "manual"; bucketId: string; bucketName: string }
   | { type: "added" };
 
@@ -397,12 +432,12 @@ export function resolveProgramQuestionProvenance<Q extends { id: string; status:
   config: { manualBucketIds: string[]; addedQuestionIds: string[]; removedQuestionIds: string[] },
   buckets: PollBucketDTO[],
   questions: Q[],
-  ruleMatches: { bucketId: string; tagSlugs: string[] }[]
+  ruleMatches: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }[]
 ): { questions: ProvenanceQuestionDTO<Q>[]; removedQuestionIds: string[] } {
   const questionsById = new Map(questions.map((q) => [q.id, q]));
   const bucketsById = new Map(buckets.map((b) => [b.id, b]));
   const removed = new Set(config.removedQuestionIds);
-  const ruleTagSlugsByBucketId = new Map(ruleMatches.map((r) => [r.bucketId, r.tagSlugs]));
+  const ruleMatchByBucketId = new Map(ruleMatches.map((r) => [r.bucketId, r]));
 
   const activeQuestion = (id: string): Q | undefined => {
     const q = questionsById.get(id);
@@ -430,9 +465,15 @@ export function resolveProgramQuestionProvenance<Q extends { id: string; status:
   for (const bucketId of effectiveBucketIds) {
     const bucket = bucketsById.get(bucketId);
     if (!bucket || bucket.status !== "ACTIVE" || bucket.isCore) continue;
-    const tagSlugs = ruleTagSlugsByBucketId.get(bucketId);
-    const source: QuestionSource = tagSlugs
-      ? { type: "rule", bucketId, bucketName: bucket.name, tagSlugs }
+    const ruleMatch = ruleMatchByBucketId.get(bucketId);
+    const source: QuestionSource = ruleMatch
+      ? {
+          type: "rule",
+          bucketId,
+          bucketName: bucket.name,
+          tagSlugs: ruleMatch.tagSlugs,
+          durationTypes: ruleMatch.durationTypes,
+        }
       : { type: "manual", bucketId, bucketName: bucket.name };
     for (const id of bucket.questionIds) {
       if (removed.has(id)) continue;

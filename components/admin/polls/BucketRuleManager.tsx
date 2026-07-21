@@ -7,16 +7,19 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import type { BucketRow } from "@/components/admin/polls/BucketManager";
+import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type BucketRuleRow = {
   id: string;
   bucketId: string;
   tagSlugs: string[];
+  durationTypes: DurationType[];
   status: "ACTIVE" | "RETIRED";
   createdAt: Date;
 };
 
 type TagOption = { id: string; name: string; slug: string };
+type DurationOption = { value: DurationType; label: string };
 type PreviewResult = { matched: number; newlyAffected: number; sampleNames: string[] };
 
 async function api(url: string, method: string, body?: object) {
@@ -44,6 +47,7 @@ function RuleForm({
   initial,
   buckets,
   tags,
+  durationOptions,
   excludeRuleId,
   onSubmit,
   onCancel,
@@ -53,14 +57,16 @@ function RuleForm({
   initial?: BucketRuleRow;
   buckets: BucketRow[];
   tags: TagOption[];
+  durationOptions: DurationOption[];
   excludeRuleId?: string;
-  onSubmit: (input: { bucketId: string; tagSlugs: string[] }) => void;
+  onSubmit: (input: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }) => void;
   onCancel?: () => void;
   submitLabel: string;
   busy: boolean;
 }) {
   const [bucketId, setBucketId] = useState(initial?.bucketId ?? "");
   const [tagSlugs, setTagSlugs] = useState<string[]>(initial?.tagSlugs ?? [""]);
+  const [durationTypes, setDurationTypes] = useState<Set<DurationType>>(new Set(initial?.durationTypes ?? []));
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -68,8 +74,12 @@ function RuleForm({
 
   const selectedSlugs = tagSlugs.filter((s) => s.trim().length > 0);
   const distinctSlugs = new Set(selectedSlugs);
-  const selectionValid = bucketId.length > 0 && selectedSlugs.length >= 1 && distinctSlugs.size === selectedSlugs.length;
-  const currentKey = selectionValid ? `${bucketId}::${[...distinctSlugs].sort().join(",")}` : null;
+  const hasAnyCondition = distinctSlugs.size > 0 || durationTypes.size > 0;
+  const selectionValid =
+    bucketId.length > 0 && hasAnyCondition && distinctSlugs.size === selectedSlugs.length;
+  const currentKey = selectionValid
+    ? `${bucketId}::${[...distinctSlugs].sort().join(",")}::${[...durationTypes].sort().join(",")}`
+    : null;
 
   useEffect(() => {
     // No setState here for the invalid-selection case: `selectionValid` already gates
@@ -86,6 +96,7 @@ function RuleForm({
     api("/api/admin/polls/bucket-rules/preview", "POST", {
       bucketId,
       tagSlugs: selectedSlugs,
+      durationTypes: [...durationTypes],
       ...(excludeRuleId ? { excludeRuleId } : {}),
     })
       .then((result: PreviewResult) => {
@@ -105,9 +116,9 @@ function RuleForm({
     return () => {
       cancelled = true;
     };
-    // currentKey already encodes bucketId + the distinct selected slugs -- re-running on
-    // it alone (not bucketId/selectedSlugs separately) avoids a redundant re-fetch when
-    // an edit re-adds the same tag to a different picker slot.
+    // currentKey already encodes bucketId + the distinct selected slugs + duration
+    // types -- re-running on it alone avoids a redundant re-fetch when an edit re-adds
+    // the same tag to a different picker slot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentKey]);
 
@@ -123,6 +134,15 @@ function RuleForm({
 
   function removeCondition(index: number) {
     setTagSlugs((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  }
+
+  function toggleDuration(value: DurationType) {
+    setDurationTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
   }
 
   return (
@@ -163,6 +183,26 @@ function RuleForm({
         </Button>
       </div>
 
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-muted">...AND the program&rsquo;s duration is any of (optional)</span>
+        <div className="flex flex-wrap gap-2">
+          {durationOptions.map((d) => (
+            <label
+              key={d.value}
+              className="flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-foreground"
+            >
+              <input
+                type="checkbox"
+                checked={durationTypes.has(d.value)}
+                onChange={() => toggleDuration(d.value)}
+                className="accent-accent"
+              />
+              {d.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
       {selectionValid && (
         <Card className="p-3 text-xs">
           {previewLoading && <p className="text-muted">Checking how many programs this affects...</p>}
@@ -171,7 +211,7 @@ function RuleForm({
             <div className="flex flex-col gap-1">
               <p className="font-medium text-foreground">
                 Will newly affect {preview.newlyAffected} program{preview.newlyAffected === 1 ? "" : "s"} (of{" "}
-                {preview.matched} matching all tags).
+                {preview.matched} matching).
               </p>
               {preview.sampleNames.length > 0 && (
                 <p className="text-muted">
@@ -189,7 +229,7 @@ function RuleForm({
           type="button"
           size="sm"
           disabled={!canSave || busy}
-          onClick={() => onSubmit({ bucketId, tagSlugs: selectedSlugs })}
+          onClick={() => onSubmit({ bucketId, tagSlugs: selectedSlugs, durationTypes: [...durationTypes] })}
         >
           {busy ? "Saving..." : submitLabel}
         </Button>
@@ -207,11 +247,14 @@ export default function BucketRuleManager({
   rules,
   buckets,
   tags,
+  durationOptions,
 }: {
   rules: BucketRuleRow[];
   buckets: BucketRow[];
   tags: TagOption[];
+  durationOptions: DurationOption[];
 }) {
+  const durationLabelsByValue = new Map(durationOptions.map((d) => [d.value, d.label]));
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -240,14 +283,17 @@ export default function BucketRuleManager({
     withBusy(rule.id, () => api(`/api/admin/polls/bucket-rules/${rule.id}`, "PATCH", { status: nextStatus }));
   }
 
-  function handleSaveEdit(rule: BucketRuleRow, input: { bucketId: string; tagSlugs: string[] }) {
+  function handleSaveEdit(
+    rule: BucketRuleRow,
+    input: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }
+  ) {
     withBusy(rule.id, async () => {
       await api(`/api/admin/polls/bucket-rules/${rule.id}`, "PATCH", input);
       setEditingId(null);
     });
   }
 
-  async function handleCreate(input: { bucketId: string; tagSlugs: string[] }) {
+  async function handleCreate(input: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }) {
     setCreating(true);
     setError(null);
     try {
@@ -272,8 +318,9 @@ export default function BucketRuleManager({
         )}
       </div>
       <p className="text-xs text-muted">
-        A rule additionally attaches a bucket to every program carrying ALL of its tags -- on top of Core and any
-        buckets attached manually below. A per-program question removal still wins over a rule-attached bucket.
+        A rule additionally attaches a bucket to every program carrying ALL of its tags and (if set) whose duration
+        is one of its selected durations -- on top of Core and any buckets attached manually below. A per-program
+        question removal still wins over a rule-attached bucket.
       </p>
       {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
@@ -282,6 +329,7 @@ export default function BucketRuleManager({
           <RuleForm
             buckets={pickableBuckets}
             tags={tags}
+            durationOptions={durationOptions}
             onSubmit={handleCreate}
             onCancel={() => setShowCreate(false)}
             submitLabel="Add rule"
@@ -310,6 +358,22 @@ export default function BucketRuleManager({
                     )}
                   </span>
                 ))}
+                {rule.tagSlugs.length > 0 && rule.durationTypes.length > 0 && (
+                  <span className="text-[10px] font-semibold text-muted">AND</span>
+                )}
+                {rule.durationTypes.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <span className="text-xs text-muted">duration is</span>
+                    {rule.durationTypes.map((d, i) => (
+                      <span key={d} className="flex items-center gap-1">
+                        <Badge tone="info">{durationLabelsByValue.get(d) ?? d}</Badge>
+                        {i < rule.durationTypes.length - 1 && (
+                          <span className="text-[10px] font-semibold text-muted">OR</span>
+                        )}
+                      </span>
+                    ))}
+                  </span>
+                )}
                 {rule.status === "RETIRED" && <Badge tone="warning">Retired</Badge>}
                 <Button
                   type="button"
@@ -337,6 +401,7 @@ export default function BucketRuleManager({
                     initial={rule}
                     buckets={editBuckets}
                     tags={tags}
+                    durationOptions={durationOptions}
                     excludeRuleId={rule.id}
                     onSubmit={(input) => handleSaveEdit(rule, input)}
                     submitLabel="Save changes"

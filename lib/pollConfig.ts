@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 import {
   resolvePollQuestionSet,
   mergeRuleAttachedBucketIds,
-  ruleMatchesTags,
+  ruleMatchesProgram,
   type PollBucketDTO,
   type PollQuestionDTO,
   type ResolvedPollQuestionSet,
 } from "@/lib/pollShared";
 import { getRuleAttachedBucketIds } from "@/lib/pollBucketRules";
 import { mintReferrerToken } from "@/lib/pollTokens";
-import type { PollDisplayFormat, PollScaleType } from "@/app/generated/prisma/enums";
+import type { PollDisplayFormat, PollScaleType, DurationType } from "@/app/generated/prisma/enums";
 
 export type ProgramPollConfigDTO = {
   bucketIds: string[];
@@ -96,10 +96,16 @@ export async function getQuestionsForProgram(programId: string): Promise<Resolve
     getProgramPollConfig(programId),
     prisma.questionBucket.findMany(),
     prisma.pollQuestion.findMany(),
-    prisma.program.findUnique({ where: { id: programId }, select: { tags: { select: { slug: true } } } }),
+    prisma.program.findUnique({
+      where: { id: programId },
+      select: { durationType: true, tags: { select: { slug: true } } },
+    }),
   ]);
   const programTagSlugs = program?.tags.map((t) => t.slug) ?? [];
-  const ruleBucketIds = await getRuleAttachedBucketIds(programTagSlugs);
+  // A program row always carries a durationType (non-nullable column) -- the fallback
+  // here only covers program === null (a since-deleted program id), matching the
+  // existing `program?.tags ?? []` degrade-gracefully posture just above.
+  const ruleBucketIds = await getRuleAttachedBucketIds(programTagSlugs, program?.durationType ?? "CUSTOM");
   const effectiveBucketIds = mergeRuleAttachedBucketIds(config.bucketIds, ruleBucketIds);
   return resolvePollQuestionSet(
     { ...config, bucketIds: effectiveBucketIds },
@@ -119,10 +125,10 @@ export type ProgramWithPollConfig = {
    * rendering them as if an admin had picked them by hand. */
   ruleAttachedBucketIds: string[];
   /** Same match as ruleAttachedBucketIds, but keeping each bucket's matched tag slugs
-   * (first matching rule wins if more than one active rule targets the same bucket) --
-   * feeds resolveProgramQuestionProvenance's "via filter: #tag" labeling in the Edit
-   * panel's resolved-question view. */
-  ruleMatches: { bucketId: string; tagSlugs: string[] }[];
+   * and duration types (first matching rule wins if more than one active rule targets
+   * the same bucket) -- feeds resolveProgramQuestionProvenance's "via filter: #tag /
+   * Gap Year" labeling in the Edit panel's resolved-question view. */
+  ruleMatches: { bucketId: string; tagSlugs: string[]; durationTypes: DurationType[] }[];
 };
 
 /** Every published program with its poll config (or the schema defaults, for a program
@@ -139,7 +145,14 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
         status: "PUBLISHED",
         ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
       },
-      select: { id: true, name: true, slug: true, pollConfig: true, tags: { select: { slug: true } } },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        durationType: true,
+        pollConfig: true,
+        tags: { select: { slug: true } },
+      },
       orderBy: { name: "asc" },
     }),
     prisma.bucketAttachmentRule.findMany({ where: { status: "ACTIVE" } }),
@@ -147,12 +160,14 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
 
   return programs.map((p) => {
     const programTagSlugs = p.tags.map((t) => t.slug);
-    const matchedRules = activeRules.filter((r) => ruleMatchesTags(r.tagSlugs, programTagSlugs));
+    const matchedRules = activeRules.filter((r) =>
+      ruleMatchesProgram(r, { tagSlugs: programTagSlugs, durationType: p.durationType })
+    );
     const ruleAttachedBucketIds = [...new Set(matchedRules.map((r) => r.bucketId))];
-    const ruleMatches = ruleAttachedBucketIds.map((bucketId) => ({
-      bucketId,
-      tagSlugs: matchedRules.find((r) => r.bucketId === bucketId)!.tagSlugs,
-    }));
+    const ruleMatches = ruleAttachedBucketIds.map((bucketId) => {
+      const rule = matchedRules.find((r) => r.bucketId === bucketId)!;
+      return { bucketId, tagSlugs: rule.tagSlugs, durationTypes: rule.durationTypes };
+    });
     return {
       id: p.id,
       name: p.name,

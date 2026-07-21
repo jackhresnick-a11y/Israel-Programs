@@ -4,6 +4,7 @@ import {
   resolveProgramQuestionProvenance,
   flattenResolvedQuestionIds,
   ruleMatchesTags,
+  ruleMatchesProgram,
   mergeRuleAttachedBucketIds,
   signedInSubmitSchema,
   anonymousSubmitSchema,
@@ -401,6 +402,54 @@ describe("ruleMatchesTags: bucket-attachment-rule AND semantics", () => {
   });
 });
 
+describe("ruleMatchesProgram: tags ANDed, duration ORed, the two dimensions ANDed together", () => {
+  it("matches on tags alone when the rule has no duration condition", () => {
+    expect(
+      ruleMatchesProgram(
+        { tagSlugs: ["gap-year"], durationTypes: [] },
+        { tagSlugs: ["gap-year"], durationType: "SEMESTER" }
+      )
+    ).toBe(true);
+  });
+
+  it("matches on duration alone when the rule has no tag condition", () => {
+    expect(
+      ruleMatchesProgram(
+        { tagSlugs: [], durationTypes: ["GAP_YEAR"] },
+        { tagSlugs: [], durationType: "GAP_YEAR" }
+      )
+    ).toBe(true);
+  });
+
+  it("does not match when duration-only rule's duration doesn't match the program's", () => {
+    expect(
+      ruleMatchesProgram(
+        { tagSlugs: [], durationTypes: ["GAP_YEAR"] },
+        { tagSlugs: [], durationType: "SEMESTER" }
+      )
+    ).toBe(false);
+  });
+
+  it("requires BOTH tags and duration when a rule sets both", () => {
+    const rule = { tagSlugs: ["pre-army"], durationTypes: ["GAP_YEAR" as const] };
+    expect(ruleMatchesProgram(rule, { tagSlugs: ["pre-army"], durationType: "GAP_YEAR" })).toBe(true);
+    expect(ruleMatchesProgram(rule, { tagSlugs: ["pre-army"], durationType: "SEMESTER" })).toBe(false);
+    expect(ruleMatchesProgram(rule, { tagSlugs: ["gap-year"], durationType: "GAP_YEAR" })).toBe(false);
+  });
+
+  it("duration is ORed -- any one of several durationTypes on the rule matches", () => {
+    const rule = { tagSlugs: [], durationTypes: ["GAP_YEAR" as const, "MULTI_YEAR" as const] };
+    expect(ruleMatchesProgram(rule, { tagSlugs: [], durationType: "MULTI_YEAR" })).toBe(true);
+    expect(ruleMatchesProgram(rule, { tagSlugs: [], durationType: "SUMMER" })).toBe(false);
+  });
+
+  it("a rule with neither tags nor durations never matches", () => {
+    expect(
+      ruleMatchesProgram({ tagSlugs: [], durationTypes: [] }, { tagSlugs: ["gap-year"], durationType: "GAP_YEAR" })
+    ).toBe(false);
+  });
+});
+
 describe("mergeRuleAttachedBucketIds: composing manual + rule-attached buckets", () => {
   it("appends rule-attached buckets after manual ones, in the order given", () => {
     expect(mergeRuleAttachedBucketIds(["manual1"], ["ruleA", "ruleB"])).toEqual(["manual1", "ruleA", "ruleB"]);
@@ -480,7 +529,7 @@ describe("resolveProgramQuestionProvenance: labels each resolved question by why
       { manualBucketIds: [], addedQuestionIds: [], removedQuestionIds: [] },
       [core, armyPrep],
       questions,
-      [{ bucketId: "armyPrep", tagSlugs: ["essence-pre-military"] }]
+      [{ bucketId: "armyPrep", tagSlugs: ["essence-pre-military"], durationTypes: [] }]
     );
     const q4 = result.questions.find((r) => r.question.id === "q4");
     expect(q4?.source).toEqual({
@@ -488,6 +537,25 @@ describe("resolveProgramQuestionProvenance: labels each resolved question by why
       bucketId: "armyPrep",
       bucketName: "armyPrep",
       tagSlugs: ["essence-pre-military"],
+      durationTypes: [],
+    });
+  });
+
+  it("labels a duration-matched bucket's questions with the matching duration types", () => {
+    const gapYearPrep = bucket("gapYearPrep", { questionIds: ["q4"] });
+    const result = resolveProgramQuestionProvenance(
+      { manualBucketIds: [], addedQuestionIds: [], removedQuestionIds: [] },
+      [core, gapYearPrep],
+      questions,
+      [{ bucketId: "gapYearPrep", tagSlugs: [], durationTypes: ["GAP_YEAR"] }]
+    );
+    const q4 = result.questions.find((r) => r.question.id === "q4");
+    expect(q4?.source).toEqual({
+      type: "rule",
+      bucketId: "gapYearPrep",
+      bucketName: "gapYearPrep",
+      tagSlugs: [],
+      durationTypes: ["GAP_YEAR"],
     });
   });
 
@@ -531,7 +599,7 @@ describe("resolveProgramQuestionProvenance: labels each resolved question by why
       { manualBucketIds: ["extraA"], addedQuestionIds: [], removedQuestionIds: [] },
       [core, extraA],
       questions,
-      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"] }]
+      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"], durationTypes: [] }]
     );
     const q4 = result.questions.find((r) => r.question.id === "q4");
     expect(q4?.source.type).toBe("rule");
@@ -543,7 +611,7 @@ describe("resolveProgramQuestionProvenance: labels each resolved question by why
       { manualBucketIds: ["extraA"], addedQuestionIds: ["q4"], removedQuestionIds: ["q4"] },
       [core, extraA],
       questions,
-      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"] }]
+      [{ bucketId: "extraA", tagSlugs: ["essence-spiritual-growth"], durationTypes: [] }]
     );
     expect(result.questions.map((r) => r.question.id)).not.toContain("q4");
     expect(result.removedQuestionIds).toEqual(["q4"]);
