@@ -6,7 +6,6 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
-import Card from "@/components/ui/Card";
 import QuestionInput from "@/components/polls/QuestionInput";
 import { pollDraftKey, yearAttendedOptions, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
 
@@ -89,6 +88,66 @@ function QuestionWithReview({
 }
 
 /**
+ * Renders the Core question list followed by each extra bucket (with its own group
+ * heading) -- the single place "which questions render, in what order" lives, shared by
+ * both SignedInRateForm and AnonymousRateForm so their question sets can never drift
+ * apart.
+ */
+function QuestionSections({
+  questions,
+  extras,
+  values,
+  naFlags,
+  reviewTexts,
+  onValueChange,
+  onNaChange,
+  onReviewTextChange,
+}: {
+  questions: PollQuestionDTO[];
+  extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
+  values: Record<string, number | null>;
+  naFlags: Record<string, boolean>;
+  reviewTexts: Record<string, string>;
+  onValueChange: (id: string, value: number | null) => void;
+  onNaChange: (id: string, na: boolean) => void;
+  onReviewTextChange: (id: string, text: string) => void;
+}) {
+  return (
+    <>
+      {questions.map((q) => (
+        <QuestionWithReview
+          key={q.id}
+          question={q}
+          value={values[q.id]}
+          onValueChange={(v) => onValueChange(q.id, v)}
+          na={naFlags[q.id] ?? false}
+          onNaChange={(na) => onNaChange(q.id, na)}
+          reviewText={reviewTexts[q.id] ?? ""}
+          onReviewTextChange={(text) => onReviewTextChange(q.id, text)}
+        />
+      ))}
+      {extras.map(({ bucket, questions: bucketQuestions }) => (
+        <div key={bucket.id} className="flex flex-col gap-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
+          {bucketQuestions.map((q) => (
+            <QuestionWithReview
+              key={q.id}
+              question={q}
+              value={values[q.id]}
+              onValueChange={(v) => onValueChange(q.id, v)}
+              na={naFlags[q.id] ?? false}
+              onNaChange={(na) => onNaChange(q.id, na)}
+              reviewText={reviewTexts[q.id] ?? ""}
+              onReviewTextChange={(text) => onReviewTextChange(q.id, text)}
+            />
+          ))}
+        </div>
+      ))}
+    </>
+  );
+}
+
+/**
  * The single, once-per-submission consent checkbox for written comments -- gates
  * `reviews` only, never the rating/N/A fields. Rendered directly above each surface's
  * submit button. `error` renders an inline message right at the checkbox (never at the
@@ -159,12 +218,9 @@ function SignedInRateForm({
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
-  // The signed-in on-site form shows the FULL resolved question set inline (Core plus
-  // every extra bucket auto-attached by a filter rule or manually) -- unlike the
-  // anonymous link form, which keeps extras behind the "add more detail" expander to
-  // avoid dumping 20+ questions on someone who followed a link. allQuestions backs
-  // state init and submission; the render below still walks `questions` (Core) and
-  // `extras` separately so each extra bucket gets its own labeled group heading.
+  // Both the signed-in and anonymous forms show the FULL resolved question set inline
+  // (Core plus every extra bucket auto-attached by a filter rule or manually) -- see
+  // QuestionSections, shared by both. allQuestions backs state init and submission.
   const allQuestions = [...questions, ...extras.flatMap((e) => e.questions)];
   const [values, setValues] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(allQuestions.map((q) => [q.id, existingAnswers?.[q.id] ?? null]))
@@ -233,35 +289,16 @@ function SignedInRateForm({
     <div data-poll-mode="signed-in" className="flex flex-col gap-6">
       {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
-      {questions.map((q) => (
-        <QuestionWithReview
-          key={q.id}
-          question={q}
-          value={values[q.id]}
-          onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
-          na={naFlags[q.id] ?? false}
-          onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
-          reviewText={reviewTexts[q.id] ?? ""}
-          onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-        />
-      ))}
-      {extras.map(({ bucket, questions: bucketQuestions }) => (
-        <div key={bucket.id} className="flex flex-col gap-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
-          {bucketQuestions.map((q) => (
-            <QuestionWithReview
-              key={q.id}
-              question={q}
-              value={values[q.id]}
-              onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
-              na={naFlags[q.id] ?? false}
-              onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
-              reviewText={reviewTexts[q.id] ?? ""}
-              onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-            />
-          ))}
-        </div>
-      ))}
+      <QuestionSections
+        questions={questions}
+        extras={extras}
+        values={values}
+        naFlags={naFlags}
+        reviewTexts={reviewTexts}
+        onValueChange={(id, v) => setValues((prev) => ({ ...prev, [id]: v }))}
+        onNaChange={(id, na) => setNaFlags((prev) => ({ ...prev, [id]: na }))}
+        onReviewTextChange={(id, text) => setReviewTexts((prev) => ({ ...prev, [id]: text }))}
+      />
       <ReviewConsentCheckbox
         checked={consentGiven}
         onChange={(checked) => {
@@ -349,6 +386,10 @@ function AnonymousRateForm({
   questions,
   extras,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
+  // Same full resolved question set (Core plus every extra bucket) as the signed-in
+  // form -- see QuestionSections, shared by both -- so an anonymous link visitor sees
+  // an identical questionnaire to a signed-in user.
+  const allQuestions = [...questions, ...extras.flatMap((e) => e.questions)];
   // Every question starts unanswered (null), same as the signed-in form -- this
   // supersedes the earlier "pre-position at 3" design, which made an untouched
   // question indistinguishable from a real answer of 3. The very first render (both
@@ -358,7 +399,7 @@ function AnonymousRateForm({
   // pattern), not inside an effect, so there's no hydration mismatch and no
   // setState-in-effect cascade.
   const [values, setValues] = useState<Record<string, number | null>>(() =>
-    Object.fromEntries(questions.map((q) => [q.id, null]))
+    Object.fromEntries(allQuestions.map((q) => [q.id, null]))
   );
   const [naFlags, setNaFlags] = useState<Record<string, boolean>>({});
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
@@ -399,7 +440,7 @@ function AnonymousRateForm({
 
   async function handleSubmit() {
     const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
-      questions,
+      allQuestions,
       values,
       naFlags,
       reviewTexts,
@@ -446,25 +487,23 @@ function AnonymousRateForm({
   }
 
   if (responseId) {
-    return <ThankYouScreen responseId={responseId} programName={programName} extras={extras} />;
+    return <ThankYouScreen programName={programName} />;
   }
 
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
       {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
-      {questions.map((q) => (
-        <QuestionWithReview
-          key={q.id}
-          question={q}
-          value={values[q.id]}
-          onValueChange={(v) => setValues((prev) => ({ ...prev, [q.id]: v }))}
-          na={naFlags[q.id] ?? false}
-          onNaChange={(na) => setNaFlags((prev) => ({ ...prev, [q.id]: na }))}
-          reviewText={reviewTexts[q.id] ?? ""}
-          onReviewTextChange={(text) => setReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-        />
-      ))}
+      <QuestionSections
+        questions={questions}
+        extras={extras}
+        values={values}
+        naFlags={naFlags}
+        reviewTexts={reviewTexts}
+        onValueChange={(id, v) => setValues((prev) => ({ ...prev, [id]: v }))}
+        onNaChange={(id, na) => setNaFlags((prev) => ({ ...prev, [id]: na }))}
+        onReviewTextChange={(id, text) => setReviewTexts((prev) => ({ ...prev, [id]: text }))}
+      />
       <label className="flex max-w-xs flex-col gap-1">
         <span className="text-sm font-medium text-foreground">When did you attend? (optional)</span>
         <Select
@@ -506,109 +545,18 @@ function AnonymousRateForm({
   );
 }
 
-function ThankYouScreen({
-  responseId,
-  programName,
-  extras,
-}: {
-  responseId: string;
-  programName: string;
-  extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
-}) {
-  const extraQuestions = extras.flatMap((e) => e.questions);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailValues, setDetailValues] = useState<Record<string, number | null>>(() =>
-    Object.fromEntries(extraQuestions.map((q) => [q.id, null]))
-  );
-  const [detailNaFlags, setDetailNaFlags] = useState<Record<string, boolean>>({});
-  const [detailReviewTexts, setDetailReviewTexts] = useState<Record<string, string>>({});
-  const [detailConsentGiven, setDetailConsentGiven] = useState(false);
-  const [detailConsentError, setDetailConsentError] = useState(false);
-  const [detailStatus, setDetailStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-
-  async function handleSaveDetail() {
-    const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
-      extraQuestions,
-      detailValues,
-      detailNaFlags,
-      detailReviewTexts,
-      detailConsentGiven
-    );
-    if (hasComments && !detailConsentGiven) {
-      setDetailConsentError(true);
-      return;
-    }
-    if (answers.length === 0 && naQuestionIds.length === 0 && reviews.length === 0) {
-      setDetailStatus("saved");
-      return;
-    }
-    setDetailConsentError(false);
-    setDetailStatus("saving");
-    try {
-      const res = await fetch(`/api/polls/responses/${responseId}/details`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, naQuestionIds, reviews }),
-      });
-      if (!res.ok) throw new Error();
-      setDetailStatus("saved");
-    } catch {
-      setDetailStatus("error");
-    }
-  }
-
+/**
+ * The anonymous form now presents the full resolved question set (core + extras)
+ * upfront, same as the signed-in form, so there's no longer a post-submit "add more
+ * detail" step here -- just the confirmation.
+ */
+function ThankYouScreen({ programName }: { programName: string }) {
   return (
-    <div data-poll-mode="anonymous" className="flex flex-col gap-4">
-      <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
-        Thanks -- your rating of {programName} has been recorded!
-      </div>
-
-      {extras.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <Button type="button" variant="ghost" size="sm" className="self-start" onClick={() => setDetailOpen((o) => !o)}>
-            {detailOpen ? "Hide extra questions" : "Add more detail"}
-          </Button>
-          {detailOpen && (
-            <Card className="flex flex-col gap-6 p-4">
-              {detailStatus === "saved" ? (
-                <p className="text-sm text-success">Thanks -- saved.</p>
-              ) : (
-                <>
-                  <ReviewConsentContext />
-                  {extras.map(({ bucket, questions }) => (
-                    <div key={bucket.id} className="flex flex-col gap-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
-                      {questions.map((q) => (
-                        <QuestionWithReview
-                          key={q.id}
-                          question={q}
-                          value={detailValues[q.id]}
-                          onValueChange={(v) => setDetailValues((prev) => ({ ...prev, [q.id]: v }))}
-                          na={detailNaFlags[q.id] ?? false}
-                          onNaChange={(na) => setDetailNaFlags((prev) => ({ ...prev, [q.id]: na }))}
-                          reviewText={detailReviewTexts[q.id] ?? ""}
-                          onReviewTextChange={(text) => setDetailReviewTexts((prev) => ({ ...prev, [q.id]: text }))}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                  <ReviewConsentCheckbox
-                    checked={detailConsentGiven}
-                    onChange={(checked) => {
-                      setDetailConsentGiven(checked);
-                      if (checked) setDetailConsentError(false);
-                    }}
-                    error={detailConsentError}
-                  />
-                  <Button type="button" size="sm" className="self-start" disabled={detailStatus === "saving"} onClick={handleSaveDetail}>
-                    {detailStatus === "saving" ? "Saving..." : "Save additional details"}
-                  </Button>
-                </>
-              )}
-            </Card>
-          )}
-        </div>
-      )}
+    <div
+      data-poll-mode="anonymous"
+      className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
+    >
+      Thanks -- your rating of {programName} has been recorded!
     </div>
   );
 }

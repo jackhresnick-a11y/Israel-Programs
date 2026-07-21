@@ -124,12 +124,11 @@ export async function POST(request: Request) {
       answers: body.answers,
       naQuestionIds: body.naQuestionIds,
       reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
-      // Only Core is actually *presented* at initial anonymous submit -- extras live
-      // behind the post-submit "add more detail" expander and get appended to
-      // presentedQuestionIds there (app/api/polls/responses/[id]/details/route.ts),
-      // not here. Stamping the full resolved set here would falsely mark every extra
-      // as "shown but skipped" for a respondent who never opened the expander.
-      presentedQuestionIds: resolved.core.map((q) => q.id),
+      // The anonymous form now presents the full resolved set (core + extras) inline,
+      // same as the signed-in form, so stamp the same full list here -- matching the
+      // signed-in branch's `allQuestionIds` above -- so moderation's skip/N-A diff
+      // reflects what was actually shown.
+      presentedQuestionIds: flattenResolvedQuestionIds(resolved),
       yearAttended: body.yearAttended ?? null,
       completion: body.completion ?? null,
       ipHash: hashIp(ip),
