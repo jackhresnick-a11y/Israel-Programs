@@ -6,6 +6,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      // Honored by Bing/Yandex/etc.; Googlebot ignores crawlDelay entirely
+      // (its crawl rate is controlled via Search Console instead) -- this
+      // only slows the crawlers that respect it, not a universal throttle.
+      crawlDelay: 5,
       disallow: [
         "/admin",
         "/api/",

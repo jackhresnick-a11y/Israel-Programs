@@ -5,7 +5,7 @@ import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
 import { listRegions } from "@/lib/regions";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
-import { getSiteContent } from "@/lib/siteContent";
+import { getSiteContentMany } from "@/lib/siteContent";
 import { trackSearch, trackFilterUse } from "@/lib/analytics";
 import { SITE_NAME } from "@/lib/siteUrl";
 import ProgramCard from "@/components/ProgramCard";
@@ -71,49 +71,47 @@ export default async function ProgramsPage({
     travelType: travelType as TravelType | undefined,
   };
 
-  const [
-    programs,
-    tags,
-    categories,
-    durationOptions,
-    regions,
-    facetPrograms,
-    backgroundUrl,
-    backgroundEnabled,
-    backgroundOpacity,
-    backgroundSizeDesktop,
-    backgroundOffsetYDesktop,
-    backgroundSizeMobile,
-    backgroundOffsetYMobile,
-    backgroundUrlDark,
+  const [programs, tags, categories, durationOptions, regions, facetPrograms, siteContent] =
+    await Promise.all([
+      listPrograms(programFilters),
+      listAllTags(),
+      listTagCategories(),
+      listDurationOptions(),
+      listRegions(),
+      getFacetData(q),
+      getSiteContentMany([
+        "backgroundLogoUrl",
+        "backgroundLogoEnabled",
+        "backgroundLogoOpacity",
+        "backgroundLogoSize",
+        "backgroundLogoOffsetY",
+        "backgroundLogoSizeMobile",
+        "backgroundLogoOffsetYMobile",
+        "backgroundLogoUrlDark",
+        "durationFilterLabel",
+        "durationFilterTint",
+        "durationFilterShow",
+        "regionFilterLabel",
+        "regionFilterTint",
+        "regionFilterShow",
+      ]),
+    ]);
+  const {
+    backgroundLogoUrl: backgroundUrl,
+    backgroundLogoEnabled: backgroundEnabled,
+    backgroundLogoOpacity: backgroundOpacity,
+    backgroundLogoSize: backgroundSizeDesktop,
+    backgroundLogoOffsetY: backgroundOffsetYDesktop,
+    backgroundLogoSizeMobile: backgroundSizeMobile,
+    backgroundLogoOffsetYMobile: backgroundOffsetYMobile,
+    backgroundLogoUrlDark: backgroundUrlDark,
     durationFilterLabel,
     durationFilterTint,
     durationFilterShow,
     regionFilterLabel,
     regionFilterTint,
     regionFilterShow,
-  ] = await Promise.all([
-    listPrograms(programFilters),
-    listAllTags(),
-    listTagCategories(),
-    listDurationOptions(),
-    listRegions(),
-    getFacetData(q),
-    getSiteContent("backgroundLogoUrl"),
-    getSiteContent("backgroundLogoEnabled"),
-    getSiteContent("backgroundLogoOpacity"),
-    getSiteContent("backgroundLogoSize"),
-    getSiteContent("backgroundLogoOffsetY"),
-    getSiteContent("backgroundLogoSizeMobile"),
-    getSiteContent("backgroundLogoOffsetYMobile"),
-    getSiteContent("backgroundLogoUrlDark"),
-    getSiteContent("durationFilterLabel"),
-    getSiteContent("durationFilterTint"),
-    getSiteContent("durationFilterShow"),
-    getSiteContent("regionFilterLabel"),
-    getSiteContent("regionFilterTint"),
-    getSiteContent("regionFilterShow"),
-  ]);
+  } = siteContent;
   const backgroundOpacityValue = (Number(backgroundOpacity) || 5) / 100;
   const backgroundDesktopHeight = Number(backgroundSizeDesktop) || 280;
   const backgroundDesktopOffset = Number(backgroundOffsetYDesktop) || 0;
@@ -316,6 +314,7 @@ export default async function ProgramsPage({
                   <Link
                     key={dimension.kind === "duration" ? "duration" : dimension.category}
                     href={href}
+                    prefetch={false}
                     className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
                   >
                     Remove {dimension.kind === "duration" ? durationFilter.label : dimension.label}
@@ -324,6 +323,7 @@ export default async function ProgramsPage({
                 ))}
                 <Link
                   href={clearAllHref}
+                  prefetch={false}
                   className="rounded-full border border-border bg-surface-muted px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
                 >
                   Clear all filters

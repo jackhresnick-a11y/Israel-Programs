@@ -177,7 +177,7 @@ export default async function ProgramDetailPage({
 
       <div className="flex flex-wrap gap-1.5">
         {program.tags.map((tag) => (
-          <Link key={tag.id} href={`/programs?tags=${tag.slug}`}>
+          <Link key={tag.id} href={`/programs?tags=${tag.slug}`} prefetch={false}>
             <Badge tone="tag" className="hover:bg-accent/25">
               #{tag.slug}
             </Badge>

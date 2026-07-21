@@ -114,7 +114,7 @@ export default function ProgramCard({
         </div>
         {action}
       </div>
-      <Link href={`/programs/${program.slug}`} className="flex flex-col gap-3">
+      <Link href={`/programs/${program.slug}`} prefetch={false} className="flex flex-col gap-3">
         <ProgramCardInfo
           program={program}
           durationLabelMap={durationLabelMap}
@@ -123,6 +123,7 @@ export default function ProgramCard({
       </Link>
       <Link
         href={`/programs/${program.slug}/edit`}
+        prefetch={false}
         className="self-end text-xs text-muted hover:text-accent hover:underline"
       >
         Edit
