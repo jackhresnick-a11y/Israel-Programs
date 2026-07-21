@@ -13,8 +13,9 @@ type Reference = {
   note: string | null;
 };
 
-function ContactRequestForm({ referenceId }: { referenceId: string }) {
+function ContactRequestForm({ referenceId, firstName }: { referenceId: string; firstName: string }) {
   const [note, setNote] = useState("");
+  const [website, setWebsite] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -27,7 +28,7 @@ function ContactRequestForm({ referenceId }: { referenceId: string }) {
       const res = await fetch(`/api/references/${referenceId}/contact-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
+        body: JSON.stringify({ note, website }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -44,8 +45,9 @@ function ContactRequestForm({ referenceId }: { referenceId: string }) {
   if (sent) {
     return (
       <p className="mt-2 text-xs text-info">
-        Request sent. They&apos;ll reach out to the email on your account if they
-        reply.
+        We&apos;ve emailed {firstName}. If they approve, you&apos;ll both receive each
+        other&apos;s contact info. This depends on them responding, and there&apos;s no
+        guarantee they will.
       </p>
     );
   }
@@ -61,6 +63,20 @@ function ContactRequestForm({ referenceId }: { referenceId: string }) {
         onChange={(e) => setNote(e.target.value)}
         className="text-xs"
       />
+      {/* Honeypot -- hidden from real users, off-screen rather than display:none so it
+          still trips up bots that skip hidden fields. */}
+      <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor={`reference-contact-website-${referenceId}`}>Website</label>
+        <input
+          id={`reference-contact-website-${referenceId}`}
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </div>
       <Button type="submit" size="sm" disabled={submitting} className="w-fit">
         {submitting ? "Sending..." : "Send request"}
       </Button>
@@ -118,7 +134,10 @@ function ReferenceRow({
         }
       >
         {requesting ? (
-          <ContactRequestForm referenceId={reference.id} />
+          <ContactRequestForm
+            referenceId={reference.id}
+            firstName={reference.displayName.split(" ")[0]}
+          />
         ) : (
           <button
             onClick={() => setRequesting(true)}
@@ -150,13 +169,11 @@ export default function ReferenceList({
     if (res.ok) router.refresh();
   }
 
-  if (references.length === 0) {
-    return (
-      <p className="text-sm text-muted">
-        No alumni references yet. Be the first to volunteer.
-      </p>
-    );
-  }
+  // The page only renders this component once the visibility gate says to show the
+  // list (see app/programs/[slug]/page.tsx) -- an empty array here means don't render
+  // anything, never a "no references yet" placeholder (references may simply be
+  // locked below the threshold, not actually zero).
+  if (references.length === 0) return null;
 
   return (
     <ul className="flex flex-col gap-4">

@@ -12,27 +12,35 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Sign in to volunteer as a reference" }, { status: 401 });
   }
 
-  if (!checkRateLimit(`reference:${userId}`, { limit: 5, windowMs: 10 * 60_000 })) {
-    return NextResponse.json({ error: "Too many requests — please try again later." }, { status: 429 });
-  }
-
   const { id } = await params;
-  const user = await currentUser();
-  const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.username ||
-    "Anonymous";
-  const contactEmail = user?.primaryEmailAddress?.emailAddress;
-  if (!contactEmail) {
-    return NextResponse.json(
-      { error: "Your account needs a verified email to become a reference" },
-      { status: 400 }
-    );
-  }
 
   try {
     const body = await request.json();
     const input = referenceInputSchema.parse(body);
+
+    // Honeypot tripped: pretend success, do nothing. Checked before the rate
+    // limit so a bot never learns a limiter exists.
+    if (input.website) {
+      return NextResponse.json({ id: "", displayName: "", attendedText: "", note: null, status: "PENDING" }, { status: 201 });
+    }
+
+    if (!checkRateLimit(`reference:${userId}`, { limit: 5, windowMs: 10 * 60_000 })) {
+      return NextResponse.json({ error: "Too many requests — please try again later." }, { status: 429 });
+    }
+
+    const user = await currentUser();
+    const displayName =
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.username ||
+      "Anonymous";
+    const contactEmail = user?.primaryEmailAddress?.emailAddress;
+    if (!contactEmail) {
+      return NextResponse.json(
+        { error: "Your account needs a verified email to become a reference" },
+        { status: 400 }
+      );
+    }
+
     const reference = await createReference(id, input, { userId, displayName, contactEmail });
     // Only return what the author needs to see -- never the full row (which
     // includes contactEmail/whatsappNumber) over the wire, even to themselves.

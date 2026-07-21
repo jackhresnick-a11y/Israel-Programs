@@ -15,3 +15,11 @@ export function programUrl(slug: string): string {
 export function folderShareUrl(token: string): string {
   return `${SITE_URL}/s/${token}`;
 }
+
+export function referenceApproveUrl(token: string): string {
+  return `${SITE_URL}/references/approve/${token}`;
+}
+
+export function referenceDeclineUrl(token: string): string {
+  return `${SITE_URL}/references/decline/${token}`;
+}

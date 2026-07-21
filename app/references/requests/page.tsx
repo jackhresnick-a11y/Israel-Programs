@@ -2,11 +2,25 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton } from "@clerk/nextjs";
 import { listContactRequestsForUser } from "@/lib/references";
-import ContactRequestActions from "@/components/ContactRequestActions";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
+import type { BadgeTone } from "@/components/ui/Badge";
+
+const STATUS_LABEL: Record<string, string> = {
+  AWAITING_ALUMNUS: "Awaiting your response",
+  APPROVED: "Approved",
+  DECLINED: "Declined",
+  EXPIRED: "Expired",
+};
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  AWAITING_ALUMNUS: "warning",
+  APPROVED: "success",
+  DECLINED: "neutral",
+  EXPIRED: "neutral",
+};
 
 export default async function ReferenceRequestsPage() {
   const { userId } = await auth();
@@ -34,7 +48,7 @@ export default async function ReferenceRequestsPage() {
     <PageContainer width="narrow" className="gap-6">
       <PageHeader
         title="My Reference Requests"
-        description="People who'd like to hear about your experience. Reply to them directly using the email shown, then mark it as replied here."
+        description="People who'd like to connect about a program you're a reference for. Approve or decline from the email we sent you -- this page is a read-only history."
       />
 
       {requests.length === 0 ? (
@@ -53,16 +67,15 @@ export default async function ReferenceRequestsPage() {
                 >
                   {req.reference.program.name}
                 </Link>
-                <Badge tone={req.status === "REPLIED" ? "info" : "warning"}>
-                  {req.status === "REPLIED" ? "Replied" : "Open"}
+                <Badge tone={STATUS_TONE[req.status] ?? "neutral"}>
+                  {STATUS_LABEL[req.status] ?? req.status}
                 </Badge>
               </div>
               <p className="text-sm text-foreground/80">{req.note}</p>
               <p className="text-xs text-muted">
-                Reply to: {req.requesterEmail} · requested{" "}
-                {new Date(req.createdAt).toLocaleDateString()}
+                {req.status === "APPROVED" ? `Contact: ${req.requesterEmail} · ` : ""}
+                requested {new Date(req.createdAt).toLocaleDateString()}
               </p>
-              {req.status === "OPEN" && <ContactRequestActions id={req.id} />}
             </li>
           ))}
         </ul>

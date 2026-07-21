@@ -39,8 +39,19 @@ enum EditStatus {
 }
 
 enum ContactRequestStatus {
-  OPEN
-  REPLIED
+  AWAITING_ALUMNUS
+  APPROVED
+  DECLINED
+  EXPIRED
+}
+
+/// AUTO is the default: the public reference list follows ReferenceConfig.unlockedAt /
+/// the live approved count (see lib/referenceVisibility.ts's resolveReferenceVisibility).
+/// FORCE_SHOW/FORCE_HIDE are the admin escape hatch in either direction.
+enum ReferenceVisibility {
+  AUTO
+  FORCE_SHOW
+  FORCE_HIDE
 }
 
 enum TravelType {
@@ -222,6 +233,7 @@ model Program {
   reviews                Review[]
   edits                  ProgramEdit[]
   references             Reference[]
+  referenceConfig        ReferenceConfig?
   emailVerifications     ContactEmailVerification[]
   outreachEmail          OutreachEmail?
   folderItems            FolderItem[]
@@ -473,6 +485,12 @@ model Reference {
   /// same provenance principle as Program.contactEmailSource.
   whatsappNumberSource String?
   status               ProgramStatus    @default(PENDING)
+  /// Consent to be listed publicly and to receive contact requests, captured at
+  /// submission time. Existing rows predate this field and stay `false` -- they were
+  /// already PUBLISHED before consent existed, so this is not backfilled or enforced
+  /// retroactively (no DB CHECK, unlike PollReview's consentGiven, for that reason).
+  consentGiven         Boolean          @default(false)
+  consentAt            DateTime?
   createdAt            DateTime         @default(now())
   contactRequests      ContactRequest[]
 
@@ -487,12 +505,40 @@ model ContactRequest {
   reference       Reference            @relation(fields: [referenceId], references: [id], onDelete: Cascade)
   requesterUserId String
   requesterEmail  String
+  /// Snapshotted from Clerk at request time (same "a changed value shouldn't rewrite
+  /// history" precedent as OutreachEmail.toEmail) -- not re-derived from Clerk at
+  /// approve/decline/reminder time, so a later name change or account deletion never
+  /// breaks the intro/reminder emails.
+  requesterName   String
   note            String?
-  status          ContactRequestStatus @default(OPEN)
+  /// Single-use secret embedded in the alumnus's approve/decline email links --
+  /// randomBytes(24).base64url, same generation as ReferrerToken.token /
+  /// Folder.shareToken. Never sent to the requester's client.
+  token           String               @unique
+  status          ContactRequestStatus @default(AWAITING_ALUMNUS)
   createdAt       DateTime             @default(now())
+  resolvedAt      DateTime?
+  /// Set the one time the 3-day reminder email fires, so it can never fire twice.
+  reminderSent    Boolean              @default(false)
 
   @@unique([referenceId, requesterUserId])
   @@index([referenceId])
+  @@index([status, createdAt])
+}
+
+/// Per-program admin override for the Alumni References public list, mirroring
+/// ProgramPollConfig's "1:1, missing row reads as schema defaults" shape. AUTO is the
+/// default -- see the ReferenceVisibility enum doc comment and
+/// lib/referenceVisibility.ts's resolveReferenceVisibility for the resolution logic.
+/// unlockedAt is written once, by lib/references.ts's approveReference, the first time
+/// the program's approved-reference count reaches minToShow -- this is what makes the
+/// public list *sticky* once unlocked (a later drop in count never re-hides it).
+model ReferenceConfig {
+  programId  String              @id
+  program    Program             @relation(fields: [programId], references: [id], onDelete: Cascade)
+  visibility ReferenceVisibility @default(AUTO)
+  unlockedAt DateTime?
+  minToShow  Int                 @default(3)
 }
 
 /// Immutable, append-only log powering the admin xlsx export. Deliberately
