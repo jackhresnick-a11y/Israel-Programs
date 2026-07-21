@@ -194,6 +194,25 @@ export async function getPublicPollLink(programId: string): Promise<string | nul
   return `/rate/${row.program.slug}?ref=${row.publicToken.token}`;
 }
 
+/** Bulk form of getPublicPollLink -- one query for every program whose public poll
+ * link is live, keyed by programId. Used by the /rate picker page so it doesn't run
+ * getPublicPollLink once per program. */
+export async function listPublicPollLinks(): Promise<Map<string, string>> {
+  const rows = await prisma.programPollConfig.findMany({
+    where: { pollLinkPublic: true, publicTokenId: { not: null } },
+    select: {
+      programId: true,
+      program: { select: { slug: true } },
+      publicToken: { select: { token: true } },
+    },
+  });
+  return new Map(
+    rows
+      .filter((r) => r.publicToken)
+      .map((r) => [r.programId, `/rate/${r.program.slug}?ref=${r.publicToken!.token}`])
+  );
+}
+
 export const programPollConfigPatchSchema = z.object({
   bucketIds: z.array(z.string().min(1)).optional(),
   addedQuestionIds: z.array(z.string().min(1)).optional(),
