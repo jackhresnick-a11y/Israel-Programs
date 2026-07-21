@@ -106,12 +106,11 @@ export default function TagManager({
   function handleMove(rows: TagRow[], index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= rows.length) return;
-    const a = rows[index];
-    const b = rows[target];
-    withBusy(a.id, async () => {
-      await api(`/api/admin/tags/${a.id}`, "PATCH", { order: b.order });
-      await api(`/api/admin/tags/${b.id}`, "PATCH", { order: a.order });
-    });
+    const reordered = [...rows];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    withBusy(rows[index].id, () =>
+      api("/api/admin/tags/reorder", "POST", { ids: reordered.map((t) => t.id) })
+    );
   }
 
   async function handleCreate() {

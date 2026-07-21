@@ -178,6 +178,17 @@ export async function deleteTag(id: string) {
   return prisma.tag.delete({ where: { id } });
 }
 
+/** Sets `order` to each tag's index in `ids` (0..n-1), in one transaction. Used by the
+ * admin reorder arrows for a single category group at a time -- normalizing the whole
+ * group instead of swapping two `order` values means it self-heals ties (most seeded
+ * tags share the default `order: 0`, so a two-row swap between equal values was a no-op)
+ * and can't leave a half-applied swap if one write fails. */
+export async function reorderTags(ids: string[]) {
+  await prisma.$transaction(
+    ids.map((id, index) => prisma.tag.update({ where: { id }, data: { order: index } }))
+  );
+}
+
 /** Merges `sourceId` into `targetId`: repoints every program association from source to
  * target (skipping programs already tagged with target, since Program<->Tag is a unique
  * relation pair) then deletes the source tag. Used by admins to consolidate near-duplicate

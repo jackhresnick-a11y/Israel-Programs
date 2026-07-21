@@ -1,0 +1,548 @@
+[
+  {
+    "id": "cmr7sl7jo0001w9mzoj1e48gh",
+    "slug": "10-day",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrlrsdn60000gimzy5c3baov",
+    "slug": "essence-army-training",
+    "category": "essence",
+    "order": 0
+  },
+  {
+    "id": "cmr8su8e700060omzuz0yp73h",
+    "slug": "boys-only",
+    "category": "gender",
+    "order": 0
+  },
+  {
+    "id": "cmr8stn5d00010omzsxnrfve6",
+    "slug": "coed",
+    "category": "gender",
+    "order": 0
+  },
+  {
+    "id": "cmra8bgdv0001zxmzwtbcn4y0",
+    "slug": "college-credit",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8susdt00070omzu3h3xm65",
+    "slug": "girls-only",
+    "category": "gender",
+    "order": 0
+  },
+  {
+    "id": "cmrcghtpw000033mzcn8hnmhn",
+    "slug": "integration-high",
+    "category": "israeli-integration",
+    "order": 0
+  },
+  {
+    "id": "cmrcghutn000233mzijp2kuxx",
+    "slug": "integration-low",
+    "category": "israeli-integration",
+    "order": 0
+  },
+  {
+    "id": "cmrcghuo1000133mz21qa1alt",
+    "slug": "integration-medium",
+    "category": "israeli-integration",
+    "order": 0
+  },
+  {
+    "id": "cmrkzsen3000004l7f48s3dnl",
+    "slug": "military",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmra8bpwr0002zxmz9tc64ndi",
+    "slug": "multi-city-touring",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrcghuz3000333mzh0951yjy",
+    "slug": "no-israeli-integration",
+    "category": "israeli-integration",
+    "order": 0
+  },
+  {
+    "id": "cmrcghv3k000433mzs8r7pl7i",
+    "slug": "rz-modern-orthodox",
+    "category": "affiliation",
+    "order": 0
+  },
+  {
+    "id": "cmra8brol0003zxmz12csiyb9",
+    "slug": "scholarships-available",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrcghvo4000933mz7wj91wrr",
+    "slug": "essence-spiritual-growth",
+    "category": "essence",
+    "order": 0
+  },
+  {
+    "id": "cmr8bgra70010vkmzjo66aak1",
+    "slug": "activism",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo64p000bhdmzdd6fid07",
+    "slug": "adult-learners",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmra8fot2000k2wmzf3eqo8iv",
+    "slug": "advocacy",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qc2ot000qjbmz094dc5oi",
+    "slug": "agriculture",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrhje28o0003e1mzdxkq7xur",
+    "slug": "aliyah",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr3k0005vkmzffbw2nps",
+    "slug": "arabic",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmracfe5d000wb1mzlw3xlmyw",
+    "slug": "archaeology",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qaxns0001jbmzuwatc5ni",
+    "slug": "arts",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qb0n30003jbmzlwkd2ca8",
+    "slug": "audition-required",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrpv002zvkmzgvcxudu5",
+    "slug": "bbyo",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrhjebjh0005e1mzrm03f1is",
+    "slug": "birthright",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrpf002xvkmzr3n65wuk",
+    "slug": "bnei-akiva",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrs9003cvkmzpext8isl",
+    "slug": "chabad",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrfw001ovkmzo9o0wyqm",
+    "slug": "chessed",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6bo0018hdmzcblaoq4h",
+    "slug": "community-service",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qb8sp0008jbmzyavojtvj",
+    "slug": "dance",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qb3110005jbmzrcut1znf",
+    "slug": "design",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmracf65v000pb1mzgsux6jmg",
+    "slug": "disability-inclusion",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo68n000shdmzyg573z5s",
+    "slug": "engineering",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qc22s000pjbmz4q5u3bu4",
+    "slug": "environmental",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr7c000mvkmzw3742sok",
+    "slug": "fellowship",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrbvja8b000f2gmz9muprz2r",
+    "slug": "film",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr7sl7jg0000w9mzlt9gysaw",
+    "slug": "free",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6f3001shdmz2hcyd98d",
+    "slug": "government-program",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qbl24000ejbmzxaic2pcn",
+    "slug": "hebrew-required",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrby0019vkmz1itt711m",
+    "slug": "hesder",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr2l0002vkmzknd90dqa",
+    "slug": "jerusalem",
+    "category": "location",
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr7s000ovkmze2tvcjxp",
+    "slug": "kibbutz",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrin0021vkmzwvz4ytzh",
+    "slug": "litvish",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrhje9fi0004e1mz39b0ls5s",
+    "slug": "lone-soldier",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6dt001khdmztrzhrp6n",
+    "slug": "masa",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6ac0011hdmzgwop6b6n",
+    "slug": "mechina",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6fv001xhdmzil7djf3h",
+    "slug": "medical",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qax1g0000jbmzegz7fh9y",
+    "slug": "music",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrd6001evkmza2g4d51b",
+    "slug": "ncsy",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrc5001avkmzznojpe1f",
+    "slug": "overseas-program",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6ah0012hdmzlti67ika",
+    "slug": "pre-army",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr69000hvkmz6o47dep2",
+    "slug": "professional",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrp2002vvkmzazwzpwoj",
+    "slug": "ramah",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qazx00002jbmz53qcisok",
+    "slug": "ramat-hasharon",
+    "category": "location",
+    "order": 0
+  },
+  {
+    "id": "cmrbvit5w00042gmzltou35ty",
+    "slug": "science",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrb50015vkmz1vb92b7l",
+    "slug": "semester",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bo66z000jhdmzwllqlc4p",
+    "slug": "sephardic",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr7y000pvkmz4j0zpuqu",
+    "slug": "socialist-zionism",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrapgabz001tbkmzsyw7n7pa",
+    "slug": "spanish-speaking",
+    "category": "language",
+    "order": 0
+  },
+  {
+    "id": "cmr8bo6et001qhdmz1p5mdq41",
+    "slug": "special-needs",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmra8gzt900112wmznnvgq96h",
+    "slug": "sports",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr7sl7l40008w9mzw2uctzsw",
+    "slug": "summer",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgr74000lvkmzv86llqfi",
+    "slug": "tech",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrlz002fvkmz889he1x2",
+    "slug": "teen",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8qb9et0009jbmz99g8zcum",
+    "slug": "theater",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrgp001svkmzx89pankm",
+    "slug": "ulpan",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrnx002qvkmzalmqpj4l",
+    "slug": "usy",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr7sl7m0000ew9mz2efu8jyn",
+    "slug": "volunteering",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8aety90003xemzoo9y0v3v",
+    "slug": "yeshiva",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrho001wvkmzco6y6gcs",
+    "slug": "yeshiva-gevoha",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr8bgrr40036vkmz7y1p1yue",
+    "slug": "young-judaea",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmr7sl7ma000gw9mzsb324poc",
+    "slug": "zionism",
+    "category": null,
+    "order": 0
+  },
+  {
+    "id": "cmrduzq0n0001ermzi4d1utf1",
+    "slug": "age-high-school",
+    "category": "age",
+    "order": 1
+  },
+  {
+    "id": "cmrcghvs6000a33mz9i0yc8rh",
+    "slug": "essence-academic-internship",
+    "category": "essence",
+    "order": 1
+  },
+  {
+    "id": "cmrcghv7o000533mznrqhfrx0",
+    "slug": "harediultra-orthodoxyeshivish",
+    "category": "affiliation",
+    "order": 1
+  },
+  {
+    "id": "cmrcghvbs000633mzzsq20wk2",
+    "slug": "flexible-religously",
+    "category": "affiliation",
+    "order": 2
+  },
+  {
+    "id": "cmrduzq6u0002ermzeiyh6cr8",
+    "slug": "age-gap-year",
+    "category": "age",
+    "order": 2
+  },
+  {
+    "id": "cmrcij22w000004k3djsxf5ql",
+    "slug": "southern-israel",
+    "category": "location",
+    "order": 2
+  },
+  {
+    "id": "cmrcghvwb000b33mzwxbb4fjy",
+    "slug": "essence-travel",
+    "category": "essence",
+    "order": 2
+  },
+  {
+    "id": "cmrduzqb10003ermzq9c66x03",
+    "slug": "age-college",
+    "category": "age",
+    "order": 3
+  },
+  {
+    "id": "cmrcghvk0000833mz0wzubdmz",
+    "slug": "mixed-religously",
+    "category": "affiliation",
+    "order": 3
+  },
+  {
+    "id": "cmrcghw0e000c33mzoig1t7xi",
+    "slug": "essence-pre-military",
+    "category": "essence",
+    "order": 3
+  },
+  {
+    "id": "cmrcj75de000304k3d6swctka",
+    "slug": "sherut-leumi-national-service",
+    "category": null,
+    "order": 3
+  },
+  {
+    "id": "cmrduzqf60004ermzayy3z5fu",
+    "slug": "age-post-college",
+    "category": "age",
+    "order": 4
+  },
+  {
+    "id": "cmrcghvfw000733mzhfqhtwlr",
+    "slug": "non-affiliated-religously",
+    "category": "affiliation",
+    "order": 4
+  },
+  {
+    "id": "cmrcjcpmg000404k3no3hy61o",
+    "slug": "northern-israel",
+    "category": "location",
+    "order": 4
+  },
+  {
+    "id": "cmrcjdh0c000604k3qag8hgsl",
+    "slug": "yehuda-desert",
+    "category": null,
+    "order": 5
+  },
+  {
+    "id": "cmrcjdlc8000704k3fuu30bb9",
+    "slug": "samaria",
+    "category": "location",
+    "order": 6
+  },
+  {
+    "id": "cmrcje3ny000904k3987pl5m6",
+    "slug": "coastal-israel",
+    "category": "location",
+    "order": 7
+  },
+  {
+    "id": "cmrcjfo38000a04k3136fupuz",
+    "slug": "central-israel",
+    "category": null,
+    "order": 8
+  }
+]
