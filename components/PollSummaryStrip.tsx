@@ -3,6 +3,7 @@ import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import { meanToPercent, formatStarsMean } from "@/lib/pollFormat";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
+import RatingRing from "@/components/polls/RatingRing";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Six-slot categorical palette for question-group (bucket) identity in the results
@@ -30,36 +31,19 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
   return `var(${BUCKET_COLOR_VARS[index]})`;
 }
 
-/** One question's result cell in the results grid, keyed off `scaleType`. EVALUATIVE
- * reads as a grade -- a bucket-tinted circle with "N★" (higher is better). DESCRIPTIVE
- * never shows a star (a star implies good/bad, wrong for a neutral spectrum) -- it
- * renders as a full-width labeled spectrum track instead (see DescriptiveTrack). Mean
- * text always stays in the ordinary foreground ink, never the bucket color -- identity
- * is carried by the circle/marker fill, not by tinting the number itself. */
-function QuestionCell({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
-  const { text, mean, count, scaleType } = question;
+/** One question's result block, keyed off `scaleType` -- stacked vertically, never
+ * side-by-side, so two questions can never collide regardless of screen width.
+ * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
+ * DESCRIPTIVE never shows a ring or a star (those imply good/bad, wrong for a neutral
+ * spectrum) -- it renders as a labeled spectrum track instead (see DescriptiveTrack). */
+function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
+  const { text, mean, count, labels, scaleType } = question;
 
   if (scaleType === "DESCRIPTIVE") {
-    return <DescriptiveTrack text={text} mean={mean} count={count} labels={question.labels} colorVar={colorVar} />;
+    return <DescriptiveTrack text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
   }
 
-  return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-border p-3 text-center">
-      <p className="text-xs font-medium text-foreground">{text}</p>
-      <div
-        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold text-foreground sm:h-20 sm:w-20"
-        style={{
-          borderColor: colorVar ?? "var(--border)",
-          backgroundColor: colorVar
-            ? `color-mix(in srgb, ${colorVar} 14%, var(--surface))`
-            : "var(--surface-muted)",
-        }}
-      >
-        {mean !== null ? `${formatStarsMean(mean)}★` : "---"}
-      </div>
-      <span className="text-[10px] text-muted">n={count}</span>
-    </div>
-  );
+  return <RatingRing text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
 }
 
 /**
@@ -146,12 +130,14 @@ export default function PollSummaryStrip({
   const ungroupedQuestions = otherQuestions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
 
   return (
-    <Card className="flex flex-col gap-5 p-4">
+    <div className="flex flex-col gap-4">
       {/* Overall is the headline this block leads with -- gold-tinted hero card,
           set apart from the plain bucket-group cards below (per frontend-design:
-          spend the one visual accent on the thing that's actually the thesis). */}
-      <div
-        className="flex flex-wrap items-center gap-6 rounded-xl border p-4"
+          spend the one visual accent on the thing that's actually the thesis).
+          Strictly vertical (score, then histogram, then CTA) so nothing can
+          collide regardless of screen width. */}
+      <Card
+        className="flex flex-col gap-3 p-4"
         style={{
           background: "color-mix(in srgb, var(--accent) 12%, var(--surface))",
           borderColor: "color-mix(in srgb, var(--accent) 45%, var(--border))",
@@ -164,7 +150,7 @@ export default function PollSummaryStrip({
             {summary.counted} rating{summary.counted === 1 ? "" : "s"}
           </p>
         </div>
-        <div className="flex min-w-[180px] flex-1 flex-col gap-1">
+        <div className="flex flex-col gap-1">
           {summary.overallHistogram.map((count, i) => {
             const starCount = i + 1;
             const width = (count / maxCount) * 100;
@@ -181,51 +167,48 @@ export default function PollSummaryStrip({
         </div>
         <Link
           href={`/rate/${programSlug}`}
-          className={buttonVariants({ variant: "primary", size: "sm", className: "ml-auto shrink-0" })}
+          className={buttonVariants({ variant: "primary", size: "sm", className: "w-full sm:w-auto sm:self-start" })}
         >
           Rate this program
         </Link>
-      </div>
+      </Card>
 
-      {otherQuestions.length > 0 && (
-        <div className="flex flex-col gap-5">
-          {summary.buckets.map((bucket) => {
-            const bucketQuestions = otherQuestions.filter((q) => q.bucketId === bucket.id);
-            if (bucketQuestions.length === 0) return null;
-            const colorVar = bucketColorVar(bucket.id, summary.buckets);
-            return (
-              <div key={bucket.id} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="shrink-0 text-sm font-medium text-foreground">{bucket.name}</span>
-                  <span
-                    className="h-0.5 flex-1 rounded-full"
-                    style={{ backgroundColor: colorVar ?? "var(--border)" }}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {bucketQuestions.map((q) => (
-                    <QuestionCell key={q.key} question={q} colorVar={colorVar} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {ungroupedQuestions.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <span className="shrink-0 text-sm font-medium text-foreground">Other</span>
-                <span className="h-0.5 flex-1 rounded-full bg-border" />
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {ungroupedQuestions.map((q) => (
-                  <QuestionCell key={q.key} question={q} colorVar={null} />
-                ))}
-              </div>
+      {summary.buckets.map((bucket) => {
+        const bucketQuestions = otherQuestions.filter((q) => q.bucketId === bucket.id);
+        if (bucketQuestions.length === 0) return null;
+        const colorVar = bucketColorVar(bucket.id, summary.buckets);
+        return (
+          <Card key={bucket.id} className="flex flex-col gap-4 p-4">
+            <div className="flex items-center gap-3">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: colorVar ?? "var(--border)" }}
+              />
+              <span className="text-sm font-medium text-foreground">{bucket.name}</span>
             </div>
-          )}
-        </div>
+            <div className="flex flex-col divide-y divide-border">
+              {bucketQuestions.map((q) => (
+                <div key={q.key} className="py-4 first:pt-0 last:pb-0">
+                  <QuestionBlock question={q} colorVar={colorVar} />
+                </div>
+              ))}
+            </div>
+          </Card>
+        );
+      })}
+
+      {ungroupedQuestions.length > 0 && (
+        <Card className="flex flex-col gap-4 p-4">
+          <span className="text-sm font-medium text-foreground">Other</span>
+          <div className="flex flex-col divide-y divide-border">
+            {ungroupedQuestions.map((q) => (
+              <div key={q.key} className="py-4 first:pt-0 last:pb-0">
+                <QuestionBlock question={q} colorVar={null} />
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
-    </Card>
+    </div>
   );
 }

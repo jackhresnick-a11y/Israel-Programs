@@ -68,13 +68,15 @@ export type ResolvedPollQuestionSet = {
 export type PollSummaryState = "be_first" | "collecting" | "under_review" | "published";
 
 /** One resolved (non-retired) question's result, whether or not it has any answers yet
- * -- `mean`/`count` are null/0 when nobody has answered it, which the results grid
- * renders as "---" rather than omitting the circle entirely. `bucketId` is the owning
- * QuestionBucket's id (core questions get the core bucket's id) and drives the
- * results grid's per-bucket color, matched against `PollSummaryDTO.buckets`. `labels`
- * is the question's own full 5-value label set -- a DESCRIPTIVE question renders as a
- * spectrum track (see DescriptiveTrack) whose two end labels are the ones nearest the
- * mean (floor/ceil), so it needs all 5. Evaluative questions ignore it (star + mean). */
+ * -- `mean`/`count` are null/0 when nobody has answered it, which the results list
+ * renders as an empty ring/track rather than omitting the block entirely. `bucketId` is
+ * the owning QuestionBucket's id (core questions get the core bucket's id) and drives
+ * the results list's per-bucket color, matched against `PollSummaryDTO.buckets`.
+ * `labels` is the question's own full 5-value label set -- an EVALUATIVE question uses
+ * `labels[0]`/`labels[4]` for its "1 low · 5 high" line (see RatingRing); a DESCRIPTIVE
+ * question renders as a spectrum track (see DescriptiveTrack) whose two end labels are
+ * always the extremes `labels[0]`/`labels[4]`, plus a "Closest to" line naming
+ * `labels[round(mean)-1]` -- so it needs all 5. */
 export type PollSummaryQuestionDTO = {
   key: string;
   text: string;
