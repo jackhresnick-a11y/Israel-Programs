@@ -622,14 +622,27 @@ for freeform *reviews*, which are a separate, optional layer) — seven models
 (`PollQuestion`, `QuestionBucket`, `ProgramPollConfig`, `PollResponse`, `PollAnswer`,
 `ReferrerToken`, `PollReview`) across two migrations. `20260717122617_add_alumni_polls`
 hand-appends a `CHECK ("value" BETWEEN 1 AND 5)` constraint on `PollAnswer` and two
-partial unique indexes (`PollResponse` one-counted-per-user-per-program,
-one-counted-and-verified-per-email-per-program); `20260717145712_add_poll_reviews_and_skip_snapshot`
-adds `PollReview` (with its own hand-appended `CHECK ("consentGiven")`) and
-`PollResponse.presentedQuestionIds`. Prisma has no first-class syntax for CHECK
-constraints or partial indexes — **never run `prisma db push` against this schema**, it
-silently drops all three. **Public math only ever counts a response where
-`status = COUNTED` AND `verified = true`** — every aggregate query filters on that pair
-together, never status alone.
+partial unique indexes (`PollResponse` one-counted-per-user-per-program, and
+one-counted-and-verified-per-email-per-program — the latter is now dormant, see below);
+`20260717145712_add_poll_reviews_and_skip_snapshot` adds `PollReview` (with its own
+hand-appended `CHECK ("consentGiven")`) and `PollResponse.presentedQuestionIds`. Prisma
+has no first-class syntax for CHECK constraints or partial indexes — **never run
+`prisma db push` against this schema**, it silently drops all three.
+
+**Public math counts every response where `status = COUNTED` — `verified` is
+deliberately NOT part of the gate.** When the anonymous path's after-submit email
+verification was removed (see that bullet below), anonymous link responses started
+landing `COUNTED` on submit with `verified` left `false` forever; every aggregate query
+in `lib/pollResults.ts` (`getProgramPollSummary`, `listPublicReviews`) and the review
+approval gate in `lib/pollReviews.ts`'s `approvePollReview` filter on `status` alone. ⚠️
+**Do not "restore" a `verified = true` filter** — `verified` is never true on the
+anonymous path at all, so that would silently drop every counted anonymous response
+from every score and hide their reviews. The
+`PollResponse_email_programId_counted_verified_key` partial index above is a leftover
+from when `verified` still gated counting; it's now effectively unreachable (anonymous
+responses are never `verified`, signed-in responses never carry an `email`) but kept
+rather than dropped — dropping a partial index on the shared/prod DB is a
+destructive-schema-change decision, not a doc fix.
 
 **Every question is skippable, and a skip is the *absence* of a row — never a stored
 null or sentinel.** Inputs start unanswered (no pre-fill): tapping a value selects it,
@@ -651,7 +664,7 @@ diffs this against `answers` and `naQuestionIds` to show "N/A: <question>" and
 "Skipped: <question>" as distinct explicit states, and stays accurate even after a
 later admin edit changes the program's live question set. Because a response can now
 skip `overall`, **the publish gate, headline, and progress bar all read the count of
-COUNTED+verified responses that *answered* `overall`, not the count of COUNTED+verified
+COUNTED responses that *answered* `overall`, not the count of COUNTED
 responses** — see `lib/pollResults.ts`'s `getProgramPollSummary`; a program whose config
 has removed `overall` entirely reads 0 here and never leaves "be_first." Per-question
 means/counts in that same file are already computed from actual `PollAnswer` rows only,
@@ -665,20 +678,31 @@ Two independent submission paths, both ending at the same `PollAnswer`/`PollRevi
   unique index is the DB-level backstop against a concurrent double-submit race, which
   the function retries once against.
 - **Anonymous link path** (`/rate/[slug]?ref=TOKEN`, minted at `/admin/polls/links` via
-  `lib/pollTokens.ts`'s `mintReferrerToken`): no login wall, submit creates a
-  PENDING/unverified response. Only the thank-you screen's optional email step
-  (`attachEmailAndSendVerification`, `lib/email.ts`'s `sendPollVerifyEmail`) sends a
-  magic link; clicking it (`verifyPollResponse`, `/rate/verify`) flips the response to
-  COUNTED+verified. A **revoked, expired, or over-cap token is still accepted, not
-  rejected** — `validateReferrerToken` returns it with a flag
-  (`token_revoked`/`token_expired`/`token_over_cap`) instead of an error, so a link an
-  admin handed out never silently stops working; only a token that doesn't resolve at
-  all falls back to a sign-in CTA. `flags` (`String[]` on `PollResponse`, constants in
-  `lib/pollShared.ts`'s `POLL_FLAGS`) also catches `repeat_ip` (a salted-SHA-256
-  `ipHash` — see `lib/pollIntegrity.ts`'s `hashIp`, a deliberate departure from
-  `lib/rateLimit.ts`'s "no IP ever persisted" posture) and `duplicate_email` (a second
-  verification of an already-counted email voids itself with this flag rather than
-  double-counting).
+  `lib/pollTokens.ts`'s `mintReferrerToken`): no login wall, submit counts immediately —
+  `lib/pollResponses.ts`'s `submitAnonymousResponse` creates the response `COUNTED`
+  right away (`verified` stays `false` permanently; nothing ever flips it) unless a
+  submit-time anti-abuse check trips, in which case it lands `FLAGGED` instead. This
+  replaced an earlier design where an anonymous submit landed `PENDING`/unverified and
+  only counted after clicking a magic link from an optional post-submit email step —
+  that step caused too much drop-off (real completions sat PENDING forever because the
+  follow-up click never happened) and has been **removed entirely**: there is no
+  `/rate/verify` route, `verifyPollResponse`, or `sendPollVerifyEmail` in the codebase
+  anymore, and nothing reads or writes toward that flow. A **revoked, expired, or
+  over-cap token is still accepted, not rejected** — `validateReferrerToken` returns it
+  with a flag (`token_revoked`/`token_expired`/`token_over_cap`) instead of an error, so
+  a link an admin handed out never silently stops working; only a token that doesn't
+  resolve at all falls back to a sign-in CTA. `flags` (`String[]` on `PollResponse`,
+  constants in `lib/pollShared.ts`'s `POLL_FLAGS`) also catches `repeat_ip` (a
+  salted-SHA-256 `ipHash` — see `lib/pollIntegrity.ts`'s `hashIp`, a deliberate
+  departure from `lib/rateLimit.ts`'s "no IP ever persisted" posture) and
+  `repeat_browser` (an httpOnly `poll_v_<programId>` cookie, set only on a clean
+  `COUNTED` submit). Any of these route the response to `FLAGGED` rather than
+  `COUNTED`; an admin can approve it later (`lib/pollResponses.ts`'s
+  `approvePollResponse`) once satisfied it's legitimate. `duplicate_email` is a
+  **historical, dormant** flag constant — it was set by the removed magic-link
+  verification step and past rows may still carry it (the moderation UI still labels
+  it), but nothing in the current anonymous-submit path checks or writes it; the email
+  optionally collected on this path today is unverified and not deduped against.
 
 **Reviews are optional per-question free text, gated on one submission-level consent
 checkbox.** Each question carries its own review textarea (placeholder text states the
@@ -701,17 +725,19 @@ commits (`lib/pollResponses.ts`'s `insertReviews`), not via `createMany`, so a d
 or a retried "add more detail" call — fails only that one review (reported back as
 `skippedReviewQuestionIds`), never the whole submission. Every `PollReview` defaults to
 PENDING and **nothing auto-approves, ever**: `lib/pollReviews.ts`'s `approvePollReview`
-refuses unless the parent response is already `COUNTED` AND `verified`. Rejected
-reviews are retained, never deleted.
+refuses unless the parent response is already `COUNTED` (`verified` is not checked —
+see the public-math invariant above). Rejected reviews are retained, never deleted.
 
 **Publishing a review is a query-time join, not a stored flag.** `lib/pollResults.ts`'s
-`listPublicReviews` selects `status = APPROVED AND response.status = COUNTED AND
-response.verified` — voiding a response hides its approved reviews immediately with
-zero writes to `PollReview`, and restoring the response republishes them automatically.
-Reviews render on the program page (`components/PollReviewsSection.tsx`, below the
-summary strip) grouped by question in the program's live resolved-question order,
-gated on the kill switch and `resultsVisible` **only** — deliberately not the score's
-`minResponsesToPublish` threshold, since every review was individually approved.
+`listPublicReviews` selects `status = APPROVED AND response.status = COUNTED` (again,
+`verified` isn't part of the gate — see the public-math invariant above) — voiding a
+response hides its approved reviews immediately with zero writes to `PollReview`, and
+restoring the response republishes them automatically. Reviews render on the program
+page via the unified `components/ReviewsSection.tsx` (poll reviews and standalone
+written reviews together, below the summary strip) grouped by question in the
+program's live resolved-question order, gated on the kill switch and `resultsVisible`
+**only** — deliberately not the score's `minResponsesToPublish` threshold, since every
+review was individually approved.
 
 `/admin/polls/reviews` is the moderation queue (default PENDING; approve, reject with
 an optional note, bulk-reject) with three attention signals recomputed live on every
@@ -781,7 +807,7 @@ reporting a conflict — not throwing — if that collides with a partial unique
 state is actually "published," since the common "ships dark" case needs just a count).
 
 The program page renders `PollSummaryStrip` (between the description and "Who it's
-for" blocks) then `PollReviewsSection` below it. The strip's four states — be first /
+for" blocks) then `ReviewsSection` below it. The strip's four states — be first /
 collecting (with a live progress bar) / under review / the published score — are gated
 on `resultsVisible` (per-program, `/admin/polls/programs`) AND overall-answer-count
 `>= minResponsesToPublish` AND a global kill switch (`SiteContent` key
@@ -824,7 +850,7 @@ hard-deleted. `/admin/polls/faqs` (`FaqManager.tsx`) has the pending-questions q
 `BucketManager`'s conventions respectively; its pending count feeds both the FAQs tab
 badge and the `/admin` "Ratings" nav badge (summed with pending reviews).
 `components/ProgramFaqSection.tsx` renders published entries on the program page (below
-`PollReviewsSection`) gated purely on each entry's own `PUBLISHED` status — not the poll
+`ReviewsSection`) gated purely on each entry's own `PUBLISHED` status — not the poll
 kill switch or `resultsVisible`, since a FAQ entry isn't aggregate poll data. Zero
 published entries renders nothing but the always-present "Ask a question" button
 (`AskQuestionForm.tsx`) — no empty-state placeholder.
