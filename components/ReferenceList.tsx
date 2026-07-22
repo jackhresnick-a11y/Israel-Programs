@@ -2,9 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { SignInButton, Show } from "@clerk/nextjs";
-import Textarea from "@/components/ui/Textarea";
-import Button from "@/components/ui/Button";
 
 type Reference = {
   id: string;
@@ -12,61 +9,6 @@ type Reference = {
   attendedText: string;
   note: string | null;
 };
-
-function ContactRequestForm({ referenceId }: { referenceId: string }) {
-  const [note, setNote] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/references/${referenceId}/contact-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to send request");
-      }
-      setSent(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send request");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (sent) {
-    return (
-      <p className="mt-2 text-xs text-info">
-        Request sent. They&apos;ll reach out to the email on your account if they
-        reply.
-      </p>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-2">
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <Textarea
-        required
-        rows={2}
-        placeholder="What would you like to ask them?"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        className="text-xs"
-      />
-      <Button type="submit" size="sm" disabled={submitting} className="w-fit">
-        {submitting ? "Sending..." : "Send request"}
-      </Button>
-    </form>
-  );
-}
 
 function ReferenceRow({
   reference,
@@ -79,8 +21,6 @@ function ReferenceRow({
   onDelete: (id: string) => void;
   deleting: boolean;
 }) {
-  const [requesting, setRequesting] = useState(false);
-
   return (
     <li className="rounded-lg border border-border p-4">
       <div className="flex items-center justify-between gap-2">
@@ -107,27 +47,11 @@ function ReferenceRow({
         </p>
       )}
 
-      <Show
-        when="signed-in"
-        fallback={
-          <SignInButton mode="modal">
-            <button className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent">
-              Sign in to request contact
-            </button>
-          </SignInButton>
-        }
-      >
-        {requesting ? (
-          <ContactRequestForm referenceId={reference.id} />
-        ) : (
-          <button
-            onClick={() => setRequesting(true)}
-            className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent"
-          >
-            Request to connect
-          </button>
-        )}
-      </Show>
+      {/* TEMPORARILY DISABLED -- see the matching guard in
+          app/api/references/[id]/contact-requests/route.ts for why. Remove this note
+          and restore the request-to-connect flow once feature/alumni-references-double-optin
+          ships and replaces it. */}
+      <p className="mt-2 text-xs text-muted">Contact requests are temporarily unavailable.</p>
     </li>
   );
 }
