@@ -1,0 +1,538 @@
+[
+  {
+    "id": "cmrwiz1w00000ujmzx3zgjxyb",
+    "name": "Gur Arie (Betar)",
+    "tags": [
+      {
+        "name": "Military",
+        "slug": "military"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "jerusalem",
+        "slug": "jerusalem"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiz35m0002ujmzfq9ctf2f",
+    "name": "Mabat VeMedia (Masa Betar)",
+    "tags": [
+      {
+        "name": "professional",
+        "slug": "professional"
+      },
+      {
+        "name": "tech",
+        "slug": "tech"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "masa",
+        "slug": "masa"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "jerusalem",
+        "slug": "jerusalem"
+      }
+    ]
+  },
+  {
+    "id": "cmrwji7w50000q3mz2bipt4na",
+    "name": "Batsheva Summer Dance Course",
+    "tags": [
+      {
+        "name": "Coastal israel",
+        "slug": "coastal-israel"
+      },
+      {
+        "name": "9-12 grade",
+        "slug": "age-high-school"
+      },
+      {
+        "name": "arts",
+        "slug": "arts"
+      },
+      {
+        "name": "dance",
+        "slug": "dance"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  },
+  {
+    "id": "cmrwji9980002q3mzdqkmbk91",
+    "name": "KCDC Kibbutz Summer Intensive",
+    "tags": [
+      {
+        "name": "northern israel",
+        "slug": "northern-israel"
+      },
+      {
+        "name": "9-12 grade",
+        "slug": "age-high-school"
+      },
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "arts",
+        "slug": "arts"
+      },
+      {
+        "name": "dance",
+        "slug": "dance"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  },
+  {
+    "id": "cmrwix7zz0006kymz8eaanju6",
+    "name": "Masa Fast Track Pro",
+    "tags": [
+      {
+        "name": "professional",
+        "slug": "professional"
+      },
+      {
+        "name": "Coastal israel",
+        "slug": "coastal-israel"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "masa",
+        "slug": "masa"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivvc60006fxmz090o2chd",
+    "name": "Mechinat Derech Avot",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivwfz0008fxmzjgl4vmq1",
+    "name": "Mechinat Maale Ephraim",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivxqc000afxmzp27211rn",
+    "name": "Mechinat Galil Elyon",
+    "tags": [
+      {
+        "name": "overseas-program",
+        "slug": "overseas-program"
+      },
+      {
+        "name": "northern israel",
+        "slug": "northern-israel"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivysn000cfxmzsi9fgaxr",
+    "name": "HaMechina HaMadait (Scientific Pre-Military Academy)",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "science",
+        "slug": "science"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Southern israel",
+        "slug": "southern-israel"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivzz6000efxmz651xasct",
+    "name": "Mechinat Ruach HaSadeh",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiw192000gfxmzvmf3hart",
+    "name": "Mechinat HaShomer HaChadash",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "agriculture",
+        "slug": "agriculture"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiw2fj000ifxmznhiaosib",
+    "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+    "tags": [
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "Scholarships available",
+        "slug": "scholarships-available"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiw806000sfxmzds5wcpvl",
+    "name": "Masa Magen David Adom EMT Volunteer Program",
+    "tags": [
+      {
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "masa",
+        "slug": "masa"
+      },
+      {
+        "name": "medical",
+        "slug": "medical"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiwnba0000inmz3cq79b5m",
+    "name": "Storytellers Fellowships",
+    "tags": [
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiyk5u0002s2mz2r49ptld",
+    "name": "Amijai (World Bnei Akiva)",
+    "tags": [
+      {
+        "name": "bnei-akiva",
+        "slug": "bnei-akiva"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "Scholarships available",
+        "slug": "scholarships-available"
+      },
+      {
+        "name": "masa",
+        "slug": "masa"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "spanish-speaking",
+        "slug": "spanish-speaking"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiyiyo0000s2mz88m7xayp",
+    "name": "Oz (World Bnei Akiva)",
+    "tags": [
+      {
+        "name": "bnei-akiva",
+        "slug": "bnei-akiva"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "Scholarships available",
+        "slug": "scholarships-available"
+      },
+      {
+        "name": "masa",
+        "slug": "masa"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "jerusalem",
+        "slug": "jerusalem"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwjiacb0004q3mzq8m3t90n",
+    "name": "International Masterclasses Course for String Players",
+    "tags": [
+      {
+        "name": "arts",
+        "slug": "arts"
+      },
+      {
+        "name": "music",
+        "slug": "music"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "jerusalem",
+        "slug": "jerusalem"
+      }
+    ]
+  },
+  {
+    "id": "cmrwjpbwl0004cgmz9i2xiaxu",
+    "name": "Trybal Gatherings: Volunteer in Israel",
+    "tags": [
+      {
+        "name": "birthright",
+        "slug": "birthright"
+      },
+      {
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "name": "Coastal israel",
+        "slug": "coastal-israel"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      }
+    ]
+  }
+]

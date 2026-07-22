@@ -1,0 +1,256 @@
+[
+  {
+    "id": "cmrwivqde0000fxmzr9hzeti6",
+    "name": "El-Araj (Bethsaida-Julias) Excavation Project",
+    "tags": [
+      {
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "name": "northern israel",
+        "slug": "northern-israel"
+      },
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "archaeology",
+        "slug": "archaeology"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "Low integration",
+        "slug": "integration-low"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivrv40002fxmz7x5c7ku7",
+    "name": "Legio Excavation (Jezreel Valley Regional Project)",
+    "tags": [
+      {
+        "name": "summer",
+        "slug": "summer"
+      },
+      {
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "name": "northern israel",
+        "slug": "northern-israel"
+      },
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "College credit available",
+        "slug": "college-credit"
+      },
+      {
+        "name": "archaeology",
+        "slug": "archaeology"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "Low integration",
+        "slug": "integration-low"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivta80004fxmzx0lx25pl",
+    "name": "Tel Shaddud Archaeological Project",
+    "tags": [
+      {
+        "name": "summer",
+        "slug": "summer"
+      },
+      {
+        "name": "volunteering",
+        "slug": "volunteering"
+      },
+      {
+        "name": "northern israel",
+        "slug": "northern-israel"
+      },
+      {
+        "name": "College age",
+        "slug": "age-college"
+      },
+      {
+        "name": "After college",
+        "slug": "age-post-college"
+      },
+      {
+        "name": "Scholarships available",
+        "slug": "scholarships-available"
+      },
+      {
+        "name": "archaeology",
+        "slug": "archaeology"
+      },
+      {
+        "name": "Coed",
+        "slug": "coed"
+      },
+      {
+        "name": "Low integration",
+        "slug": "integration-low"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivvc60006fxmz090o2chd",
+    "name": "Mechinat Derech Avot",
+    "tags": [
+      {
+        "name": "High integration",
+        "slug": "integration-high"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivwfz0008fxmzjgl4vmq1",
+    "name": "Mechinat Maale Ephraim",
+    "tags": [
+      {
+        "name": "High integration",
+        "slug": "integration-high"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwivzz6000efxmz651xasct",
+    "name": "Mechinat Ruach HaSadeh",
+    "tags": [
+      {
+        "name": "High integration",
+        "slug": "integration-high"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      },
+      {
+        "name": "Religious Zionism/Modern Orthodox",
+        "slug": "rz-modern-orthodox"
+      }
+    ]
+  },
+  {
+    "id": "cmrwiw2fj000ifxmznhiaosib",
+    "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+    "tags": [
+      {
+        "name": "High integration",
+        "slug": "integration-high"
+      },
+      {
+        "name": "Gap year (post-high school)",
+        "slug": "age-gap-year"
+      },
+      {
+        "name": "Scholarships available",
+        "slug": "scholarships-available"
+      },
+      {
+        "name": "mechina",
+        "slug": "mechina"
+      },
+      {
+        "name": "pre-army",
+        "slug": "pre-army"
+      },
+      {
+        "name": "Boys only",
+        "slug": "boys-only"
+      },
+      {
+        "name": "Pre-military",
+        "slug": "essence-pre-military"
+      }
+    ]
+  }
+]

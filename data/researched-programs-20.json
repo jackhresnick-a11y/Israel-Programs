@@ -1,0 +1,21 @@
+{
+  "_note": "2026-07-22 batch (batch 10). This round's rejects were informative: the Masa 'Israel Wine Experience' at Ohalo College could not be traced to any live official page (a similarly-named tourism company, israelwinexp.com, is unrelated); Sderot Media Center's international internship is likely real (found via search) but every page describing it returned blank/empty content to WebFetch (JS-rendered), so it wasn't included without directly-verified content; the Tikvah Fund's Beren Summer Fellowship is US-based (New York), out of scope; 'Olami Launch' turned out to be a scholarship/facilitation umbrella that funds students into yeshivot and seminaries already in this DB (Baer Miriam, Sharfman's, MMY, Heichal Yerushalayim, Netiv Aryeh, etc. -- all cross-checked and already listed), not a standalone program itself, so it was not added as its own entry. Israel's licensed tour guide course requires Israeli citizenship or permanent residency, excluding this wiki's overseas-diaspora audience. The Tikvah Israel Fellowship itself (initially researched as a candidate) turned out to already be in the DB -- caught by the pre-import slug-collision check, not added here.",
+  "programs": [
+    {
+      "name": "Olami JHealth Gap Year",
+      "organization": "Olami / jInternship",
+      "location": "Jerusalem, Israel",
+      "description": "A medical-track gap year combining a week-long orientation with two three-month internship rotations (clinical, then lab research) at Israeli hospitals and research institutions such as Hadassah Ein Kerem, Shaare Zedek, and the Ministry of Health, alongside Jewish medical ethics study.",
+      "durationType": "SEMESTER",
+      "durationText": "~7 months (1-week orientation + 3 months clinical + 3 months lab internship)",
+      "cost": "~$6,900 (Masa grants available); $500 non-refundable deposit, remainder in installments",
+      "signupInstructions": "Complete the online registration form.",
+      "signupUrl": "https://olami.org/jhealth-gap-year/",
+      "contactPhone": "",
+      "contactWebsite": "https://olami.org/jhealth/",
+      "contactEmail": "jhealth@olami.org",
+      "tags": ["medical", "professional", "Gap year (post-high school)", "jerusalem", "Coed"],
+      "adminNote": "The specific dates on the fetched program page (Oct 2022-May 2023) appear stale, but a follow-up search confirmed the program structure (week orientation + 3-month clinical + 3-month lab rounds at named Israeli hospitals) is still being actively described and recruited for via a live application form and jhealth@olami.org contact -- worth confirming exact current-cohort dates before outreach. Distinct from the already-listed 'Medical School for International Health (MSIH)' and 'Technion American Medical School (TeAMS)' -- this is a gap-year internship track, not a full medical degree program."
+    }
+  ]
+}

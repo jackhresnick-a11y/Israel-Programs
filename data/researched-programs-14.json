@@ -1,0 +1,51 @@
+{
+  "_note": "2026-07-22 batch (batch 4 of an ongoing 100+-program research pass). Covers a targeted round on lone-soldier support orgs (3 now exist in the combined DB: the already-listed Reut and NBN-FIDF Lone Soldiers Program from data/researched-programs-12.json, plus this Michael Levin center -- confirmed as three distinct organizations, not duplicates), an arts fellowship layered onto an already-listed program (same pattern as the Bnei David sub-mechinot in batch 1), and one sports-certification program. Machal ('Machal IDF overseas volunteers') was researched but confirmed already in the DB as 'Machal Overseas Army Program' -- not re-added. Several archaeology digs (Ashdod-Yam, Tiberias) and arts programs (Asylum Arts, Minshar School of Art) were researched and rejected -- see notes shared with the user, not stored here. Every signupUrl/contactWebsite below returned live content via curl (browser User-Agent) or WebFetch on 2026-07-22.",
+  "programs": [
+    {
+      "name": "Pardes Arts & Culture Fellowship",
+      "organization": "Pardes Institute of Jewish Studies",
+      "location": "Jerusalem, Israel",
+      "description": "A fellowship within the Pardes Institute's Beit Midrash Program for artists (music, theater, creative writing, visual arts, dance, and other media) who pursue a self-directed creative project informed by intensive Jewish text study, while contributing to community creative programming.",
+      "durationType": "SEMESTER",
+      "durationText": "Full academic year or a single semester",
+      "cost": "Need-based living-expenses grant of $200-600/month; tuition discount of $2,000-3,000 depending on Masa eligibility (prorated for a semester)",
+      "signupInstructions": "Requires a completed Pardes Beit Midrash Program application first, then a separate fellowship application with work samples and a personal project proposal.",
+      "signupUrl": "https://pardes.org.il/pardes-arts-culture-fellowship/",
+      "contactPhone": "",
+      "contactWebsite": "https://pardes.org.il/pardes-arts-culture-fellowship/",
+      "contactEmail": "monica@pardes.org",
+      "tags": ["arts", "jerusalem", "Coed", "Academic/Internship", "College age", "After college"],
+      "adminNote": "A specialized fellowship layered onto the already-listed 'Pardes Institute of Jewish Studies - Year/Semester Program' rather than a duplicate of it -- same relationship as the Bnei David sub-mechinot flagged in batch 1 (data/researched-programs-12.json)."
+    },
+    {
+      "name": "The Lone Soldier Center in Memory of Michael Levin",
+      "organization": "Lone Soldier Center",
+      "location": "Israel (multiple regional community centers)",
+      "description": "A grassroots nonprofit supporting lone soldiers -- both immigrant volunteers and Israelis without family support -- from before enlistment through five years post-discharge, offering guidance, community centers, and financial assistance.",
+      "durationType": "ONGOING",
+      "durationText": "Ongoing support, not a fixed-term program",
+      "cost": "",
+      "signupInstructions": "Prospective lone soldiers should use the site's enlistment-guidance page or contact form.",
+      "signupUrl": "https://lonesoldiercenter.com/about-en/",
+      "contactPhone": "02-502-2211",
+      "contactWebsite": "https://lonesoldiercenter.com/",
+      "tags": ["lone-soldier", "Military", "Coed"],
+      "adminNote": "Confirmed distinct from both the already-listed 'Reut program for lone soldiers' (a single-kibbutz housing program) and the Nefesh B'Nefesh-FIDF Lone Soldiers Program added in batch 2 (data/researched-programs-12.json) -- a separate grassroots 501(c)(3) founded by friends of Michael Levin, running its own regional community centers rather than a housing site or an NBN/FIDF partnership."
+    },
+    {
+      "name": "Krav Maga Instructor's Course (Wingate/Levinsky-Wingate Academic Center)",
+      "organization": "Levinsky-Wingate Academic Center / Zinman College of Physical Education and Sport Sciences",
+      "location": "Netanya, Israel",
+      "description": "A professional Krav Maga instructor-certification course accredited through Zinman College at the Wingate Institute, open to international participants regardless of prior Krav Maga style or affiliation.",
+      "durationType": "SHORT",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "Contact the program via the site's inquiry form for current course schedule and registration.",
+      "signupUrl": "https://krav-maga.wincol.ac.il/",
+      "contactPhone": "",
+      "contactWebsite": "https://krav-maga.wincol.ac.il/",
+      "tags": ["sports", "professional", "Coed"],
+      "adminNote": "The official Levinsky-Wingate Academic Center page (krav-maga.wincol.ac.il) does not display specific 2025/2026 course dates in the content fetched, though the page itself is current and actively maintained. A separate, seemingly less current affiliate/fan site (wingatekravmaga.com) surfaced during research still displays a 'May 2015 Instructors Course' as its most recent listed offering -- that site was NOT used as the source here specifically because of that staleness; only the official academic-institution page above was used. Worth confirming current course scheduling directly before outreach."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "_note": "This file captures 'batch 2' of the 2026-07-22 research pass (Onward Israel partner tracks and Nefesh B'Nefesh named programs) -- it was originally presented to the user in chat but not written to disk at the time; written retroactively before the batch-1-through-6 import review so every presented program has a corresponding data file. All three signupUrls were confirmed live via WebFetch on 2026-07-22 (birthrightisraelonward.com and nbn.org.il); the Storytellers page returns HTTP 403 to a bare curl request (Cloudflare bot-blocking, same pattern as several masaisrael.org pages elsewhere in this research pass) but WebFetch retrieved specific, current program content from it, not a stale cache.",
+  "programs": [
+    {
+      "name": "Storytellers Fellowships",
+      "organization": "Birthright Israel Onward",
+      "location": "Israel (Reichman University campus for one track)",
+      "description": "A skill-building fellowship for Jewish creators, influencers, and emerging thought leaders, offered as either a 9-10 day fully-subsidized Impact Incubator or a 4-week Reichman University-based Geopolitics & Digital Influence track, blending Jewish history, geopolitics, and digital content creation.",
+      "durationType": "SHORT",
+      "durationText": "9-10 days (Impact Incubator) or 4 weeks (Reichman Fellowship)",
+      "cost": "Impact Incubator is fully subsidized; Reichman Fellowship pricing not published",
+      "signupInstructions": "Apply online via the application portal linked from the program page.",
+      "signupUrl": "https://birthrightisraelonward.com/our-programs/storytellers/storytellers-fellowships/",
+      "contactPhone": "",
+      "contactWebsite": "https://birthrightisraelonward.com/",
+      "tags": ["Coed", "College age", "After college"],
+      "adminNote": "40 fellows selected per cohort; ages 18-35 per earlier press coverage (JNS/Jewish Journal), not restated on the program page itself."
+    },
+    {
+      "name": "Nefesh B'Nefesh-FIDF Lone Soldiers Program",
+      "organization": "Nefesh B'Nefesh / Friends of the IDF",
+      "location": "Israel (nationwide)",
+      "description": "A support program for lone soldiers of any country of origin serving in the IDF, providing guidance and services before, during, and after military service, run jointly by Nefesh B'Nefesh and Friends of the IDF.",
+      "durationType": "ONGOING",
+      "durationText": "Ongoing support, not a fixed-term program",
+      "cost": "",
+      "signupInstructions": "Register via the program's official site.",
+      "signupUrl": "https://www.nbn.org.il/nbnlsp/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.nbn.org.il/nbnlsp/",
+      "contactEmail": "",
+      "tags": ["lone-soldier", "Military", "Coed"],
+      "adminNote": "Confirmed distinct from the already-listed 'Reut program for lone soldiers' (a single-kibbutz housing program) and from 'The Lone Soldier Center in Memory of Michael Levin' added in batch 4 (data/researched-programs-14.json, a separate grassroots 501(c)(3)) -- three genuinely different organizations supporting lone soldiers."
+    },
+    {
+      "name": "Bnot Sherut Bodedot Program",
+      "organization": "Nefesh B'Nefesh",
+      "location": "Israel (nationwide national-service placements)",
+      "description": "A support program for young women ages 17-24 from abroad undertaking sherut leumi (national service) in Israel as an alternative to military enlistment, offering guidance, mentorship, and community programming named in memory of Ori Ansbacher.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year",
+      "cost": "",
+      "signupInstructions": "Attend a Sayarot (exploratory visit) to national-service organizations, obtain an IDF exemption (Ptor) or volunteer visa, then register online.",
+      "signupUrl": "https://www.nbn.org.il/ori-bnot-sherut-bodedot/",
+      "contactPhone": "02-659-5800",
+      "contactWebsite": "https://www.nbn.org.il/ori-bnot-sherut-bodedot/",
+      "tags": ["sherut-leumi-national-service", "Girls only", "Gap year (post-high school)"]
+    }
+  ]
+}

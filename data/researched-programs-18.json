@@ -1,0 +1,51 @@
+{
+  "_note": "2026-07-22 batch (batch 7, following the user's 'keep looking' direction after batches 1-6 were imported). This round explored the Ohr Torah Stone network (blocked -- ots.org.il returns 403 to both curl and WebFetch on every path tried; individual institution searches mostly surfaced entities already merged into the already-listed Midreshet Lindenbaum, or professional/rabbinic-training programs judged out of scope for this directory -- Straus-Amiel Institute trains ordained rabbis as Diaspora emissaries, not a young-adult study/gap-year program), performing arts (a real hit -- three new, verified, currently-active programs), Chabad institutions (Machon Chana is Brooklyn-based, not Israel-based, so out of scope), remaining Israeli colleges (no new confirmed programs), and a flagged rejection: Tel Aviv University's Sackler/NY State American MD Program is being wound down for American/Canadian students after the 2026 graduating class, so it no longer meets the 'currently operating' / open-to-new-applicants bar going forward.",
+  "arts_and_performing_arts": [
+    {
+      "name": "Batsheva Summer Dance Course",
+      "organization": "Batsheva Dance Company",
+      "location": "Suzanne Dellal Centre, Neve Tzedek, Tel Aviv",
+      "description": "A week-long summer dance course for teenage dance students from Israel and abroad, taught in the Batsheva Dance Company's Gaga movement language, including repertoire study, an open rehearsal, and meetings with company dancers.",
+      "durationType": "SHORT",
+      "durationText": "6 days (Aug 16-21, 2026)",
+      "cost": "2,000 NIS (scholarships available on socio-economic and excellence bases)",
+      "signupInstructions": "Register online; requires proof of a solid background in dance studies (no formal audition).",
+      "signupUrl": "https://batsheva.co.il/en/summer-course/",
+      "contactPhone": "03-5171471",
+      "contactWebsite": "https://batsheva.co.il/en/summer-course/",
+      "contactEmail": "education@batsheva.co.il",
+      "tags": ["dance", "arts", "Coastal israel", "Coed", "age-high-school"]
+    },
+    {
+      "name": "KCDC Kibbutz Summer Intensive",
+      "organization": "Kibbutz Contemporary Dance Company (KCDC)",
+      "location": "International Dance Village, Kibbutz Ga'aton, Western Galilee",
+      "description": "A summer dance intensive at the Kibbutz Contemporary Dance Company's International Dance Village, offering 2, 4, or 6-week sessions in ballet, contemporary dance, and company repertoire for dance students from Israel and abroad.",
+      "durationType": "SUMMER",
+      "durationText": "2, 4, or 6 weeks (July 2026 sessions)",
+      "cost": "$2,300 + $300 registration fee (2 weeks); $4,600 + $300 (4 weeks)",
+      "signupInstructions": "Complete the online registration form; a minimum of 2 years of ballet training is required, but no audition.",
+      "signupUrl": "https://kcdc.co.il/en/course/kibbutz-summer-intensive/",
+      "contactPhone": "+972-52-286-3400",
+      "contactWebsite": "https://kcdc.co.il/en/course/kibbutz-summer-intensive/",
+      "tags": ["dance", "arts", "northern israel", "Coed", "age-high-school", "College age"],
+      "adminNote": "Confirmed distinct from the already-listed 'Vertigo International Dance Program (VIDP)' -- different company, different kibbutz (Ga'aton vs. Vertigo's), different program structure."
+    },
+    {
+      "name": "International Masterclasses Course for String Players",
+      "organization": "Jerusalem Music Centre",
+      "location": "Jerusalem Music Centre, Jerusalem",
+      "description": "An annual week-long intensive for string players (violin, viola, cello), held around the Sukkot holiday, offering daily private lessons, chamber orchestra participation, workshops, and performance opportunities under internationally prominent faculty.",
+      "durationType": "SHORT",
+      "durationText": "1 week, annually around Sukkot (typically Sept/Oct)",
+      "cost": "",
+      "signupInstructions": "Contact the Jerusalem Music Centre directly for application details.",
+      "signupUrl": "https://www.jmc.org.il/en/international_masterclasses_course/",
+      "contactPhone": "02-6234347",
+      "contactWebsite": "https://www.jmc.org.il/en/",
+      "contactEmail": "info@jmc.org.il",
+      "tags": ["music", "arts", "jerusalem", "Coed"],
+      "adminNote": "The program page does not display specific 2025/2026 dates (it describes the course as an annual fixture rather than listing a dated schedule), though the Jerusalem Music Centre site itself is clearly live and current. Confirmed distinct from the already-listed 'Buchmann-Mehta School of Music International Program' (a Tel Aviv University degree program) and 'Jerusalem Academy of Music and Dance - DanceJerusalem' (a dance-focused semester program) -- this is a string-specific, week-long masterclass run by a separate institution."
+    }
+  ]
+}

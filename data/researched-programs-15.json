@@ -1,0 +1,52 @@
+{
+  "_note": "2026-07-22 batch (batch 5 of an ongoing 100+-program research pass), following user direction to try a genuinely different angle: non-English-speaking-country branches of Zionist youth movements. This was the highest-yield angle since batch 1 -- the DB's existing World Bnei Akiva and Habonim Dror coverage (Kadima/Limmud/Torani/MTA/Mechina Olamit; UK/Australia/Southern Africa/North America Shnat) turned out to be entirely Anglophone-country-facing, with the Latin American and French/Spanish-speaking tracks of both movements completely unrepresented. A French Bnei Akiva program ('Shalhevet/Ahchara', mentioned on worldbneiakiva.org/france-fr) and a Brazil-specific Habonim Dror domain (habonimdrorbrasil.com) were researched but rejected -- both had DNS resolution failures (domain does not resolve at all), not just bot-blocking, so no live site could be confirmed for either. masaisrael.org pages return HTTP 403 to a bare curl request (Cloudflare bot-blocking, same as several masaisrael.org pages in batch 2) but were independently confirmed live via WebFetch, which retrieved specific, current content including named 2026-2027 and 2027-2028 cohort dates -- not stale/cached text.",
+  "youth_movements": [
+    {
+      "name": "Oz (World Bnei Akiva)",
+      "organization": "World Bnei Akiva",
+      "location": "Israel (study at Yeshivat Hakotel and Midreshet Lindenbaum, Jerusalem)",
+      "description": "A 10-month religious-Zionist gap year hachshara program for Bnei Akiva members from Latin America (Chile, Argentina, Uruguay, Brazil), combining Torah study, Zionist education, and leadership development with seminars and excursions across Israel.",
+      "durationType": "GAP_YEAR",
+      "durationText": "10 months",
+      "cost": "~$6,000 USD (excludes airfare and some medical costs); Masa grants available",
+      "signupInstructions": "Apply via the World Bnei Akiva website, then register with Masa; a personal interview follows.",
+      "signupUrl": "https://www.worldbneiakiva.org/oz",
+      "contactPhone": "+972-2-620-9012",
+      "contactWebsite": "https://www.worldbneiakiva.org/",
+      "contactEmail": "office@worldbneiakiva.org",
+      "tags": ["bnei-akiva", "mechina", "pre-army", "masa", "Coed", "Scholarships available", "Religious Zionism/Modern Orthodox", "Pre-military", "Gap year (post-high school)", "jerusalem"],
+      "adminNote": "Confirmed genuinely new -- the DB's existing World Bnei Akiva entries (Kadima, Limmud, Torani, MTA, Mechina Olamit, Bnei Akiva Olamit: Shalem) are all Anglophone-country programs; Oz is specifically the Latin American track and was not previously represented."
+    },
+    {
+      "name": "Amijai (World Bnei Akiva)",
+      "organization": "World Bnei Akiva",
+      "location": "Israel",
+      "description": "An 8-month religious-Zionist gap year hachshara program for Bnei Akiva members from Spanish-speaking countries (primarily Mexico and Panama), building leadership skills and connection to Israel, Judaism, and Zionism.",
+      "durationType": "GAP_YEAR",
+      "durationText": "8 months",
+      "cost": "~$14,000 USD after Masa grant; excludes airfare and some medical costs",
+      "signupInstructions": "Apply online, then register with Masa; a personal interview follows.",
+      "signupUrl": "https://www.worldbneiakiva.org/amijai",
+      "contactPhone": "+972-2-620-9012",
+      "contactWebsite": "https://www.worldbneiakiva.org/",
+      "contactEmail": "office@worldbneiakiva.org",
+      "tags": ["bnei-akiva", "mechina", "pre-army", "masa", "Coed", "Scholarships available", "Religious Zionism/Modern Orthodox", "Pre-military", "Gap year (post-high school)", "spanish-speaking"],
+      "adminNote": "Confirmed genuinely new, same rationale as Oz above -- the Spanish-speaking-Mexico/Panama track, distinct from every existing World Bnei Akiva entry."
+    },
+    {
+      "name": "Habonim Dror Latin America - Shnat",
+      "organization": "Habonim Dror América Latina",
+      "location": "Israel (rented apartment housing)",
+      "description": "A leadership-training gap year (shnat hachshara) for Habonim Dror members from Brazil, Argentina, and Uruguay, combining practical experience, Zionist-socialist education, and movement leadership preparation.",
+      "durationType": "GAP_YEAR",
+      "durationText": "8-10 months",
+      "cost": "",
+      "signupInstructions": "Apply via the program's Masa Israel page; cohorts run August-to-July.",
+      "signupUrl": "https://www.masaisrael.org/pt-pt/program/habonim-dror-shnat-masa",
+      "contactPhone": "",
+      "contactWebsite": "https://www.masaisrael.org/pt-pt/program/habonim-dror-shnat-masa",
+      "tags": ["socialist-zionism", "masa", "Coed", "Medium integration", "Non-affiliated religously", "Gap year (post-high school)", "spanish-speaking"],
+      "adminNote": "Confirmed genuinely new -- the DB's existing Habonim Dror entries (UK, Australia, Southern Africa, North America 'Workshop') are all Anglophone-country programs; this is the Latin American track, run as a joint Brazil/Argentina/Uruguay cohort rather than one country at a time (476 alumni cited on the program page). A dedicated Habonim Dror Brasil domain (habonimdrorbrasil.com) was found via search but does not resolve at all (DNS failure) -- this masaisrael.org page was used instead as the only independently-confirmed-live source, and lists active 2026-2027 and 2027-2028 cohort dates."
+    }
+  ]
+}

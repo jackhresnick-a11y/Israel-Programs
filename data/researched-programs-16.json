@@ -1,0 +1,37 @@
+{
+  "_note": "2026-07-22 batch (batch 6, continuing the non-Anglophone youth-movement thread from batch 5). Betar's own program overview page (betar.org.il/en/shnat/) turned out to describe three distinct Masa-affiliated programs, not one -- 'Shnat Hachshara' was confirmed as an exact match for the already-listed 'Shnat Betar' (same signupUrl, same description), so only the other two ('Gur Arie' for French youth and 'Mabat VeMedia'/'Masa Betar' for Russian-speaking young adults) are new. Hashomer Hatzair and BBYO were also checked for a Latin-America-specific split (following the Bnei Akiva Oz/Amijai and Habonim Dror Latin America pattern from batch 5) but neither has one -- Hashomer Hatzair runs one combined North-America-and-Europe Shnat Kvutza (matching the DB's existing single 'Hashomer Hatzair Shnat Hachshara' entry), and no BBYO Latin America Israel program was found. No new tag was invented for Mabat VeMedia's Russian-speaking target audience (the DB has a 'spanish-speaking' language tag but no Russian equivalent) -- that detail is captured in the description/target-audience text instead, per this repo's no-new-tags rule.",
+  "youth_movements": [
+    {
+      "name": "Gur Arie (Betar)",
+      "organization": "World Betar",
+      "location": "Jerusalem, Israel (boarding school)",
+      "description": "A pre-military preparatory boarding program run by the Betar movement specifically for French young people, combining Hebrew, Judaism, and Zionism study with physical and military preparation; many participants go on to enlist in the IDF.",
+      "durationType": "GAP_YEAR",
+      "durationText": "8 months",
+      "cost": "",
+      "signupInstructions": "Contact the program directly; a French-language version of the program page is also available.",
+      "signupUrl": "https://betar.org.il/en/gur-arie/",
+      "contactPhone": "02-6792954",
+      "contactWebsite": "https://betar.org.il/en/gur-arie/",
+      "contactEmail": "yehuda@betar.org.il",
+      "tags": ["pre-army", "Military", "Coed", "jerusalem", "Gap year (post-high school)"],
+      "adminNote": "Confirmed distinct from the already-listed 'Shnat Betar' (World Betar's general leadership Shnat Hachshara, open to all countries) -- Gur Arie is specifically the French-youth pre-military boarding track."
+    },
+    {
+      "name": "Mabat VeMedia (Masa Betar)",
+      "organization": "World Betar",
+      "location": "Jerusalem, Israel",
+      "description": "A 6-month immersive program for Russian-speaking young Jewish adults combining Hebrew study, professional training, internships, and aliyah support, with four tracks: Betar IT (tech), Mabat (Hebrew/culture), Maof (entrepreneurship), and Media (communications).",
+      "durationType": "SEMESTER",
+      "durationText": "6 months",
+      "cost": "Program costs covered by a ~$6,300 USD scholarship; monthly stipend of NIS 1,000 and fully furnished Jerusalem housing included",
+      "signupInstructions": "Contact the program directly by email or WhatsApp.",
+      "signupUrl": "https://masabetar.com",
+      "contactPhone": "+972-52-636-6461",
+      "contactWebsite": "https://betar.org.il/es/mabat-vemedia-spa/",
+      "contactEmail": "masachama@betar.org.il",
+      "tags": ["masa", "professional", "tech", "Coed", "jerusalem", "After college"],
+      "adminNote": "Confirmed distinct from 'Shnat Betar' and 'Gur Arie' above -- specifically targets Russian-speaking young adults (ages 17-35) with a professional/aliyah-support focus rather than a leadership-gap-year or pre-military structure. No 'Russian-speaking' tag exists in the DB's tag taxonomy (unlike 'spanish-speaking'); the audience is captured in the description rather than inventing a new tag."
+    }
+  ]
+}

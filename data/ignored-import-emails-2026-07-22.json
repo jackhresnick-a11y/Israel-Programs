@@ -1,0 +1,138 @@
+[
+  {
+    "slug": "el-araj-bethsaida-julias-excavation-project",
+    "name": "El-Araj (Bethsaida-Julias) Excavation Project",
+    "contactEmail": "notley@gmail.com",
+    "category": "archaeology_digs",
+    "signupUrl": "https://www.bethsaida-julias.com/home",
+    "contactWebsite": "https://www.bethsaida-julias.com/home"
+  },
+  {
+    "slug": "legio-excavation-jezreel-valley-regional-project",
+    "name": "Legio Excavation (Jezreel Valley Regional Project)",
+    "contactEmail": "jezreelvalleyrp@gmail.com",
+    "category": "archaeology_digs",
+    "signupUrl": "https://www.jezreelvalleyregionalproject.com/legio",
+    "contactWebsite": "https://www.jezreelvalleyregionalproject.com/"
+  },
+  {
+    "slug": "tel-shaddud-archaeological-project",
+    "name": "Tel Shaddud Archaeological Project",
+    "contactEmail": "telshaddud@tauex.tau.ac.il",
+    "category": "archaeology_digs",
+    "signupUrl": "https://telshaddud.com/",
+    "contactWebsite": "https://telshaddud.com/"
+  },
+  {
+    "slug": "hamechina-hamadait-scientific-pre-military-academy",
+    "name": "HaMechina HaMadait (Scientific Pre-Military Academy)",
+    "contactEmail": "info@hamadait.org.il",
+    "category": "mechinot",
+    "signupUrl": "https://hamadait.org.il/",
+    "contactWebsite": "https://hamadait.org.il/"
+  },
+  {
+    "slug": "mechinat-ruach-hasadeh",
+    "name": "Mechinat Ruach HaSadeh",
+    "contactEmail": "ruach.hassade@gmail.com",
+    "category": "mechinot",
+    "signupUrl": "https://www.ruach-hassade.com/",
+    "contactWebsite": "https://www.ruach-hassade.com/"
+  },
+  {
+    "slug": "hamechina-hachadasha-belod-the-new-academy-in-lod",
+    "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+    "contactEmail": "Mechinahadasha@gmail.com",
+    "category": "mechinot",
+    "signupUrl": "https://mechinat-lod.co.il/",
+    "contactWebsite": "https://mechinat-lod.co.il/"
+  },
+  {
+    "slug": "yeshivat-neve-dekalim-ashdod",
+    "name": "Yeshivat Neve Dekalim (Ashdod)",
+    "contactEmail": "yeshivand@gmail.com",
+    "category": "hesder_yeshivot",
+    "signupUrl": "http://www.yeshivand.org.il",
+    "contactWebsite": "http://www.yeshivand.org.il"
+  },
+  {
+    "slug": "kinneret-college-international-msc-in-water-industry-engineering",
+    "name": "Kinneret College International MSc in Water Industry Engineering",
+    "contactEmail": "international@kinneret.ac.il",
+    "category": "universities",
+    "signupUrl": "https://international.kinneret.ac.il/kinneret/",
+    "contactWebsite": "https://international.kinneret.ac.il/kinneret/"
+  },
+  {
+    "slug": "college-of-law-and-business-clb-bilingual-llb-for-english-speakers",
+    "name": "College of Law and Business (CLB) Bilingual LL.B for English Speakers",
+    "contactEmail": "rishum@clb.ac.il",
+    "category": "universities",
+    "signupUrl": "https://clb.ac.il/en/bilingual-undergraduate-law-ll-b/",
+    "contactWebsite": "https://clb.ac.il/en/"
+  },
+  {
+    "slug": "pardes-arts-and-culture-fellowship",
+    "name": "Pardes Arts & Culture Fellowship",
+    "contactEmail": "monica@pardes.org",
+    "category": "programs",
+    "signupUrl": "https://pardes.org.il/pardes-arts-culture-fellowship/",
+    "contactWebsite": "https://pardes.org.il/pardes-arts-culture-fellowship/"
+  },
+  {
+    "slug": "oz-world-bnei-akiva",
+    "name": "Oz (World Bnei Akiva)",
+    "contactEmail": "office@worldbneiakiva.org",
+    "category": "youth_movements",
+    "signupUrl": "https://www.worldbneiakiva.org/oz",
+    "contactWebsite": "https://www.worldbneiakiva.org/"
+  },
+  {
+    "slug": "amijai-world-bnei-akiva",
+    "name": "Amijai (World Bnei Akiva)",
+    "contactEmail": "office@worldbneiakiva.org",
+    "category": "youth_movements",
+    "signupUrl": "https://www.worldbneiakiva.org/amijai",
+    "contactWebsite": "https://www.worldbneiakiva.org/"
+  },
+  {
+    "slug": "gur-arie-betar",
+    "name": "Gur Arie (Betar)",
+    "contactEmail": "yehuda@betar.org.il",
+    "category": "youth_movements",
+    "signupUrl": "https://betar.org.il/en/gur-arie/",
+    "contactWebsite": "https://betar.org.il/en/gur-arie/"
+  },
+  {
+    "slug": "mabat-vemedia-masa-betar",
+    "name": "Mabat VeMedia (Masa Betar)",
+    "contactEmail": "masachama@betar.org.il",
+    "category": "youth_movements",
+    "signupUrl": "https://masabetar.com",
+    "contactWebsite": "https://betar.org.il/es/mabat-vemedia-spa/"
+  },
+  {
+    "slug": "batsheva-summer-dance-course",
+    "name": "Batsheva Summer Dance Course",
+    "contactEmail": "education@batsheva.co.il",
+    "category": "arts_and_performing_arts",
+    "signupUrl": "https://batsheva.co.il/en/summer-course/",
+    "contactWebsite": "https://batsheva.co.il/en/summer-course/"
+  },
+  {
+    "slug": "international-masterclasses-course-for-string-players",
+    "name": "International Masterclasses Course for String Players",
+    "contactEmail": "info@jmc.org.il",
+    "category": "arts_and_performing_arts",
+    "signupUrl": "https://www.jmc.org.il/en/international_masterclasses_course/",
+    "contactWebsite": "https://www.jmc.org.il/en/"
+  },
+  {
+    "slug": "olami-jhealth-gap-year",
+    "name": "Olami JHealth Gap Year",
+    "contactEmail": "jhealth@olami.org",
+    "category": "programs",
+    "signupUrl": "https://olami.org/jhealth-gap-year/",
+    "contactWebsite": "https://olami.org/jhealth/"
+  }
+]

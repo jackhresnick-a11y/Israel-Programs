@@ -1,0 +1,67 @@
+{
+  "_note": "2026-07-22 batch (batch 3 of an ongoing 100+-program research pass, following user direction to branch into categories with less existing coverage after batches 1-2 in data/researched-programs-12.json returned thin yield in the originally-suggested categories). Covers smaller Israeli academic colleges not yet in the DB (checked ~8, only these 3 had a confirmed live, open-enrollment overseas-facing program page; Tel-Hai, Max Stern/Yezreel Valley College, and Kinneret's non-water-engineering offerings were rejected -- see rejected list shared with the user) plus one additional Masa career track. Every signupUrl/contactWebsite below was hit with curl (browser User-Agent) or WebFetch and returned live content on 2026-07-22. No contactEmail was guessed -- only values actually observed on an official page are included. Tags used below are all pre-existing (verified against a fresh DB tag dump before writing this file).",
+  "universities": [
+    {
+      "name": "Kinneret College International MSc in Water Industry Engineering",
+      "organization": "Kinneret College on the Sea of Galilee",
+      "location": "Kinneret College, Sea of Galilee, Israel",
+      "description": "An English-taught Master's degree in water industry engineering and management at Kinneret College on the Sea of Galilee, open to international applicants.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "Apply via the college's international program site.",
+      "signupUrl": "https://international.kinneret.ac.il/kinneret/",
+      "contactPhone": "",
+      "contactWebsite": "https://international.kinneret.ac.il/kinneret/",
+      "contactEmail": "international@kinneret.ac.il",
+      "tags": ["professional", "engineering", "Coed", "northern israel", "College age", "After college"]
+    },
+    {
+      "name": "Beit Berl College Student Exchange Program",
+      "organization": "Beit Berl College",
+      "location": "Beit Berl, near Kfar Saba, Israel",
+      "description": "A bilateral academic exchange program for third- and fourth-year university students, offering courses in English (primarily through the English Department) alongside Hebrew-taught coursework, with particular strength in arts and education.",
+      "durationType": "SEMESTER",
+      "durationText": "1-2 semesters (Oct/Nov or Feb/Mar start)",
+      "cost": "Free tuition (bilateral exchange); students cover accommodation, insurance, and living expenses",
+      "signupInstructions": "Apply through your home institution's study-abroad/exchange office, or contact Beit Berl's International Relations Office directly.",
+      "signupUrl": "https://www.beitberl.ac.il/international/international-students/?lang=en",
+      "contactPhone": "",
+      "contactWebsite": "https://www.beitberl.ac.il/international/international-students/?lang=en",
+      "tags": ["semester", "overseas-program", "arts", "Coed", "Medium integration", "Academic/Internship", "College age"],
+      "adminNote": "A bilateral-exchange model (like the already-listed 'Bezalel Academy of Arts and Design - Student Exchange Program'), not a direct-apply program open to any individual regardless of home institution -- applicants generally need their own university to have a partnership with Beit Berl."
+    },
+    {
+      "name": "College of Law and Business (CLB) Bilingual LL.B for English Speakers",
+      "organization": "College of Law and Business (CLB)",
+      "location": "Ramat Gan, Israel",
+      "description": "A bilingual (English/Hebrew) Bachelor of Laws degree for international and English-speaking students, based in Ramat Gan; graduates may be eligible to sit the New York State bar exam.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "3.5 years",
+      "cost": "",
+      "signupInstructions": "Apply online via the college's registration portal.",
+      "signupUrl": "https://clb.ac.il/en/bilingual-undergraduate-law-ll-b/",
+      "contactPhone": "",
+      "contactWebsite": "https://clb.ac.il/en/",
+      "contactEmail": "rishum@clb.ac.il",
+      "tags": ["professional", "Coed", "Coastal israel", "College age"]
+    }
+  ],
+  "masa_and_career_programs": [
+    {
+      "name": "Masa Fast Track Pro",
+      "organization": "Masa Israel Journey",
+      "location": "Tel Aviv, Israel",
+      "description": "A paid Masa career program for college graduates and young professionals with at least two years of work experience, combining placement in the Israeli job market across fields such as tech, marketing, and business development with mentorship and cultural programming.",
+      "durationType": "SEMESTER",
+      "durationText": "4-9 months",
+      "cost": "",
+      "signupInstructions": "Apply online through the Masa Israel website; a registration deposit is required upon acceptance.",
+      "signupUrl": "https://www.masaisrael.org/masatech-tlalim/",
+      "contactPhone": "",
+      "contactWebsite": "https://www.masaisrael.org/",
+      "tags": ["professional", "masa", "Coed", "Coastal israel", "After college"],
+      "adminNote": "A 2024-era press release described a similarly-named 'MasaTech' program at this same URL path (10-month guaranteed tech-sector job plus multi-year work visa) -- the page as fetched on 2026-07-22 now presents a broader 'Masa Fast Track Pro' career program spanning multiple fields (not tech-exclusive), 4-9 months, ages 21-34 preferred. Likely a rebrand/broadening of the same underlying program; described here per the current live page content rather than the older press coverage. Distinct from the already-listed 'Career Israel' (a different operator, Destination Israel, not Masa itself) and 'Top Israel Intern'."
+    }
+  ]
+}

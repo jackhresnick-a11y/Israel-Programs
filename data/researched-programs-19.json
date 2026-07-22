@@ -1,0 +1,51 @@
+{
+  "_note": "2026-07-22 batch (batch 9, continuing after batch 8 came up empty). Sports and post-Oct-7-era volunteer trips were the productive threads this round. March of the Living's Young Professional Program is primarily Poland-based with an *optional* Israel extension -- included per the precedent of the already-listed 'CTeen Summer: Heritage Quest (Poland-Israel)', which is the same combined-trip shape; flagged in its own adminNote rather than silently treated as fully Israel-based. Rejected this round: Israel Tennis & Education Centers (no overseas program found), Startup Nation Mentorship's Young Professionals Fellowship (explicitly for non-Jewish young professionals -- audience mismatch for this wiki), Knesset internships (only reachable through the general Masa internship umbrella, not a standalone program), and 'Authentic Israel' branded trips (a booking/ticketing platform for other orgs' trips, not itself a program).",
+  "programs": [
+    {
+      "name": "Maccabi Israel Sports XP",
+      "organization": "Maccabi World Union",
+      "location": "Kfar Maccabiah, Ramat Gan, Israel",
+      "description": "A year-long sports academy program for post-high-school athletes, with tracks in basketball, soccer, and sports management. The basketball track competes in Israel's IBBA semi-professional B League while participants also volunteer, intern in tech, and tour the country.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 academic year (through June)",
+      "cost": "",
+      "signupInstructions": "Contact the program director directly for recruitment information.",
+      "signupUrl": "https://www.maccabi.org/blog/from-court-to-community-maccabi-israel-sports-experience",
+      "contactPhone": "+972-3-671-5722",
+      "contactWebsite": "https://www.maccabi.org/",
+      "contactEmail": "",
+      "tags": ["sports", "Coed", "Gap year (post-high school)", "Coastal israel"],
+      "adminNote": "Confirmed distinct from the already-listed 'Maccabi Gap Year' (a general leadership/touring program run with AZA/BBG) -- this is a dedicated competitive athletics academy. Inaugural cohort (started Dec 2024) was 10 young men from the US, Canada, Mexico, and Australia; the program description does not explicitly restrict by gender, so tagged Coed rather than Boys only, but this is worth double-checking directly with the program. No dedicated program-specific application page was found beyond this descriptive blog post with the director's contact info -- used as the best available live source."
+    },
+    {
+      "name": "March of the Living: Young Professional Program",
+      "organization": "International March of the Living",
+      "location": "Poland (Krakow, Lodz, Lublin, Warsaw), with an optional Israel extension",
+      "description": "A Holocaust remembrance journey for young professionals culminating in the March from Auschwitz to Birkenau on Yom HaShoah alongside thousands of participants from around the world, with an optional extension to Israel.",
+      "durationType": "SHORT",
+      "durationText": "~8 days in Poland (Apr 12/13-19, 2026); optional Israel extension Apr 19-23",
+      "cost": "$2,975 (Poland, land-only) + $475 for the optional Israel extension; airfare not included",
+      "signupInstructions": "Apply online; a $1,000 deposit is due by mid-December, full payment by early February.",
+      "signupUrl": "https://motl.org/programs/yp/",
+      "contactPhone": "",
+      "contactWebsite": "https://motl.org/",
+      "tags": ["Coed", "College age", "After college"],
+      "adminNote": "This program's base itinerary is Poland, not Israel -- the Israel component is an optional paid extension, not the core program. Included per the precedent of the already-listed 'CTeen Summer: Heritage Quest (Poland-Israel)', which has the same combined structure; flagging explicitly so this can be excluded if the site wants to hold a stricter 'Israel-based' line than that existing entry did."
+    },
+    {
+      "name": "Trybal Gatherings: Volunteer in Israel",
+      "organization": "Trybal Gatherings / Israel Outdoors, funded by Birthright Israel",
+      "location": "Tel Aviv (base), with volunteering on a kibbutz in northern Israel",
+      "description": "A subsidized short-term volunteer trip for young professionals, combining 4-7 hours a day of humanitarian and agricultural volunteer work (crop harvesting, food-bank sorting, food rescue) with community and cultural programming.",
+      "durationType": "SHORT",
+      "durationText": "10 days (e.g., Dec 23, 2025 - Jan 1, 2026)",
+      "cost": "$50 registration fee (waived with group flight booking); group flights from NYC/LAX ~$600; housing, meals, insurance, and activities included",
+      "signupInstructions": "Register online via the Birthright Israel Volunteer application portal; a follow-up interview with the Israel Outdoors team is required.",
+      "signupUrl": "https://www.trybalgatherings.com/israel",
+      "contactPhone": "",
+      "contactWebsite": "https://israeloutdoors.com/trybalgatherings/",
+      "tags": ["birthright", "volunteering", "Coed", "Coastal israel", "After college"],
+      "adminNote": "Targets ages 26-50, an older band than most of this directory's Birthright-adjacent listings -- a deliberate post-Oct-7 recovery-focused offering, run by Trybal Gatherings and Israel Outdoors with Birthright Israel funding, distinct from the general 'Birthright Israel' and 'Israel Outdoors' entries already in the DB."
+    }
+  ]
+}
