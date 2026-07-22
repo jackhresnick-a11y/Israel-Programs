@@ -3,7 +3,6 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import Disclaimer from "@/components/Disclaimer";
 import AssistantWidgetMount from "@/components/AssistantWidgetMount";
 import { ToastProvider } from "@/components/ui/Toast";
 import { getCurrentRole } from "@/lib/roles";
@@ -76,7 +75,6 @@ export default async function RootLayout({
             <Nav />
             <div className="flex flex-1 flex-col overflow-x-clip">{children}</div>
             <Footer />
-            <Disclaimer />
             <AssistantWidgetMount show={showAssistant} />
           </ToastProvider>
         </body>
