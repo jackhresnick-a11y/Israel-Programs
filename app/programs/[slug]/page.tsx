@@ -8,6 +8,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getProgramBySlug, averageRating, toPublicProgram, shareDescription } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
+import { getReferenceListVisibility } from "@/lib/referenceConfig";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResults";
@@ -99,7 +100,8 @@ export default async function ProgramDetailPage({
   const isOwner = userId === program.createdById;
   if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
 
-  const references = await listPublishedReferences(program.id);
+  const { show: showReferenceList } = await getReferenceListVisibility(program.id);
+  const references = showReferenceList ? await listPublishedReferences(program.id) : [];
   const rating = averageRating(program.reviews);
   const publicPollLink = await getPublicPollLink(program.id);
 
@@ -301,7 +303,7 @@ export default async function ProgramDetailPage({
           People who attended this program and are willing to answer honest
           questions about their real experience.
         </p>
-        <ReferenceList references={references} isModerator={isModerator} />
+        {showReferenceList && <ReferenceList references={references} isModerator={isModerator} />}
         <Show
           when="signed-in"
           fallback={

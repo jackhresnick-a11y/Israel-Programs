@@ -186,6 +186,131 @@ export async function sendOutreachEmail(input: OutreachEmailInput): Promise<Outr
   }
 }
 
+/**
+ * Shared send path for every Alumni References email below -- all of them are
+ * transactional sends from the site's own domain (same getOutreachFromAddress
+ * requirement as sendOutreachEmail: no onboarding@resend.dev fallback), so a
+ * missing/invalid RESEND_FROM refuses the send rather than sending from a test
+ * address. Never throws -- a failed send here just means the request stays
+ * AWAITING_ALUMNUS and the 3-day reminder cron gets a second chance at it.
+ */
+async function sendReferenceEmail(to: string, subject: string, text: string): Promise<boolean> {
+  const from = getOutreachFromAddress();
+  if (!from) {
+    console.error("[reference email] RESEND_FROM is not set to an israelprogramswiki.com address — send skipped");
+    return false;
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    console.error("[reference email] RESEND_API_KEY missing — send skipped");
+    return false;
+  }
+
+  try {
+    const { error } = await resend.emails.send({
+      from,
+      to,
+      replyTo: getOutreachReplyToAddress(),
+      bcc: getOutreachBccAddress() ?? undefined,
+      subject,
+      text,
+    });
+    if (error) {
+      console.error("[reference email] Resend returned an error", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[reference email] send failed", err);
+    return false;
+  }
+}
+
+export type ReferenceApprovalEmailInput = {
+  to: string;
+  requesterName: string;
+  requesterNote: string | null;
+  programName: string;
+  approveUrl: string;
+  declineUrl: string;
+};
+
+/** The alumnus's initial "someone wants to connect" email — one of the two
+ * single-use links (Approve/Decline) is how they resolve the request; no
+ * contact info is shared by this email itself. */
+export async function sendReferenceApprovalEmail(input: ReferenceApprovalEmailInput): Promise<boolean> {
+  const subject = `${input.requesterName} would like to connect with you about ${input.programName}`;
+  const noteBlock = input.requesterNote ? `Their message:\n"${input.requesterNote}"\n\n` : "";
+  const text =
+    `${input.requesterName} found your Alumni Reference listing for ${input.programName} on Israel Programs Wiki and would like to connect.\n\n` +
+    noteBlock +
+    `If you're open to it, approve below and we'll share both your contact details by email:\n${input.approveUrl}\n\n` +
+    `If not, no problem -- just decline and we'll let them know:\n${input.declineUrl}\n\n` +
+    `Nothing is shared with them unless you click Approve.`;
+  return sendReferenceEmail(input.to, subject, text);
+}
+
+/** Same content as the initial approval email, reworded as a one-time nudge. Callers
+ * are responsible for only sending this once (lib/references.ts's
+ * ContactRequest.reminderSent flag). */
+export async function sendReferenceReminderEmail(input: ReferenceApprovalEmailInput): Promise<boolean> {
+  const subject = `Reminder: ${input.requesterName} is still hoping to connect about ${input.programName}`;
+  const noteBlock = input.requesterNote ? `Their message:\n"${input.requesterNote}"\n\n` : "";
+  const text =
+    `Just a gentle reminder -- ${input.requesterName} is still waiting to hear back about connecting regarding ${input.programName}.\n\n` +
+    noteBlock +
+    `Approve and we'll share both your contact details by email:\n${input.approveUrl}\n\n` +
+    `Or decline and we'll let them know:\n${input.declineUrl}\n\n` +
+    `No pressure either way -- nothing is shared with them unless you click Approve.`;
+  return sendReferenceEmail(input.to, subject, text);
+}
+
+export type ReferenceIntroEmailsInput = {
+  alumnusEmail: string;
+  alumnusName: string;
+  requesterEmail: string;
+  requesterName: string;
+  programName: string;
+};
+
+/** Sent once, immediately after an approval -- this is the only place either
+ * party's email address is revealed to the other. */
+export async function sendReferenceIntroEmails(input: ReferenceIntroEmailsInput): Promise<boolean> {
+  const toAlumnus = sendReferenceEmail(
+    input.alumnusEmail,
+    `You're connected with ${input.requesterName} about ${input.programName}`,
+    `You approved the request to connect. ${input.requesterName}'s email is ${input.requesterEmail} -- feel free to reach out directly.`
+  );
+  const toRequester = sendReferenceEmail(
+    input.requesterEmail,
+    `${input.alumnusName} approved your request to connect`,
+    `Good news -- ${input.alumnusName} is happy to connect about ${input.programName}. Their email is ${input.alumnusEmail} -- feel free to reach out directly.`
+  );
+  const [alumnusSent, requesterSent] = await Promise.all([toAlumnus, toRequester]);
+  return alumnusSent && requesterSent;
+}
+
+/** Sent to the requester only -- a decline (or expiry, via sendReferenceExpiredEmail)
+ * exposes nothing about the reference beyond "they weren't available." */
+export async function sendReferenceDeclinedEmail(to: string, programName: string): Promise<boolean> {
+  const text =
+    `Thanks for your interest in connecting with an alumni reference for ${programName}. ` +
+    `Unfortunately they weren't able to connect this time. Feel free to check back later, ` +
+    `or explore other alumni references listed on the program page.`;
+  return sendReferenceEmail(to, `About your request to connect regarding ${programName}`, text);
+}
+
+/** Same soft messaging as a decline -- a quietly-expired request should never read as
+ * a rejection, just as "this didn't happen." */
+export async function sendReferenceExpiredEmail(to: string, programName: string): Promise<boolean> {
+  const text =
+    `Thanks for your interest in connecting with an alumni reference for ${programName}. ` +
+    `We weren't able to connect you this time. Feel free to check back later, ` +
+    `or explore other alumni references listed on the program page.`;
+  return sendReferenceEmail(to, `About your request to connect regarding ${programName}`, text);
+}
+
 export type TestEmailTemplate = "contact" | "verification" | "outreach";
 
 export type TestEmailResult = OutreachSendResult & { from?: string };
