@@ -123,7 +123,7 @@ export async function approveReference(id: string) {
     prisma.referenceConfig.findUnique({ where: { programId: reference.programId } }),
   ]);
 
-  const minToShow = config?.minToShow ?? 3;
+  const minToShow = config?.minToShow ?? 1;
   if (!config?.unlockedAt && approvedCount >= minToShow) {
     await prisma.referenceConfig.upsert({
       where: { programId: reference.programId },

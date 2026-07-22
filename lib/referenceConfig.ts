@@ -7,7 +7,7 @@ export type ReferenceConfigDTO = ReferenceConfigLike;
 const DEFAULT_REFERENCE_CONFIG: ReferenceConfigDTO = {
   visibility: "AUTO",
   unlockedAt: null,
-  minToShow: 3,
+  minToShow: 1,
 };
 
 /** A missing row reads as these schema defaults rather than throwing -- a program
