@@ -5,6 +5,7 @@ import { getSiteContent } from "@/lib/siteContent";
 import { buttonVariants } from "@/components/ui/Button";
 import ThemeToggle from "@/components/ThemeToggle";
 import AccountMenu from "@/components/AccountMenu";
+import MobileNavDrawer from "@/components/MobileNavDrawer";
 
 export default async function Nav() {
   const [role, logoUrl, logoMode, logoUrlDark] = await Promise.all([
@@ -70,28 +71,34 @@ export default async function Nav() {
           </div>
 
           {/* Mobile nav drawer -- native <details>/<summary>, same zero-JS disclosure
-              pattern as the homepage's "About this project" section, so this stays a
-              server component with no client-side open/close state. Entirely absent
-              at sm+ (`sm:hidden` on the wrapper), where the links above are inline
+              pattern as the homepage's "About this project" section, progressively
+              enhanced by MobileNavDrawer's client-side auto-close (outside
+              click/Escape/inside-link-click) -- see that component. Nav.tsx itself
+              stays a server component; only that one wrapper is a client boundary.
+              Entirely absent at sm+ (`sm:hidden`), where the links above are inline
               instead. */}
-          <details className="relative sm:hidden">
-            <summary
-              aria-label="Menu"
-              className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full text-primary-foreground/90 hover:text-accent [&::-webkit-details-marker]:hidden"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.75}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
+          <MobileNavDrawer
+            className="relative sm:hidden"
+            trigger={
+              <summary
+                aria-label="Menu"
+                className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full text-primary-foreground/90 hover:text-accent [&::-webkit-details-marker]:hidden"
               >
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </summary>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </summary>
+            }
+          >
             <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-surface p-2 text-sm shadow-lg">
               <Link
                 href="/programs"
@@ -130,7 +137,7 @@ export default async function Nav() {
                 </SignUpButton>
               </Show>
             </div>
-          </details>
+          </MobileNavDrawer>
 
           {/* Both auth buttons are desktop-only on the row -- on mobile they move into
               the hamburger drawer above instead (a wrapping div's display toggle, not
