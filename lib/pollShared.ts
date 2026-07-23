@@ -45,6 +45,33 @@ export const POLL_FLAGS = {
 
 export type PollFlag = (typeof POLL_FLAGS)[keyof typeof POLL_FLAGS];
 
+/** How many counted "overall" ratings a program needs before its aggregate rating is
+ * considered trustworthy enough to lean on. Used by the admin rating-coverage overview
+ * (/admin/polls/coverage) as one uniform bar across all programs. This is distinct from
+ * each program's own ProgramPollConfig.minResponsesToPublish (which gates the *public*
+ * score per program) -- both default to 7, but this is the single global knob for the
+ * "which programs still need responses?" view. Change it here and nowhere else. */
+export const MIN_RESPONSES_FOR_RATING = 7;
+
+/** One program's rating-response tally for the coverage overview. `count` is the number
+ * of COUNTED responses that answered the `overall` question -- the same measure that
+ * unlocks a public score -- not raw response rows. */
+export type RatingCoverageRow = { id: string; name: string; slug: string; count: number };
+
+/** Pure roll-up over the coverage rows: total programs, how many meet the threshold, and
+ * how many fall below it. Split out (no Prisma) so it's unit-testable and reusable by the
+ * client table without a round trip. A program with exactly `threshold` responses meets it. */
+export function summarizeRatingCoverage(
+  rows: RatingCoverageRow[],
+  threshold: number = MIN_RESPONSES_FOR_RATING
+): { total: number; meeting: number; below: number } {
+  let meeting = 0;
+  for (const row of rows) {
+    if (row.count >= threshold) meeting += 1;
+  }
+  return { total: rows.length, meeting, below: rows.length - meeting };
+}
+
 /** The only question shape ever passed to a client component -- no answer data, no
  * response data, nothing sensitive. */
 export type PollQuestionDTO = {

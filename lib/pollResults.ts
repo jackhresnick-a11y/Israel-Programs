@@ -10,6 +10,7 @@ import {
   type PollSummaryQuestionDTO,
   type PollSummaryBucketDTO,
   type PollReviewGroupDTO,
+  type RatingCoverageRow,
 } from "@/lib/pollShared";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
@@ -154,6 +155,47 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   return { ...base, questions, buckets, overallMean, overallHistogram };
 });
+
+/**
+ * Every published program with its rating-response count, for the admin coverage
+ * overview (/admin/polls/coverage). `count` mirrors the publish gate in
+ * getProgramPollSummary: COUNTED responses that answered the `overall` question -- the
+ * same measure that unlocks a public score -- not raw PollResponse rows (a response that
+ * skipped `overall` doesn't move a program toward a publishable rating).
+ *
+ * Three set-based queries, no per-program loop: the `overall` question id, the full
+ * published-program list, and one grouped count keyed by programId. Programs with no
+ * qualifying responses don't appear in the grouped result and are backfilled to 0.
+ * Sorted ascending by count so the programs most in need of responses sort to the top.
+ */
+export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
+  const [overallQuestion, programs] = await Promise.all([
+    prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } }),
+    prisma.program.findMany({
+      where: { status: "PUBLISHED" },
+      select: { id: true, name: true, slug: true },
+    }),
+  ]);
+
+  // Without an `overall` question no program can accrue a publishable rating, so every
+  // count is 0 -- skip the grouped query entirely.
+  const countByProgramId = new Map<string, number>();
+  if (overallQuestion) {
+    const grouped = await prisma.pollResponse.groupBy({
+      by: ["programId"],
+      where: {
+        status: "COUNTED",
+        answers: { some: { questionId: overallQuestion.id } },
+      },
+      _count: { _all: true },
+    });
+    for (const g of grouped) countByProgramId.set(g.programId, g._count._all);
+  }
+
+  return programs
+    .map((p) => ({ id: p.id, name: p.name, slug: p.slug, count: countByProgramId.get(p.id) ?? 0 }))
+    .sort((a, b) => a.count - b.count || a.name.localeCompare(b.name));
+}
 
 /**
  * Approved reviews for the public program page, grouped by question and ordered by the

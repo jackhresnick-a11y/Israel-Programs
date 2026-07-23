@@ -10,8 +10,11 @@ import {
   anonymousSubmitSchema,
   detailsSubmitSchema,
   reviewInputSchema,
+  summarizeRatingCoverage,
+  MIN_RESPONSES_FOR_RATING,
   type PollBucketDTO,
   type PollQuestionDTO,
+  type RatingCoverageRow,
 } from "./pollShared";
 
 function question(id: string, overrides: Partial<PollQuestionDTO> = {}): PollQuestionDTO {
@@ -615,5 +618,35 @@ describe("resolveProgramQuestionProvenance: labels each resolved question by why
     );
     expect(result.questions.map((r) => r.question.id)).not.toContain("q4");
     expect(result.removedQuestionIds).toEqual(["q4"]);
+  });
+});
+
+describe("summarizeRatingCoverage", () => {
+  const row = (count: number): RatingCoverageRow => ({
+    id: `p${count}`,
+    name: `Program ${count}`,
+    slug: `program-${count}`,
+    count,
+  });
+
+  it("counts a program at exactly the threshold as meeting it", () => {
+    const result = summarizeRatingCoverage([row(MIN_RESPONSES_FOR_RATING)], MIN_RESPONSES_FOR_RATING);
+    expect(result).toEqual({ total: 1, meeting: 1, below: 0 });
+  });
+
+  it("splits programs above/below the threshold and always sums to total", () => {
+    const rows = [row(0), row(3), row(7), row(12)];
+    const result = summarizeRatingCoverage(rows, 7);
+    expect(result).toEqual({ total: 4, meeting: 2, below: 2 });
+    expect(result.meeting + result.below).toBe(result.total);
+  });
+
+  it("defaults to MIN_RESPONSES_FOR_RATING when no threshold is passed", () => {
+    const rows = [row(MIN_RESPONSES_FOR_RATING - 1), row(MIN_RESPONSES_FOR_RATING)];
+    expect(summarizeRatingCoverage(rows)).toEqual({ total: 2, meeting: 1, below: 1 });
+  });
+
+  it("handles an empty list", () => {
+    expect(summarizeRatingCoverage([])).toEqual({ total: 0, meeting: 0, below: 0 });
   });
 });
