@@ -15,6 +15,9 @@ import Fuse from "fuse.js";
 // long description doesn't outrank a real name/tag hit.
 const SEARCH_KEYS: { name: string; weight: number }[] = [
   { name: "name", weight: 3 },
+  // Same weight as the English name -- a Hebrew query matching the official Hebrew name
+  // is just as strong a signal as an English query matching the English name.
+  { name: "nameHe", weight: 3 },
   { name: "organization", weight: 2 },
   { name: "tags.name", weight: 2 },
   { name: "tags.slug", weight: 2 },
@@ -29,6 +32,7 @@ function escapeRegExp(value: string) {
 
 export type Searchable = {
   name: string;
+  nameHe: string | null;
   organization: string | null;
   location: string | null;
   goodFor: string | null;
@@ -55,6 +59,7 @@ function tokenize(term: string): string[] {
 function haystacks(program: Searchable): string[] {
   return [
     program.name,
+    program.nameHe ?? "",
     program.organization ?? "",
     program.location ?? "",
     program.goodFor ?? "",
@@ -81,23 +86,36 @@ function relevanceTier(
   tokens: string[]
 ): number {
   const name = program.name.toLowerCase();
+  // Hebrew has no case, so .toLowerCase() is a harmless no-op here -- kept only so
+  // nameHe goes through the same shape as every other field below.
+  const nameHe = program.nameHe?.toLowerCase() ?? "";
   const org = program.organization?.toLowerCase() ?? "";
   const tagNames = program.tags.map((t) => t.name.toLowerCase());
   const tagSlugs = program.tags.map((t) => t.slug.toLowerCase());
 
-  if (name === termLower || tagNames.includes(termLower) || tagSlugs.includes(termLower)) {
-    return 0; // exact name or exact tag match
+  if (
+    name === termLower ||
+    (nameHe !== "" && nameHe === termLower) ||
+    tagNames.includes(termLower) ||
+    tagSlugs.includes(termLower)
+  ) {
+    return 0; // exact name (English or Hebrew) or exact tag match
   }
-  if (name.startsWith(termLower) || org.startsWith(termLower)) {
-    return 1; // name/org starts with the whole term
+  if (name.startsWith(termLower) || org.startsWith(termLower) || (nameHe !== "" && nameHe.startsWith(termLower))) {
+    return 1; // name/org/Hebrew-name starts with the whole term
   }
   if (tokens.length > 0) {
+    // \b (JS regex word-boundary) is defined via \w, which does not include Hebrew
+    // letters -- a \b-based check silently never fires against Hebrew text. nameHe is
+    // therefore matched with a plain substring check instead of reusing wordBoundary,
+    // rather than relying on an English-only heuristic that would look like it covers
+    // Hebrew but never actually matches it.
     const tokenInNameOrOrg = (tok: string) => {
       const wb = new RegExp(`\\b${escapeRegExp(tok)}`);
-      return wb.test(name) || wb.test(org);
+      return wb.test(name) || wb.test(org) || nameHe.includes(tok);
     };
     if (tokens.every(tokenInNameOrOrg)) {
-      return 1; // every word appears (word-boundary) in the name/org
+      return 1; // every word appears (word-boundary, or substring for Hebrew) in the name/org
     }
     const tokenInNameOrgOrTags = (tok: string) =>
       tokenInNameOrOrg(tok) ||
@@ -115,9 +133,10 @@ function relevanceTier(
   if (
     wordBoundary.test(name) ||
     wordBoundary.test(org) ||
+    (nameHe !== "" && nameHe.includes(termLower)) ||
     tagSlugs.some((slug) => slug.startsWith(termLower))
   ) {
-    return 2; // word-boundary match in name/org, or tag slug prefix
+    return 2; // word-boundary match in name/org (or substring match in nameHe), or tag slug prefix
   }
   if (
     name.includes(termLower) ||

@@ -25,6 +25,7 @@ const httpUrl = z
 
 export type ProgramInput = {
   name: string;
+  nameHe?: string;
   description: string;
   goodFor?: string;
   organization?: string;
@@ -46,6 +47,7 @@ export type ProgramInput = {
 
 const programSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
+  nameHe: z.string().trim().max(200).optional().or(z.literal("")),
   description: z.string().trim().min(1, "Description is required").max(5000),
   goodFor: z.string().trim().max(2000).optional().or(z.literal("")),
   organization: z.string().trim().max(200).optional().or(z.literal("")),
@@ -69,7 +71,7 @@ const programSchema = z.object({
 
 export function parseProgramFormData(formData: FormData): ProgramInput {
   const raw = Object.fromEntries(
-    ["name", "description", "goodFor", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "hasScholarship", "hasCollegeCredit", "travelType", "tags"].map(
+    ["name", "nameHe", "description", "goodFor", "organization", "location", "durationType", "durationText", "cost", "signupInstructions", "signupUrl", "contactEmail", "contactPhone", "contactWebsite", "hasScholarship", "hasCollegeCredit", "travelType", "tags"].map(
       (key) => [key, formData.get(key)?.toString() ?? ""]
     )
   );
@@ -155,6 +157,7 @@ export async function createProgram(
   const program = await prisma.program.create({
     data: {
       name: input.name,
+      nameHe: input.nameHe || null,
       slug,
       description: input.description,
       goodFor: input.goodFor,
@@ -258,6 +261,7 @@ export async function updateProgram(id: string, input: ProgramInput) {
     where: { id },
     data: {
       name: input.name,
+      nameHe: input.nameHe || null,
       description: input.description,
       goodFor: input.goodFor,
       organization: input.organization,
@@ -434,10 +438,11 @@ export async function listPublishedProgramNames() {
 
 /** Every published program with the lightweight fields the /rate program picker needs to
  * fuzzy-rank client-side (the same rankBySearchTerm the directory search uses) -- name,
- * organization, location, and tag names/slugs. Deliberately omits description/goodFor:
- * they're heavy free text and low-value for picking a program to rate, so shipping them
- * to the browser isn't worth the payload (see components/RateProgramPicker.tsx). `slug`
- * is for building the fallback rating href server-side, not searched. */
+ * nameHe, organization, location, and tag names/slugs. Deliberately omits description/
+ * goodFor: they're heavy free text and low-value for picking a program to rate, so
+ * shipping them to the browser isn't worth the payload (see
+ * components/RateProgramPicker.tsx). `slug` is for building the fallback rating href
+ * server-side, not searched. */
 export async function listPublishedProgramsForPicker() {
   return prisma.program.findMany({
     where: { status: "PUBLISHED" },
@@ -445,6 +450,7 @@ export async function listPublishedProgramsForPicker() {
       id: true,
       slug: true,
       name: true,
+      nameHe: true,
       organization: true,
       location: true,
       tags: { select: { name: true, slug: true } },

@@ -181,6 +181,12 @@ enum PendingTagStatus {
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
+  /// Official Hebrew name, optional -- never a transliteration of `name`. Displayed on
+  /// the program detail page (RTL) beneath the English name when present, and searchable
+  /// (see lib/programSearch.ts's Searchable/SEARCH_KEYS) -- never shown on ProgramCard,
+  /// which stays English-only (cards are space-constrained). Not backfilled on creation
+  /// of this column; research/hebrew-names.json is a separate, un-imported research pass.
+  nameHe                 String?
   slug                   String                     @unique
   description            String
   goodFor                String?

@@ -15,6 +15,7 @@ export type ProgramFormValues = {
   id?: string;
   slug?: string;
   name: string;
+  nameHe: string;
   description: string;
   goodFor: string;
   organization: string;
@@ -36,6 +37,7 @@ export type ProgramFormValues = {
 
 const EMPTY: ProgramFormValues = {
   name: "",
+  nameHe: "",
   description: "",
   goodFor: "",
   organization: "",
@@ -196,6 +198,14 @@ export default function ProgramForm({
           required
           value={values.name}
           onChange={(e) => set("name", e.target.value)}
+        />
+      </Field>
+
+      <Field label="Hebrew name (optional)" error={fieldErrors.nameHe}>
+        <Input
+          dir="rtl"
+          value={values.nameHe}
+          onChange={(e) => set("nameHe", e.target.value)}
         />
       </Field>
 

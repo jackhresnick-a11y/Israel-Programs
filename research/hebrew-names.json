@@ -1,0 +1,1717 @@
+[
+  {
+    "id": "cmr9qk0010028rumzkgh8qo64",
+    "name": "Aish HaTorah – Aish Gesher",
+    "nameHe": "אש התורה",
+    "sourceUrl": "https://aish.co.il/about/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qk4qf002arumz9vhu26n1",
+    "name": "Aish HaTorah – Foundations Program",
+    "nameHe": "אש התורה",
+    "sourceUrl": "https://aish.co.il/about/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrwiyk5u0002s2mz2r49ptld",
+    "name": "Amijai (World Bnei Akiva)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr8qc69d000tjbmzgb9bswu3",
+    "name": "Arava Institute for Environmental Studies",
+    "nameHe": "מכון הערבה ללימודי הסביבה",
+    "sourceUrl": "https://arava.org/he/%d7%91%d7%99%d7%aa/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapcd210006bkmznam0fbox",
+    "name": "Bat Ayin Yeshiva",
+    "nameHe": "ישיבת בת עין",
+    "sourceUrl": "https://www.yeshivatbatayin.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrq10030vkmzh537u67j",
+    "name": "BBYO Passport: Israel Journey",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr8bgrq90031vkmzfwvlj14u",
+    "name": "BBYO Passport: Israel Trek",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr9qklz6002grumz0g518rfa",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "nameHe": "בית חנה",
+    "sourceUrl": "https://www.beitchana.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepg3xn0010pdmzgnkfpi2g",
+    "name": "Beit Midrash Reuta (Carmel)",
+    "nameHe": "בית מדרש רעותא",
+    "sourceUrl": "https://reuta.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgfx0001mpdmz6ge4uo39",
+    "name": "Beit Orot (Jerusalem)",
+    "nameHe": "בית אורות – בית מדרש ירושלמי",
+    "sourceUrl": "https://beit-orot.com/en/home/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgr4y000bvkmzq5pd8b0n",
+    "name": "BINA Gap Year",
+    "nameHe": "בינ\"ה – הבית של היהדות הישראלית",
+    "sourceUrl": "https://www.bina.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qf15c000erumzi1qwntt5",
+    "name": "Birthright Israel Excel Fellowship",
+    "nameHe": "תגלית אקסל",
+    "sourceUrl": "https://taglitisrael.co.il/excel/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmraphjkv002cbkmzkiulhx8b",
+    "name": "Bnei Akiva Olamit: Shalem",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrdh24jd000004l5vzmnb27q",
+    "name": "Bnei David (Eli)",
+    "nameHe": "בני דוד - עלי",
+    "sourceUrl": "https://bneidavid.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8iyrk000g7fmzwpzbmp3l",
+    "name": "CAMERA Fellows - Student Leadership and Advocacy Mission to Israel",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrapeujy0017bkmzu7riufez",
+    "name": "Chasedei Breslov Yeshiva",
+    "nameHe": "ישיבת חסידי ברסלב, אור הנעלם, ירושלים",
+    "sourceUrl": "https://next.obudget.org/i/org/association/580118909",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrju0026vkmzh1qdxmby",
+    "name": "Chevron Yeshiva (Knesset Yisrael)",
+    "nameHe": "ישיבת חברון \"כנסת ישראל\" גבעת מרדכי",
+    "sourceUrl": "https://www.guidestar.org.il/he/organization/580244705",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem7zww001srvmz61r5n7z9",
+    "name": "Derech Eretz",
+    "nameHe": "דרך ארץ - תוכניות אופק לנוער וצעירים",
+    "sourceUrl": "https://derecheretz.org.il/en/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qkt0g002irumzicfxeot9",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "nameHe": "ישיבת התפוצות תורת ישראל",
+    "sourceUrl": "https://diasporayeshiva.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrqr0034vkmzhkwis3v5",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "nameHe": "עמיתי דילר",
+    "sourceUrl": "https://dillerteenfellows.org/he/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapcnfd000abkmzzffrvsml",
+    "name": "Dvar Yerushalayim",
+    "nameHe": "ישיבת דבר ירושלים",
+    "sourceUrl": "https://he.wikipedia.org/wiki/%D7%99%D7%A9%D7%99%D7%91%D7%AA_%D7%93%D7%91%D7%A8_%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bo6b00015hdmzfshu4egd",
+    "name": "Ein Prat Academy for Leadership",
+    "nameHe": "עין פרת - המדרשה למנהיגות חברתית",
+    "sourceUrl": "https://ein-prat.com/%d7%90%d7%95%d7%93%d7%95%d7%aa-%d7%a2%d7%99%d7%9f-%d7%a4%d7%a8%d7%aa/?lang=en",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmra8gsj0000x2wmzvyiaeb3c",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "nameHe": "אמונה אפרתה - המכללה האקדמית לאמנויות וחינוך",
+    "sourceUrl": "https://emuna.emef.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6di001ihdmzyzna575r",
+    "name": "Garin Tzabar",
+    "nameHe": "גרעין צבר",
+    "sourceUrl": "https://www.zofim.org.il/tzabar-olami/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwiw2fj000ifxmznhiaosib",
+    "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+    "nameHe": "המכינה החדשה בלוד",
+    "sourceUrl": "https://mechinat-lod.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwivysn000cfxmzsi9fgaxr",
+    "name": "HaMechina HaMadait (Scientific Pre-Military Academy)",
+    "nameHe": "המכינה המדעית",
+    "sourceUrl": "https://hamadait.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapdbmz000kbkmzt4xp3nap",
+    "name": "Heichal Yerushalayim",
+    "nameHe": "ישיבת היכל ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580745198",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfw5x000mpdmzysp7abk1",
+    "name": "Hesder Yeshiva Akko",
+    "nameHe": "ישיבת ההסדר עכו",
+    "sourceUrl": "https://yakko.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapibvw002qbkmzqx2beee2",
+    "name": "Hippos-Sussita Excavations",
+    "nameHe": "משלחת חפירות סוסיתא",
+    "sourceUrl": "https://mushecht.haifa.ac.il/%D7%9C%D7%A4%D7%A0%D7%99-%D7%A9%D7%94%D7%90%D7%93%D7%9E%D7%94-%D7%A8%D7%A2%D7%93%D7%94-%D7%94%D7%A2%D7%99%D7%A8-%D7%94%D7%A2%D7%AA%D7%99%D7%A7%D7%94-%D7%A1%D7%95%D7%A1%D7%99%D7%AA%D7%90-%D7%A0%D7%97/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmra8fm18000i2wmz13iwdc7h",
+    "name": "Israel Government Fellows (IGF)",
+    "nameHe": "עמיתי ממשל",
+    "sourceUrl": "https://www.begincenter.org.il/begins-heritage/israel-government-fellows/?lang=en",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8h1lu00122wmzwc5xk9yh",
+    "name": "Israel Lacrosse Gap Year Program",
+    "nameHe": "אגודה ישראלית לספורט לקרוס",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580554475",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qejw80006rumzt9e8ag41",
+    "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+    "nameHe": "האקדמיה למוסיקה ומחול בירושלים",
+    "sourceUrl": "https://www.jamd.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8gd9t000r2wmzrfavomw4",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "nameHe": "המרכז האקדמי לב",
+    "sourceUrl": "https://www.jct.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qik8n001orumz7f50tzu4",
+    "name": "Kadima (World Bnei Akiva)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr8qcbeq000wjbmzwfornwop",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "nameHe": "קיבוץ לוטן - המרכז לאקולוגיה יצירתית",
+    "sourceUrl": "https://kibbutzlotan.com",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8fg9l000g2wmzcv83erkn",
+    "name": "Kol Ami Mechina",
+    "nameHe": "קול עמי",
+    "sourceUrl": "https://www.kolami.org.il/he/work-for-us",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrv41fhn0002gsmz5fpf4l2o",
+    "name": "Kollel Nefesh HaChaim",
+    "nameHe": "נפש החיים - לתורה חינוך וחסד",
+    "sourceUrl": "https://www.guidestar.org.il/he/organization/580367175",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qfxz8000qrumzep6r00zl",
+    "name": "Leket Israel Volunteer Program",
+    "nameHe": "לקט ישראל",
+    "sourceUrl": "https://www.leket.org/en/about-leket/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8imcz000c7fmzglo0ybfy",
+    "name": "Limmud (World Bnei Akiva)",
+    "nameHe": "בני עקיבא העולמית",
+    "sourceUrl": "https://www.worldbneiakiva.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrkzseoo000104l7r56tn70r",
+    "name": "Machal Overseas Army Program",
+    "nameHe": "מח\"ל (מתנדבי חוץ לארץ)",
+    "sourceUrl": "https://www.mahal.org.il/he/Pages/default.aspx",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrgw001tvkmz74jft5t2",
+    "name": "Machon Meir",
+    "nameHe": "מכון מאיר",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580015618",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qkeee002erumz15j86us4",
+    "name": "Machon Shlomo",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrapbyrs0000bkmzx5os8otg",
+    "name": "Machon Yaakov",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr8bgr5t000fvkmz74kmfj5r",
+    "name": "Masa Israel Teaching Fellows (MITF)",
+    "nameHe": "עמיתי הוראה",
+    "sourceUrl": "https://heb.masaisrael.org/%D7%A2%D7%9E%D7%99%D7%AA%D7%99-%D7%9E%D7%A1%D7%A2/mitf/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrv40xu60000gsmzls009lep",
+    "name": "Matan – The Sadie Rennert Women's Institute for Torah Studies",
+    "nameHe": "מתן - מכון תורני לנשים",
+    "sourceUrl": "https://www.matan.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8qd0om0019jbmzuqitbz85",
+    "name": "Mayanot Post-High-School Program (Men)",
+    "nameHe": "מכון מעיינות ללימודי יהדות",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580237931",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qisxy001qrumz18e82noz",
+    "name": "Mechina Olamit (World Bnei Akiva and Kol Ami)",
+    "nameHe": "המכינה העולמית",
+    "sourceUrl": "https://www.worldbneiakiva.org/mechina-israelis",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qh80x0016rumzew38iuxr",
+    "name": "Mechinat Aderet",
+    "nameHe": "מכינת אדרת",
+    "sourceUrl": "https://www.mehinataderet.com/en",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8c01002crvmzeezkw8dm",
+    "name": "Mechinat Ami-Chai",
+    "nameHe": "מכינת עמי-חי",
+    "sourceUrl": "https://www.ami-chai.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qhdtf0018rumzb2cx0o3u",
+    "name": "Mechinat Amichai",
+    "nameHe": "מכינת עמי-חי",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/ami-hai",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qhsqj001erumzr9myf0d1",
+    "name": "Mechinat Arava",
+    "nameHe": "מכינת ערבה",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/arava-hatzeva",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem78gh000irvmz8hhrg951",
+    "name": "Mechinat Arzei HaLevanon",
+    "nameHe": "מכינת ארזי הלבנון",
+    "sourceUrl": "https://mechinot.org.il/mechina/toraniyot-joint/arzey-halevanon",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrxhoc4e0006bfmzty2bhlan",
+    "name": "Mechinat Ateret Yerushalayim",
+    "nameHe": "מכינת 'עטרת ירושלים'",
+    "sourceUrl": "https://mechinat-ateret.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem742l000arvmzbwk227rf",
+    "name": "Mechinat Avner - Akko",
+    "nameHe": "מכינת אבנר",
+    "sourceUrl": "http://www.avnerakko.co.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qhy4b001grumz1o8hc6wx",
+    "name": "Mechinat Be'eri",
+    "nameHe": "מכינת בארי",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/2016-10-08-18-35-32",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7vwo001mrvmzwnsf8pf8",
+    "name": "Mechinat Beer Ora",
+    "nameHe": "מכינת באר אורה",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/beer-ora",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem79hy000krvmz3issbr9e",
+    "name": "Mechinat Beit Yatir",
+    "nameHe": "בית יתיר – מכינה קדם צבאית ישיבתית",
+    "sourceUrl": "https://yatir.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6bu0019hdmzafo3av3d",
+    "name": "Mechinat Beit Yisrael (Big)",
+    "nameHe": "מכינת בית ישראל",
+    "sourceUrl": "https://reut.org.il/en/mechinat-beit-yisrael/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8eor002grvmzvvsqg80w",
+    "name": "Mechinat Bina",
+    "nameHe": "מכינה קדם צבאית תל אביב - בינ\"ה",
+    "sourceUrl": "https://www.bina.org.il/mechinot-shsh/mechina/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6ao0013hdmzbawf89co",
+    "name": "Mechinat Bnei David (Eli)",
+    "nameHe": "מכינת 'בני דוד' עלי",
+    "sourceUrl": "https://bneidavid.org/%D7%9E%D7%9B%D7%99%D7%A0%D7%94-%D7%A7%D7%93%D7%9D-%D7%A6%D7%91%D7%90%D7%99%D7%AA/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7xaz001orvmz4ipvkp2k",
+    "name": "Mechinat Bnot HaMidbar",
+    "nameHe": "מכינת בנות המדבר",
+    "sourceUrl": "https://melach.org.il/%D7%91%D7%A0%D7%95%D7%AA-%D7%94%D7%9E%D7%93%D7%91%D7%A8/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7c09000orvmzgne5njlf",
+    "name": "Mechinat Chemdat Yehuda",
+    "nameHe": "מכינת חמדת יהודה",
+    "sourceUrl": "https://chemdat.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7asb000mrvmz97prdrs0",
+    "name": "Mechinat Chosen Peduel",
+    "nameHe": "מכינת חוסן פדואל",
+    "sourceUrl": "https://www.pduel.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwivvc60006fxmz090o2chd",
+    "name": "Mechinat Derech Avot",
+    "nameHe": "מכינת דרך אבות",
+    "sourceUrl": "https://bneidavid.org/%D7%9E%D7%9B%D7%99%D7%A0%D7%AA-%D7%93%D7%A8%D7%9A-%D7%90%D7%91%D7%95%D7%AA/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qi31r001irumz1bjcnbb6",
+    "name": "Mechinat Dror",
+    "nameHe": "מכינת דרור",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/dror",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7ur8001krvmz0gtzlazk",
+    "name": "Mechinat Echad V'Achat Mishelanu",
+    "nameHe": "אחד ואחת משלנו",
+    "sourceUrl": "https://www.one-of-us.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem769i000ervmzc8j29189",
+    "name": "Mechinat Eitan",
+    "nameHe": "מכינת איתן",
+    "sourceUrl": "https://betmoreshet.org.il/%D7%9E%D7%9B%D7%99%D7%A0%D7%AA-%D7%90%D7%99%D7%AA%D7%9F/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem77ay000grvmzdef78186",
+    "name": "Mechinat Elisha",
+    "nameHe": "מכינת אלישע",
+    "sourceUrl": "https://www.mechinat-elisha.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qgxas0012rumzkffy7is9",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "nameHe": "מכינת חמש אצבעות",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/five-fongers",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7ylt001qrvmzyvzgobww",
+    "name": "Mechinat Gal",
+    "nameHe": "מכינת גל",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/gal",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwivxqc000afxmzp27211rn",
+    "name": "Mechinat Galil Elyon",
+    "nameHe": "מכינת גליל עליון",
+    "sourceUrl": "https://galil-leadership.org/he/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qglg7000yrumz83jboc5v",
+    "name": "Mechinat HaEmek",
+    "nameHe": "מכינת העמ\"ק",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/emek",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem82oz001wrvmzjjv3ssky",
+    "name": "Mechinat HaNegev (Sde Boker)",
+    "nameHe": "מכינת הנגב",
+    "sourceUrl": "https://www.magal-negev-israel.org/%D7%9E%D7%9B%D7%99%D7%A0%D7%AA-%D7%94%D7%A0%D7%92%D7%91",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qhiqh001arumzvz2qltfk",
+    "name": "Mechinat Hannaton",
+    "nameHe": "מכינת חנתון",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/hanaton",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwiw192000gfxmzvmf3hart",
+    "name": "Mechinat HaShomer HaChadash",
+    "nameHe": "מכינת השומר החדש ע\"ש רון קוקיא ז\"ל",
+    "sourceUrl": "https://www.hashomer.org.il/pre-military/mechina/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qic99001mrumzm2f1a8mq",
+    "name": "Mechinat Haviva Reich",
+    "nameHe": "מכינת חביבה רייק",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/haviva-raik",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem7fg4000urvmzyiykua3c",
+    "name": "Mechinat Ke'Ayal",
+    "nameHe": "מכינה ישיבתית 'כאייל'",
+    "sourceUrl": "https://otzem.org.il/%D7%9E%D7%9B%D7%99%D7%A0%D7%AA-%D7%9B%D7%90%D7%99%D7%99%D7%9C/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem86590022rvmzg5ky1p8v",
+    "name": "Mechinat Kerem El",
+    "nameHe": "מכינה קדם צבאית כרם-אל",
+    "sourceUrl": "https://www.kerem-el.co.il/kerem-el/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7qdi001crvmzzauqvki8",
+    "name": "Mechinat Keshet Yehuda",
+    "nameHe": "קשת יהודה - מכינה קדם צבאית",
+    "sourceUrl": "https://www.keshetyehuda.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qg8ka000urumzr32g6rvk",
+    "name": "Mechinat Lachish",
+    "nameHe": "מכינת לכיש",
+    "sourceUrl": "https://www.mlachish.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7i8x000yrvmz96w2mjq0",
+    "name": "Mechinat Lapidot Emuna",
+    "nameHe": "מכינת לפידות - אמונה",
+    "sourceUrl": "https://lapidot.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7tpu001irvmzt3pa1p60",
+    "name": "Mechinat Lavi",
+    "nameHe": "מכינת לביא",
+    "sourceUrl": "https://mechinot.org.il/mechina/toraniyot-joint/2025-11-04-11-57-19",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwivwfz0008fxmzjgl4vmq1",
+    "name": "Mechinat Maale Ephraim",
+    "nameHe": "מכינת מעלה אפרים",
+    "sourceUrl": "https://bneidavid.org/%D7%9E%D7%9B%D7%99%D7%A0%D7%AA-%D7%9E%D7%A2%D7%9C%D7%94-%D7%90%D7%A4%D7%A8%D7%99%D7%9D/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrxhod6m0008bfmztk0m92g6",
+    "name": "Mechinat Maamakim",
+    "nameHe": "מכינת מעמקים",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/2023-08-29-08-47-18",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem7jab0010rvmz2kwz0vgl",
+    "name": "Mechinat Magen Shaul (Nokdim)",
+    "nameHe": "מכינת נוקדים - המכינה הקדם צבאית מגן שאול",
+    "sourceUrl": "http://mnokdim.org",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7knv0012rvmz7ra5bn7z",
+    "name": "Mechinat Maoz (Lod)",
+    "nameHe": "מכינת מעוז לוד",
+    "sourceUrl": "https://mechinatmaoz.wixsite.com/mechina",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7lur0014rvmzk5nq2nlv",
+    "name": "Mechinat Mashahiyot (Maskyot)",
+    "nameHe": "מכינת משכיות",
+    "sourceUrl": "https://maskyot.org/en/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem89lb0028rvmz2ixpbecy",
+    "name": "Mechinat Meitarim Lachish",
+    "nameHe": "מכינת מיתרים לכיש",
+    "sourceUrl": "https://www.mlachish.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qgrug0010rumzypq1gsa3",
+    "name": "Mechinat Meitzar",
+    "nameHe": "מכינת מיצר",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/meitzar",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qh1an0014rumzxjqfcggf",
+    "name": "Mechinat Melach HaAretz",
+    "nameHe": "מכינת מלח הארץ",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/melach-haaretz",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem876m0024rvmz804xfaaq",
+    "name": "Mechinat Migdalor",
+    "nameHe": "מגדלור – מכינה קדם צבאית",
+    "sourceUrl": "https://mymigdalor.com/en/elementor-1799/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8aur002arvmzniyt8lwo",
+    "name": "Mechinat Minsharim Kalo",
+    "nameHe": "מכינת מנשרים קלו",
+    "sourceUrl": "https://www.mnesharimkalu.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6c3001ahdmz9uoz6g1b",
+    "name": "Mechinat Nachshon",
+    "nameHe": "מכינה קדם צבאית נחשון",
+    "sourceUrl": "https://m-nachshon.org/en/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8fu1002irvmz402uska8",
+    "name": "Mechinat Nir Oz",
+    "nameHe": "מכינת ניר עוז",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/nir-oz",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7541000crvmzsyylfqxg",
+    "name": "Mechinat Orot",
+    "nameHe": "מכינת אורות - טלמון",
+    "sourceUrl": "https://www.hakotel.org.il/makdazorot/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7n020016rvmz2o6dcesy",
+    "name": "Mechinat Oz Shlomo",
+    "nameHe": "מכינת עז שלמה",
+    "sourceUrl": "https://mechinot.org.il/mechina/toraniyot-joint/oz-shlomo",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6bf0017hdmza0gvenaq",
+    "name": "Mechinat Rabin",
+    "nameHe": "מכינת רבין",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/rabin",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qho82001crumzws5gczx5",
+    "name": "Mechinat Rakia",
+    "nameHe": "מכינת רקיע",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/rakia",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwivzz6000efxmz651xasct",
+    "name": "Mechinat Ruach HaSadeh",
+    "nameHe": "רוח השדה",
+    "sourceUrl": "https://www.ruach-hassade.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8df0002ervmz98gdc81m",
+    "name": "Mechinat Ruach Nachon",
+    "nameHe": "רוח נכון - המכינה הקדם צבאית לרוח ומנהיגות חברתית",
+    "sourceUrl": "https://runm.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw592t0006otmzqky5wyhe",
+    "name": "Mechinat Shahar David (Tel Katzir)",
+    "nameHe": "מכינת דוד - תל קציר",
+    "sourceUrl": "https://mehina.net/david-tel-katzir/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrkw55we0002otmzl54o2txb",
+    "name": "Mechinat Shahar Degania",
+    "nameHe": "מכינת דגניה",
+    "sourceUrl": "https://mehina.net/dgania/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw546i0000otmz8g5ge3ys",
+    "name": "Mechinat Shahar Elrom",
+    "nameHe": "מכינת אלרום",
+    "sourceUrl": "https://mehina.net/elrom/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5dxr000cotmz4a1osemd",
+    "name": "Mechinat Shahar Haon",
+    "nameHe": "מכינת האון",
+    "sourceUrl": "https://mehina.net/haon/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5ffy000eotmzd7n5d39j",
+    "name": "Mechinat Shahar Hukuk",
+    "nameHe": "מכינת חוקוק",
+    "sourceUrl": "https://mehina.net/hukuk/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw57kw0004otmzp22ds36w",
+    "name": "Mechinat Shahar Malkia",
+    "nameHe": "מכינת מלכיה",
+    "sourceUrl": "https://mehina.net/malkia/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5gyd000gotmzqtyvjtln",
+    "name": "Mechinat Shahar Mevo Dotan",
+    "nameHe": "מכינת מבוא דותן",
+    "sourceUrl": "https://mehina.net/mevo-dotan/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5img000iotmz10t1lea0",
+    "name": "Mechinat Shahar Nitzan",
+    "nameHe": "מכינת \"שחר\" ניצן ע\"ש תומר ברק ז\"ל",
+    "sourceUrl": "https://mehina.net/nitzan/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5chi000aotmzbl11dqo9",
+    "name": "Mechinat Shahar Rotem",
+    "nameHe": "מכינת שחר רותם",
+    "sourceUrl": "https://mehina.net/rotem/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrkw5ar30008otmz8i3qsqoh",
+    "name": "Mechinat Shahar Tal",
+    "nameHe": "מכינת טל",
+    "sourceUrl": "https://mehina.net/tal/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7o490018rvmzme4yuetk",
+    "name": "Mechinat Shuvu Achim",
+    "nameHe": "מכינת שובו אחים",
+    "sourceUrl": "https://shuvuahim.site123.me/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7rix001ervmz1i2nhlgq",
+    "name": "Mechinat Tamir",
+    "nameHe": "מכינת תמיר",
+    "sourceUrl": "https://tammir.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qi7uu001krumzk47gp02g",
+    "name": "Mechinat Tavor",
+    "nameHe": "מכינת תבור",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/tavor",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qgffw000wrumz3ok3qf8x",
+    "name": "Mechinat Telem",
+    "nameHe": "מכינת תלם",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/telem-yafo-holon",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7pc5001arvmz7ee8i3c7",
+    "name": "Mechinat Tzahali",
+    "nameHe": "צהלי",
+    "sourceUrl": "https://www.tzahali.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7skb001grvmz0yn9s8zi",
+    "name": "Mechinat Uri",
+    "nameHe": "מכינת עורי",
+    "sourceUrl": "https://mechinaturi.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7d5i000qrvmzoh6j6f05",
+    "name": "Mechinat Yedidya",
+    "nameHe": "מכינת ידידיה",
+    "sourceUrl": "https://www.m-yedidya.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem83ui001yrvmz43bwb5tv",
+    "name": "Mechinat Yemin Orde",
+    "nameHe": "מכינה קדם צבאית ימין אורד",
+    "sourceUrl": "https://mechina-yeminorde.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem8gv9002krvmzi8tcb4yz",
+    "name": "Mechinat Yesodot",
+    "nameHe": "יסודות: חינוך, תורה ודמוקרטיה",
+    "sourceUrl": "https://yesodot.org.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem84zn0020rvmz9h1ae1pz",
+    "name": "Mechinat Yiftach",
+    "nameHe": "מכינת יפתח",
+    "sourceUrl": "https://www.mehinatiftach.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7e70000srvmz3pa06495",
+    "name": "Mechinat Yonatan",
+    "nameHe": "מכינת יונתן",
+    "sourceUrl": "https://mechinat-yonatan.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapfz32001pbkmzxwfpa6ba",
+    "name": "Midreshet Ein Hanatziv",
+    "nameHe": "מדרשת עין הנצי\"ב",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580296259",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem88k60026rvmzf7vhz1xw",
+    "name": "Midreshet HaShiluv Natur",
+    "nameHe": "מדרשת השילוב נטור",
+    "sourceUrl": "https://www.midrasha.info/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem7grc000wrvmzbgwknowi",
+    "name": "Midreshet Rina (Shlomit)",
+    "nameHe": "מדרשת רינה בשלומית",
+    "sourceUrl": "https://otzem.org.il/%D7%94%D7%9E%D7%93%D7%A8%D7%A9%D7%94/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo63c0007hdmzgsw9pcj4",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "nameHe": "בית המדרש לנשים מגדל עוז",
+    "sourceUrl": "https://skamigdaloz.org/en/english-homepage/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrjd0024vkmznzjlhdjv",
+    "name": "Mir Yeshiva (Yeshivas Mir Yerushalayim)",
+    "nameHe": "ישיבת \"מיר\" ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580037638",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qj2jr001urumzi038f5im",
+    "name": "MTA (World Bnei Akiva)",
+    "nameHe": "בני עקיבא העולמית",
+    "sourceUrl": "https://www.worldbneiakiva.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qeshs000arumzsk976tpl",
+    "name": "Musrara International Residency Program",
+    "nameHe": "מוסררה - בית הספר לאמנות וחברה",
+    "sourceUrl": "https://musrara.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmre5v1f50000fmmz73m4k9w8",
+    "name": "NCSY Kollel Mechina Track",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmre5v3my0004fmmz55857mvv",
+    "name": "NCSY Michlelet Mechina",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrace2bv0004b1mzpdxp83a2",
+    "name": "Neveh Zion",
+    "nameHe": "נווה ציון",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580001741",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bo63o0008hdmzpllsjq2y",
+    "name": "Nishmat - Alisa Flatow Program",
+    "nameHe": "נשמת",
+    "sourceUrl": "https://nishmat.net/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapc3eo0002bkmz7bgveurw",
+    "name": "Ohr Avraham",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr9qju1f0026rumz8m60dglt",
+    "name": "Ohr Somayach – Derech Institute for Torah Studies",
+    "nameHe": "ישיבת אור שמח",
+    "sourceUrl": "https://he.wikipedia.org/wiki/%D7%99%D7%A9%D7%99%D7%91%D7%AA_%D7%90%D7%95%D7%A8_%D7%A9%D7%9E%D7%97",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmra8gi58000t2wmzouh6us06",
+    "name": "Ono Academic College International School",
+    "nameHe": "הקריה האקדמית אונו",
+    "sourceUrl": "https://www.ono.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6cm001dhdmzapy541kf",
+    "name": "Otzem Overseas Program (Atzmona)",
+    "nameHe": "מכינת עצם",
+    "sourceUrl": "https://otzem.org.il/overseas-program/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwiyiyo0000s2mz88m7xayp",
+    "name": "Oz (World Bnei Akiva)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr8bgriv0022vkmzxhr9ywp1",
+    "name": "Ponevezh Yeshiva",
+    "nameHe": "ישיבת פוניבז' בני ברק",
+    "sourceUrl": "https://www.ponevez.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qfq5j000mrumz6ndn8x8c",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "nameHe": "פרויקט תן",
+    "sourceUrl": "https://www.jewishagency.org/il/project-ten/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8qb17g0004jbmzz9ulz38w",
+    "name": "Rimon School of Music - Study Abroad Program",
+    "nameHe": "רימון",
+    "sourceUrl": "https://www.rimonschool.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6a60010hdmzh6oxpku3",
+    "name": "Sapir International",
+    "nameHe": "המכללה האקדמית ספיר",
+    "sourceUrl": "https://www.sapir.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qk96y002crumzgbiukcpa",
+    "name": "Shapell's / Yeshiva Darché Noam",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmra8ige3000a7fmzajdtdl0b",
+    "name": "Shnat Betar",
+    "nameHe": "שנת הכשרה",
+    "sourceUrl": "https://betar.org.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmra8irf1000e7fmzc3xak3cy",
+    "name": "Shvilim Traveling Gap Year Program",
+    "nameHe": "המדרשה למנהיגות - מכינה קדם צבאית גליל עליון",
+    "sourceUrl": "https://galil-leadership.org/he/%D7%90%D7%95%D7%93%D7%95%D7%AA%D7%99%D7%A0%D7%95/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrhjplbk0006cemzcdh13sdy",
+    "name": "Tel Aviv University Sofaer Global MBA",
+    "nameHe": "הפקולטה לניהול ע\"ש קולר",
+    "sourceUrl": "https://coller.tau.ac.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmraphzp4002kbkmzi0enx4xc",
+    "name": "Tel Gezer Excavation",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrem81hq001urvmzahuoguq7",
+    "name": "The Jerusalem Preparatory Program (HaYerushalmit)",
+    "nameHe": "המכינה הירושלמית",
+    "sourceUrl": "https://mechinot.org.il/mechina/list/general/yerushalmit",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6dz001lhdmzbodherzq",
+    "name": "Tikkun Olam Tel Aviv-Jaffa",
+    "nameHe": "מרכזי דניאל ליהדות מתקדמת",
+    "sourceUrl": "https://www.beit-daniel.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qfkgt000krumzequ15gse",
+    "name": "Torah Tech",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr9qiyaz001srumzd42acihz",
+    "name": "Torani (World Bnei Akiva)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmr9qj6up001wrumze80az0by",
+    "name": "Ulpan Etzion",
+    "nameHe": "אולפן עציון",
+    "sourceUrl": "https://archive.jewishagency.org/he/blog/7606/article/56771",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmra8j5hc000i7fmzszyvne14",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "nameHe": "עמותת ורטיגו למחול י-ם (ע\"ר)",
+    "sourceUrl": "https://vertigo.org.il/en/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr9qeomk0008rumzd6377qs1",
+    "name": "Weizmann Institute – Kupcinet-Getz International Summer School",
+    "nameHe": "מכון ויצמן למדע",
+    "sourceUrl": "https://www.weizmann.ac.il/pages/he",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bo6cz001fhdmzl9bjyiyv",
+    "name": "Yachad Gap Year",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrapefx40010bkmzw6wpri2p",
+    "name": "Yeshiva Gedolah Yagdil Torah",
+    "nameHe": "ישיבה וכולל לאמריקאים יגדיל תורה שכונת עזרת תורה בירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580174589",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgbi1001epdmz6hg4jjc1",
+    "name": "Yeshiva Gevoha Itamar",
+    "nameHe": "ישיבה גבוהה איתמר",
+    "sourceUrl": "https://itamar.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrv42iis0006gsmznv5lxhwx",
+    "name": "Yeshiva Midrash Shmuel",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrem70pt0004rvmze0ncvvdl",
+    "name": "Yeshiva Tiferet (TJ)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrapekc20012bkmz868az9t3",
+    "name": "Yeshivas Bais Yisroel",
+    "nameHe": "ישיבת בית ישראל - כולל זכרון שלמה בית יהודה ליב",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580110518",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9ql3y2002mrumzw5n5ol5b",
+    "name": "Yeshivas Bircas HaTorah",
+    "nameHe": "ישיבת ברכת התורה",
+    "sourceUrl": "https://he.wikipedia.org/wiki/%D7%99%D7%A9%D7%99%D7%91%D7%AA_%D7%91%D7%A8%D7%9B%D7%AA_%D7%94%D7%AA%D7%95%D7%A8%D7%94",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapeprp0015bkmzythzz4yd",
+    "name": "Yeshivas Birchas Mordechai",
+    "nameHe": "ישיבת ברכת מרדכי - ביתר עילית",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580266674",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrjm0025vkmznanlknr8",
+    "name": "Yeshivas Brisk",
+    "nameHe": "ישיבת בריסק",
+    "sourceUrl": "https://www.yeshiva.org.il/wiki/index.php/%D7%99%D7%A9%D7%99%D7%91%D7%AA_%D7%91%D7%A8%D7%99%D7%A1%D7%A7",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapdqq9000qbkmzb4k319uc",
+    "name": "Yeshivas Chofetz Chaim Yerushalayim",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrv42x510008gsmzzcsrkj87",
+    "name": "Yeshivas Mishkan HaTorah",
+    "nameHe": "משכן התורה - ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580660173/info",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapdzz5000ubkmzyvui2ghy",
+    "name": "Yeshivas Nesivos Ahron",
+    "nameHe": "ישיבת נתיבות אהרן- ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580499275",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapc87k0004bkmzee77dlo4",
+    "name": "Yeshivas Orchos Chaim",
+    "nameHe": "ישיבת אורחות חיים ירושלים",
+    "sourceUrl": "https://www.yeshiva.org.il/wiki/index.php/%D7%99%D7%A9%D7%99%D7%91%D7%AA_%D7%90%D7%95%D7%A8%D7%97%D7%95%D7%AA_%D7%97%D7%99%D7%99%D7%9D_%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapdgxk000mbkmz5oh8a4u2",
+    "name": "Yeshivas Toras Chaim",
+    "nameHe": "ישיבת תורת חיים ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/he/organization/580052298",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrape5ch000wbkmzioeif37x",
+    "name": "Yeshivas Zeev Hatorah",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrepgott0022pdmzmn7q5kg6",
+    "name": "Yeshivat Ahavat Israel (Netivot)",
+    "nameHe": "ישיבת ההסדר \"אהבת ישראל\" נתיבות",
+    "sourceUrl": "https://www.yhn.co.il/%D7%90%D7%95%D7%93%D7%95%D7%AA",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgdoz001ipdmzakwsaz6b",
+    "name": "Yeshivat Ashkelon (Orot HaTorah VeHaChesed)",
+    "nameHe": "ישיבת הסדר \"אורות התורה והחסד אשקלון\"",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A1%D7%93%D7%A8-%D7%90%D7%95%D7%A8%D7%95%D7%AA-%D7%90%D7%A9%D7%A7%D7%9C%D7%95%D7%9F",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrg3001pvkmz0xmf5b7y",
+    "name": "Yeshivat Ashreinu",
+    "nameHe": "ישיבת אשרינו",
+    "sourceUrl": "https://ashreinu.org.il",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrk30027vkmz43207q1t",
+    "name": "Yeshivat Ateret Yerushalayim",
+    "nameHe": "ישיבת עטרת ירושלים",
+    "sourceUrl": "https://www.ateret.org.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfnc00006pdmzfllky9oz",
+    "name": "Yeshivat Ayelet HaShachar (Eilat)",
+    "nameHe": "ישיבת ההסדר איילת השחר",
+    "sourceUrl": "https://www.yeilat.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrlj002dvkmzz4ak1hys",
+    "name": "Yeshivat Beit El",
+    "nameHe": "ישיבה גבוהה 'בית אל'",
+    "sourceUrl": "https://www.ybe.org.il/frontpage/%D7%90%D7%AA%D7%A8-%D7%99%D7%A9%D7%99%D7%91%D7%94/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrku002avkmzs1t3nngj",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "nameHe": "ישיבת ההסדר ברכת משה מעלה אדומים",
+    "sourceUrl": "https://www.ybm.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgcip001gpdmzcgjvpcdh",
+    "name": "Yeshivat Birkat Yosef (Alon Moreh)",
+    "nameHe": "ישיבת אלון מורה",
+    "sourceUrl": "https://www.yelonmoreh.co.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfyb0000qpdmzbfuh763x",
+    "name": "Yeshivat Chiburim Afula",
+    "nameHe": "ישיבת עפולה – חיבורים בית שאן והעמק",
+    "sourceUrl": "https://hiburimbs.org/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%A2%D7%A4%D7%95%D7%9C%D7%94/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfx6i000opdmzujeens9b",
+    "name": "Yeshivat Chiburim Beit Shean",
+    "nameHe": "חיבורים בית שאן והעמק",
+    "sourceUrl": "https://hiburimbs.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgnpa0020pdmzero0lseb",
+    "name": "Yeshivat Cholon",
+    "nameHe": "ישיבת חולון",
+    "sourceUrl": "https://www.yholon.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapeak8000ybkmzc70wx4ga",
+    "name": "Yeshivat Darchei Yonatan",
+    "nameHe": "ישיבת דרכי יונתן",
+    "sourceUrl": "https://www.facebook.com/arihaber2/about/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgmoq001ypdmz8da297sg",
+    "name": "Yeshivat Derech Chaim (Kiryat Gat)",
+    "nameHe": "ישיבת ההסדר דרך חיים - קרית גת",
+    "sourceUrl": "https://derechaim.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrgc001qvkmzygit9dgu",
+    "name": "Yeshivat Eretz HaTzvi",
+    "nameHe": "ישיבת ארץ הצבי",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580417541",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgkjr001updmzcozvbq4y",
+    "name": "Yeshivat Givat Olga (Hadera)",
+    "nameHe": "ישיבת הסדר \"גבעת אולגה\"",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A1%D7%93%D7%A8-%D7%92%D7%91%D7%A2%D7%AA-%D7%90%D7%95%D7%9C%D7%92%D7%94",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepg52d0012pdmzjzu11xxw",
+    "name": "Yeshivat HaBikah (Sdemot Neriah)",
+    "nameHe": "ישיבת הבקעה שדמות נריה",
+    "sourceUrl": "https://www.ybikah.com/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfocf0008pdmzv5h93g5l",
+    "name": "Yeshivat HaGolan",
+    "nameHe": "ישיבת הגולן - ישיבה גבוהה והסדר",
+    "sourceUrl": "https://ygolan.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepglk9001wpdmzpygzxco0",
+    "name": "Yeshivat HaHesder Dimona",
+    "nameHe": "ישיבת הסדר \"דימונה\"",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A1%D7%93%D7%A8-%D7%93%D7%99%D7%9E%D7%95%D7%A0%D7%94",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrwiw5qr000ofxmz11xsutwy",
+    "name": "Yeshivat HaHesder Karmiel",
+    "nameHe": "אורות כרמיאל",
+    "sourceUrl": "http://ykarmiel.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgrz80028pdmzyf4639fh",
+    "name": "Yeshivat HaHesder Ramat HaSharon",
+    "nameHe": "ישיבת ההסדר רמת השרון",
+    "sourceUrl": "https://yrhasharon.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgqyq0026pdmzvscyiqfo",
+    "name": "Yeshivat HaHesder Ramla",
+    "nameHe": "ישיבת ההסדר רמלה",
+    "sourceUrl": "https://hesder-ramla.co.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepg1gi000wpdmzbsedyqyu",
+    "name": "Yeshivat HaHesder Rishon LeZion",
+    "nameHe": "ישיבת ההסדר ראשון לציון",
+    "sourceUrl": "https://rly.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwiw3hu000kfxmz08cagumh",
+    "name": "Yeshivat HaHesder Yeruham",
+    "nameHe": "ישיבת ההסדר ירוחם",
+    "sourceUrl": "http://www.yhy.co.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgre4001ivkmzczk9sstb",
+    "name": "Yeshivat Hakotel",
+    "nameHe": "ישיבת הכותל",
+    "sourceUrl": "https://hakotel.org.il/english",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgh60001opdmzdkjtfsex",
+    "name": "Yeshivat HaMeiri (Kiryat Moshe)",
+    "nameHe": "ישיבת המאירי",
+    "sourceUrl": "https://www.yhm10.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfphi000apdmzgn5hlynk",
+    "name": "Yeshivat Har Bracha",
+    "nameHe": "ישיבת הר ברכה",
+    "sourceUrl": "https://yhb.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrci001cvkmzxsrf2b0k",
+    "name": "Yeshivat Har Etzion (The Gush)",
+    "nameHe": "ישיבת הר עציון",
+    "sourceUrl": "https://etzion.haretzion.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrwiw4og000mfxmz68f2wh28",
+    "name": "Yeshivat Har Shalom (Mitzpe Ashtamoa)",
+    "nameHe": "ישיבת הסדר 'הר שלום (חומש)'",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A8-%D7%A9%D7%9C%D7%95%D7%9D-%D7%97%D7%95%D7%9E%D7%A9",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgv8s002epdmzac5tcik4",
+    "name": "Yeshivat HaSeder Gavoha Kiryat Gat",
+    "nameHe": "ישיבת ההסדר הגבוהה קריית גת",
+    "sourceUrl": "https://yeshivakg.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfv18000kpdmzk4zg6ab2",
+    "name": "Yeshivat HaSeder Nof HaGalil",
+    "nameHe": "ישיבת ההסדר נוף הגליל",
+    "sourceUrl": "https://ynh.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrxho8mv0000bfmz2z9npe0t",
+    "name": "Yeshivat Heichal Eliyahu (Kochav Yaakov)",
+    "nameHe": "ישיבת היכל אליהו כוכב יעקב",
+    "sourceUrl": "https://yhe-ky.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfrvh000epdmzw1vy1j9y",
+    "name": "Yeshivat Hesder Maalot Yaakov",
+    "nameHe": "ישיבת הסדר מעלות יעקב",
+    "sourceUrl": "https://yesmalot.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepg9da001apdmzvdiaabnf",
+    "name": "Yeshivat Hesder Orot Yaakov (Rehovot)",
+    "nameHe": "ישיבת ההסדר אורות יעקב רחובות",
+    "sourceUrl": "http://orotyaakov.org.il/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrkb0028vkmzp9yvzamj",
+    "name": "Yeshivat Hesder Sderot",
+    "nameHe": "ישיבת הסדר \"לב לדעת\" שדרות",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A1%D7%93%D7%A8-%D7%9C%D7%91-%D7%9C%D7%93%D7%A2%D7%AA-%D7%A9%D7%93%D7%A8%D7%95%D7%AA",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepg7740016pdmz74u0tcfu",
+    "name": "Yeshivat Karnei Shomron",
+    "nameHe": "ישיבת ההסדר קרני שומרון",
+    "sourceUrl": "http://www.karnash.co.il/index.asp?catID=3122&siteLang=3",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrh6001uvkmzxagd2tku",
+    "name": "Yeshivat Kerem B'Yavneh (KBY)",
+    "nameHe": "ישיבת כרם ביבנה",
+    "sourceUrl": "https://www.kby.org/hebrew/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfzbj000spdmz9v06dk49",
+    "name": "Yeshivat Kiryat Shmona",
+    "nameHe": "ישיבת קרית שמונה",
+    "sourceUrl": "https://yk8.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrls002evkmzce36g27m",
+    "name": "Yeshivat Kol Torah",
+    "nameHe": "ישיבת קול תורה",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580025591",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrfm001nvkmzo2ulmlqg",
+    "name": "Yeshivat Lev HaTorah",
+    "nameHe": "ישיבת לב התורה",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580374932/people",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrxho9vy0002bfmzntgr0bw3",
+    "name": "Yeshivat Lev Tel Aviv – Shir Le'Neriya",
+    "nameHe": "ישיבת ההסדר לב תל אביב",
+    "sourceUrl": "https://www.ylevtlv.com/about",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapduzv000sbkmzrualc897",
+    "name": "Yeshivat Ma'ale Gilboa",
+    "nameHe": "ישיבת מעלה גלבוע",
+    "sourceUrl": "https://he.wikipedia.org/wiki/ישיבת_מעלה_גלבוע",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgri8001zvkmzmyo1obvh",
+    "name": "Yeshivat Merkaz HaRav",
+    "nameHe": "ישיבת מרכז הרב",
+    "sourceUrl": "https://mercazharav.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgjf8001spdmz9zdullpf",
+    "name": "Yeshivat Midbara Ke'Eden (Mitzpe Ramon)",
+    "nameHe": "ישיבת ההסדר \"מדברה כעדן\" מצפה רמון",
+    "sourceUrl": "https://midbara.org.il/confirm/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrey001lvkmzvh6qo30w",
+    "name": "Yeshivat Migdal HaTorah",
+    "nameHe": "מגדל התורה מודיעין",
+    "sourceUrl": "https://www.guidestar.org.il/he/organization/580543486",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrhf001vvkmze799jt2s",
+    "name": "Yeshivat Mitzpe Yericho",
+    "nameHe": "ישיבת מצפה יריחו",
+    "sourceUrl": "https://www.kiryatmoshe.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrbvijhq00002gmzly7zh57l",
+    "name": "Yeshivat Moreshet Yerushalayim",
+    "nameHe": "ישיבת מורשת ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580634053",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepgt3t002apdmzcmj0jl28",
+    "name": "Yeshivat Nachalat Yosef (Shavei Shomron)",
+    "nameHe": "ישיבת נחלת יוסף",
+    "sourceUrl": "https://torabashomron.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrxhoayb0004bfmzehj9gfvd",
+    "name": "Yeshivat Nahariya (Nahar De'a)",
+    "nameHe": "ישיבת ההסדר בנהריה",
+    "sourceUrl": "https://www.nahariya.co.il",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrds001hvkmz8bbdr60b",
+    "name": "Yeshivat Netiv Aryeh",
+    "nameHe": "ישיבת נתיב אריה",
+    "sourceUrl": "https://www.guidestar.org.il/he/organization/513429779",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepfsw3000gpdmzp16ivl4j",
+    "name": "Yeshivat Netzer Matai (Ariel)",
+    "nameHe": "ישיבת נצר מטעי",
+    "sourceUrl": "https://ynetzarim.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrwiw6xj000qfxmz4awhfuk0",
+    "name": "Yeshivat Neve Dekalim (Ashdod)",
+    "nameHe": "ישיבת ההסדר נוה דקלים, אשדוד",
+    "sourceUrl": "http://www.yeshivand.org.il",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrla002cvkmzc9r43647",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "nameHe": "ישיבת ניר קרית ארבע חברון",
+    "sourceUrl": "http://yeshivatnir.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapezxa0019bkmzssjms4vt",
+    "name": "Yeshivat Ohr David",
+    "nameHe": "ישיבת אור דוד ירושלים",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580076511",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapdlfo000obkmzf7slm40r",
+    "name": "Yeshivat Ohr Yerushalayim",
+    "nameHe": "ישיבת אור ירושלים",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Yeshivat_Ohr_Yerushalayim",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepg88d0018pdmzltk8pbm6",
+    "name": "Yeshivat Or Akiva",
+    "nameHe": "ישיבת ההסדר שילובים אור עקיבא",
+    "sourceUrl": "https://yoa.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfm180004pdmz44rgy8qh",
+    "name": "Yeshivat Or Etzion",
+    "nameHe": "הישיבה הגבוהה אור עציון",
+    "sourceUrl": "https://oretzion.com/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgiet001qpdmzejqj8tsw",
+    "name": "Yeshivat Or VeYeshua (Haifa)",
+    "nameHe": "ישיבת חיפה – אור וישועה",
+    "sourceUrl": "https://orvishua.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgree001jvkmzvmb184ch",
+    "name": "Yeshivat Orayta",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrepgpu50024pdmzto27k2dp",
+    "name": "Yeshivat Orot Moshe (Rosh HaAyin)",
+    "nameHe": "אורות משה",
+    "sourceUrl": "https://www.orotmoshe.com/shvushim",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepgadk001cpdmze51hhxka",
+    "name": "Yeshivat Orot Shaul (Tel Aviv)",
+    "nameHe": "ישיבת אורות שאול",
+    "sourceUrl": "https://www.ypt.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrkl0029vkmzw7yxp8gb",
+    "name": "Yeshivat Otniel",
+    "nameHe": "ישיבת עתניאל",
+    "sourceUrl": "https://otniel.org/",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrepg2n1000ypdmz9im1gyys",
+    "name": "Yeshivat Ramat Gan",
+    "nameHe": "ישיבת רמת גן",
+    "sourceUrl": "https://www.yrg.org.il/en/yeshivat-ramat-gan/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrdc001fvkmzyjn5z8p0",
+    "name": "Yeshivat Reishit Yerushalayim",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrepgu49002cpdmzdkcryjcs",
+    "name": "Yeshivat Sderot",
+    "nameHe": "ישיבת שדרות",
+    "sourceUrl": "https://sderot.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepg62o0014pdmzn5q1qtho",
+    "name": "Yeshivat Sdot Negev (Kfar Maimon)",
+    "nameHe": "ישיבת שדות נגב",
+    "sourceUrl": "https://ysn.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmr8bgrcu001dvkmz2f5znlsa",
+    "name": "Yeshivat Sha'alvim",
+    "nameHe": "ישיבת שעלבים",
+    "sourceUrl": "https://hesder.org.il/institute/%D7%99%D7%A9%D7%99%D7%91%D7%AA-%D7%94%D7%A1%D7%93%D7%A8-%D7%A9%D7%A2%D7%9C%D7%91%D7%99%D7%9D",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr9qkxzk002krumz0k379o8t",
+    "name": "Yeshivat Sha'arei Mevaseret Zion",
+    "nameHe": "ישיבת שערי מבשרת ציון",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580217016/war",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrapd0hy000gbkmzyqq11pi0",
+    "name": "Yeshivat Shalom Rav",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrepges4001kpdmzsw0x31j2",
+    "name": "Yeshivat Shilo",
+    "nameHe": "ישיבת ההסדר שילה",
+    "sourceUrl": "https://yshilo.co.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfu0r000ipdmz46s0beqk",
+    "name": "Yeshivat Shirat Moshe (Meirim BeYafo)",
+    "nameHe": "ישיבת שירת משה",
+    "sourceUrl": "https://yafo.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrapchxg0008bkmzcud48s1x",
+    "name": "Yeshivat Simchat Shlomo",
+    "nameHe": "ישיבת שמחת שלמה",
+    "sourceUrl": "https://www.ysstorah.org",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepg0g2000updmzovnb89ul",
+    "name": "Yeshivat Tekoa",
+    "nameHe": "ישיבת תקוע",
+    "sourceUrl": "https://yeshivatekoa.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrepfqmo000cpdmz6mgzcmzp",
+    "name": "Yeshivat Tfachot",
+    "nameHe": "ישיבת הסדר וגרעין קהילתי טפחות",
+    "sourceUrl": "https://yht.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmrem6yi40000rvmz50bbdhpp",
+    "name": "Yeshivat Torah V'Avodah (YTVA)",
+    "nameHe": null,
+    "sourceUrl": null,
+    "confidence": "NOT_FOUND"
+  },
+  {
+    "id": "cmrapd5sv000ibkmzlix352vg",
+    "name": "Yeshivat Toras Moshe (TOMO)",
+    "nameHe": "ישיבת תורת משה",
+    "sourceUrl": "https://he.wikipedia.org/wiki/ישיבת_תורת_משה",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmr8bgrf9001mvkmzlcmzzhrh",
+    "name": "Yeshivat Torat Shraga",
+    "nameHe": "ישיבת תורת שרגא",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580416055",
+    "confidence": "UNCERTAIN"
+  },
+  {
+    "id": "cmrem71ve0006rvmzgb7f5m63",
+    "name": "Yeshivat Yishrei Lev",
+    "nameHe": "ישיבת ישרי לב",
+    "sourceUrl": "https://www.guidestar.org.il/organization/580509933",
+    "confidence": "UNCERTAIN"
+  }
+]

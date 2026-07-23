@@ -22,6 +22,7 @@ export default async function RateProgramIndexPage() {
   const items = programs.map((program) => ({
     id: program.id,
     name: program.name,
+    nameHe: program.nameHe,
     organization: program.organization,
     location: program.location,
     goodFor: null,

@@ -90,6 +90,7 @@ export default async function EditProgramPage({
             id: program.id,
             slug: program.slug,
             name: program.name,
+            nameHe: program.nameHe ?? "",
             description: program.description,
             goodFor: program.goodFor ?? "",
             organization: program.organization ?? "",

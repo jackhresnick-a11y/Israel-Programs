@@ -151,6 +151,11 @@ export default async function ProgramDetailPage({
             <h1 className="break-words font-serif text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
               {program.name}
             </h1>
+            {program.nameHe && (
+              <p dir="rtl" lang="he" className="break-words text-sm text-muted">
+                {program.nameHe}
+              </p>
+            )}
             <p className="text-sm text-muted">
               {program.organization}
               {program.location ? ` · ${program.location}` : ""}
