@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "aish-gesher-women",
+    "name": "Aish Gesher Women",
+    "contactEmail": "efgwomen@aish.com",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://aishgesherwomen.com/",
+    "contactWebsite": "https://aishgesherwomen.com/"
+  },
+  {
+    "slug": "jean-schottenstein-oryah-institute-jsoi",
+    "name": "Jean Schottenstein Oryah Institute (JSOI)",
+    "contactEmail": "office@oryah.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://jsoinstitute.org/about-us",
+    "contactWebsite": "https://jsoinstitute.org/"
+  },
+  {
+    "slug": "machon-bnos-yehuda-bya",
+    "name": "Machon Bnos Yehuda (BYA)",
+    "contactEmail": "usoffice@mbyseminary.com",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://www.mbyseminary.com/",
+    "contactWebsite": "https://www.mbyseminary.com/"
+  },
+  {
+    "slug": "meohr-bais-yaakov",
+    "name": "Me'ohr Bais Yaakov",
+    "contactEmail": "office@meohr.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://meohr.com/",
+    "contactWebsite": "https://meohr.com/"
+  },
+  {
+    "slug": "nachlas-bais-yaakov",
+    "name": "Nachlas Bais Yaakov",
+    "contactEmail": "info@nachlas.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://www.nachlas.org/",
+    "contactWebsite": "https://www.nachlas.org/"
+  },
+  {
+    "slug": "havineini-bais-yaakov",
+    "name": "Havineini Bais Yaakov",
+    "contactEmail": "havineini@gmail.com",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://havineinibaisyaakov.com/shana-alef/",
+    "contactWebsite": "https://havineinibaisyaakov.com/"
+  },
+  {
+    "slug": "ou-israel-atid-program-for-young-women",
+    "name": "OU Israel ATID Program for Young Women",
+    "contactEmail": "zgarfinkel@ouisrael.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://www.ouisrael.org/atid/",
+    "contactWebsite": "https://www.ouisrael.org/atid/"
+  },
+  {
+    "slug": "nishmas-bais-yaakov",
+    "name": "Nishmas Bais Yaakov",
+    "contactEmail": "office@nishmasby.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "http://www.nishmasby.org/",
+    "contactWebsite": "http://www.nishmasby.org/"
+  },
+  {
+    "slug": "chaya-mushka-seminary-ohr-chaya",
+    "name": "Chaya Mushka Seminary (Ohr Chaya)",
+    "contactEmail": "aseminar@orchaya.org.il",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://seminar.orchaya.co.il/en/",
+    "contactWebsite": "https://orchaya.org.il/"
+  }
+]

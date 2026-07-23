@@ -1,0 +1,50 @@
+{
+  "_note": "2026-07-23 batch (batch 3 of the seminaries/midrashot-only pass, following the user's 'try a few more' request after batches 2-3's near-zero yield). This round's productive thread was 'midrashot for pre-military/national-service preparation,' a distinct sub-category from the standard shana-aleph seminary model. Rejected this round: Midreshet Tachlit (Akko) -- real per a VIN news mention but no official website found; Bnos Malka Academy, Machon Ora, Yeshivat Maharat Beit Midrash, Ateret Seminary of Queens College -- all US-based or non-existent under the searched name; Simchat Shlomo (Nachlaot) -- appears to be a combined yeshiva/seminary but couldn't confirm a distinct women's-only program or admissions page.",
+  "seminaries_midrashot": [
+    {
+      "name": "Midreshet Adraba",
+      "organization": "Midreshet Adraba",
+      "location": "Katamonim, Jerusalem",
+      "description": "A one-year midrasha for young women preparing for IDF or national service, combining religious development, personal growth, and self-discovery within a Religious Zionist/Modern Orthodox framework.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year (post-12th grade)",
+      "cost": "",
+      "signupInstructions": "Complete the registration form on the website.",
+      "signupUrl": "https://m-adraba.org/en/",
+      "contactPhone": "054-288-7724",
+      "contactWebsite": "https://m-adraba.org/en/",
+      "tags": ["Gap year (post-high school)", "jerusalem", "Girls only", "Religious Zionism/Modern Orthodox", "Spiritual growth", "essence-pre-military", "Medium integration"],
+      "adminNote": "Explicitly aimed at American 12th-grade girls preparing for Israeli military/national service -- a distinct sub-category from the standard academic-year seminary model. Tagged 'Medium integration' rather than the Haredi-seminary pattern's 'Low integration', matching the two closest RZ/pre-military-adjacent siblings (Bnei Akiva Olamit: Shalem, Migdal Oz), both of which use Medium integration."
+    },
+    {
+      "name": "Midreshet Dorit (Lindenbaum Lod)",
+      "organization": "Ohr Torah Stone / Midreshet Lindenbaum",
+      "location": "Lod, Israel",
+      "description": "A division of Midreshet Lindenbaum in Lod (opened 2017, renamed Midreshet Dorit in 2025 following a major gift), combining intensive Torah study with weekly volunteer service and a focus on preparing women for meaningful IDF service.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year",
+      "cost": "",
+      "signupInstructions": "Contact the program via Ohr Torah Stone's website.",
+      "signupUrl": "https://ots.org.il/program/midreshet-dorit-lindenbaum-lod/",
+      "contactPhone": "",
+      "contactWebsite": "https://ots.org.il/midreshet-dorit-in-lod/",
+      "tags": ["Gap year (post-high school)", "Girls only", "Religious Zionism/Modern Orthodox", "Spiritual growth", "essence-pre-military", "volunteering", "Medium integration"],
+      "adminNote": "Added 'Medium integration' to match the RZ/pre-military sibling pattern (Bnei Akiva Olamit: Shalem, Migdal Oz). A division of the already-listed 'Midreshet Lindenbaum' (main campus: Leib Yaffe 51, Jerusalem) but in a separate city (Lod) with a distinct pre-military/national-service focus and its own name since a 2025 rebrand -- flagging as related-but-distinct, same relationship as several Bnei David/Lindenbaum sub-programs already added in earlier batches. Signup/contact pages are hosted on ots.org.il, which returns HTTP 403 to bare curl/WebFetch requests without a browser user-agent but was confirmed live (HTTP 200) with one."
+    },
+    {
+      "name": "Midrasha at Bar-Ilan University",
+      "organization": "Bar-Ilan University",
+      "location": "Ramat Gan, Israel",
+      "description": "An intensive Torah-study track for women, layered on top of a full undergraduate or graduate course load at Bar-Ilan University, covering Talmud, Tanach, Halacha, and Jewish thought alongside regular academic study.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "Runs alongside a multi-year Bar-Ilan degree",
+      "cost": "",
+      "signupInstructions": "Register via the online form linked from the program's website.",
+      "signupUrl": "https://midrasha.biu.ac.il/en",
+      "contactPhone": "972-3-531-8608",
+      "contactWebsite": "https://midrasha.biu.ac.il/en",
+      "tags": ["Girls only", "Coastal israel", "Academic/Internship", "Spiritual growth"],
+      "adminNote": "Added 'Spiritual growth' -- its core content is intensive Torah study, matching every other Torah-study-focused entry regardless of duration/structure. STRUCTURALLY DIFFERENT from every other entry in this batch: this is not a standalone seminary a student attends directly -- it requires the student to already be enrolled full-time in a Bar-Ilan University degree program, with the Midrasha as a supplementary intensive Torah-study load on top. Same category of concern as the Reichman Argov Fellows Program (rejected in an earlier, unrelated research pass for the same reason) -- flagging clearly since the user may prefer to exclude programs that require pre-existing enrollment elsewhere as a prerequisite."
+    }
+  ]
+}

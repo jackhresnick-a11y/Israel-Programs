@@ -1,0 +1,36 @@
+{
+  "_note": "2026-07-23 batch (batch 2 of the seminaries/midrashot-only pass). Explored Neve Yerushalayim's own homepage for additional sister programs -- 'Gesher/Yesod/Netivot/Afikim' turned out to be curricular track names within Neve's own main program, not separate standalone institutions, so none were added separately. Torah Mitzion's 'Women's Batei Midrash' was researched and rejected as out of scope: it places already-graduated female Torah scholars into Diaspora communities as educators/shlichot, not a seminary a young woman attends. Nishmat's full program list turned up a genuinely distinct fourth track (Israeli Midrasha, for women who completed Israeli national/military service) beyond the two Nishmat programs already listed. Ohr Chaya's Chaya Mushka Seminary was confirmed as a separate Chabad institution from the already-listed 'Machon Alte - Seminary Chaya Mushka' (Jerusalem vs. Tzfat, different founding organization) despite the near-identical program name -- flagged clearly given the collision risk.",
+  "seminaries_midrashot": [
+    {
+      "name": "Nishmat Israeli Midrasha",
+      "organization": "Nishmat (The Jeanie Schottenstein Center for Advanced Torah Study for Women)",
+      "location": "Alisa M. Flatow Building, Pat, Jerusalem",
+      "description": "A full-day intensive Torah study program (Tanach, Talmud, Halacha, Jewish thought) for Israeli women who have completed national or military service, drawing participants from a range of backgrounds from kibbutzim to cities.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year typical, with advanced multi-year tracks available",
+      "cost": "",
+      "signupInstructions": "Contact the program via the website's contact form.",
+      "signupUrl": "https://nishmat.net/israeli-midrasha/",
+      "contactPhone": "972-2-6404333",
+      "contactWebsite": "https://nishmat.net/",
+      "tags": ["Gap year (post-high school)", "jerusalem", "Girls only", "Religious Zionism/Modern Orthodox", "Spiritual growth", "High integration"],
+      "adminNote": "Confirmed distinct from the already-listed 'Nishmat (Liba Shana Ba'Aretz)' and 'Nishmat - Alisa Flatow Program' -- this track specifically serves Israeli women post-army/national-service (not diaspora gap-year students), which is why it's tagged 'High integration' rather than the 'Low integration'/'overseas-program' pattern the other two Nishmat entries carry. A notable Israeli program rather than an overseas-recruiting one."
+    },
+    {
+      "name": "Chaya Mushka Seminary (Ohr Chaya)",
+      "organization": "Ohr Chaya",
+      "location": "Beit Moshe building, 5 David Yellin Street, Jerusalem",
+      "description": "A year-long Chabad-Chassidic Torah study seminary for young women who are graduates of Chabad high schools worldwide, covering Chassidus, Jewish law, philosophy, and personal growth, with both English- and Hebrew-speaking tracks.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 academic year (2025-2026 cycle begins December 25, 2025)",
+      "cost": "English track: $24,500 tuition + $220 deposit + $150 registration; Hebrew track: $19,500 + same fees; scholarships available for children of Chabad emissaries",
+      "signupInstructions": "Complete the online registration form; a personal interview is required.",
+      "signupUrl": "https://seminar.orchaya.co.il/en/",
+      "contactPhone": "+972-52-665-5828",
+      "contactWebsite": "https://orchaya.org.il/",
+      "contactEmail": "aseminar@orchaya.org.il",
+      "tags": ["Gap year (post-high school)", "jerusalem", "Girls only", "Low integration", "Spiritual growth", "chabad", "Haredi/Ultra-Orthodox/Yeshivish"],
+      "adminNote": "Added 'Haredi/Ultra-Orthodox/Yeshivish' alongside 'chabad' to match the exact tag pairing on both already-listed Chabad seminaries (Machon Alte, Beit Chana Tzfat). IMPORTANT collision flag: this program's name ('Chaya Mushka Seminar/Seminary') is nearly identical to the already-listed 'Machon Alte - Seminary Chaya Mushka,' but they are confirmed to be two separate Chabad institutions -- this one is run by Ohr Chaya in Jerusalem (Beit Moshe building, founded 1989 by Daniella Golan), while Machon Alte's is in Tzfat. Double-check this isn't a duplicate before importing given the name similarity, despite the distinct organizations/cities/websites found in research."
+    }
+  ]
+}
