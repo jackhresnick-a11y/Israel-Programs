@@ -10,7 +10,7 @@ import {
   WebsiteLanguage,
 } from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
-import { resolveTagsByName } from "@/lib/tags";
+import { resolveTagsByName, resolveExistingTagsByName } from "@/lib/tags";
 import { rankBySearchTerm } from "@/lib/programSearch";
 
 export { DURATION_LABELS } from "@/lib/duration";
@@ -138,10 +138,20 @@ export async function getProgramShareData(slug: string) {
 export async function createProgram(
   input: ProgramInput,
   createdById: string,
-  status: ProgramStatus
+  status: ProgramStatus,
+  // Moderators/admins (and import scripts, via the default) can mint a brand-new public
+  // Tag live, same as always. An ordinary submitter cannot -- their submission only
+  // connects tags that already exist; any typed name matching nothing is queued as a
+  // PendingTag row below instead of resolveTagsByName creating it immediately, since the
+  // Tag itself would otherwise go live before a moderator ever sees the still-PENDING
+  // program. See lib/tags.ts's resolveExistingTagsByName.
+  { canCreateTags = true }: { canCreateTags?: boolean } = {}
 ) {
   const slug = await uniqueSlug(input.name);
-  const tags = await resolveTagsByName(input.tags);
+  const { matched, unknown } = canCreateTags
+    ? { matched: await resolveTagsByName(input.tags), unknown: [] as string[] }
+    : await resolveExistingTagsByName(input.tags);
+
   const program = await prisma.program.create({
     data: {
       name: input.name,
@@ -164,9 +174,16 @@ export async function createProgram(
       logoUrl: input.logoUrl,
       createdById,
       status,
-      tags: { connect: tags },
+      tags: { connect: matched },
     },
   });
+
+  if (unknown.length > 0) {
+    await prisma.pendingTag.createMany({
+      data: unknown.map((name) => ({ programId: program.id, name, submittedById: createdById })),
+    });
+  }
+
   // Best-effort: never lets an export-log hiccup break program creation.
   // The startup reconciliation sweep (instrumentation.ts) catches anything
   // this misses.

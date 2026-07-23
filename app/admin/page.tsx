@@ -4,6 +4,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { getCurrentRole, normalizeRole } from "@/lib/roles";
 import { listPendingPrograms, listPendingEdits, listRecentPrograms } from "@/lib/programs";
 import { listPendingReferences } from "@/lib/references";
+import { listPendingTags } from "@/lib/pendingTags";
 import { listRecentReviews, countPendingStandaloneReviews } from "@/lib/reviews";
 import { countPendingReviews } from "@/lib/pollReviews";
 import { countPendingQuestions } from "@/lib/programFaq";
@@ -29,6 +30,7 @@ export default async function AdminPage() {
     pendingPrograms,
     pendingEdits,
     pendingReferences,
+    pendingTags,
     recentPrograms,
     recentReviews,
     durationLabelMap,
@@ -39,6 +41,7 @@ export default async function AdminPage() {
     listPendingPrograms(),
     listPendingEdits(),
     listPendingReferences(),
+    listPendingTags(),
     role === "admin" ? listRecentPrograms(8) : Promise.resolve([]),
     role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
     getDurationLabelMap(),
@@ -52,6 +55,7 @@ export default async function AdminPage() {
   const submitters = await getUsersByIds([
     ...pendingPrograms.map((p) => p.createdById),
     ...pendingEdits.map((e) => e.submittedById),
+    ...pendingTags.map((t) => t.submittedById),
   ]);
 
   return (
@@ -209,6 +213,47 @@ export default async function AdminPage() {
                 <QueueActions
                   approveUrl={`/api/admin/programs/${program.id}/approve`}
                   rejectUrl={`/api/admin/programs/${program.id}/reject`}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Pending Tags ({pendingTags.length})
+        </h2>
+        {pendingTags.length === 0 ? (
+          <p className="text-sm text-muted">
+            No new tag names waiting for review.
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+            {pendingTags.map((pendingTag) => (
+              <div
+                key={pendingTag.id}
+                className="flex items-center justify-between gap-4 px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    &ldquo;{pendingTag.name}&rdquo;
+                  </p>
+                  <p className="text-xs text-muted">
+                    requested for{" "}
+                    <Link
+                      href={`/programs/${pendingTag.program.slug}`}
+                      className="hover:underline"
+                    >
+                      {pendingTag.program.name}
+                    </Link>{" "}
+                    by {submitters.get(pendingTag.submittedById)?.name ?? "Unknown"} on{" "}
+                    {new Date(pendingTag.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <QueueActions
+                  approveUrl={`/api/admin/pending-tags/${pendingTag.id}/approve`}
+                  rejectUrl={`/api/admin/pending-tags/${pendingTag.id}/reject`}
                 />
               </div>
             ))}

@@ -170,6 +170,14 @@ enum ProgramFaqStatus {
   REJECTED
 }
 
+/// Retain-never-delete posture, same as ReviewStatus/PollReviewStatus/ProgramFaqStatus
+/// elsewhere in this schema -- a rejected pending tag stays as a record, never deleted.
+enum PendingTagStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Program {
   id                     String                     @id @default(cuid())
   name                   String
@@ -242,6 +250,7 @@ model Program {
   referrerTokens         ReferrerToken[]
   pollReviews            PollReview[]
   faqs                   ProgramFAQ[]
+  pendingTags            PendingTag[]
 
   @@index([durationType])
   @@index([status])
@@ -374,6 +383,27 @@ model Tag {
   /// with) break by name -- see listAllTags's orderBy.
   order    Int       @default(0)
   programs Program[] @relation("ProgramTags")
+}
+
+/// A tag name typed into a non-moderator's new-program submission that matched no
+/// existing Tag (see lib/tags.ts's matchTag) -- queued for a moderator to approve
+/// (mints/reattaches the real Tag) or reject, instead of resolveTagsByName minting an
+/// arbitrary public Tag live the moment an unmoderated PENDING program is submitted.
+/// Moderator-authored programs/edits are unaffected -- they still create tags directly.
+/// Retain-never-delete, same posture as ReviewStatus/PollReviewStatus elsewhere.
+model PendingTag {
+  id            String           @id @default(cuid())
+  programId     String
+  program       Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  name          String
+  submittedById String
+  status        PendingTagStatus @default(PENDING)
+  reviewedById  String?
+  reviewedAt    DateTime?
+  createdAt     DateTime         @default(now())
+
+  @@index([status])
+  @@index([programId])
 }
 
 /// Admin-editable registry of the category headers tags are grouped under (both in the

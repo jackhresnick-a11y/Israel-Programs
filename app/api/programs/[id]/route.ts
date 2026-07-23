@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { requireRole, requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
 import { createProgramEdit, parseProgramFormData, toPublicProgram, updateProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
+import { checkRateLimit } from "@/lib/rateLimit";
 import { prisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
@@ -48,6 +49,13 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json(
       { error: check.status === 403 ? "Your account is not permitted to propose edits" : "Unauthorized" },
       { status: check.status }
+    );
+  }
+
+  if (!checkRateLimit(`program-edit:${check.userId}`, { limit: 10, windowMs: 10 * 60_000 })) {
+    return NextResponse.json(
+      { error: "Too many edits — please try again later." },
+      { status: 429 }
     );
   }
 

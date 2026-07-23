@@ -191,7 +191,11 @@ export default async function ProgramDetailPage({
         {program.description}
       </p>
 
-      <PollSummaryStrip summary={await getProgramPollSummary(program.id)} programSlug={program.slug} />
+      <PollSummaryStrip
+        summary={await getProgramPollSummary(program.id)}
+        programSlug={program.slug}
+        publicPollLink={publicPollLink}
+      />
 
       {publicPollLink && <PublicPollLink link={publicPollLink} />}
 

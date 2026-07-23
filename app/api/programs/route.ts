@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
 import { createProgram, listPrograms, parseProgramFormData, toPublicProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
+import { checkRateLimit } from "@/lib/rateLimit";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 
 export async function GET(request: Request) {
@@ -31,6 +32,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!checkRateLimit(`program-create:${check.userId}`, { limit: 5, windowMs: 10 * 60_000 })) {
+    return NextResponse.json(
+      { error: "Too many submissions — please try again later." },
+      { status: 429 }
+    );
+  }
+
   let formData: FormData | undefined;
   try {
     formData = await request.formData();
@@ -54,8 +62,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const status = isModeratorRole(check.role) ? "PUBLISHED" : "PENDING";
-    const program = await createProgram({ ...input, logoUrl }, check.userId, status);
+    const isModerator = isModeratorRole(check.role);
+    const status = isModerator ? "PUBLISHED" : "PENDING";
+    const program = await createProgram({ ...input, logoUrl }, check.userId, status, {
+      canCreateTags: isModerator,
+    });
     return NextResponse.json({ ...program, warning: logoWarning }, { status: 201 });
   } catch (err) {
     if (err instanceof ZodError) {

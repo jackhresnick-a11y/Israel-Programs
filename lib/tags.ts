@@ -107,6 +107,28 @@ export async function findExistingTagIds(names: string[]): Promise<{ id: string 
   return results;
 }
 
+/** Same matching rule as resolveTagsByName, but never creates a new Tag -- a name that
+ * matches no existing tag is returned in `unknown` instead. Used for a non-moderator's
+ * program submission (see createProgram's canCreateTags option), so an ordinary user
+ * can't mint an arbitrary public Tag live; unmatched names are queued as PendingTag rows
+ * for moderator approval instead. Deduped case-insensitively, same as parseTags. */
+export async function resolveExistingTagsByName(
+  names: string[]
+): Promise<{ matched: { id: string }[]; unknown: string[] }> {
+  if (names.length === 0) return { matched: [], unknown: [] };
+  const { byLowerName, bySlug } = await tagLookupMaps();
+  const matched: { id: string }[] = [];
+  const unknown: string[] = [];
+  for (const rawName of names) {
+    const name = rawName.trim();
+    if (!name) continue;
+    const existing = matchTag(name, byLowerName, bySlug);
+    if (existing) matched.push({ id: existing.id });
+    else unknown.push(name);
+  }
+  return { matched, unknown };
+}
+
 export async function createTagCategory(input: { label: string; tint: string; showInFilter: boolean }) {
   const slug = slugifyValue(input.label);
   const maxOrder = await prisma.tagCategory.aggregate({ _max: { order: true } });

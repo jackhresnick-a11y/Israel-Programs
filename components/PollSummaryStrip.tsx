@@ -56,17 +56,26 @@ function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDT
 export default function PollSummaryStrip({
   summary,
   programSlug,
+  publicPollLink,
 }: {
   summary: PollSummaryDTO;
   programSlug: string;
+  // The tokened /rate/[slug]?ref=... link (see lib/pollConfig.ts's getPublicPollLink),
+  // when the program has anonymous rating enabled -- lets a signed-out visitor rate
+  // without hitting the sign-in wall. A signed-in visitor is unaffected either way: the
+  // ref token is ignored once app/rate/[programSlug]/page.tsx sees a userId. Falls back
+  // to the plain /rate/[slug] link (sign-in wall for signed-out visitors) when null.
+  publicPollLink?: string | null;
 }) {
+  const rateHref = publicPollLink ?? `/rate/${programSlug}`;
+
   if (summary.state === "be_first") {
     return (
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <p className="text-sm text-foreground">
           {summary.placeholderOverride ?? "Be the first to rate this program"}
         </p>
-        <Link href={`/rate/${programSlug}`} className={buttonVariants({ variant: "primary", size: "sm" })}>
+        <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
           Rate this program
         </Link>
       </Card>
@@ -85,7 +94,7 @@ export default function PollSummaryStrip({
             {summary.placeholderOverride ??
               `Ratings unlock at ${summary.minResponsesToPublish} responses — ${summary.counted} so far`}
           </p>
-          <Link href={`/rate/${programSlug}`} className={buttonVariants({ variant: "primary", size: "sm" })}>
+          <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
             Rate this program
           </Link>
         </div>
@@ -100,7 +109,7 @@ export default function PollSummaryStrip({
     return (
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <p className="text-sm text-foreground">{summary.placeholderOverride ?? "Ratings under review"}</p>
-        <Link href={`/rate/${programSlug}`} className={buttonVariants({ variant: "primary", size: "sm" })}>
+        <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
           Rate this program
         </Link>
       </Card>
@@ -166,7 +175,7 @@ export default function PollSummaryStrip({
           })}
         </div>
         <Link
-          href={`/rate/${programSlug}`}
+          href={rateHref}
           className={buttonVariants({ variant: "primary", size: "sm", className: "w-full sm:w-auto sm:self-start" })}
         >
           Rate this program
