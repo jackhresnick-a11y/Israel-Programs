@@ -398,14 +398,19 @@ score still breaks ties within a tier. Both `app/programs/page.tsx` and the JSON
 (`app/api/programs/route.ts`) go through this same `listPrograms`, so they always rank
 identically.
 
-### Upload storage: video is YouTube/Vimeo embeds; branding is static `/public` files (the Blob store is suspended)
-This changed materially in July 2026. The project's Vercel **Blob store is suspended** —
-the Hobby plan's ~10 GB/month data-transfer cap was blown by serving program video mp4s
-directly, so *every* blob URL (videos **and** the brand images that used to live there)
-now returns `403 "Your store is blocked"` for anyone without a warm browser cache (which
-is why a bug can look like it only affects signed-out visitors — a signed-in dev's disk
-cache masks it). Both upload surfaces were routed **off Blob**; don't reintroduce
-Blob-backed uploads.
+### Upload storage: video is YouTube/Vimeo embeds; branding is static `/public` files; program logos are on Vercel Blob
+This changed materially in July 2026, then again on **2026-07-23**. Historically the
+project's Vercel **Blob store was suspended** — the Hobby plan's ~10 GB/month
+data-transfer cap was blown by serving program video mp4s directly, so *every* blob URL
+(videos **and** the brand images that used to live there) returned `403 "Your store is
+blocked"` for anyone without a warm browser cache (which is why a bug from that era could
+look like it only affected signed-out visitors — a signed-in dev's disk cache masked it).
+That is why video moved to embeds and branding moved to static `/public/brand/` files
+(both below). **As of 2026-07-23 a fresh, working Blob store is connected**
+(`BLOB_READ_WRITE_TOKEN` in `.env.local` and Vercel env), and **program logos are now
+uploaded to it** (see the Program logos bullet below). Video and branding were **not**
+moved back — they remain embeds and static files respectively; don't reintroduce
+Blob-backed *video* uploads.
 
 - **Video is now embeds, not file uploads — five platforms, not two.**
   `components/VideoUploader.tsx` takes a pasted link from YouTube, Vimeo, Facebook,
@@ -450,10 +455,25 @@ Blob-backed uploads.
   near-black dark page `#14110b`); public display follows a "clean fallback, never a
   broken icon" rule — a blank key renders text/light-mode fallback, not a 404 `<img>`.
   The admin "upload logo" form (`components/SiteLogoForm.tsx` →
-  `app/api/site-logo/upload/route.ts`) and `lib/storage.ts`'s `saveLogo` still target
-  Blob (or read-only local disk) and will error while the store is suspended — set
-  branding by committing a file to `public/brand/` and pointing the SiteContent key at
-  it, not via the admin upload UI.
+  `app/api/site-logo/upload/route.ts`) uploads branding to Blob via `handleUpload`; with
+  the working store (above) that path should function again, but the deliberate
+  convention is still to set branding by committing a file to `public/brand/` and
+  pointing the SiteContent key at it (static CDN, no per-request Blob transfer), not via
+  the admin upload UI. (Program *logos* are a separate surface — see the next bullet.)
+- **Program logos are uploaded to Vercel Blob** (as of 2026-07-23). `lib/storage.ts`'s
+  `saveLogo` uploads via `@vercel/blob`'s `put()` (`access: 'public'`,
+  `addRandomSuffix: true`), validating MIME (png/jpeg/webp — no SVG) and a 5 MB cap and
+  throwing `UploadError` on a bad file; the returned public URL is stored in
+  `Program.logoUrl` and rendered via `next/image` (`ProgramCard`, program detail page).
+  The Blob host (`*.public.blob.vercel-storage.com`) is allowlisted in **both**
+  `next.config.ts`'s `images.remotePatterns` **and** its CSP `img-src` — both are
+  required, or a logo either 500s (next/image) or is blocked (CSP). The create/edit
+  routes (`app/api/programs{,/[id]}/route.ts`) treat a non-`UploadError` Blob failure as
+  non-fatal: the program is saved/edited without the logo and the response carries a
+  `warning`. This replaced the old local-disk `writeFile`, which threw `EROFS` on the
+  read-only serverless FS and was the root cause of "Failed to create program" for any
+  submission with a logo attached. `scripts/clear-blob-store.ts` (dry-run-by-default
+  audit + targeted delete) and `scripts/audit-program-logos.ts` (read-only) support this.
 - **Shared-DB gotcha when repointing branding or featured videos:** `SiteContent` (and
   all data) lives in **one** Neon database shared by local dev and production, so editing
   a key locally takes effect on prod *instantly* — but a `/brand/*.png` file it points at
@@ -913,11 +933,11 @@ CSP `img-src` allowlists both `img.youtube.com` and `i.vimeocdn.com` for these t
 - Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) in `.env.local`
   — `next dev` will issue temporary keyless credentials if these are absent, but a
   production build (`next start`) requires real ones.
-- `BLOB_READ_WRITE_TOKEN` in `.env.local` is only needed for the **legacy** Blob upload
-  path (see Upload storage above) — new video is YouTube/Vimeo embeds and branding is
-  static `/public` files, neither of which touches Blob. The store is currently
-  suspended, so this token doesn't produce working URLs regardless; you can develop the
-  current features without it.
+- `BLOB_READ_WRITE_TOKEN` in `.env.local` powers program-logo uploads (`lib/storage.ts`'s
+  `saveLogo`) and the legacy/branding Blob paths (see Upload storage above). As of
+  2026-07-23 the connected store works, so this token produces live URLs — you need it to
+  exercise logo upload locally. Video (YouTube/Vimeo embeds) and branding (static
+  `/public/brand/` files) don't touch Blob, so the rest of the app develops fine without it.
 - `RESEND_FROM` must end in `@israelprogramswiki.com` (`lib/email.ts`'s
   `getOutreachFromAddress`) for outreach or alumni-rating magic-link emails to send at
   all — `onboarding@resend.dev` or any other address fails the domain check and the
