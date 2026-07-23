@@ -284,6 +284,16 @@ export async function updateProgram(id: string, input: ProgramInput) {
   });
 }
 
+/** Nulls out a program's logo, bypassing updateProgram's truthy-only guard
+ * (`...(input.logoUrl ? { logoUrl: input.logoUrl } : {})`), which can set a
+ * logo but never clear one. Returns the prior value so the caller can clean
+ * up the orphaned Blob object. */
+export async function clearProgramLogo(id: string): Promise<string | null> {
+  const before = await prisma.program.findUniqueOrThrow({ where: { id }, select: { logoUrl: true } });
+  await prisma.program.update({ where: { id }, data: { logoUrl: null } });
+  return before.logoUrl;
+}
+
 async function uniqueSlug(name: string) {
   const base = slugify(name, { lower: true, strict: true });
   let slug = base;

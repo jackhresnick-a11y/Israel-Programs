@@ -87,6 +87,7 @@ export default function ProgramForm({
   allTags,
   categories,
   durationOptions,
+  canRemoveLogo = false,
 }: {
   initial?: ProgramFormValues;
   allTags: TagOption[];
@@ -94,15 +95,40 @@ export default function ProgramForm({
   /** Ordered, admin-editable duration options (see lib/duration.ts's listDurationOptions)
    * -- rendered in this order so an admin's reordering in app/admin/tags applies here too. */
   durationOptions: { value: DurationType; label: string }[];
+  /** Moderators/admins only -- removal applies immediately (DELETE .../logo),
+   * unlike the rest of this form which a non-moderator's changes only queue. */
+  canRemoveLogo?: boolean;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [values, setValues] = useState<ProgramFormValues>(initial ?? EMPTY);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [removingLogo, setRemovingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isEdit = Boolean(initial?.id);
+
+  async function handleRemoveLogo() {
+    if (!initial?.id) return;
+    if (!confirm("Remove this program's logo?")) return;
+    setRemovingLogo(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/programs/${initial.id}/logo`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to remove logo");
+      }
+      set("logoUrl", null);
+      toast("Logo removed");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove logo");
+    } finally {
+      setRemovingLogo(false);
+    }
+  }
 
   function set<K extends keyof ProgramFormValues>(key: K, value: ProgramFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -352,16 +378,35 @@ export default function ProgramForm({
       </Field>
 
       <Field label="Logo" error={fieldErrors.logo}>
+        {values.logoUrl && (
+          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+            {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={values.logoUrl} alt="Current logo" className="h-12 w-12 rounded object-contain" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="text-xs text-muted">
+                {logoFile ? "Will be replaced by the new file below." : "Current logo will be kept unless you choose a new file."}
+              </span>
+              {canRemoveLogo && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="w-fit"
+                  disabled={removingLogo}
+                  onClick={handleRemoveLogo}
+                >
+                  {removingLogo ? "Removing..." : "Remove logo"}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         <Input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"
           onChange={(e) => onLogoChange(e.target.files?.[0] ?? null)}
         />
-        {values.logoUrl && !logoFile && (
-          <span className="text-xs text-muted">
-            Current logo will be kept unless you choose a new file.
-          </span>
-        )}
       </Field>
 
       <p className="text-xs text-muted">

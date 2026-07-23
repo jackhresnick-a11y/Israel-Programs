@@ -112,6 +112,7 @@ export default async function EditProgramPage({
           allTags={allTags}
           categories={categories}
           durationOptions={durationOptions}
+          canRemoveLogo={isModerator}
         />
       </Show>
     </PageContainer>

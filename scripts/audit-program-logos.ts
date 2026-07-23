@@ -17,7 +17,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const programs = await prisma.program.findMany({
-    select: { name: true, logoUrl: true },
+    select: { name: true, logoUrl: true, status: true, contactWebsite: true, signupUrl: true },
     orderBy: { name: "asc" },
   });
 
@@ -59,6 +59,16 @@ async function main() {
     console.log(`\n-- Programs with a null logo (${nullLogo.length}) --`);
     for (const name of nullLogo) console.log(`  ${name}`);
   }
+
+  const published = programs.filter((p) => p.status === "PUBLISHED");
+  const publishedNullLogo = published.filter((p) => !p.logoUrl);
+  const publishedNullLogoWithSite = publishedNullLogo.filter((p) => p.contactWebsite || p.signupUrl);
+
+  console.log(`\n-- Part B research scope --`);
+  console.log(`Published programs:                          ${published.length}`);
+  console.log(`Published with null logo:                    ${publishedNullLogo.length}`);
+  console.log(`Published, null logo, has contactWebsite/signupUrl: ${publishedNullLogoWithSite.length}`);
+  console.log(`Published, null logo, no usable site (skipped):     ${publishedNullLogo.length - publishedNullLogoWithSite.length}`);
 
   console.log(`\n(Read-only audit -- no rows were modified.)`);
 }

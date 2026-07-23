@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { del } from "@vercel/blob";
 import { ZodError } from "zod";
 import { requireRole, requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
 import { createProgramEdit, parseProgramFormData, toPublicProgram, updateProgram } from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
+import { isVercelBlobUrl } from "@/lib/blob";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { prisma } from "@/lib/prisma";
 
@@ -84,7 +86,25 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     if (isModeratorRole(check.role)) {
+      // Applies immediately, so a replaced logo would otherwise orphan the
+      // previous Blob object -- capture it before the update overwrites it.
+      const previousLogoUrl = logoUrl
+        ? (await prisma.program.findUnique({ where: { id }, select: { logoUrl: true } }))?.logoUrl
+        : undefined;
+
       const program = await updateProgram(id, { ...input, logoUrl });
+
+      // Best-effort, non-fatal: never let a Blob cleanup issue fail an
+      // otherwise-successful edit. Guarded by isVercelBlobUrl since legacy
+      // /uploads/logos/* paths and null values were never a blob object.
+      if (previousLogoUrl && previousLogoUrl !== logoUrl && isVercelBlobUrl(previousLogoUrl)) {
+        try {
+          await del(previousLogoUrl);
+        } catch (err) {
+          console.error("Failed to delete replaced blob for program logo", id, previousLogoUrl, err);
+        }
+      }
+
       return NextResponse.json({ pending: false, program, warning: logoWarning });
     }
 
