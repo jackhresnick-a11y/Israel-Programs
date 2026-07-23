@@ -14,7 +14,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""};
   style-src 'self' 'unsafe-inline';
-  img-src 'self' data: https://img.clerk.com https://*.clerk.accounts.dev https://img.youtube.com https://i.vimeocdn.com;
+  img-src 'self' data: https://img.clerk.com https://*.clerk.accounts.dev https://img.youtube.com https://i.vimeocdn.com https://*.public.blob.vercel-storage.com;
   font-src 'self';
   connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com;
   frame-src https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.facebook.com https://www.instagram.com https://www.tiktok.com;
@@ -28,6 +28,18 @@ const cspHeader = `
   .trim();
 
 const nextConfig: NextConfig = {
+  images: {
+    // Program logos are uploaded to Vercel Blob (see lib/storage.ts) and rendered
+    // via next/image (ProgramCard, program detail page), so the Blob host must be
+    // allowlisted or next/image hard-errors on the absolute URL. The CSP img-src
+    // above must list the same host, or the browser blocks the request.
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+    ],
+  },
   async headers() {
     return [
       {

@@ -57,15 +57,18 @@ const EMPTY: ProgramFormValues = {
 
 function Field({
   label,
+  error,
   children,
 }: {
   label: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="flex flex-col gap-1 text-sm">
       <span className="font-medium text-foreground">{label}</span>
       {children}
+      {error && <span className="text-sm text-danger">{error}</span>}
     </label>
   );
 }
@@ -90,6 +93,7 @@ export default function ProgramForm({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isEdit = Boolean(initial?.id);
 
   function set<K extends keyof ProgramFormValues>(key: K, value: ProgramFormValues[K]) {
@@ -100,6 +104,7 @@ export default function ProgramForm({
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setFieldErrors({});
 
     const formData = new FormData();
     for (const [key, value] of Object.entries(values)) {
@@ -115,9 +120,11 @@ export default function ProgramForm({
       );
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        if (body.field) setFieldErrors({ [body.field]: body.error });
         throw new Error(body.error ?? "Something went wrong");
       }
       const body = await res.json();
+      if (body.warning) toast(body.warning);
 
       // Videos attach to an existing program row, so upload happens as a
       // follow-up request once we know the program's id — either the one
@@ -165,7 +172,7 @@ export default function ProgramForm({
         </p>
       )}
 
-      <Field label="Program name">
+      <Field label="Program name" error={fieldErrors.name}>
         <Input
           required
           value={values.name}
@@ -173,7 +180,7 @@ export default function ProgramForm({
         />
       </Field>
 
-      <Field label="Description">
+      <Field label="Description" error={fieldErrors.description}>
         <Textarea
           required
           rows={4}
@@ -182,7 +189,7 @@ export default function ProgramForm({
         />
       </Field>
 
-      <Field label="Who is this program good for?">
+      <Field label="Who is this program good for?" error={fieldErrors.goodFor}>
         <Textarea
           rows={3}
           placeholder={
@@ -194,13 +201,13 @@ export default function ProgramForm({
       </Field>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Organization">
+        <Field label="Organization" error={fieldErrors.organization}>
           <Input
             value={values.organization}
             onChange={(e) => set("organization", e.target.value)}
           />
         </Field>
-        <Field label="Location">
+        <Field label="Location" error={fieldErrors.location}>
           <Input
             value={values.location}
             onChange={(e) => set("location", e.target.value)}
@@ -209,7 +216,7 @@ export default function ProgramForm({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Duration type">
+        <Field label="Duration type" error={fieldErrors.durationType}>
           <Select
             value={values.durationType}
             onChange={(e) =>
@@ -223,7 +230,7 @@ export default function ProgramForm({
             ))}
           </Select>
         </Field>
-        <Field label="Duration details">
+        <Field label="Duration details" error={fieldErrors.durationText}>
           <Input
             placeholder="e.g. 10 days"
             value={values.durationText}
@@ -266,14 +273,14 @@ export default function ProgramForm({
         </Field>
       </div>
 
-      <Field label="How to sign up">
+      <Field label="How to sign up" error={fieldErrors.signupInstructions}>
         <Textarea
           rows={2}
           value={values.signupInstructions}
           onChange={(e) => set("signupInstructions", e.target.value)}
         />
       </Field>
-      <Field label="Signup URL">
+      <Field label="Signup URL" error={fieldErrors.signupUrl}>
         <Input
           type="url"
           placeholder="https://..."
@@ -283,20 +290,20 @@ export default function ProgramForm({
       </Field>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field label="Contact email">
+        <Field label="Contact email" error={fieldErrors.contactEmail}>
           <Input
             type="email"
             value={values.contactEmail}
             onChange={(e) => set("contactEmail", e.target.value)}
           />
         </Field>
-        <Field label="Contact phone">
+        <Field label="Contact phone" error={fieldErrors.contactPhone}>
           <Input
             value={values.contactPhone}
             onChange={(e) => set("contactPhone", e.target.value)}
           />
         </Field>
-        <Field label="Contact website">
+        <Field label="Contact website" error={fieldErrors.contactWebsite}>
           <Input
             type="url"
             placeholder="https://..."
@@ -315,7 +322,7 @@ export default function ProgramForm({
         />
       </Field>
 
-      <Field label="Logo">
+      <Field label="Logo" error={fieldErrors.logo}>
         <Input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"

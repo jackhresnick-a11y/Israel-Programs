@@ -59,18 +59,30 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const logo = formData.get("logo");
     let logoUrl: string | undefined;
+    let logoWarning: string | undefined;
     if (logo instanceof File && logo.size > 0) {
-      logoUrl = (await saveLogo(logo)).url;
+      try {
+        logoUrl = (await saveLogo(logo)).url;
+      } catch (logoErr) {
+        if (logoErr instanceof UploadError) throw logoErr;
+        // Storage (disk/Blob) failures shouldn't block the edit -- apply/queue
+        // it without the logo change and let the submitter know.
+        console.error("[program edit] logo save failed", {
+          userId: check.userId,
+          payloadKeys: [...formData.keys()],
+        }, logoErr);
+        logoWarning = "Your edit was saved, but the logo couldn't be uploaded. You can add it later by editing the program again.";
+      }
     }
 
     if (isModeratorRole(check.role)) {
       const program = await updateProgram(id, { ...input, logoUrl });
-      return NextResponse.json({ pending: false, program });
+      return NextResponse.json({ pending: false, program, warning: logoWarning });
     }
 
     await createProgramEdit(id, { ...input, logoUrl }, check.userId);
     const program = await prisma.program.findUnique({ where: { id }, select: { slug: true } });
-    return NextResponse.json({ pending: true, slug: program?.slug });
+    return NextResponse.json({ pending: true, slug: program?.slug, warning: logoWarning });
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });

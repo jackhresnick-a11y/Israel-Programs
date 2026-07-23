@@ -1,8 +1,4 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
-
-const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
+import { put } from "@vercel/blob";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -19,10 +15,13 @@ export class UploadError extends Error {}
 type SavedFile = { url: string; filename: string; mimeType: string };
 
 /**
- * Local-disk implementation. Swap this function's body for an S3/R2 client
- * later — callers only depend on the returned { url, filename, mimeType }.
+ * Uploads to Vercel Blob (public access). Replaces the old local-disk writer,
+ * which threw EROFS on Vercel's read-only serverless filesystem -- callers only
+ * depend on the returned { url, filename, mimeType }, so the switch is transparent
+ * to them. `addRandomSuffix` keeps two uploads of the same original filename from
+ * colliding, same as the random UUID name the disk version used.
  */
-async function saveToUploads(
+async function saveToBlob(
   file: File,
   subdir: string,
   allowed: Set<string>,
@@ -35,16 +34,20 @@ async function saveToUploads(
     throw new UploadError(`File too large (max ${Math.round(maxBytes / (1024 * 1024))}MB)`);
   }
 
-  const dir = path.join(UPLOAD_ROOT, subdir);
-  await mkdir(dir, { recursive: true });
-  const ext = path.extname(file.name) || "";
-  const filename = `${randomUUID()}${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, filename), buffer);
+  const blob = await put(`${subdir}/${file.name}`, file, {
+    access: "public",
+    addRandomSuffix: true,
+    contentType: file.type,
+  });
 
-  return { url: `/uploads/${subdir}/${filename}`, filename, mimeType: file.type };
+  return {
+    url: blob.url,
+    // Just the final path segment (the stored name, incl. the random suffix), not the subdir.
+    filename: blob.pathname.split("/").pop() ?? blob.pathname,
+    mimeType: file.type,
+  };
 }
 
 export function saveLogo(file: File) {
-  return saveToUploads(file, "logos", ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES);
+  return saveToBlob(file, "logos", ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES);
 }
