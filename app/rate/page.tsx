@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { listPublishedProgramNames } from "@/lib/programs";
+import { listPublishedProgramsForPicker } from "@/lib/programs";
 import { listPublicPollLinks } from "@/lib/pollConfig";
 import RateProgramPicker from "@/components/RateProgramPicker";
 import PageContainer from "@/components/ui/PageContainer";
@@ -12,13 +12,21 @@ export const metadata: Metadata = {
 
 export default async function RateProgramIndexPage() {
   const [programs, publicLinks] = await Promise.all([
-    listPublishedProgramNames(),
+    listPublishedProgramsForPicker(),
     listPublicPollLinks(),
   ]);
 
+  // Shaped as Searchable & { id, href } so the picker can run the shared
+  // rankBySearchTerm. goodFor/description are intentionally left empty -- not
+  // shipped to the client, not searched here (see RateProgramPicker).
   const items = programs.map((program) => ({
     id: program.id,
     name: program.name,
+    organization: program.organization,
+    location: program.location,
+    goodFor: null,
+    description: "",
+    tags: program.tags,
     href: publicLinks.get(program.id) ?? `/rate/${program.slug}`,
   }));
 
