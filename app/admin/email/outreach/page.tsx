@@ -5,6 +5,7 @@ import { getSiteContent } from "@/lib/siteContent";
 import { listOutreachTemplates } from "@/lib/outreachTemplates";
 import OutreachManager from "@/components/OutreachManager";
 import PageHeader from "@/components/ui/PageHeader";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default async function AdminEmailOutreachPage() {
   const role = await getCurrentRole();
@@ -23,6 +24,14 @@ export default async function AdminEmailOutreachPage() {
       <PageHeader
         title="Outreach: verify your listing"
         description="Draft, review, and send personalized 'verify your listing' emails to program contacts with a sourced address. Sending is manual and batch-based -- nothing goes out until you approve it and click Send."
+        actions={
+          <a
+            href="/api/admin/outreach-contacts.csv"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
+          >
+            Download outreach contacts CSV
+          </a>
+        }
       />
       <OutreachManager
         eligible={eligible}
