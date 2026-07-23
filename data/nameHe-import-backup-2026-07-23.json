@@ -1,0 +1,1080 @@
+[
+  {
+    "id": "cmr8qc69d000tjbmzgb9bswu3",
+    "name": "Arava Institute for Environmental Studies",
+    "priorNameHe": null,
+    "proposedNameHe": "מכון הערבה ללימודי הסביבה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrapcd210006bkmznam0fbox",
+    "name": "Bat Ayin Yeshiva",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת בת עין",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qklz6002grumz0g518rfa",
+    "name": "Beit Chana Seminary (Tzfat) – Chul Program",
+    "priorNameHe": null,
+    "proposedNameHe": "בית חנה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg3xn0010pdmzgnkfpi2g",
+    "name": "Beit Midrash Reuta (Carmel)",
+    "priorNameHe": null,
+    "proposedNameHe": "בית מדרש רעותא",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgfx0001mpdmz6ge4uo39",
+    "name": "Beit Orot (Jerusalem)",
+    "priorNameHe": null,
+    "proposedNameHe": "בית אורות – בית מדרש ירושלמי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgr4y000bvkmzq5pd8b0n",
+    "name": "BINA Gap Year",
+    "priorNameHe": null,
+    "proposedNameHe": "בינ\"ה – הבית של היהדות הישראלית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qf15c000erumzi1qwntt5",
+    "name": "Birthright Israel Excel Fellowship",
+    "priorNameHe": null,
+    "proposedNameHe": "תגלית אקסל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrdh24jd000004l5vzmnb27q",
+    "name": "Bnei David (Eli)",
+    "priorNameHe": null,
+    "proposedNameHe": "בני דוד - עלי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7zww001srvmz61r5n7z9",
+    "name": "Derech Eretz",
+    "priorNameHe": null,
+    "proposedNameHe": "דרך ארץ - תוכניות אופק לנוער וצעירים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qkt0g002irumzicfxeot9",
+    "name": "Diaspora Yeshiva – Gap Year Program",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת התפוצות תורת ישראל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrqr0034vkmzhkwis3v5",
+    "name": "Diller Teen Fellows Israel Summer Seminar",
+    "priorNameHe": null,
+    "proposedNameHe": "עמיתי דילר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8gsj0000x2wmzvyiaeb3c",
+    "name": "Emunah College - Faculty of Arts and Design",
+    "priorNameHe": null,
+    "proposedNameHe": "אמונה אפרתה - המכללה האקדמית לאמנויות וחינוך",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6di001ihdmzyzna575r",
+    "name": "Garin Tzabar",
+    "priorNameHe": null,
+    "proposedNameHe": "גרעין צבר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwiw2fj000ifxmznhiaosib",
+    "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+    "priorNameHe": null,
+    "proposedNameHe": "המכינה החדשה בלוד",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwivysn000cfxmzsi9fgaxr",
+    "name": "HaMechina HaMadait (Scientific Pre-Military Academy)",
+    "priorNameHe": null,
+    "proposedNameHe": "המכינה המדעית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfw5x000mpdmzysp7abk1",
+    "name": "Hesder Yeshiva Akko",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר עכו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8fm18000i2wmz13iwdc7h",
+    "name": "Israel Government Fellows (IGF)",
+    "priorNameHe": null,
+    "proposedNameHe": "עמיתי ממשל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qejw80006rumzt9e8ag41",
+    "name": "Jerusalem Academy of Music and Dance – DanceJerusalem",
+    "priorNameHe": null,
+    "proposedNameHe": "האקדמיה למוסיקה ומחול בירושלים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8gd9t000r2wmzrfavomw4",
+    "name": "Jerusalem College of Technology - International English Speakers Program",
+    "priorNameHe": null,
+    "proposedNameHe": "המרכז האקדמי לב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8qcbeq000wjbmzwfornwop",
+    "name": "Kibbutz Lotan Green Apprenticeship",
+    "priorNameHe": null,
+    "proposedNameHe": "קיבוץ לוטן - המרכז לאקולוגיה יצירתית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8fg9l000g2wmzcv83erkn",
+    "name": "Kol Ami Mechina",
+    "priorNameHe": null,
+    "proposedNameHe": "קול עמי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qfxz8000qrumzep6r00zl",
+    "name": "Leket Israel Volunteer Program",
+    "priorNameHe": null,
+    "proposedNameHe": "לקט ישראל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkzseoo000104l7r56tn70r",
+    "name": "Machal Overseas Army Program",
+    "priorNameHe": null,
+    "proposedNameHe": "מח\"ל (מתנדבי חוץ לארץ)",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgr5t000fvkmz74kmfj5r",
+    "name": "Masa Israel Teaching Fellows (MITF)",
+    "priorNameHe": null,
+    "proposedNameHe": "עמיתי הוראה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrv40xu60000gsmzls009lep",
+    "name": "Matan – The Sadie Rennert Women's Institute for Torah Studies",
+    "priorNameHe": null,
+    "proposedNameHe": "מתן - מכון תורני לנשים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qisxy001qrumz18e82noz",
+    "name": "Mechina Olamit (World Bnei Akiva and Kol Ami)",
+    "priorNameHe": null,
+    "proposedNameHe": "המכינה העולמית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qh80x0016rumzew38iuxr",
+    "name": "Mechinat Aderet",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת אדרת",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem8c01002crvmzeezkw8dm",
+    "name": "Mechinat Ami-Chai",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת עמי-חי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qhdtf0018rumzb2cx0o3u",
+    "name": "Mechinat Amichai",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת עמי-חי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qhsqj001erumzr9myf0d1",
+    "name": "Mechinat Arava",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת ערבה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem78gh000irvmz8hhrg951",
+    "name": "Mechinat Arzei HaLevanon",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת ארזי הלבנון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrxhoc4e0006bfmzty2bhlan",
+    "name": "Mechinat Ateret Yerushalayim",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת 'עטרת ירושלים'",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qhy4b001grumz1o8hc6wx",
+    "name": "Mechinat Be'eri",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת בארי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7vwo001mrvmzwnsf8pf8",
+    "name": "Mechinat Beer Ora",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת באר אורה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem79hy000krvmz3issbr9e",
+    "name": "Mechinat Beit Yatir",
+    "priorNameHe": null,
+    "proposedNameHe": "בית יתיר – מכינה קדם צבאית ישיבתית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6bu0019hdmzafo3av3d",
+    "name": "Mechinat Beit Yisrael (Big)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת בית ישראל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem8eor002grvmzvvsqg80w",
+    "name": "Mechinat Bina",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינה קדם צבאית תל אביב - בינ\"ה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6ao0013hdmzbawf89co",
+    "name": "Mechinat Bnei David (Eli)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת 'בני דוד' עלי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7xaz001orvmz4ipvkp2k",
+    "name": "Mechinat Bnot HaMidbar",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת בנות המדבר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7c09000orvmzgne5njlf",
+    "name": "Mechinat Chemdat Yehuda",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת חמדת יהודה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7asb000mrvmz97prdrs0",
+    "name": "Mechinat Chosen Peduel",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת חוסן פדואל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwivvc60006fxmz090o2chd",
+    "name": "Mechinat Derech Avot",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת דרך אבות",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qi31r001irumz1bjcnbb6",
+    "name": "Mechinat Dror",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת דרור",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7ur8001krvmz0gtzlazk",
+    "name": "Mechinat Echad V'Achat Mishelanu",
+    "priorNameHe": null,
+    "proposedNameHe": "אחד ואחת משלנו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem769i000ervmzc8j29189",
+    "name": "Mechinat Eitan",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת איתן",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem77ay000grvmzdef78186",
+    "name": "Mechinat Elisha",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת אלישע",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qgxas0012rumzkffy7is9",
+    "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת חמש אצבעות",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7ylt001qrvmzyvzgobww",
+    "name": "Mechinat Gal",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת גל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwivxqc000afxmzp27211rn",
+    "name": "Mechinat Galil Elyon",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת גליל עליון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qglg7000yrumz83jboc5v",
+    "name": "Mechinat HaEmek",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת העמ\"ק",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem82oz001wrvmzjjv3ssky",
+    "name": "Mechinat HaNegev (Sde Boker)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת הנגב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qhiqh001arumzvz2qltfk",
+    "name": "Mechinat Hannaton",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת חנתון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwiw192000gfxmzvmf3hart",
+    "name": "Mechinat HaShomer HaChadash",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת השומר החדש ע\"ש רון קוקיא ז\"ל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7fg4000urvmzyiykua3c",
+    "name": "Mechinat Ke'Ayal",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינה ישיבתית 'כאייל'",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem86590022rvmzg5ky1p8v",
+    "name": "Mechinat Kerem El",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינה קדם צבאית כרם-אל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7qdi001crvmzzauqvki8",
+    "name": "Mechinat Keshet Yehuda",
+    "priorNameHe": null,
+    "proposedNameHe": "קשת יהודה - מכינה קדם צבאית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qg8ka000urumzr32g6rvk",
+    "name": "Mechinat Lachish",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת לכיש",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7i8x000yrvmz96w2mjq0",
+    "name": "Mechinat Lapidot Emuna",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת לפידות - אמונה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7tpu001irvmzt3pa1p60",
+    "name": "Mechinat Lavi",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת לביא",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwivwfz0008fxmzjgl4vmq1",
+    "name": "Mechinat Maale Ephraim",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מעלה אפרים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7jab0010rvmz2kwz0vgl",
+    "name": "Mechinat Magen Shaul (Nokdim)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת נוקדים - המכינה הקדם צבאית מגן שאול",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7knv0012rvmz7ra5bn7z",
+    "name": "Mechinat Maoz (Lod)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מעוז לוד",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7lur0014rvmzk5nq2nlv",
+    "name": "Mechinat Mashahiyot (Maskyot)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת משכיות",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem89lb0028rvmz2ixpbecy",
+    "name": "Mechinat Meitarim Lachish",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מיתרים לכיש",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qgrug0010rumzypq1gsa3",
+    "name": "Mechinat Meitzar",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מיצר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qh1an0014rumzxjqfcggf",
+    "name": "Mechinat Melach HaAretz",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מלח הארץ",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem876m0024rvmz804xfaaq",
+    "name": "Mechinat Migdalor",
+    "priorNameHe": null,
+    "proposedNameHe": "מגדלור – מכינה קדם צבאית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem8aur002arvmzniyt8lwo",
+    "name": "Mechinat Minsharim Kalo",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מנשרים קלו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6c3001ahdmz9uoz6g1b",
+    "name": "Mechinat Nachshon",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינה קדם צבאית נחשון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem8fu1002irvmz402uska8",
+    "name": "Mechinat Nir Oz",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת ניר עוז",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7541000crvmzsyylfqxg",
+    "name": "Mechinat Orot",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת אורות - טלמון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7n020016rvmz2o6dcesy",
+    "name": "Mechinat Oz Shlomo",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת עז שלמה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qho82001crumzws5gczx5",
+    "name": "Mechinat Rakia",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת רקיע",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwivzz6000efxmz651xasct",
+    "name": "Mechinat Ruach HaSadeh",
+    "priorNameHe": null,
+    "proposedNameHe": "רוח השדה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem8df0002ervmz98gdc81m",
+    "name": "Mechinat Ruach Nachon",
+    "priorNameHe": null,
+    "proposedNameHe": "רוח נכון - המכינה הקדם צבאית לרוח ומנהיגות חברתית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw55we0002otmzl54o2txb",
+    "name": "Mechinat Shahar Degania",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת דגניה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw546i0000otmz8g5ge3ys",
+    "name": "Mechinat Shahar Elrom",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת אלרום",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5dxr000cotmz4a1osemd",
+    "name": "Mechinat Shahar Haon",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת האון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5ffy000eotmzd7n5d39j",
+    "name": "Mechinat Shahar Hukuk",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת חוקוק",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw57kw0004otmzp22ds36w",
+    "name": "Mechinat Shahar Malkia",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מלכיה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5gyd000gotmzqtyvjtln",
+    "name": "Mechinat Shahar Mevo Dotan",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת מבוא דותן",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5img000iotmz10t1lea0",
+    "name": "Mechinat Shahar Nitzan",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת \"שחר\" ניצן ע\"ש תומר ברק ז\"ל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5chi000aotmzbl11dqo9",
+    "name": "Mechinat Shahar Rotem",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת שחר רותם",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrkw5ar30008otmz8i3qsqoh",
+    "name": "Mechinat Shahar Tal",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת טל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7o490018rvmzme4yuetk",
+    "name": "Mechinat Shuvu Achim",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת שובו אחים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7rix001ervmz1i2nhlgq",
+    "name": "Mechinat Tamir",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת תמיר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qi7uu001krumzk47gp02g",
+    "name": "Mechinat Tavor",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת תבור",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qgffw000wrumz3ok3qf8x",
+    "name": "Mechinat Telem",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת תלם",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7pc5001arvmz7ee8i3c7",
+    "name": "Mechinat Tzahali",
+    "priorNameHe": null,
+    "proposedNameHe": "צהלי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7skb001grvmz0yn9s8zi",
+    "name": "Mechinat Uri",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת עורי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7d5i000qrvmzoh6j6f05",
+    "name": "Mechinat Yedidya",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת ידידיה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem83ui001yrvmz43bwb5tv",
+    "name": "Mechinat Yemin Orde",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינה קדם צבאית ימין אורד",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem84zn0020rvmz9h1ae1pz",
+    "name": "Mechinat Yiftach",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת יפתח",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7e70000srvmz3pa06495",
+    "name": "Mechinat Yonatan",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת יונתן",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem88k60026rvmzf7vhz1xw",
+    "name": "Midreshet HaShiluv Natur",
+    "priorNameHe": null,
+    "proposedNameHe": "מדרשת השילוב נטור",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem7grc000wrvmzbgwknowi",
+    "name": "Midreshet Rina (Shlomit)",
+    "priorNameHe": null,
+    "proposedNameHe": "מדרשת רינה בשלומית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo63c0007hdmzgsw9pcj4",
+    "name": "Migdal Oz (SKA Beit Midrash for Women)",
+    "priorNameHe": null,
+    "proposedNameHe": "בית המדרש לנשים מגדל עוז",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qeshs000arumzsk976tpl",
+    "name": "Musrara International Residency Program",
+    "priorNameHe": null,
+    "proposedNameHe": "מוסררה - בית הספר לאמנות וחברה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo63o0008hdmzpllsjq2y",
+    "name": "Nishmat - Alisa Flatow Program",
+    "priorNameHe": null,
+    "proposedNameHe": "נשמת",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8gi58000t2wmzouh6us06",
+    "name": "Ono Academic College International School",
+    "priorNameHe": null,
+    "proposedNameHe": "הקריה האקדמית אונו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6cm001dhdmzapy541kf",
+    "name": "Otzem Overseas Program (Atzmona)",
+    "priorNameHe": null,
+    "proposedNameHe": "מכינת עצם",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgriv0022vkmzxhr9ywp1",
+    "name": "Ponevezh Yeshiva",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת פוניבז' בני ברק",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qfq5j000mrumz6ndn8x8c",
+    "name": "Project TEN (Kibbutz Harduf)",
+    "priorNameHe": null,
+    "proposedNameHe": "פרויקט תן",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8qb17g0004jbmzz9ulz38w",
+    "name": "Rimon School of Music - Study Abroad Program",
+    "priorNameHe": null,
+    "proposedNameHe": "רימון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6a60010hdmzh6oxpku3",
+    "name": "Sapir International",
+    "priorNameHe": null,
+    "proposedNameHe": "המכללה האקדמית ספיר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrhjplbk0006cemzcdh13sdy",
+    "name": "Tel Aviv University Sofaer Global MBA",
+    "priorNameHe": null,
+    "proposedNameHe": "הפקולטה לניהול ע\"ש קולר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrem81hq001urvmzahuoguq7",
+    "name": "The Jerusalem Preparatory Program (HaYerushalmit)",
+    "priorNameHe": null,
+    "proposedNameHe": "המכינה הירושלמית",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bo6dz001lhdmzbodherzq",
+    "name": "Tikkun Olam Tel Aviv-Jaffa",
+    "priorNameHe": null,
+    "proposedNameHe": "מרכזי דניאל ליהדות מתקדמת",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qj6up001wrumze80az0by",
+    "name": "Ulpan Etzion",
+    "priorNameHe": null,
+    "proposedNameHe": "אולפן עציון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmra8j5hc000i7fmzszyvne14",
+    "name": "Vertigo International Dance Program (VIDP)",
+    "priorNameHe": null,
+    "proposedNameHe": "עמותת ורטיגו למחול י-ם (ע\"ר)",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr9qeomk0008rumzd6377qs1",
+    "name": "Weizmann Institute – Kupcinet-Getz International Summer School",
+    "priorNameHe": null,
+    "proposedNameHe": "מכון ויצמן למדע",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgbi1001epdmz6hg4jjc1",
+    "name": "Yeshiva Gevoha Itamar",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבה גבוהה איתמר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrg3001pvkmz0xmf5b7y",
+    "name": "Yeshivat Ashreinu",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת אשרינו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrlj002dvkmzz4ak1hys",
+    "name": "Yeshivat Beit El",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבה גבוהה 'בית אל'",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrku002avkmzs1t3nngj",
+    "name": "Yeshivat Birkat Moshe (Ma'ale Adumim)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר ברכת משה מעלה אדומים",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfyb0000qpdmzbfuh763x",
+    "name": "Yeshivat Chiburim Afula",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת עפולה – חיבורים בית שאן והעמק",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfx6i000opdmzujeens9b",
+    "name": "Yeshivat Chiburim Beit Shean",
+    "priorNameHe": null,
+    "proposedNameHe": "חיבורים בית שאן והעמק",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgnpa0020pdmzero0lseb",
+    "name": "Yeshivat Cholon",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת חולון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgmoq001ypdmz8da297sg",
+    "name": "Yeshivat Derech Chaim (Kiryat Gat)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר דרך חיים - קרית גת",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfocf0008pdmzv5h93g5l",
+    "name": "Yeshivat HaGolan",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת הגולן - ישיבה גבוהה והסדר",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwiw5qr000ofxmz11xsutwy",
+    "name": "Yeshivat HaHesder Karmiel",
+    "priorNameHe": null,
+    "proposedNameHe": "אורות כרמיאל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgrz80028pdmzyf4639fh",
+    "name": "Yeshivat HaHesder Ramat HaSharon",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר רמת השרון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg1gi000wpdmzbsedyqyu",
+    "name": "Yeshivat HaHesder Rishon LeZion",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר ראשון לציון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgre4001ivkmzczk9sstb",
+    "name": "Yeshivat Hakotel",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת הכותל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfphi000apdmzgn5hlynk",
+    "name": "Yeshivat Har Bracha",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת הר ברכה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgv8s002epdmzac5tcik4",
+    "name": "Yeshivat HaSeder Gavoha Kiryat Gat",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר הגבוהה קריית גת",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfv18000kpdmzk4zg6ab2",
+    "name": "Yeshivat HaSeder Nof HaGalil",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר נוף הגליל",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrxho8mv0000bfmz2z9npe0t",
+    "name": "Yeshivat Heichal Eliyahu (Kochav Yaakov)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת היכל אליהו כוכב יעקב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfrvh000epdmzw1vy1j9y",
+    "name": "Yeshivat Hesder Maalot Yaakov",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת הסדר מעלות יעקב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg7740016pdmz74u0tcfu",
+    "name": "Yeshivat Karnei Shomron",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר קרני שומרון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrh6001uvkmzxagd2tku",
+    "name": "Yeshivat Kerem B'Yavneh (KBY)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת כרם ביבנה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfzbj000spdmz9v06dk49",
+    "name": "Yeshivat Kiryat Shmona",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת קרית שמונה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrxho9vy0002bfmzntgr0bw3",
+    "name": "Yeshivat Lev Tel Aviv – Shir Le'Neriya",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר לב תל אביב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgri8001zvkmzmyo1obvh",
+    "name": "Yeshivat Merkaz HaRav",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת מרכז הרב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgjf8001spdmz9zdullpf",
+    "name": "Yeshivat Midbara Ke'Eden (Mitzpe Ramon)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר \"מדברה כעדן\" מצפה רמון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrhf001vvkmze799jt2s",
+    "name": "Yeshivat Mitzpe Yericho",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת מצפה יריחו",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgt3t002apdmzcmj0jl28",
+    "name": "Yeshivat Nachalat Yosef (Shavei Shomron)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת נחלת יוסף",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrxhoayb0004bfmzehj9gfvd",
+    "name": "Yeshivat Nahariya (Nahar De'a)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר בנהריה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfsw3000gpdmzp16ivl4j",
+    "name": "Yeshivat Netzer Matai (Ariel)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת נצר מטעי",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrwiw6xj000qfxmz4awhfuk0",
+    "name": "Yeshivat Neve Dekalim (Ashdod)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר נוה דקלים, אשדוד",
+    "foundInDb": true
+  },
+  {
+    "id": "cmr8bgrla002cvkmzc9r43647",
+    "name": "Yeshivat Nir Kiryat Arba",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ניר קרית ארבע חברון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg88d0018pdmzltk8pbm6",
+    "name": "Yeshivat Or Akiva",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר שילובים אור עקיבא",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfm180004pdmz44rgy8qh",
+    "name": "Yeshivat Or Etzion",
+    "priorNameHe": null,
+    "proposedNameHe": "הישיבה הגבוהה אור עציון",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgiet001qpdmzejqj8tsw",
+    "name": "Yeshivat Or VeYeshua (Haifa)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת חיפה – אור וישועה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgpu50024pdmzto27k2dp",
+    "name": "Yeshivat Orot Moshe (Rosh HaAyin)",
+    "priorNameHe": null,
+    "proposedNameHe": "אורות משה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgadk001cpdmze51hhxka",
+    "name": "Yeshivat Orot Shaul (Tel Aviv)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת אורות שאול",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg2n1000ypdmz9im1gyys",
+    "name": "Yeshivat Ramat Gan",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת רמת גן",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepgu49002cpdmzdkcryjcs",
+    "name": "Yeshivat Sderot",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת שדרות",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg62o0014pdmzn5q1qtho",
+    "name": "Yeshivat Sdot Negev (Kfar Maimon)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת שדות נגב",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepges4001kpdmzsw0x31j2",
+    "name": "Yeshivat Shilo",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת ההסדר שילה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfu0r000ipdmz46s0beqk",
+    "name": "Yeshivat Shirat Moshe (Meirim BeYafo)",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת שירת משה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrapchxg0008bkmzcud48s1x",
+    "name": "Yeshivat Simchat Shlomo",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת שמחת שלמה",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepg0g2000updmzovnb89ul",
+    "name": "Yeshivat Tekoa",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת תקוע",
+    "foundInDb": true
+  },
+  {
+    "id": "cmrepfqmo000cpdmz6mgzcmzp",
+    "name": "Yeshivat Tfachot",
+    "priorNameHe": null,
+    "proposedNameHe": "ישיבת הסדר וגרעין קהילתי טפחות",
+    "foundInDb": true
+  }
+]
