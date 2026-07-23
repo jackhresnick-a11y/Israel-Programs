@@ -1,6 +1,10 @@
 import { put } from "@vercel/blob";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+// 4MB, kept safely under Vercel's 4.5MB Function request-body limit -- a larger
+// cap lets a request die at the platform layer (opaque 413) before this handler
+// (and its friendly validation) ever runs. The client mirrors this in
+// components/ProgramForm.tsx (MAX_LOGO_BYTES) so oversize files are caught before upload.
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4MB
 
 // SVG intentionally excluded -- an SVG can carry <script>/event-handler payloads that
 // execute in the site's origin when served back inline, unlike the raster formats here.

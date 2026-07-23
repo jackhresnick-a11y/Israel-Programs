@@ -55,6 +55,13 @@ const EMPTY: ProgramFormValues = {
   logoUrl: null,
 };
 
+// Mirrors MAX_IMAGE_BYTES in lib/storage.ts (kept under Vercel's 4.5MB Function
+// request-body limit). Enforced here so an oversize logo is caught before upload
+// with an actionable message, rather than dying at the platform layer as an
+// opaque 413. The server re-validates -- this is a UX guard, not the source of truth.
+const MAX_LOGO_BYTES = 4 * 1024 * 1024; // 4MB
+const MAX_LOGO_MB = Math.round(MAX_LOGO_BYTES / (1024 * 1024));
+
 function Field({
   label,
   error,
@@ -90,7 +97,6 @@ export default function ProgramForm({
   const { toast } = useToast();
   const [values, setValues] = useState<ProgramFormValues>(initial ?? EMPTY);
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -100,8 +106,36 @@ export default function ProgramForm({
     setValues((v) => ({ ...v, [key]: value }));
   }
 
+  function onLogoChange(file: File | null) {
+    if (file && file.size > MAX_LOGO_BYTES) {
+      const mb = (file.size / (1024 * 1024)).toFixed(1);
+      setFieldErrors((e) => ({
+        ...e,
+        logo: `That logo is ${mb}MB. Please choose an image under ${MAX_LOGO_MB}MB.`,
+      }));
+      setLogoFile(null);
+      return;
+    }
+    setFieldErrors((e) => {
+      if (!e.logo) return e;
+      const rest = { ...e };
+      delete rest.logo;
+      return rest;
+    });
+    setLogoFile(file);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Defense-in-depth: onLogoChange already rejects oversize files, but guard
+    // here too so a too-large logo can never reach the platform 413 boundary.
+    if (logoFile && logoFile.size > MAX_LOGO_BYTES) {
+      const mb = (logoFile.size / (1024 * 1024)).toFixed(1);
+      setFieldErrors({ logo: `That logo is ${mb}MB. Please choose an image under ${MAX_LOGO_MB}MB.` });
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     setFieldErrors({});
@@ -126,24 +160,9 @@ export default function ProgramForm({
       const body = await res.json();
       if (body.warning) toast(body.warning);
 
-      // Videos attach to an existing program row, so upload happens as a
-      // follow-up request once we know the program's id — either the one
-      // just created, or the one already being edited (edits to an
-      // existing program can still take a video immediately; only the
-      // text-field changes are queued for non-moderators).
-      if (videoFile) {
-        const programId = isEdit ? initial!.id : body.id;
-        const videoForm = new FormData();
-        videoForm.set("video", videoFile);
-        const videoRes = await fetch(`/api/programs/${programId}/videos`, {
-          method: "POST",
-          body: videoForm,
-        });
-        if (!videoRes.ok) {
-          const videoErrBody = await videoRes.json().catch(() => ({}));
-          console.error("Video upload failed:", videoErrBody.error);
-        }
-      }
+      // Videos are added after creation from the program page, via the
+      // URL-based VideoUploader (YouTube/Vimeo/Facebook/Instagram/TikTok
+      // links) — there is deliberately no video upload on this form.
 
       if (isEdit) {
         // PATCH returns { pending, program } (moderator, applied immediately)
@@ -326,7 +345,7 @@ export default function ProgramForm({
         <Input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"
-          onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => onLogoChange(e.target.files?.[0] ?? null)}
         />
         {values.logoUrl && !logoFile && (
           <span className="text-xs text-muted">
@@ -335,17 +354,10 @@ export default function ProgramForm({
         )}
       </Field>
 
-      <Field label="Video (optional)">
-        <Input
-          type="file"
-          accept="video/mp4,video/webm,video/quicktime"
-          onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
-        />
-        <span className="text-xs text-muted">
-          MP4, WebM, or MOV, up to 200MB. You can also add more videos later
-          from the program page.
-        </span>
-      </Field>
+      <p className="text-xs text-muted">
+        Want to add a video? {isEdit ? "Open" : "After creating the program, open"} its
+        page and paste a YouTube, Vimeo, Facebook, Instagram, or TikTok link.
+      </p>
 
       <Button type="submit" disabled={submitting} className="w-fit">
         {submitting ? "Saving..." : isEdit ? "Save changes" : "Create program"}

@@ -56,13 +56,13 @@ describe("saveLogo", () => {
     expect(mockPut).not.toHaveBeenCalled();
   });
 
-  it("rejects a file over 5MB with UploadError and never uploads", async () => {
-    await expect(saveLogo(fakeFile("huge.png", "image/png", 5 * 1024 * 1024 + 1))).rejects.toBeInstanceOf(UploadError);
+  it("rejects a file over 4MB with UploadError and never uploads", async () => {
+    await expect(saveLogo(fakeFile("huge.png", "image/png", 4 * 1024 * 1024 + 1))).rejects.toBeInstanceOf(UploadError);
     expect(mockPut).not.toHaveBeenCalled();
   });
 
-  it("allows a file exactly at the 5MB boundary", async () => {
-    await expect(saveLogo(fakeFile("edge.png", "image/png", 5 * 1024 * 1024))).resolves.toBeDefined();
+  it("allows a file exactly at the 4MB boundary", async () => {
+    await expect(saveLogo(fakeFile("edge.png", "image/png", 4 * 1024 * 1024))).resolves.toBeDefined();
     expect(mockPut).toHaveBeenCalledTimes(1);
   });
 });
