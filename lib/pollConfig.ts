@@ -20,6 +20,9 @@ export type ProgramPollConfigDTO = {
   minResponsesToPublish: number;
   displayFormat: PollDisplayFormat;
   placeholderOverride: string | null;
+  /** When set, replaces the generated "Best for someone who wants..." strip on the
+   * program page verbatim -- see lib/pollBestFor.ts and the schema field's doc comment. */
+  editorialBestFor: string | null;
   /** Governs *capture* (the public share button), not results -- see the doc comment on
    * the schema field. Deliberately independent of resultsVisible. */
   pollLinkPublic: boolean;
@@ -33,6 +36,7 @@ const DEFAULT_POLL_CONFIG: ProgramPollConfigDTO = {
   minResponsesToPublish: 7,
   displayFormat: "STARS",
   placeholderOverride: null,
+  editorialBestFor: null,
   pollLinkPublic: false,
 };
 
@@ -50,6 +54,7 @@ export async function getProgramPollConfig(programId: string): Promise<ProgramPo
     minResponsesToPublish: row.minResponsesToPublish,
     displayFormat: row.displayFormat,
     placeholderOverride: row.placeholderOverride,
+    editorialBestFor: row.editorialBestFor,
     pollLinkPublic: row.pollLinkPublic,
   };
 }
@@ -76,6 +81,8 @@ function toQuestionDTO(q: {
   version: number;
   status: "ACTIVE" | "RETIRED";
   scaleType: PollScaleType;
+  lowPhrase: string | null;
+  highPhrase: string | null;
 }): PollQuestionDTO {
   return q;
 }
@@ -183,6 +190,7 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
             minResponsesToPublish: p.pollConfig.minResponsesToPublish,
             displayFormat: p.pollConfig.displayFormat,
             placeholderOverride: p.pollConfig.placeholderOverride,
+            editorialBestFor: p.pollConfig.editorialBestFor,
             pollLinkPublic: p.pollConfig.pollLinkPublic,
           }
         : DEFAULT_POLL_CONFIG,
@@ -236,6 +244,7 @@ export const programPollConfigPatchSchema = z.object({
   minResponsesToPublish: z.coerce.number().int().min(1).optional(),
   displayFormat: z.enum(["STARS", "PERCENT", "BOTH"]).optional(),
   placeholderOverride: z.string().trim().max(300).nullable().optional(),
+  editorialBestFor: z.string().trim().max(300).nullable().optional(),
   pollLinkPublic: z.boolean().optional(),
 });
 

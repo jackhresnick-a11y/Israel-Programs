@@ -2,7 +2,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
-import { summaryState } from "@/lib/pollFormat";
+import { computeBestForPhrases, computeVarianceNote, type BestForQuestionInput } from "@/lib/pollBestFor";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
 import {
   flattenResolvedQuestionIds,
@@ -12,6 +12,17 @@ import {
   type PollReviewGroupDTO,
   type RatingCoverageRow,
 } from "@/lib/pollShared";
+
+/** The one question every program's poll always carries (see the Core bucket seed) whose
+ * answers we deliberately never surface -- no aggregate/overall scored number appears
+ * anywhere on the public page (see PollSummaryDTO's doc comment). Still resolved and
+ * answerable via the rating form; simply excluded from the results grid and from the
+ * "Best for" strip's candidate pool below. */
+const OVERALL_QUESTION_KEY = "overall";
+
+/** The DESCRIPTIVE question whose mean drives the neutral "Experiences vary depending on
+ * staff." note -- see lib/pollBestFor.ts's computeVarianceNote. */
+const STAFF_VARIANCE_QUESTION_KEY = "staff_dependent";
 
 export const POLL_KILL_SWITCH_KEY = "pollResultsKillSwitch";
 
@@ -23,69 +34,49 @@ export async function isPollKillSwitchOn(): Promise<boolean> {
   return value === "true";
 }
 
-const EMPTY_HISTOGRAM: [number, number, number, number, number] = [0, 0, 0, 0, 0];
+const EMPTY_SUMMARY: PollSummaryDTO = {
+  visible: false,
+  questions: [],
+  buckets: [],
+  bestForPhrases: [],
+  editorialBestFor: null,
+  varianceNote: false,
+};
 
 /**
- * The program page summary strip's data. Public math only ever counts responses that
+ * The program page's survey-results data. Public math only ever counts responses that
  * are `status = COUNTED` -- every query below is scoped to that. `verified` is no
  * longer part of the count gate (see the PollResponse doc comment in schema.prisma):
  * a signed-in response is COUNTED+verified immediately as before, and an anonymous
  * link response is now COUNTED (verified stays false) unless a submit-time anti-abuse
  * check routed it to FLAGGED instead -- so COUNTED alone is the complete, correct gate.
- * Per-question means and the overall histogram are only computed when the state is
- * actually "published" (results unlock at minResponsesToPublish, gated by
- * resultsVisible AND the kill switch) -- the common "ships dark" case needs only the
- * overall-answer count, not the full aggregation.
+ *
+ * The only remaining visibility gate is `resultsVisible AND !killSwitch` -- there is
+ * deliberately no `minResponsesToPublish`/`overall`-answer-count publish threshold
+ * anymore: each question stands on its own response count (see
+ * components/PollSummaryStrip.tsx's MIN_RESPONSES_PER_QUESTION, which suppresses an
+ * individual question below n=3), so there's no single "is this program ready" gate to
+ * compute or wait for. When the visibility gate fails, this short-circuits to
+ * EMPTY_SUMMARY without the aggregation queries at all -- same "don't do the expensive
+ * work unless it'll actually render" posture the old publish gate had.
  *
  * `questions` is built from the program's live *resolved* question set
  * (getQuestionsForProgram), not just questions that happen to have answers -- so a
- * newly-added or so-far-unanswered question still gets a circle (mean: null, count: 0,
- * rendered as "---" by the results grid) instead of silently vanishing. Each entry
- * carries its owning bucket id (core questions get the core bucket's id) for the
- * results grid's per-bucket coloring, plus its `scaleType` + full `labels` (all 5) so a
- * DESCRIPTIVE question can render as a spectrum track labeled with the two rungs nearest
- * its mean. `buckets` is the distinct, ordered set of buckets
- * behind the non-"overall"
- * questions -- the results grid's color legend.
+ * newly-added or so-far-unanswered question still gets a block (mean: null, count: 0)
+ * instead of silently vanishing. Each entry carries its owning bucket id (core questions
+ * get the core bucket's id) for the results grid's per-bucket coloring, plus its
+ * `scaleType` + full `labels` (all 5). The `overall` question is resolved (still
+ * answerable via the rating form) but excluded here and from every aggregate computed
+ * below -- no scored number anywhere on the public page.
  *
- * The publish gate, headline, and progress bar all read the count of COUNTED
- * responses that *answered* the `overall` question -- not the count of COUNTED
- * responses overall. Since questions became skippable, a response can be COUNTED but
- * have skipped `overall` entirely; counting it toward the gate would publish a score
- * partly built on responses that never actually rated "overall," and the headline
- * number wouldn't match what the histogram/mean are computed from. A program whose
- * config has removed `overall` entirely reads 0 here and stays in "be_first" -- a
- * deliberate, if unusual, consequence of the gate always being anchored to that one
- * question.
+ * `bestForPhrases` and `varianceNote` are computed here (see lib/pollBestFor.ts) rather
+ * than in the component so the ranking/threshold logic has exactly one call site.
  */
 export const getProgramPollSummary = cache(async (programId: string): Promise<PollSummaryDTO> => {
-  const [config, killSwitchOn, overallQuestion] = await Promise.all([
-    getProgramPollConfig(programId),
-    isPollKillSwitchOn(),
-    prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } }),
-  ]);
+  const [config, killSwitchOn] = await Promise.all([getProgramPollConfig(programId), isPollKillSwitchOn()]);
 
-  const counted = overallQuestion
-    ? await prisma.pollAnswer.count({
-        where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED" } },
-      })
-    : 0;
-
-  const state = summaryState(counted, config.minResponsesToPublish, config.resultsVisible, killSwitchOn);
-
-  const base: PollSummaryDTO = {
-    state,
-    counted,
-    minResponsesToPublish: config.minResponsesToPublish,
-    displayFormat: config.displayFormat,
-    placeholderOverride: config.placeholderOverride,
-    overallMean: null,
-    questions: [],
-    buckets: [],
-    overallHistogram: EMPTY_HISTOGRAM,
-  };
-
-  if (state !== "published") return base;
+  const visible = config.resultsVisible && !killSwitchOn;
+  if (!visible) return EMPTY_SUMMARY;
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
@@ -100,7 +91,9 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   // Flatten the resolved set (core first, then extras) into one ordered list, each
   // question paired with the bucket it's presented under -- the same order the
-  // rating form itself uses.
+  // rating form itself uses. The "overall" question is dropped here, at the source, so
+  // no downstream computation (results grid, best-for candidates, buckets legend) can
+  // accidentally pick it up.
   const flat = [
     ...resolved.core.map((question) => ({
       question,
@@ -110,7 +103,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     ...resolved.extras.flatMap(({ bucket, questions: bucketQuestions }) =>
       bucketQuestions.map((question) => ({ question, bucketId: bucket.id, bucketName: bucket.name }))
     ),
-  ];
+  ].filter(({ question }) => question.key !== OVERALL_QUESTION_KEY);
 
   const statsByQuestionId = new Map(answerStats.map((s) => [s.questionId, s]));
 
@@ -127,33 +120,43 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     };
   });
 
-  // Legend: distinct buckets behind the non-"overall" questions, in resolved order.
+  // Legend: distinct buckets behind the resolved questions, in resolved order.
   const buckets: PollSummaryBucketDTO[] = [];
   const seenBucketIds = new Set<string>();
-  for (const { question, bucketId, bucketName } of flat) {
-    if (question.key === "overall" || !bucketId || !bucketName) continue;
+  for (const { bucketId, bucketName } of flat) {
+    if (!bucketId || !bucketName) continue;
     if (!seenBucketIds.has(bucketId)) {
       seenBucketIds.add(bucketId);
       buckets.push({ id: bucketId, name: bucketName });
     }
   }
 
-  const overallHistogram: [number, number, number, number, number] = [...EMPTY_HISTOGRAM];
-  let overallMean: number | null = null;
-
-  if (overallQuestion) {
-    const histRows = await prisma.pollAnswer.groupBy({
-      by: ["value"],
-      where: { questionId: overallQuestion.id, response: { programId, status: "COUNTED" } },
-      _count: { _all: true },
+  const bestForCandidates: BestForQuestionInput[] = flat
+    .filter(({ question }) => question.scaleType === "DESCRIPTIVE")
+    .map(({ question }) => {
+      const stats = statsByQuestionId.get(question.id);
+      return {
+        key: question.key,
+        mean: stats?._avg.value ?? null,
+        count: stats?._count._all ?? 0,
+        lowPhrase: question.lowPhrase,
+        highPhrase: question.highPhrase,
+      };
     });
-    for (const row of histRows) {
-      if (row.value >= 1 && row.value <= 5) overallHistogram[row.value - 1] = row._count._all;
-    }
-    overallMean = questions.find((q) => q.key === "overall")?.mean ?? null;
-  }
 
-  return { ...base, questions, buckets, overallMean, overallHistogram };
+  const bestForPhrases = computeBestForPhrases(bestForCandidates);
+  const varianceNote = computeVarianceNote(
+    bestForCandidates.find((q) => q.key === STAFF_VARIANCE_QUESTION_KEY)
+  );
+
+  return {
+    visible,
+    questions,
+    buckets,
+    bestForPhrases,
+    editorialBestFor: config.editorialBestFor ?? null,
+    varianceNote,
+  };
 });
 
 /**

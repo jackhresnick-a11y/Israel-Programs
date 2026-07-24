@@ -5,7 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SignInButton, Show } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
-import { getProgramBySlug, averageRating, toPublicProgram, shareDescription } from "@/lib/programs";
+import { getProgramBySlug, toPublicProgram, shareDescription } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getReferenceListVisibility } from "@/lib/referenceConfig";
@@ -102,7 +102,6 @@ export default async function ProgramDetailPage({
 
   const { show: showReferenceList } = await getReferenceListVisibility(program.id);
   const references = showReferenceList ? await listPublishedReferences(program.id) : [];
-  const rating = averageRating(program.reviews);
   const publicPollLink = await getPublicPollLink(program.id);
 
   // Exactly one banner ever renders — a just-submitted confirmation takes
@@ -160,15 +159,6 @@ export default async function ProgramDetailPage({
               {program.organization}
               {program.location ? ` · ${program.location}` : ""}
             </p>
-            {rating !== null && (
-              <p className="mt-1 text-sm text-accent">
-                {"★".repeat(Math.round(rating))}
-                <span className="ml-1 text-muted">
-                  {rating.toFixed(1)} ({program.reviews.length} review
-                  {program.reviews.length === 1 ? "" : "s"})
-                </span>
-              </p>
-            )}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
@@ -200,6 +190,7 @@ export default async function ProgramDetailPage({
         summary={await getProgramPollSummary(program.id)}
         programSlug={program.slug}
         publicPollLink={publicPollLink}
+        isModerator={isModerator}
       />
 
       {publicPollLink && <PublicPollLink link={publicPollLink} />}

@@ -722,6 +722,12 @@ model PollQuestion {
   dropdownOptions Json?
   status          PollLifecycleStatus @default(ACTIVE)
   scaleType       PollScaleType       @default(EVALUATIVE)
+  /// Only meaningful for DESCRIPTIVE questions -- the "Best for someone who wants..."
+  /// strip phrase to show when this question's mean sits toward the low (1) end. Null
+  /// for EVALUATIVE questions and any DESCRIPTIVE question not wired into the strip.
+  lowPhrase       String?
+  /// Same as lowPhrase, for the high (5) end.
+  highPhrase      String?
   version         Int                 @default(1)
   answers         PollAnswer[]
   reviews         PollReview[]
@@ -790,6 +796,12 @@ model ProgramPollConfig {
   minResponsesToPublish Int               @default(7)
   displayFormat         PollDisplayFormat @default(STARS)
   placeholderOverride   String?
+  /// When set, replaces the entire generated "Best for someone who wants..." strip on
+  /// the program page verbatim -- see lib/pollBestFor.ts's computeBestForPhrases, which
+  /// this overrides rather than augments. Editorial-only; never written by any
+  /// import/seed/batch process. A moderator/admin viewing the page sees a subtle
+  /// indicator that the strip is an override, not the generated one.
+  editorialBestFor      String?
   /// Governs *capture*, not results -- deliberately independent of resultsVisible and
   /// the global kill switch (which gate the score/reviews). Default off. Flipping this
   /// on lazily mints one designated ReferrerToken (label "Public program page",

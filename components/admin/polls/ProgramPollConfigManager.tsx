@@ -24,6 +24,7 @@ export type PollProgramRow = {
     minResponsesToPublish: number;
     displayFormat: "STARS" | "PERCENT" | "BOTH";
     placeholderOverride: string | null;
+    editorialBestFor: string | null;
     pollLinkPublic: boolean;
   };
   /** Bucket ids an ACTIVE BucketAttachmentRule additionally attaches here based on this
@@ -231,6 +232,7 @@ function ProgramRow({
   const [minResponses, setMinResponses] = useState(String(program.config.minResponsesToPublish));
   const [displayFormat, setDisplayFormat] = useState(program.config.displayFormat);
   const [placeholderOverride, setPlaceholderOverride] = useState(program.config.placeholderOverride ?? "");
+  const [editorialBestFor, setEditorialBestFor] = useState(program.config.editorialBestFor ?? "");
 
   // The "why is each question here" view, resolved from this program's live (saved)
   // config -- reflects what's actually on the poll right now, not unsaved checkbox
@@ -271,6 +273,7 @@ function ProgramRow({
         minResponsesToPublish: Number(minResponses) || 1,
         displayFormat,
         placeholderOverride: placeholderOverride.trim() || null,
+        editorialBestFor: editorialBestFor.trim() || null,
       });
       router.refresh();
     } catch (err) {
@@ -318,6 +321,7 @@ function ProgramRow({
           </Badge>
         </button>
         {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}
+        {program.config.editorialBestFor && <Badge tone="tag">Best-for override</Badge>}
         {program.ruleAttachedBucketIds.length > 0 && (
           <Badge tone="info">
             +{program.ruleAttachedBucketIds.length} via rule
@@ -381,6 +385,16 @@ function ProgramRow({
               value={placeholderOverride}
               onChange={(e) => setPlaceholderOverride(e.target.value)}
               placeholder="Leave blank to use the default copy"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 text-xs text-muted">
+            &ldquo;Best for&rdquo; override (replaces the generated fit strip on the program page
+            entirely -- phrase as fit, not praise)
+            <Input
+              value={editorialBestFor}
+              onChange={(e) => setEditorialBestFor(e.target.value)}
+              placeholder="Leave blank to use the generated strip"
             />
           </label>
 

@@ -28,6 +28,8 @@ function question(id: string, overrides: Partial<PollQuestionDTO> = {}): PollQue
     version: 1,
     status: "ACTIVE",
     scaleType: "EVALUATIVE",
+    lowPhrase: null,
+    highPhrase: null,
     ...overrides,
   };
 }

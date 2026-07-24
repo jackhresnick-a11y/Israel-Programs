@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Card from "@/components/ui/Card";
-import { buttonVariants } from "@/components/ui/Button";
-import { meanToPercent, formatStarsMean } from "@/lib/pollFormat";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
+import BestForStrip from "@/components/polls/BestForStrip";
+import { MIN_RESPONSES_PER_QUESTION } from "@/lib/pollBestFor";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Six-slot categorical palette for question-group (bucket) identity in the results
@@ -35,9 +35,22 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * side-by-side, so two questions can never collide regardless of screen width.
  * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
  * DESCRIPTIVE never shows a ring or a star (those imply good/bad, wrong for a neutral
- * spectrum) -- it renders as a labeled spectrum track instead (see DescriptiveTrack). */
+ * spectrum) -- it renders as a labeled spectrum track instead (see DescriptiveTrack).
+ * Below MIN_RESPONSES_PER_QUESTION responses, neither renders -- a mean/track built on
+ * one or two answers reads as more confident than it is, so the block is replaced with a
+ * plain "not enough yet" line instead of a donut/track that looks as authoritative as a
+ * well-answered one. */
 function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
   const { text, mean, count, labels, scaleType } = question;
+
+  if (count < MIN_RESPONSES_PER_QUESTION) {
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-foreground">{text}</p>
+        <p className="text-xs text-muted">Not enough responses yet.</p>
+      </div>
+    );
+  }
 
   if (scaleType === "DESCRIPTIVE") {
     return <DescriptiveTrack text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
@@ -48,15 +61,24 @@ function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDT
 
 /**
  * Server component -- props are the aggregate PollSummaryDTO only, never a raw
- * PollResponse/answer/email/ipHash. Renders one of four states (see build spec's copy
- * table): be_first, collecting (with a live progress bar), under_review, or the
- * published score. `summary.counted` is COUNTED-only (not COUNTED+verified -- see
- * lib/pollResults.ts) so the copy here says "rating(s)", not "verified rating(s)".
+ * PollResponse/answer/email/ipHash. Deliberately carries no aggregate/overall scored
+ * number anywhere: leads with the fit-phrased BestForStrip (see that component), then
+ * the bucket-grouped question grid below it, unchanged from before except each
+ * individual question now suppresses itself under MIN_RESPONSES_PER_QUESTION (see
+ * QuestionBlock) rather than the whole strip waiting on one global publish threshold.
+ *
+ * The "Share your experience" link is deliberately NOT gated on `summary.visible` --
+ * an admin can leave a program's results hidden ("ships dark") while alumni are still
+ * meant to be able to submit ratings, so the entry point to /rate must stay reachable
+ * even when there's nothing to show yet. Only the strip/grid below it depend on
+ * `summary.visible` (results hidden or the kill switch on, same short-circuit posture
+ * lib/pollResults.ts's getProgramPollSummary already applies server-side).
  */
 export default function PollSummaryStrip({
   summary,
   programSlug,
   publicPollLink,
+  isModerator,
 }: {
   summary: PollSummaryDTO;
   programSlug: string;
@@ -66,124 +88,34 @@ export default function PollSummaryStrip({
   // ref token is ignored once app/rate/[programSlug]/page.tsx sees a userId. Falls back
   // to the plain /rate/[slug] link (sign-in wall for signed-out visitors) when null.
   publicPollLink?: string | null;
+  // Gates the "Editorial override" tell on BestForStrip -- a signed-out visitor sees
+  // the override text with no indicator it's manual, same "does this look legit" bar as
+  // every other admin-only affordance on this page.
+  isModerator: boolean;
 }) {
   const rateHref = publicPollLink ?? `/rate/${programSlug}`;
 
-  if (summary.state === "be_first") {
-    return (
-      <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-        <p className="text-sm text-foreground">
-          {summary.placeholderOverride ?? "Be the first to rate this program"}
-        </p>
-        <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
-          Rate this program
-        </Link>
-      </Card>
-    );
-  }
-
-  if (summary.state === "collecting") {
-    const progressPct = Math.min(
-      100,
-      Math.round((summary.counted / summary.minResponsesToPublish) * 100)
-    );
-    return (
-      <Card className="flex flex-col gap-2 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-foreground">
-            {summary.placeholderOverride ??
-              `Ratings unlock at ${summary.minResponsesToPublish} responses — ${summary.counted} so far`}
-          </p>
-          <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
-            Rate this program
-          </Link>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
-          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${progressPct}%` }} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (summary.state === "under_review") {
-    return (
-      <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-        <p className="text-sm text-foreground">{summary.placeholderOverride ?? "Ratings under review"}</p>
-        <Link href={rateHref} className={buttonVariants({ variant: "primary", size: "sm" })}>
-          Rate this program
-        </Link>
-      </Card>
-    );
-  }
-
-  // Published: percent and stars are both derived from the one overallMean, so they
-  // can never drift arithmetically apart from each other.
-  const percent = summary.overallMean !== null ? meanToPercent(summary.overallMean) : null;
-  const stars = summary.overallMean !== null ? formatStarsMean(summary.overallMean) : null;
-
-  const scoreText =
-    summary.displayFormat === "STARS"
-      ? `${stars} ★`
-      : summary.displayFormat === "PERCENT"
-        ? `${percent}/100`
-        : `${percent}/100 · ${stars} ★`;
-
-  const maxCount = Math.max(1, ...summary.overallHistogram);
-  const otherQuestions = summary.questions.filter((q) => q.key !== "overall");
-
-  // Grouped by bucket, in summary.buckets' order (Core/General first, then extras --
-  // see getProgramPollSummary). A question whose bucketId doesn't match any known
-  // bucket (only possible when a program has no Core bucket at all) falls into a
-  // trailing "Other" group rather than silently vanishing from the results.
   const groupedBucketIds = new Set(summary.buckets.map((b) => b.id));
-  const ungroupedQuestions = otherQuestions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
+  const ungroupedQuestions = summary.questions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Overall is the headline this block leads with -- gold-tinted hero card,
-          set apart from the plain bucket-group cards below (per frontend-design:
-          spend the one visual accent on the thing that's actually the thesis).
-          Strictly vertical (score, then histogram, then CTA) so nothing can
-          collide regardless of screen width. */}
-      <Card
-        className="flex flex-col gap-3 p-4"
-        style={{
-          background: "color-mix(in srgb, var(--accent) 12%, var(--surface))",
-          borderColor: "color-mix(in srgb, var(--accent) 45%, var(--border))",
-        }}
-      >
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">Overall rating</p>
-          <p className="font-serif text-4xl font-semibold text-foreground sm:text-5xl">{scoreText}</p>
-          <p className="text-sm text-muted">
-            {summary.counted} rating{summary.counted === 1 ? "" : "s"}
-          </p>
-        </div>
-        <div className="flex flex-col gap-1">
-          {summary.overallHistogram.map((count, i) => {
-            const starCount = i + 1;
-            const width = (count / maxCount) * 100;
-            return (
-              <div key={starCount} className="flex items-center gap-2 text-xs text-muted">
-                <span className="w-3 text-right">{starCount}★</span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-muted">
-                  <div className="h-full rounded-full bg-accent" style={{ width: `${width}%` }} />
-                </div>
-                <span className="w-6 text-right">{count}</span>
-              </div>
-            );
-          })}
-        </div>
-        <Link
-          href={rateHref}
-          className={buttonVariants({ variant: "primary", size: "sm", className: "w-full sm:w-auto sm:self-start" })}
-        >
-          Rate this program
+      <div className="flex flex-col gap-2">
+        {summary.visible && (
+          <BestForStrip
+            phrases={summary.bestForPhrases}
+            editorialBestFor={summary.editorialBestFor}
+            varianceNote={summary.varianceNote}
+            isModerator={isModerator}
+          />
+        )}
+        <Link href={rateHref} className="self-start text-xs text-muted underline-offset-2 hover:text-accent hover:underline">
+          Share your experience
         </Link>
-      </Card>
+      </div>
 
-      {summary.buckets.map((bucket) => {
-        const bucketQuestions = otherQuestions.filter((q) => q.bucketId === bucket.id);
+      {summary.visible && summary.buckets.map((bucket) => {
+        const bucketQuestions = summary.questions.filter((q) => q.bucketId === bucket.id);
         if (bucketQuestions.length === 0) return null;
         const colorVar = bucketColorVar(bucket.id, summary.buckets);
         return (

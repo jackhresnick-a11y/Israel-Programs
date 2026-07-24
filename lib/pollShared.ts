@@ -9,7 +9,6 @@ import { DurationType } from "@/app/generated/prisma/enums";
 import type {
   PollQuestionType,
   PollLifecycleStatus,
-  PollDisplayFormat,
   PollScaleType,
 } from "@/app/generated/prisma/enums";
 
@@ -84,6 +83,9 @@ export type PollQuestionDTO = {
   version: number;
   status: PollLifecycleStatus;
   scaleType: PollScaleType;
+  /** Only meaningful for DESCRIPTIVE questions -- see the schema.prisma doc comment. */
+  lowPhrase: string | null;
+  highPhrase: string | null;
 };
 
 export type PollBucketDTO = {
@@ -104,18 +106,18 @@ export type ResolvedPollQuestionSet = {
   extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
 };
 
-export type PollSummaryState = "be_first" | "collecting" | "under_review" | "published";
-
-/** One resolved (non-retired) question's result, whether or not it has any answers yet
- * -- `mean`/`count` are null/0 when nobody has answered it, which the results list
- * renders as an empty ring/track rather than omitting the block entirely. `bucketId` is
- * the owning QuestionBucket's id (core questions get the core bucket's id) and drives
- * the results list's per-bucket color, matched against `PollSummaryDTO.buckets`.
- * `labels` is the question's own full 5-value label set -- an EVALUATIVE question uses
- * `labels[0]`/`labels[4]` for its "1 low · 5 high" line (see RatingRing); a DESCRIPTIVE
- * question renders as a spectrum track (see DescriptiveTrack) whose two end labels are
- * always the extremes `labels[0]`/`labels[4]`, plus a "Closest to" line naming
- * `labels[round(mean)-1]` -- so it needs all 5. */
+/** One resolved (non-retired), non-"overall" question's result, whether or not it has
+ * any answers yet -- `mean`/`count` are null/0 when nobody has answered it, so the
+ * results list can render "Not enough responses yet." rather than omitting the block
+ * entirely (see components/PollSummaryStrip.tsx's MIN_RESPONSES_PER_QUESTION check).
+ * `bucketId` is the owning QuestionBucket's id (core questions get the core bucket's id)
+ * and drives the results list's per-bucket color, matched against
+ * `PollSummaryDTO.buckets`. `labels` is the question's own full 5-value label set -- an
+ * EVALUATIVE question uses `labels[0]`/`labels[4]` for its "1 low · 5 high" line (see
+ * RatingRing); a DESCRIPTIVE question renders as a spectrum track (see DescriptiveTrack)
+ * whose two end labels are always the extremes `labels[0]`/`labels[4]`, plus a "Closest
+ * to" line naming `labels[round(mean)-1]` -- so it needs all 5. There is deliberately no
+ * "overall"/aggregate scored number anywhere in this DTO -- see PollSummaryDTO. */
 export type PollSummaryQuestionDTO = {
   key: string;
   text: string;
@@ -133,16 +135,23 @@ export type PollSummaryBucketDTO = {
   name: string;
 };
 
+/** The program page's survey-results data. Deliberately carries no aggregate/overall
+ * scored number, star rating, histogram, or publish-threshold gate -- individual
+ * questions each stand on their own response count (see
+ * components/PollSummaryStrip.tsx). `visible` is `resultsVisible && !killSwitch`, the
+ * only remaining gate; when false every other field is empty/false and the page renders
+ * nothing from this DTO. `bestForPhrases` is the generated "Best for someone who
+ * wants..." strip content (see lib/pollBestFor.ts's computeBestForPhrases) -- empty when
+ * fewer than two DESCRIPTIVE questions qualify, in which case the page falls back to
+ * `editorialBestFor` (a manual override, set via ProgramPollConfig, that replaces the
+ * generated strip entirely when present -- see computeVarianceNote for `varianceNote`). */
 export type PollSummaryDTO = {
-  state: PollSummaryState;
-  counted: number;
-  minResponsesToPublish: number;
-  displayFormat: PollDisplayFormat;
-  placeholderOverride: string | null;
-  overallMean: number | null;
+  visible: boolean;
   questions: PollSummaryQuestionDTO[];
   buckets: PollSummaryBucketDTO[];
-  overallHistogram: [number, number, number, number, number];
+  bestForPhrases: string[];
+  editorialBestFor: string | null;
+  varianceNote: boolean;
 };
 
 /** One approved review as rendered on the public program page -- never carries
