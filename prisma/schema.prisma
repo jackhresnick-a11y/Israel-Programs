@@ -121,6 +121,23 @@ enum PollScaleType {
   DESCRIPTIVE
 }
 
+/// How much weight a question's mean carries in the "Best for someone who wants..."
+/// strip ranking (lib/pollBestFor.ts's TIER_MULTIPLIER) -- independent of scaleType, so
+/// an EVALUATIVE question (e.g. "did Hebrew stick") can outrank a DESCRIPTIVE one in the
+/// strip while still rendering as a donut, not a spectrum track, on the page. DEFINING:
+/// the facts that most distinguish this program from others. SIGNIFICANT: real character,
+/// broadly shared across programs. CONTEXTUAL (default): every question starts here --
+/// promotion must be deliberate, never accidental. EXCLUDED: never enters strip scoring
+/// at all (short-circuits before the tier multiplier applies), e.g. aggregate-quality
+/// questions (`overall`, `recommend`) or ones that feed a different UI element entirely
+/// (`staff_dependent` feeds the variance note, not the strip).
+enum PollQuestionTier {
+  DEFINING
+  SIGNIFICANT
+  CONTEXTUAL
+  EXCLUDED
+}
+
 enum PollResponseStatus {
   /// Vestigial -- no new response is ever written PENDING since the after-submit email
   /// verification step was removed (see FLAGGED below). Kept because Postgres can't
@@ -722,12 +739,20 @@ model PollQuestion {
   dropdownOptions Json?
   status          PollLifecycleStatus @default(ACTIVE)
   scaleType       PollScaleType       @default(EVALUATIVE)
-  /// Only meaningful for DESCRIPTIVE questions -- the "Best for someone who wants..."
-  /// strip phrase to show when this question's mean sits toward the low (1) end. Null
-  /// for EVALUATIVE questions and any DESCRIPTIVE question not wired into the strip.
+  /// The "Best for someone who wants..." strip phrase to show when this question's mean
+  /// sits toward the low (1) end -- independent of scaleType (an EVALUATIVE question can
+  /// carry a phrase; see PollQuestionTier's doc comment). Null for any question not wired
+  /// into the strip, or asymmetrically for a unipolar question (e.g. "did Hebrew stick")
+  /// where a low mean should never surface as a strip phrase at all -- see lib/pollBestFor.ts,
+  /// which drops the question rather than backfilling from the other end when the mean
+  /// points at a null phrase.
   lowPhrase       String?
   /// Same as lowPhrase, for the high (5) end.
   highPhrase      String?
+  /// Strip ranking weight -- see PollQuestionTier's doc comment. Defaults to CONTEXTUAL so
+  /// every existing and newly-created question starts unweighted; promotion to
+  /// DEFINING/SIGNIFICANT (or suppression via EXCLUDED) is always a deliberate admin edit.
+  tier            PollQuestionTier    @default(CONTEXTUAL)
   version         Int                 @default(1)
   answers         PollAnswer[]
   reviews         PollReview[]

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { questionLabelsSchema, scaleTypeSchema } from "@/lib/pollShared";
+import { questionLabelsSchema, scaleTypeSchema, questionTierSchema } from "@/lib/pollShared";
 
 /** dropdownOptions is a nullable Json column; Prisma requires the Prisma.JsonNull
  * sentinel (not plain `null`) to explicitly clear it, so a bare `null` from the zod
@@ -13,6 +13,19 @@ function toJsonInput(
   if (value === null) return Prisma.JsonNull;
   return value as Prisma.InputJsonValue;
 }
+
+/** lowPhrase/highPhrase feed the "Best for someone who wants..." strip
+ * (lib/pollBestFor.ts) -- independent of scaleType and each other (a question may carry
+ * one, the other, both, or neither; see the schema.prisma doc comment on
+ * PollQuestion.lowPhrase for the asymmetric/unipolar case). No transform here
+ * (deliberately, unlike a naive empty-string-to-null coercion): omitting the key must
+ * mean "leave this column alone" for questionUpdateSchema's partial-PATCH semantics,
+ * same as placeholderOverride/editorialBestFor elsewhere -- a transform would force the
+ * key into the parsed output even when absent from input, silently nulling a previously
+ * set phrase on every unrelated field edit. Callers (the admin form) normalize an
+ * empty-string input to null themselves before sending, matching
+ * ProgramPollConfigManager.tsx's `value.trim() || null` convention. */
+const phraseSchema = z.string().trim().max(200).nullable().optional();
 
 export const questionInputSchema = z.object({
   key: z
@@ -26,6 +39,13 @@ export const questionInputSchema = z.object({
   labels: questionLabelsSchema,
   dropdownOptions: z.unknown().nullable().optional(),
   scaleType: scaleTypeSchema.default("EVALUATIVE"),
+  /** No question enters the system untiered -- every create defaults explicitly to
+   * CONTEXTUAL (never left to the DB column default alone) so the admin form always
+   * shows a tier, even if the admin never touches the control. Promotion to
+   * DEFINING/SIGNIFICANT, or suppression via EXCLUDED, is a deliberate follow-up edit. */
+  tier: questionTierSchema.default("CONTEXTUAL"),
+  lowPhrase: phraseSchema,
+  highPhrase: phraseSchema,
 });
 
 export const questionUpdateSchema = z.object({
@@ -35,15 +55,42 @@ export const questionUpdateSchema = z.object({
   dropdownOptions: z.unknown().nullable().optional(),
   status: z.enum(["ACTIVE", "RETIRED"]).optional(),
   scaleType: scaleTypeSchema.optional(),
+  tier: questionTierSchema.optional(),
+  lowPhrase: phraseSchema,
+  highPhrase: phraseSchema,
 });
 
+/**
+ * `answerCount` is every PollAnswer ever recorded for the question, regardless of the
+ * parent response's status -- used elsewhere (updateQuestion's version-bump check,
+ * deleteQuestion's zero-answers guard) as "has this question ever been answered at
+ * all," which must include FLAGGED/VOIDED/PENDING, not just COUNTED. `countedN` is the
+ * separate, narrower "corpus-wide n" for /admin/poll-questions -- COUNTED-only, matching
+ * the definition every other n in this system uses (see lib/pollResults.ts).
+ */
 export async function listQuestions({ includeRetired = true }: { includeRetired?: boolean } = {}) {
-  const questions = await prisma.pollQuestion.findMany({
-    where: includeRetired ? undefined : { status: "ACTIVE" },
-    orderBy: { key: "asc" },
-    include: { _count: { select: { answers: true } } },
-  });
-  return questions.map(({ _count, ...question }) => ({ ...question, answerCount: _count.answers }));
+  const [questions, countedGroups] = await Promise.all([
+    prisma.pollQuestion.findMany({
+      where: includeRetired ? undefined : { status: "ACTIVE" },
+      orderBy: { key: "asc" },
+      include: { _count: { select: { answers: true } } },
+    }),
+    // A separate groupBy rather than a second _count.select entry -- Prisma's filtered
+    // relation count only supports one count per relation name per query, and `answers`
+    // is already claimed above by the unfiltered "has this question ever been answered
+    // at all" count.
+    prisma.pollAnswer.groupBy({
+      by: ["questionId"],
+      where: { response: { status: "COUNTED" } },
+      _count: { _all: true },
+    }),
+  ]);
+  const countedNByQuestionId = new Map(countedGroups.map((g) => [g.questionId, g._count._all]));
+  return questions.map(({ _count, ...question }) => ({
+    ...question,
+    answerCount: _count.answers,
+    countedN: countedNByQuestionId.get(question.id) ?? 0,
+  }));
 }
 
 export async function createQuestion(input: z.infer<typeof questionInputSchema>) {
@@ -55,6 +102,9 @@ export async function createQuestion(input: z.infer<typeof questionInputSchema>)
       labels: input.labels,
       dropdownOptions: toJsonInput(input.dropdownOptions),
       scaleType: input.scaleType,
+      tier: input.tier,
+      lowPhrase: input.lowPhrase ?? null,
+      highPhrase: input.highPhrase ?? null,
     },
   });
 }

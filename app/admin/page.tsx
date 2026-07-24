@@ -116,6 +116,18 @@ export default async function AdminPage() {
                 </span>
               )}
             </Link>
+            <Link
+              href="/admin/programs"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Programs
+            </Link>
+            <Link
+              href="/admin/poll-questions"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Poll question tiers
+            </Link>
           </div>
         )}
       </PageHeader>

@@ -131,18 +131,22 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     }
   }
 
-  const bestForCandidates: BestForQuestionInput[] = flat
-    .filter(({ question }) => question.scaleType === "DESCRIPTIVE")
-    .map(({ question }) => {
-      const stats = statsByQuestionId.get(question.id);
-      return {
-        key: question.key,
-        mean: stats?._avg.value ?? null,
-        count: stats?._count._all ?? 0,
-        lowPhrase: question.lowPhrase,
-        highPhrase: question.highPhrase,
-      };
-    });
+  // Every resolved non-"overall" question is a strip candidate -- eligibility is driven
+  // entirely by tier/phrases/response-count (see lib/pollBestFor.ts), not by scaleType.
+  // An EVALUATIVE question (e.g. "did Hebrew stick") can contribute a strip phrase while
+  // still rendering as a donut in the results grid below; scaleType only ever picks
+  // donut-vs-track rendering, never strip eligibility.
+  const bestForCandidates: BestForQuestionInput[] = flat.map(({ question }) => {
+    const stats = statsByQuestionId.get(question.id);
+    return {
+      key: question.key,
+      mean: stats?._avg.value ?? null,
+      count: stats?._count._all ?? 0,
+      lowPhrase: question.lowPhrase,
+      highPhrase: question.highPhrase,
+      tier: question.tier,
+    };
+  });
 
   const bestForPhrases = computeBestForPhrases(bestForCandidates);
   const varianceNote = computeVarianceNote(
@@ -158,6 +162,140 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     varianceNote,
   };
 });
+
+/** One program's row on /admin/programs -- the live-computed strip alongside the
+ * editorial override, so an admin can see at a glance which programs are relying on the
+ * generated strip vs. a manual override, and how thin each program's data still is. */
+export type ProgramBestForRow = {
+  id: string;
+  name: string;
+  slug: string;
+  organization: string | null;
+  location: string | null;
+  tags: { slug: string; name: string }[];
+  responseCount: number;
+  bestForPhrases: string[];
+  editorialBestFor: string | null;
+};
+
+/**
+ * Every PUBLISHED program's live-computed "Best for" strip, for /admin/programs --
+ * batched (one PollQuestion fetch + one PollAnswer fetch, folded in JS below), not
+ * getProgramPollSummary called once per program, which would be 461 separate
+ * aggregations for the full catalog. Deliberately does NOT read resultsVisible/kill
+ * switch here -- this view exists so an admin can see what a program's strip *would*
+ * say even before turning results on for the public, which is the whole point of the
+ * accompanying live-preview screen at /admin/poll-questions.
+ *
+ * `responseCount` is the number of distinct COUNTED PollResponse rows for the program
+ * (any question answered), not any one question's n -- a coarse "how much data exists
+ * at all" signal for sorting, not a per-question figure.
+ */
+export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
+  const [programs, questions, answerRows, responseCounts] = await Promise.all([
+    prisma.program.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        organization: true,
+        location: true,
+        tags: { select: { slug: true, name: true } },
+        pollConfig: { select: { editorialBestFor: true } },
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.pollQuestion.findMany({
+      where: { status: "ACTIVE" },
+      select: { id: true, key: true, tier: true, lowPhrase: true, highPhrase: true },
+    }),
+    // Every COUNTED answer's raw value, scoped to (programId, questionId) -- Prisma's
+    // groupBy can't group by a related model's field (PollAnswer has no programId column
+    // of its own, only via response), so the per-(program, question) mean/count is folded
+    // in JS below instead of a second query per program.
+    prisma.pollAnswer.findMany({
+      where: { response: { status: "COUNTED" } },
+      select: { questionId: true, value: true, response: { select: { programId: true } } },
+    }),
+    prisma.pollResponse.groupBy({
+      by: ["programId"],
+      where: { status: "COUNTED" },
+      _count: { _all: true },
+    }),
+  ]);
+
+  const responseCountByProgramId = new Map(responseCounts.map((r) => [r.programId, r._count._all]));
+
+  const statsByProgramId = new Map<string, Map<string, { sum: number; n: number }>>();
+  for (const row of answerRows) {
+    const programId = row.response.programId;
+    if (!statsByProgramId.has(programId)) statsByProgramId.set(programId, new Map());
+    const perQuestion = statsByProgramId.get(programId)!;
+    const existing = perQuestion.get(row.questionId) ?? { sum: 0, n: 0 };
+    perQuestion.set(row.questionId, { sum: existing.sum + row.value, n: existing.n + 1 });
+  }
+
+  return programs.map((p) => {
+    const programStats = statsByProgramId.get(p.id);
+    const candidates: BestForQuestionInput[] = questions.map((q) => {
+      const stat = programStats?.get(q.id);
+      return {
+        key: q.key,
+        mean: stat ? stat.sum / stat.n : null,
+        count: stat?.n ?? 0,
+        lowPhrase: q.lowPhrase,
+        highPhrase: q.highPhrase,
+        tier: q.tier,
+      };
+    });
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      organization: p.organization,
+      location: p.location,
+      tags: p.tags,
+      responseCount: responseCountByProgramId.get(p.id) ?? 0,
+      bestForPhrases: computeBestForPhrases(candidates),
+      editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
+    };
+  });
+}
+
+/** One question's raw mean/count for one program -- the input shape the
+ * /admin/poll-questions live-preview screen needs (see getProgramQuestionStats): just
+ * enough to let the client recompute computeBestForPhrases against *locally-edited,
+ * unsaved* tier/phrase values, which this function deliberately doesn't know about. */
+export type ProgramQuestionStat = { key: string; mean: number | null; count: number };
+
+/**
+ * Every ACTIVE question's mean/count for one program, scoped to COUNTED responses --
+ * used only by the /admin/poll-questions live-preview screen's fetch, not the public
+ * page (that's getProgramPollSummary, which also applies the resultsVisible gate this
+ * function deliberately skips: an admin previewing a tier change needs to see the
+ * strip regardless of whether results are currently public). Every ACTIVE question is
+ * included, even ones the program's current poll config wouldn't resolve today, since
+ * past answers stay attributable to the wording/config they were actually given under
+ * (same posture as the rest of this file) -- a stray answer from a since-removed
+ * question still shouldn't silently vanish from an admin's preview.
+ */
+export async function getProgramQuestionStats(programId: string): Promise<ProgramQuestionStat[]> {
+  const [questions, stats] = await Promise.all([
+    prisma.pollQuestion.findMany({ where: { status: "ACTIVE" }, select: { id: true, key: true } }),
+    prisma.pollAnswer.groupBy({
+      by: ["questionId"],
+      where: { response: { programId, status: "COUNTED" } },
+      _avg: { value: true },
+      _count: { _all: true },
+    }),
+  ]);
+  const statByQuestionId = new Map(stats.map((s) => [s.questionId, s]));
+  return questions.map((q) => {
+    const stat = statByQuestionId.get(q.id);
+    return { key: q.key, mean: stat?._avg.value ?? null, count: stat?._count._all ?? 0 };
+  });
+}
 
 /**
  * Every published program with its rating-response count, for the admin coverage

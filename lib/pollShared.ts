@@ -10,9 +10,12 @@ import type {
   PollQuestionType,
   PollLifecycleStatus,
   PollScaleType,
+  PollQuestionTier,
 } from "@/app/generated/prisma/enums";
 
 export const scaleTypeSchema = z.enum(["EVALUATIVE", "DESCRIPTIVE"]);
+
+export const questionTierSchema = z.enum(["DEFINING", "SIGNIFICANT", "CONTEXTUAL", "EXCLUDED"]);
 
 export const durationTypeSchema = z.enum([
   DurationType.TEN_DAY,
@@ -83,9 +86,13 @@ export type PollQuestionDTO = {
   version: number;
   status: PollLifecycleStatus;
   scaleType: PollScaleType;
-  /** Only meaningful for DESCRIPTIVE questions -- see the schema.prisma doc comment. */
+  /** See the schema.prisma doc comment -- independent of scaleType, and may be
+   * asymmetric (one end null) for a unipolar question. */
   lowPhrase: string | null;
   highPhrase: string | null;
+  /** Strip ranking weight -- see PollQuestionTier's doc comment in schema.prisma and
+   * lib/pollBestFor.ts's TIER_MULTIPLIER. */
+  tier: PollQuestionTier;
 };
 
 export type PollBucketDTO = {

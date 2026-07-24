@@ -284,6 +284,22 @@ export async function updateProgram(id: string, input: ProgramInput) {
   });
 }
 
+/** Tags-only update for admin surfaces that shouldn't have to round-trip the full
+ * ProgramInput (e.g. /admin/programs' inline tag editor) -- same resolve-by-name +
+ * clear-then-reconnect shape as updateProgram's tags handling, factored out rather than
+ * requiring a full-form submit just to add or remove one tag. Always routes through
+ * resolveTagsByName (never a bare slugify-and-upsert) per this codebase's tag-provenance
+ * rule -- an admin caller creates a real Tag row for a genuinely new name, same as the
+ * full program form does today. */
+export async function updateProgramTags(id: string, names: string[]) {
+  const tags = await resolveTagsByName(names);
+  return prisma.program.update({
+    where: { id },
+    data: { tags: { set: [], connect: tags } },
+    select: { id: true, tags: { select: { id: true, slug: true, name: true } } },
+  });
+}
+
 /** Nulls out a program's logo, bypassing updateProgram's truthy-only guard
  * (`...(input.logoUrl ? { logoUrl: input.logoUrl } : {})`), which can set a
  * logo but never clear one. Returns the prior value so the caller can clean

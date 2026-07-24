@@ -8,6 +8,8 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 
+export type QuestionTier = "DEFINING" | "SIGNIFICANT" | "CONTEXTUAL" | "EXCLUDED";
+
 export type QuestionRow = {
   id: string;
   key: string;
@@ -16,8 +18,18 @@ export type QuestionRow = {
   labels: string[];
   status: "ACTIVE" | "RETIRED";
   scaleType: "EVALUATIVE" | "DESCRIPTIVE";
+  tier: QuestionTier;
+  lowPhrase: string | null;
+  highPhrase: string | null;
   version: number;
   answerCount: number;
+};
+
+const TIER_LABELS: Record<QuestionTier, string> = {
+  DEFINING: "Defining",
+  SIGNIFICANT: "Significant",
+  CONTEXTUAL: "Contextual",
+  EXCLUDED: "Excluded",
 };
 
 async function api(url: string, method: string, body?: object) {
@@ -48,6 +60,9 @@ function QuestionForm({
     type: QuestionRow["type"];
     labels: string[];
     scaleType: QuestionRow["scaleType"];
+    tier: QuestionTier;
+    lowPhrase: string | null;
+    highPhrase: string | null;
   }) => void;
   submitLabel: string;
   busy: boolean;
@@ -57,6 +72,11 @@ function QuestionForm({
   const [type, setType] = useState<QuestionRow["type"]>(initial?.type ?? "STARS");
   const [labels, setLabels] = useState<string[]>(initial?.labels ?? [...EMPTY_LABELS]);
   const [scaleType, setScaleType] = useState<QuestionRow["scaleType"]>(initial?.scaleType ?? "EVALUATIVE");
+  // No question enters the system untiered -- CONTEXTUAL is the explicit default for a
+  // brand-new question, never left implicit to the DB column default alone.
+  const [tier, setTier] = useState<QuestionTier>(initial?.tier ?? "CONTEXTUAL");
+  const [lowPhrase, setLowPhrase] = useState(initial?.lowPhrase ?? "");
+  const [highPhrase, setHighPhrase] = useState(initial?.highPhrase ?? "");
 
   const valid = text.trim().length > 0 && labels.every((l) => l.trim().length > 0) && (initial || key.trim().length > 0);
 
@@ -104,13 +124,50 @@ function QuestionForm({
           ))}
         </div>
       </div>
+      <label className="flex flex-col gap-1 text-xs text-muted">
+        Tier (strip ranking weight -- see the &ldquo;Best for&rdquo; strip)
+        <Select value={tier} onChange={(e) => setTier(e.target.value as QuestionTier)} className="w-48">
+          {(Object.keys(TIER_LABELS) as QuestionTier[]).map((t) => (
+            <option key={t} value={t}>
+              {TIER_LABELS[t]}
+            </option>
+          ))}
+        </Select>
+      </label>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          Strip phrase, low end (mean &lt; 3 -- leave blank to never surface a low-end phrase)
+          <Input
+            value={lowPhrase}
+            onChange={(e) => setLowPhrase(e.target.value)}
+            placeholder="e.g. clear structure and a set schedule"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          Strip phrase, high end (mean &gt; 3 -- leave blank to never surface a high-end phrase)
+          <Input
+            value={highPhrase}
+            onChange={(e) => setHighPhrase(e.target.value)}
+            placeholder="e.g. a lot of free time and autonomy"
+          />
+        </label>
+      </div>
       <Button
         type="button"
         size="sm"
         className="self-start"
         disabled={!valid || busy}
         onClick={() =>
-          onSubmit({ key: initial ? undefined : key.trim(), text: text.trim(), type, labels, scaleType })
+          onSubmit({
+            key: initial ? undefined : key.trim(),
+            text: text.trim(),
+            type,
+            labels,
+            scaleType,
+            tier,
+            lowPhrase: lowPhrase.trim() || null,
+            highPhrase: highPhrase.trim() || null,
+          })
         }
       >
         {busy ? "Saving..." : submitLabel}
@@ -141,7 +198,15 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
 
   function handleSaveEdit(
     question: QuestionRow,
-    input: { text: string; type: QuestionRow["type"]; labels: string[]; scaleType: QuestionRow["scaleType"] }
+    input: {
+      text: string;
+      type: QuestionRow["type"];
+      labels: string[];
+      scaleType: QuestionRow["scaleType"];
+      tier: QuestionTier;
+      lowPhrase: string | null;
+      highPhrase: string | null;
+    }
   ) {
     const textChanged = input.text !== question.text;
     if (textChanged && question.answerCount > 0) {
@@ -174,6 +239,9 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
     type: QuestionRow["type"];
     labels: string[];
     scaleType: QuestionRow["scaleType"];
+    tier: QuestionTier;
+    lowPhrase: string | null;
+    highPhrase: string | null;
   }) {
     setCreating(true);
     setError(null);
@@ -199,6 +267,9 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
               <span className="text-sm font-medium text-foreground">{question.text}</span>
               <Badge tone="neutral">{question.type}</Badge>
               {question.scaleType === "DESCRIPTIVE" && <Badge tone="tag">Descriptive</Badge>}
+              {question.tier === "DEFINING" && <Badge tone="success">Defining</Badge>}
+              {question.tier === "SIGNIFICANT" && <Badge tone="info">Significant</Badge>}
+              {question.tier === "EXCLUDED" && <Badge tone="danger">Excluded</Badge>}
               {question.status === "RETIRED" && <Badge tone="warning">Retired</Badge>}
               <span className="ml-auto text-xs text-muted">
                 v{question.version} · {question.answerCount} answer{question.answerCount === 1 ? "" : "s"}

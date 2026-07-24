@@ -10,7 +10,7 @@ import {
 } from "@/lib/pollShared";
 import { getRuleAttachedBucketIds } from "@/lib/pollBucketRules";
 import { mintReferrerToken } from "@/lib/pollTokens";
-import type { PollDisplayFormat, PollScaleType, DurationType } from "@/app/generated/prisma/enums";
+import type { PollDisplayFormat, PollScaleType, PollQuestionTier, DurationType } from "@/app/generated/prisma/enums";
 
 export type ProgramPollConfigDTO = {
   bucketIds: string[];
@@ -83,6 +83,7 @@ function toQuestionDTO(q: {
   scaleType: PollScaleType;
   lowPhrase: string | null;
   highPhrase: string | null;
+  tier: PollQuestionTier;
 }): PollQuestionDTO {
   return q;
 }
