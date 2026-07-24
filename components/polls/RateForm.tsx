@@ -181,6 +181,93 @@ function ReviewConsentCheckbox({
   );
 }
 
+/** One respondent's in-progress contact opt-in state, local to whichever form renders
+ * ContactOptInBlock -- not persisted anywhere until a successful submit. */
+type ContactOptInState = {
+  consent: boolean;
+  ageAttested: boolean;
+  contactMethod: string;
+  contactName: string;
+};
+
+const EMPTY_CONTACT_OPT_IN: ContactOptInState = {
+  consent: false,
+  ageAttested: false,
+  contactMethod: "",
+  contactName: "",
+};
+
+/** True only when every required field for a complete opt-in is present -- the single
+ * predicate both the submit-time validation and the payload builder below use, so they
+ * can never disagree about what counts as "opted in." */
+function isContactOptInComplete(state: ContactOptInState): boolean {
+  return state.consent && state.ageAttested && state.contactMethod.trim().length > 0 && state.contactName.trim().length > 0;
+}
+
+/**
+ * Collected at the end of the rating flow, just above the submit button -- an opt-in to
+ * being contacted by prospective participants, deliberately separate from the heavier
+ * Reference/ContactRequest system elsewhere on the program page (never publicly
+ * rendered; admin-visible only, see /admin/programs). Two SEPARATE checkboxes, not one
+ * combined control: consent ("I'm open to being contacted") and an 18+
+ * self-attestation are two distinct claims requiring two distinct affirmative acts. The
+ * age checkbox and the two required fields only appear once consent is checked, so a
+ * respondent who isn't interested never sees them -- but the fields, once revealed, are
+ * validated at submit time (see the two forms' handleSubmit), not silently dropped.
+ */
+function ContactOptInBlock({
+  state,
+  onChange,
+  error,
+}: {
+  state: ContactOptInState;
+  onChange: (next: ContactOptInState) => void;
+  error: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+      <label className="flex items-start gap-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={state.consent}
+          onChange={(e) => onChange({ ...state, consent: e.target.checked })}
+          className="mt-0.5 accent-accent"
+        />
+        <span>I&rsquo;m open to being contacted by prospective participants about this program.</span>
+      </label>
+      {state.consent && (
+        <div className="flex flex-col gap-2 pl-6">
+          <label className="flex items-start gap-2 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={state.ageAttested}
+              onChange={(e) => onChange({ ...state, ageAttested: e.target.checked })}
+              className="mt-0.5 accent-accent"
+            />
+            <span>I&rsquo;m 18 or older.</span>
+          </label>
+          <Input
+            placeholder="Email or WhatsApp number"
+            value={state.contactMethod}
+            onChange={(e) => onChange({ ...state, contactMethod: e.target.value })}
+          />
+          <Input
+            placeholder="Display name or initial, e.g. Yaakov B."
+            value={state.contactName}
+            onChange={(e) => onChange({ ...state, contactName: e.target.value })}
+          />
+          <p className="text-xs text-muted">Never shown publicly -- program admins only.</p>
+        </div>
+      )}
+      {error && (
+        <p className="pl-6 text-xs text-danger">
+          Please confirm you&rsquo;re 18 or older and fill in a contact method and name -- or uncheck the box above to skip this.
+        </p>
+      )}
+    </div>
+  );
+}
+
 /** Builds the {questionId, value}[] / {questionId, text, consent}[] / string[] payloads
  * from per-question state -- a skipped question (value null, not N/A'd) is simply
  * absent from `answers`; an N/A'd question is excluded from `answers` (defensively,
@@ -231,6 +318,8 @@ function SignedInRateForm({
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   const [consentGiven, setConsentGiven] = useState(false);
   const [consentError, setConsentError] = useState(false);
+  const [contactOptIn, setContactOptIn] = useState<ContactOptInState>(EMPTY_CONTACT_OPT_IN);
+  const [contactOptInError, setContactOptInError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -247,19 +336,37 @@ function SignedInRateForm({
       setConsentError(true);
       return;
     }
+    if (contactOptIn.consent && !isContactOptInComplete(contactOptIn)) {
+      setContactOptInError(true);
+      return;
+    }
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
     }
 
     setConsentError(false);
+    setContactOptInError(false);
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/polls/responses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, answers, naQuestionIds, reviews }),
+        body: JSON.stringify({
+          programId,
+          answers,
+          naQuestionIds,
+          reviews,
+          contactOptIn: isContactOptInComplete(contactOptIn)
+            ? {
+                consent: true,
+                ageAttested: true,
+                contactMethod: contactOptIn.contactMethod.trim(),
+                contactName: contactOptIn.contactName.trim(),
+              }
+            : undefined,
+        }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -306,6 +413,14 @@ function SignedInRateForm({
           if (checked) setConsentError(false);
         }}
         error={consentError}
+      />
+      <ContactOptInBlock
+        state={contactOptIn}
+        onChange={(next) => {
+          setContactOptIn(next);
+          if (isContactOptInComplete(next) || !next.consent) setContactOptInError(false);
+        }}
+        error={contactOptInError}
       />
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
         {submitting ? "Submitting..." : isUpdate ? "Update rating" : "Submit rating"}
@@ -416,6 +531,11 @@ function AnonymousRateForm({
   // lib/pollShared.ts's anonymousSubmitSchema). Persisted to the draft like any other
   // form field (unlike consent, entering an email isn't a legal affirmation).
   const [email, setEmail] = useState("");
+  // Also not persisted to the draft, same reasoning as consentGiven above -- consent and
+  // the 18+ attestation are fresh affirmative acts every time, not something a reload
+  // should silently restore as already-given.
+  const [contactOptIn, setContactOptIn] = useState<ContactOptInState>(EMPTY_CONTACT_OPT_IN);
+  const [contactOptInError, setContactOptInError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | null>(null);
@@ -450,12 +570,17 @@ function AnonymousRateForm({
       setConsentError(true);
       return;
     }
+    if (contactOptIn.consent && !isContactOptInComplete(contactOptIn)) {
+      setContactOptInError(true);
+      return;
+    }
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
     }
 
     setConsentError(false);
+    setContactOptInError(false);
     setSubmitting(true);
     setError(null);
     try {
@@ -470,6 +595,14 @@ function AnonymousRateForm({
           reviews,
           yearAttended,
           email: email.trim() || undefined,
+          contactOptIn: isContactOptInComplete(contactOptIn)
+            ? {
+                consent: true,
+                ageAttested: true,
+                contactMethod: contactOptIn.contactMethod.trim(),
+                contactName: contactOptIn.contactName.trim(),
+              }
+            : undefined,
         }),
       });
       if (!res.ok) {
@@ -537,6 +670,14 @@ function AnonymousRateForm({
           if (checked) setConsentError(false);
         }}
         error={consentError}
+      />
+      <ContactOptInBlock
+        state={contactOptIn}
+        onChange={(next) => {
+          setContactOptIn(next);
+          if (isContactOptInComplete(next) || !next.consent) setContactOptInError(false);
+        }}
+        error={contactOptInError}
       />
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
         {submitting ? "Submitting..." : "Submit rating"}

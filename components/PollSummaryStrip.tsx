@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Card from "@/components/ui/Card";
+import { buttonVariants } from "@/components/ui/Button";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
 import BestForStrip from "@/components/polls/BestForStrip";
 import { MIN_RESPONSES_PER_QUESTION } from "@/lib/pollBestFor";
+import { deriveCtaLayout } from "@/lib/contactOptIn";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Six-slot categorical palette for question-group (bucket) identity in the results
@@ -59,6 +61,35 @@ function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDT
   return <RatingRing text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
 }
 
+/** The primary "Rate this program" button plus its optional social-proof line -- one
+ * component so the top and bottom instances can never drift in label, styling, or the
+ * count's wording. Reuses `buttonVariants` at the "primary" tone (no new color/variant)
+ * so this reads as the single most prominent action in the region without competing
+ * with page-level navigation, which never uses the primary tone. Full-width on mobile
+ * (a thumb-width target at 390px), auto-width from `sm:` up. */
+function RateCta({
+  rateHref,
+  responseCount,
+  showResponseCount,
+}: {
+  rateHref: string;
+  responseCount: number;
+  showResponseCount: boolean;
+}) {
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <Link href={rateHref} className={buttonVariants({ variant: "primary", className: "w-full sm:w-auto" })}>
+        Rate this program
+      </Link>
+      {showResponseCount && (
+        <p className="text-xs text-muted">
+          {responseCount === 1 ? "1 person has rated this program." : `${responseCount} people have rated this program.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /**
  * Server component -- props are the aggregate PollSummaryDTO only, never a raw
  * PollResponse/answer/email/ipHash. Deliberately carries no aggregate/overall scored
@@ -67,12 +98,15 @@ function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDT
  * individual question now suppresses itself under MIN_RESPONSES_PER_QUESTION (see
  * QuestionBlock) rather than the whole strip waiting on one global publish threshold.
  *
- * The "Share your experience" link is deliberately NOT gated on `summary.visible` --
- * an admin can leave a program's results hidden ("ships dark") while alumni are still
- * meant to be able to submit ratings, so the entry point to /rate must stay reachable
- * even when there's nothing to show yet. Only the strip/grid below it depend on
- * `summary.visible` (results hidden or the kill switch on, same short-circuit posture
- * lib/pollResults.ts's getProgramPollSummary already applies server-side).
+ * The primary "Rate this program" button (see RateCta) is deliberately NOT gated on
+ * `summary.visible` -- an admin can leave a program's results hidden ("ships dark")
+ * while alumni are still meant to be able to submit ratings, and driving the FIRST
+ * responses is exactly when a program has no visible results yet. A second CTA instance
+ * renders at the bottom of the results grid (after someone has read the strip and the
+ * per-question breakdown is the highest-intent moment to ask) -- gated on `visible`
+ * since there's no "bottom of the grid" when there's no grid. `deriveCtaLayout`
+ * (lib/contactOptIn.ts) is the single place both instances' visibility and the
+ * social-proof line's threshold are decided, so they can't drift apart.
  */
 export default function PollSummaryStrip({
   summary,
@@ -94,14 +128,15 @@ export default function PollSummaryStrip({
   isModerator: boolean;
 }) {
   const rateHref = publicPollLink ?? `/rate/${programSlug}`;
+  const layout = deriveCtaLayout(summary);
 
   const groupedBucketIds = new Set(summary.buckets.map((b) => b.id));
   const ungroupedQuestions = summary.questions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        {summary.visible && (
+      <div className="flex flex-col gap-3">
+        {layout.showResults && (
           <BestForStrip
             phrases={summary.bestForPhrases}
             editorialBestFor={summary.editorialBestFor}
@@ -109,12 +144,10 @@ export default function PollSummaryStrip({
             isModerator={isModerator}
           />
         )}
-        <Link href={rateHref} className="self-start text-xs text-muted underline-offset-2 hover:text-accent hover:underline">
-          Share your experience
-        </Link>
+        <RateCta rateHref={rateHref} responseCount={summary.responseCount} showResponseCount={layout.showResponseCount} />
       </div>
 
-      {summary.visible && summary.buckets.map((bucket) => {
+      {layout.showResults && summary.buckets.map((bucket) => {
         const bucketQuestions = summary.questions.filter((q) => q.bucketId === bucket.id);
         if (bucketQuestions.length === 0) return null;
         const colorVar = bucketColorVar(bucket.id, summary.buckets);
@@ -138,7 +171,7 @@ export default function PollSummaryStrip({
         );
       })}
 
-      {ungroupedQuestions.length > 0 && (
+      {layout.showResults && ungroupedQuestions.length > 0 && (
         <Card className="flex flex-col gap-4 p-4">
           <span className="text-sm font-medium text-foreground">Other</span>
           <div className="flex flex-col divide-y divide-border">
@@ -150,6 +183,11 @@ export default function PollSummaryStrip({
           </div>
         </Card>
       )}
+
+      {/* Second CTA instance, at the bottom of the results grid -- after reading the
+          strip and per-question breakdown is the highest-intent moment to ask. Never
+          shows the response-count line again (already said once, at the top). */}
+      {layout.showBottomCta && <RateCta rateHref={rateHref} responseCount={summary.responseCount} showResponseCount={false} />}
     </div>
   );
 }

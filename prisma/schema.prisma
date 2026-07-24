@@ -892,6 +892,30 @@ model PollResponse {
   /// "N/A" distinct from a question that was merely left untouched (which shows via
   /// presentedQuestionIds minus answers minus this array).
   naQuestionIds        String[]           @default([])
+  /// A respondent's opt-in to being contacted by prospective participants -- collected at
+  /// the end of the rating flow, deliberately separate from the heavier Reference/
+  /// ReferenceConfig/ContactRequest system (that consents to public listing + a
+  /// double-opt-in contact exchange; this only consents to "be reachable," and is never
+  /// publicly rendered -- admin-visible only). Default false/null so every existing and
+  /// future response starts opted out; a resubmit that doesn't opt in must clear a prior
+  /// opt-in (see lib/pollResponses.ts), so this is never a one-way ratchet. `contactOptInAt`
+  /// is server-stamped, same precedent as PollReview.consentGiven/consentAt.
+  contactOptIn         Boolean            @default(false)
+  contactOptInAt       DateTime?
+  /// A separate self-attestation ("I'm 18 or older"), NOT combined into the consent
+  /// checkbox above -- two distinct affirmative acts for two distinct claims. Stores that
+  /// the attestation was actively asserted (with its own timestamp), not merely that the
+  /// UI displayed it. No age/birthdate is collected anywhere in this system; this is the
+  /// only minor-protection signal for the contact opt-in.
+  contactAgeAttested   Boolean            @default(false)
+  contactAgeAttestedAt DateTime?
+  /// Free text, loosely validated (non-empty, plausible length) and never rejected on
+  /// format -- WhatsApp is the default contact method for this population, so this is
+  /// deliberately not an email-typed field. Null unless contactOptIn is true.
+  contactMethod        String?
+  /// Display name or initial, required alongside contactMethod when opted in -- a
+  /// nameless contact record isn't usable by a moderator (can't vet, can't attribute).
+  contactName          String?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { POLL_FLAGS, type PollFlag } from "@/lib/pollShared";
+import { buildContactOptInFields, type ContactOptInInput } from "@/lib/contactOptIn";
 import type { PollCompletion, PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
@@ -68,6 +69,11 @@ type SignedInSubmitInput = {
   reviews: ReviewInput[];
   presentedQuestionIds: string[];
   ipHash: string;
+  /** Null when the respondent didn't check the opt-in box -- see
+   * lib/contactOptIn.ts's buildContactOptInFields, which this feeds directly. Passing
+   * null on a resubmit is what retracts a prior opt-in (the update branch below writes
+   * the same cleared columns as a fresh unopted-in create). */
+  contactOptIn: ContactOptInInput | null;
 };
 
 async function attemptSignedInSubmit(input: SignedInSubmitInput) {
@@ -77,6 +83,10 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
     select: { id: true, version: true },
   });
   const versionById = new Map(questions.map((q) => [q.id, q.version]));
+  // One `now` shared by the create/update branch below AND (if opted in) both consent
+  // and age-attestation timestamps -- one moment of assertion, not three separate clock
+  // reads that could theoretically disagree by a few ms.
+  const contactFields = buildContactOptInFields(input.contactOptIn, new Date());
 
   const response = await prisma.$transaction(async (tx) => {
     const existing = await tx.pollResponse.findFirst({
@@ -90,6 +100,7 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
             ipHash: input.ipHash,
             presentedQuestionIds: input.presentedQuestionIds,
             naQuestionIds: input.naQuestionIds,
+            ...contactFields,
           },
         })
       : await tx.pollResponse.create({
@@ -101,6 +112,7 @@ async function attemptSignedInSubmit(input: SignedInSubmitInput) {
             ipHash: input.ipHash,
             presentedQuestionIds: input.presentedQuestionIds,
             naQuestionIds: input.naQuestionIds,
+            ...contactFields,
           },
         });
 
@@ -174,6 +186,10 @@ type AnonymousSubmitInput = {
    * cookie -- the route reads/sets this, this function only makes the counting decision
    * from it. See the POLL_FLAGS.REPEAT_BROWSER case below. */
   hasBrowserMarker: boolean;
+  /** Null when the respondent didn't check the opt-in box -- see
+   * lib/contactOptIn.ts's buildContactOptInFields. An anonymous submission is always a
+   * fresh create (no resubmit-in-place path), so there's no retraction case here. */
+  contactOptIn: ContactOptInInput | null;
 };
 
 /**
@@ -222,6 +238,7 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
       flags,
       presentedQuestionIds: input.presentedQuestionIds,
       naQuestionIds: input.naQuestionIds,
+      ...buildContactOptInFields(input.contactOptIn, new Date()),
     },
   });
 

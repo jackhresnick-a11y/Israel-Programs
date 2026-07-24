@@ -9,6 +9,13 @@ import Badge from "@/components/ui/Badge";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
 import { programMatchesTagFilter } from "@/lib/adminFilters";
 
+export type ContactOptInRow = {
+  contactName: string;
+  contactMethod: string;
+  contactOptInAt: Date;
+  contactAgeAttestedAt: Date;
+};
+
 export type ProgramRow = {
   id: string;
   name: string;
@@ -19,6 +26,7 @@ export type ProgramRow = {
   responseCount: number;
   bestForPhrases: string[];
   editorialBestFor: string | null;
+  contactOptIns: ContactOptInRow[];
 };
 
 async function api(url: string, method: string, body?: object) {
@@ -77,6 +85,11 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
           {program.location ? ` · ${program.location}` : ""}
         </span>
         {program.editorialBestFor && <Badge tone="tag">Override</Badge>}
+        {program.contactOptIns.length > 0 && (
+          <Badge tone="info">
+            {program.contactOptIns.length} open to contact
+          </Badge>
+        )}
         <span className="ml-auto text-xs text-muted">
           {program.responseCount} response{program.responseCount === 1 ? "" : "s"}
         </span>
@@ -116,6 +129,25 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
           <Button type="button" size="sm" className="self-start" disabled={busy} onClick={handleSave}>
             {busy ? "Saving..." : "Save"}
           </Button>
+          {program.contactOptIns.length > 0 && (
+            <div className="flex flex-col gap-2 border-t border-border pt-3">
+              <p className="text-xs font-semibold text-muted">
+                Open to contact ({program.contactOptIns.length}) -- never shown publicly
+              </p>
+              <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+                {program.contactOptIns.map((c, i) => (
+                  <div key={i} className="flex flex-col gap-0.5 px-3 py-2 text-xs">
+                    <span className="font-medium text-foreground">{c.contactName}</span>
+                    <span className="text-muted">{c.contactMethod}</span>
+                    <span className="text-muted">
+                      Consented {new Date(c.contactOptInAt).toLocaleDateString()} · 18+ attested{" "}
+                      {new Date(c.contactAgeAttestedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </Card>
       )}
     </div>

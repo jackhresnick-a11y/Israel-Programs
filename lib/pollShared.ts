@@ -151,7 +151,12 @@ export type PollSummaryBucketDTO = {
  * wants..." strip content (see lib/pollBestFor.ts's computeBestForPhrases) -- empty when
  * fewer than two DESCRIPTIVE questions qualify, in which case the page falls back to
  * `editorialBestFor` (a manual override, set via ProgramPollConfig, that replaces the
- * generated strip entirely when present -- see computeVarianceNote for `varianceNote`). */
+ * generated strip entirely when present -- see computeVarianceNote for `varianceNote`).
+ * `responseCount` is the ONE field deliberately computed and populated regardless of
+ * `visible` -- see lib/pollResults.ts's getProgramPollSummary -- because the CTA region's
+ * social-proof line ("N people have rated this program") must be able to show even when
+ * results are hidden/still collecting; lib/contactOptIn.ts's deriveCtaLayout is what
+ * actually decides whether to render it (gated at MIN_RESPONSES_PER_QUESTION). */
 export type PollSummaryDTO = {
   visible: boolean;
   questions: PollSummaryQuestionDTO[];
@@ -159,6 +164,7 @@ export type PollSummaryDTO = {
   bestForPhrases: string[];
   editorialBestFor: string | null;
   varianceNote: boolean;
+  responseCount: number;
 };
 
 /** One approved review as rendered on the public program page -- never carries
@@ -227,6 +233,25 @@ export const reviewInputSchema = z.object({
 
 export const reviewListSchema = z.array(reviewInputSchema);
 
+/** An opt-in to being contacted by prospective participants, collected at the end of the
+ * rating flow -- deliberately separate from the heavier Reference/ContactRequest system
+ * (see lib/contactOptIn.ts's doc comment). Two `z.literal(true)` fields, not one: consent
+ * and the 18+ self-attestation are distinct claims requiring distinct affirmative acts on
+ * the client, so they're validated as two separate literals rather than a single combined
+ * flag. `contactMethod` is deliberately not `.email()` -- WhatsApp is the default contact
+ * method for this population; validation is loose (non-empty, plausible length) and never
+ * rejects on format. The client only ever includes this object when both checkboxes are
+ * checked and both fields are filled (an opted-out respondent omits it entirely, same
+ * "absence over empty/false" convention as `email` above and `consent` on reviewInputSchema
+ * -- omission itself is what `lib/contactOptIn.ts`'s buildContactOptInFields treats as "did
+ * not opt in," clearing every column rather than requiring an explicit false). */
+export const contactOptInSchema = z.object({
+  consent: z.literal(true),
+  ageAttested: z.literal(true),
+  contactMethod: z.string().trim().min(1).max(200),
+  contactName: z.string().trim().min(1).max(100),
+});
+
 /** A response carrying neither a real answer nor a consented review isn't a
  * response -- skips alone never block submission, but *nothing at all* does. Explicit
  * N/A marks don't count as content either (they're the deliberate-opt-out equivalent
@@ -253,6 +278,7 @@ export const signedInSubmitSchema = z
     answers: answerListSchema,
     reviews: reviewListSchema.default([]),
     naQuestionIds: naQuestionIdsSchema,
+    contactOptIn: contactOptInSchema.optional(),
   })
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
@@ -275,6 +301,7 @@ export const anonymousSubmitSchema = z
     // when left blank, same "absence over empty string" convention as an unchecked
     // review.
     email: z.string().trim().email().max(320).optional(),
+    contactOptIn: contactOptInSchema.optional(),
   })
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });

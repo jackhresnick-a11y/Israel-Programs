@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         reviews: body.reviews.map((r) => ({ questionId: r.questionId, text: r.text })),
         presentedQuestionIds: allQuestionIds,
         ipHash: hashIp(ip),
+        contactOptIn: body.contactOptIn ?? null,
       });
       return NextResponse.json({
         ok: true,
@@ -134,6 +135,7 @@ export async function POST(request: Request) {
       ipHash: hashIp(ip),
       email: body.email ?? null,
       hasBrowserMarker,
+      contactOptIn: body.contactOptIn ?? null,
     });
 
     // Only a clean, COUNTED submit sets the marker -- a FLAGGED one doesn't, so a

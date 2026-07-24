@@ -11,8 +11,9 @@ import { listPublishedReferences } from "@/lib/references";
 import { getReferenceListVisibility } from "@/lib/referenceConfig";
 import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
-import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResults";
+import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns } from "@/lib/pollResults";
 import { getPublicPollLink } from "@/lib/pollConfig";
+import { shouldShowContactHint } from "@/lib/contactOptIn";
 import { listPublishedFaqs } from "@/lib/programFaq";
 import { SITE_NAME } from "@/lib/siteUrl";
 import VideoUploader from "@/components/VideoUploader";
@@ -100,9 +101,13 @@ export default async function ProgramDetailPage({
   const isOwner = userId === program.createdById;
   if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
 
-  const { show: showReferenceList } = await getReferenceListVisibility(program.id);
+  const [{ show: showReferenceList, approvedCount: approvedReferenceCount }, openContactOptIns] = await Promise.all([
+    getReferenceListVisibility(program.id),
+    countOpenContactOptIns(program.id),
+  ]);
   const references = showReferenceList ? await listPublishedReferences(program.id) : [];
   const publicPollLink = await getPublicPollLink(program.id);
+  const showContactHint = shouldShowContactHint(openContactOptIns, approvedReferenceCount);
 
   // Exactly one banner ever renders — a just-submitted confirmation takes
   // priority over the program's persistent status, so the two never stack.
@@ -299,10 +304,15 @@ export default async function ProgramDetailPage({
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Alumni References
         </h2>
-        <p className="text-sm text-muted">
-          People who attended this program and are willing to answer honest
-          questions about their real experience.
-        </p>
+        {/* Aggregate hint only -- covers both the published-references list below AND
+            poll respondents who separately opted in to being contacted (never publicly
+            distinguished as two sources; see lib/contactOptIn.ts). Suppressed entirely
+            when there's zero signal from either, rather than showing an empty promise. */}
+        {showContactHint && (
+          <p className="text-sm text-muted">
+            Some past participants have offered to answer questions about their experience.
+          </p>
+        )}
         {showReferenceList && <ReferenceList references={references} isModerator={isModerator} />}
         <Show
           when="signed-in"

@@ -34,7 +34,9 @@ export async function isPollKillSwitchOn(): Promise<boolean> {
   return value === "true";
 }
 
-const EMPTY_SUMMARY: PollSummaryDTO = {
+/** Everything but `responseCount`, which varies per program even in the empty-visibility
+ * path (see getProgramPollSummary) and so can't be baked into a shared constant. */
+const EMPTY_SUMMARY_BASE: Omit<PollSummaryDTO, "responseCount"> = {
   visible: false,
   questions: [],
   buckets: [],
@@ -71,12 +73,23 @@ const EMPTY_SUMMARY: PollSummaryDTO = {
  *
  * `bestForPhrases` and `varianceNote` are computed here (see lib/pollBestFor.ts) rather
  * than in the component so the ranking/threshold logic has exactly one call site.
+ *
+ * `responseCount` (COUNTED PollResponse rows for this program) is computed BEFORE the
+ * visibility short-circuit and returned either way -- the CTA region's social-proof line
+ * must be able to show "N people have rated this program" even when results are hidden
+ * or still collecting (see lib/contactOptIn.ts's deriveCtaLayout, which is what actually
+ * decides whether to render it). This is the one query the empty-visibility path still
+ * pays for; everything else stays skipped.
  */
 export const getProgramPollSummary = cache(async (programId: string): Promise<PollSummaryDTO> => {
-  const [config, killSwitchOn] = await Promise.all([getProgramPollConfig(programId), isPollKillSwitchOn()]);
+  const [config, killSwitchOn, responseCount] = await Promise.all([
+    getProgramPollConfig(programId),
+    isPollKillSwitchOn(),
+    prisma.pollResponse.count({ where: { programId, status: "COUNTED" } }),
+  ]);
 
   const visible = config.resultsVisible && !killSwitchOn;
-  if (!visible) return EMPTY_SUMMARY;
+  if (!visible) return { ...EMPTY_SUMMARY_BASE, responseCount };
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
@@ -160,8 +173,31 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     bestForPhrases,
     editorialBestFor: config.editorialBestFor ?? null,
     varianceNote,
+    responseCount,
   };
 });
+
+/**
+ * How many COUNTED responses for this program opted in to being contacted -- used only
+ * for the Alumni References section's aggregate hint (see lib/contactOptIn.ts's
+ * shouldShowContactHint), never rendered as a number itself. Deliberately not gated on
+ * `resultsVisible`/the kill switch (unlike getProgramPollSummary) -- whether someone is
+ * reachable is independent of whether the poll's scored results are public.
+ */
+export async function countOpenContactOptIns(programId: string): Promise<number> {
+  return prisma.pollResponse.count({ where: { programId, status: "COUNTED", contactOptIn: true } });
+}
+
+/** One respondent's contact opt-in, as shown to a moderator on /admin/programs -- never
+ * rendered publicly (see lib/contactOptIn.ts's doc comment on the naming split from the
+ * heavier Reference system). Both timestamps are surfaced separately since consent and
+ * the 18+ self-attestation are recorded as two distinct assertions. */
+export type ContactOptInRow = {
+  contactName: string;
+  contactMethod: string;
+  contactOptInAt: Date;
+  contactAgeAttestedAt: Date;
+};
 
 /** One program's row on /admin/programs -- the live-computed strip alongside the
  * editorial override, so an admin can see at a glance which programs are relying on the
@@ -176,6 +212,7 @@ export type ProgramBestForRow = {
   responseCount: number;
   bestForPhrases: string[];
   editorialBestFor: string | null;
+  contactOptIns: ContactOptInRow[];
 };
 
 /**
@@ -192,7 +229,7 @@ export type ProgramBestForRow = {
  * at all" signal for sorting, not a per-question figure.
  */
 export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
-  const [programs, questions, answerRows, responseCounts] = await Promise.all([
+  const [programs, questions, answerRows, responseCounts, contactOptInRows] = await Promise.all([
     prisma.program.findMany({
       where: { status: "PUBLISHED" },
       select: {
@@ -223,9 +260,30 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       where: { status: "COUNTED" },
       _count: { _all: true },
     }),
+    // One batched fetch of every opt-in-carrying response, not a query per program --
+    // same posture as the answer/response-count queries above. contactMethod/contactName/
+    // contactAgeAttestedAt are guaranteed non-null here since they're only ever written
+    // together with contactOptIn=true (see lib/contactOptIn.ts's buildContactOptInFields).
+    prisma.pollResponse.findMany({
+      where: { status: "COUNTED", contactOptIn: true },
+      select: { programId: true, contactName: true, contactMethod: true, contactOptInAt: true, contactAgeAttestedAt: true },
+    }),
   ]);
 
   const responseCountByProgramId = new Map(responseCounts.map((r) => [r.programId, r._count._all]));
+
+  const contactOptInsByProgramId = new Map<string, ContactOptInRow[]>();
+  for (const row of contactOptInRows) {
+    if (!row.contactName || !row.contactMethod || !row.contactOptInAt || !row.contactAgeAttestedAt) continue;
+    const list = contactOptInsByProgramId.get(row.programId) ?? [];
+    list.push({
+      contactName: row.contactName,
+      contactMethod: row.contactMethod,
+      contactOptInAt: row.contactOptInAt,
+      contactAgeAttestedAt: row.contactAgeAttestedAt,
+    });
+    contactOptInsByProgramId.set(row.programId, list);
+  }
 
   const statsByProgramId = new Map<string, Map<string, { sum: number; n: number }>>();
   for (const row of answerRows) {
@@ -259,6 +317,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       responseCount: responseCountByProgramId.get(p.id) ?? 0,
       bestForPhrases: computeBestForPhrases(candidates),
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
+      contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
     };
   });
 }
