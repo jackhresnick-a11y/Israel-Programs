@@ -544,10 +544,27 @@ model Reference {
   /// retroactively (no DB CHECK, unlike PollReview's consentGiven, for that reason).
   consentGiven         Boolean          @default(false)
   consentAt            DateTime?
+  /// Set only on references created from the anonymous poll's 18+-gated contact-email
+  /// field (lib/references.ts's upsertReferenceFromPoll). Null for the signed-in
+  /// reference-form path. pollEmailKey is the trim+lowercased email used purely as the
+  /// idempotency key for the partial-by-NULL unique below -- it is SENSITIVE (it *is*
+  /// the contact email) and is gated identically to contactEmail: never selected into
+  /// listPublishedReferences or any public/client payload, admin-only. consentLabel /
+  /// consentVersion snapshot the exact consent copy the respondent agreed to, so there
+  /// is a permanent record of what was consented to at capture time.
+  pollResponseId       String?
+  consentLabel         String?
+  consentVersion       String?
+  pollEmailKey         String?
   createdAt            DateTime         @default(now())
   contactRequests      ContactRequest[]
 
   @@unique([programId, userId])
+  /// One poll-created reference per (program, email). NULLs are distinct in Postgres, so
+  /// every signed-in reference-form row (pollEmailKey NULL) is unaffected -- this unique
+  /// binds only the poll path, and is the guarded-upsert target that makes a re-submit
+  /// with the same email a no-op rather than a second row.
+  @@unique([programId, pollEmailKey])
   @@index([programId])
   @@index([status])
 }

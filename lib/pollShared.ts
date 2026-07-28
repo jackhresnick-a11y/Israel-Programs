@@ -47,6 +47,18 @@ export const POLL_FLAGS = {
 
 export type PollFlag = (typeof POLL_FLAGS)[keyof typeof POLL_FLAGS];
 
+/**
+ * The exact consent copy shown directly above the anonymous poll's contact-email field.
+ * Entering an email under this label IS the consent to be listed as a reference -- there
+ * is no separate contact-consent checkbox. Rendered verbatim by RateForm.tsx and stored
+ * verbatim (with the version) on every Reference created from the poll
+ * (lib/references.ts's upsertReferenceFromPoll), so there is a permanent record of what
+ * each respondent agreed to. Bump the version string whenever this text changes.
+ */
+export const POLL_REFERENCE_CONSENT_LABEL =
+  "Want to help future students? Enter your email to be listed as a reference. Students may contact you directly. Your email is never shown publicly — we pass it on only to students who ask.";
+export const POLL_REFERENCE_CONSENT_VERSION = "poll-reference-consent-v1";
+
 /** How many counted "overall" ratings a program needs before its aggregate rating is
  * considered trustworthy enough to lean on. Used by the admin rating-coverage overview
  * (/admin/polls/coverage) as one uniform bar across all programs. This is distinct from
@@ -296,12 +308,21 @@ export const anonymousSubmitSchema = z
     yearAttended: yearAttendedSchema,
     completion: completionSchema,
     website: z.string().optional(),
-    // Optional, upfront -- never required and never gates counting (there's no
-    // after-submit email-verification step anymore). Omitted entirely by the client
-    // when left blank, same "absence over empty string" convention as an unchecked
-    // review.
-    email: z.string().trim().email().max(320).optional(),
-    contactOptIn: contactOptInSchema.optional(),
+    // The contact path is a single 18+-gated email field whose consent label IS the
+    // consent (POLL_REFERENCE_CONSENT_LABEL) -- there is no separate contact-consent
+    // checkbox. When ageAttested is true AND referenceEmail parses as a valid email, the
+    // submit creates a PENDING Reference (lib/references.ts's upsertReferenceFromPoll).
+    // Both stay optional and never gate counting.
+    //
+    // Deliberately NOT `.email()` here: a malformed email must SAVE the poll response and
+    // silently skip the reference, never 400 the whole submission -- so format is checked
+    // downstream (isValidReferenceEmail in lib/references.ts), not as a schema refinement
+    // that would reject the request. This replaces the old standalone `email` field
+    // (which only landed on PollResponse.email and is no longer sent or written -- see the
+    // cutover note in upsertReferenceFromPoll) and the old ContactOptInBlock
+    // (`contactOptIn`), both removed from the anonymous form.
+    referenceEmail: z.string().trim().max(320).optional(),
+    ageAttested: z.boolean().optional(),
   })
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });

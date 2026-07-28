@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { optionalWhatsappNumberSchema } from "@/lib/phone";
+import { POLL_REFERENCE_CONSENT_LABEL, POLL_REFERENCE_CONSENT_VERSION } from "@/lib/pollShared";
 
 export const referenceInputSchema = z.object({
   attendedText: z.string().trim().min(1, "Let people know roughly when you attended").max(200),
@@ -40,12 +41,89 @@ export async function createReference(
   });
 }
 
+/** Public display name for every reference created from the anonymous poll. Deliberately
+ * a constant placeholder, NOT the respondent's real name: the poll form collects no name,
+ * and the old ContactOptInBlock's name field promised "never shown publicly" -- so a
+ * poll-sourced reference must never carry a real name into the public displayName. An
+ * admin edits this to a proper display name before publishing. */
+export const POLL_REFERENCE_DISPLAY_NAME = "Past participant";
+
+/** A pragmatic "does this parse as an email" check for the poll contact field -- the same
+ * gate `z.string().email()` applies, but run HERE (not in anonymousSubmitSchema) so a
+ * malformed value skips the reference silently instead of 400-ing the whole poll submit.
+ * Mirrors the shape zod validates against. */
+export function isValidReferenceEmail(email: string): boolean {
+  const trimmed = email.trim();
+  if (trimmed.length === 0 || trimmed.length > 320) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+}
+
+/**
+ * Creates a PENDING alumni Reference from an anonymous poll submission's single,
+ * 18+-gated contact-email field. Entering the email under POLL_REFERENCE_CONSENT_LABEL is
+ * itself the consent -- there is no separate contact-consent checkbox -- so the entire
+ * gate is: `ageAttested === true` AND the email parses as valid. Anything else is a no-op.
+ *
+ * Idempotency is enforced at the DB via @@unique([programId, pollEmailKey]) on the
+ * normalized (trim+lowercase) email: the guarded upsert makes a re-submit with the same
+ * email a deliberate no-op update, never a second row. `userId` is an opaque synthetic
+ * (`poll:<responseId>`) because there is no Clerk user here -- it keeps the email out of
+ * userId (only contactEmail/pollEmailKey hold it, both admin-gated) and never collides on
+ * @@unique([programId, userId]).
+ *
+ * Cutover: this is only ever called with the email from the CURRENT submission's payload,
+ * at submit time. It never reads PollResponse.email, and no backfill exists -- so
+ * historical poll responses (whose emails predate this consent language) can never produce
+ * a reference. The exact consent label + version are snapshotted onto the row as a
+ * permanent record of what was agreed to.
+ *
+ * The caller (submitAnonymousResponse) wraps this in try/catch so a failure here can never
+ * fail the poll submission.
+ */
+export async function upsertReferenceFromPoll(input: {
+  programId: string;
+  pollResponseId: string;
+  email: string;
+  ageAttested: boolean;
+  yearAttended: number | null;
+}): Promise<void> {
+  if (!input.ageAttested) return;
+  if (!isValidReferenceEmail(input.email)) return;
+
+  const email = input.email.trim();
+  const pollEmailKey = email.toLowerCase();
+  const attendedText = input.yearAttended != null ? String(input.yearAttended) : "Not specified";
+  const now = new Date();
+
+  await prisma.reference.upsert({
+    where: { programId_pollEmailKey: { programId: input.programId, pollEmailKey } },
+    create: {
+      programId: input.programId,
+      userId: `poll:${input.pollResponseId}`,
+      displayName: POLL_REFERENCE_DISPLAY_NAME,
+      contactEmail: email,
+      pollEmailKey,
+      pollResponseId: input.pollResponseId,
+      attendedText,
+      status: "PENDING",
+      consentGiven: true,
+      consentAt: now,
+      consentLabel: POLL_REFERENCE_CONSENT_LABEL,
+      consentVersion: POLL_REFERENCE_CONSENT_VERSION,
+    },
+    // A resubmit with the same email must not create a second row and must not disturb the
+    // original consent record -- so the update branch is a deliberate no-op.
+    update: {},
+  });
+}
+
 /**
  * Deliberately selects only the fields the public program page may render.
- * contactEmail/userId/whatsappNumber/whatsappNumberSource must never reach a
+ * contactEmail/userId/whatsappNumber/whatsappNumberSource/pollEmailKey must never reach a
  * client component's props, since Next.js serializes client-component props
  * into the page's RSC payload -- present in the raw HTML even for fields the
- * JSX never displays.
+ * JSX never displays. (pollEmailKey holds the poll respondent's email and is gated
+ * identically to contactEmail.)
  */
 export async function listPublishedReferences(programId: string) {
   return prisma.reference.findMany({
