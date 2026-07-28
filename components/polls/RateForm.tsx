@@ -7,7 +7,15 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import QuestionInput from "@/components/polls/QuestionInput";
-import { pollDraftKey, yearAttendedOptions, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
+import PartnerCta from "@/components/PartnerCta";
+import {
+  pollDraftKey,
+  yearAttendedOptions,
+  POLL_REFERENCE_CONSENT_LABEL,
+  type PollQuestionDTO,
+  type PollBucketDTO,
+} from "@/lib/pollShared";
+import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
 
 type RateFormProps =
   | {
@@ -17,6 +25,9 @@ type RateFormProps =
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
       existingAnswers?: Record<string, number>;
       existingNaQuestionIds?: string[];
+      /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
+       * post-submission confirmation state -- never before submission. */
+      postPollCta: PartnerLinkSlot | null;
     }
   | {
       mode: "anonymous";
@@ -26,6 +37,9 @@ type RateFormProps =
       referrerToken: string;
       questions: PollQuestionDTO[];
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
+      /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
+       * post-submission ThankYouScreen -- never before submission. */
+      postPollCta: PartnerLinkSlot | null;
     };
 
 export default function RateForm(props: RateFormProps) {
@@ -268,6 +282,52 @@ function ContactOptInBlock({
   );
 }
 
+/**
+ * The anonymous form's single contact-email opt-in (replaces the old standalone "Email"
+ * field AND the ContactOptInBlock). Entering an email under POLL_REFERENCE_CONSENT_LABEL
+ * IS the consent to be listed as a reference -- there is NO separate contact-consent
+ * checkbox. The 18+ self-attestation gates the field (the input is disabled until it's
+ * checked); the whole block stays optional and never blocks submission. The consent label
+ * is rendered directly above the input, always visible (never a tooltip or collapsed
+ * section). Server-side, a PENDING reference is created only when 18+ is attested AND the
+ * email parses as valid (lib/references.ts's upsertReferenceFromPoll).
+ */
+function ReferenceOptInBlock({
+  email,
+  onEmailChange,
+  ageAttested,
+  onAgeAttestedChange,
+}: {
+  email: string;
+  onEmailChange: (email: string) => void;
+  ageAttested: boolean;
+  onAgeAttestedChange: (ageAttested: boolean) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+      <label className="flex items-start gap-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={ageAttested}
+          onChange={(e) => onAgeAttestedChange(e.target.checked)}
+          className="mt-0.5 accent-accent"
+        />
+        <span>I&rsquo;m 18 or older.</span>
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-sm text-foreground">{POLL_REFERENCE_CONSENT_LABEL}</span>
+        <Input
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          disabled={!ageAttested}
+        />
+      </label>
+    </div>
+  );
+}
+
 /** Builds the {questionId, value}[] / {questionId, text, consent}[] / string[] payloads
  * from per-question state -- a skipped question (value null, not N/A'd) is simply
  * absent from `answers`; an N/A'd question is excluded from `answers` (defensively,
@@ -302,6 +362,7 @@ function SignedInRateForm({
   extras,
   existingAnswers,
   existingNaQuestionIds,
+  postPollCta,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
@@ -382,12 +443,14 @@ function SignedInRateForm({
   }
 
   if (submitted) {
+    // Post-submission confirmation state -- reached ONLY after the submit handler's fetch
+    // returned success. Slot 3 renders here (and only here), never before submission.
     return (
-      <div
-        data-poll-mode="signed-in"
-        className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
-      >
-        {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+      <div data-poll-mode="signed-in" className="flex flex-col gap-6">
+        <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+          {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+        </div>
+        <PartnerCta slot={postPollCta} />
       </div>
     );
   }
@@ -434,7 +497,6 @@ type Draft = {
   naFlags: Record<string, boolean>;
   reviewTexts: Record<string, string>;
   yearAttended: number | null;
-  email: string;
 };
 
 function loadDraft(programSlug: string): Draft | null {
@@ -500,6 +562,7 @@ function AnonymousRateForm({
   referrerToken,
   questions,
   extras,
+  postPollCta,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
   // Same full resolved question set (Core plus every extra bucket) as the signed-in
   // form -- see QuestionSections, shared by both -- so an anonymous link visitor sees
@@ -527,15 +590,12 @@ function AnonymousRateForm({
   const [consentGiven, setConsentGiven] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [yearAttended, setYearAttended] = useState<number | null>(null);
-  // Optional, upfront -- never required, never gates counting (see
-  // lib/pollShared.ts's anonymousSubmitSchema). Persisted to the draft like any other
-  // form field (unlike consent, entering an email isn't a legal affirmation).
-  const [email, setEmail] = useState("");
-  // Also not persisted to the draft, same reasoning as consentGiven above -- consent and
-  // the 18+ attestation are fresh affirmative acts every time, not something a reload
-  // should silently restore as already-given.
-  const [contactOptIn, setContactOptIn] = useState<ContactOptInState>(EMPTY_CONTACT_OPT_IN);
-  const [contactOptInError, setContactOptInError] = useState(false);
+  // The single contact-email opt-in. Neither the email nor the 18+ attestation is
+  // persisted to the draft: under the new consent model entering the email IS the consent
+  // to be listed as a reference, and the 18+ attestation is a fresh affirmative act -- so
+  // both start empty/unchecked on every reload rather than being silently restored.
+  const [referenceEmail, setReferenceEmail] = useState("");
+  const [ageAttested, setAgeAttested] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | null>(null);
@@ -550,13 +610,12 @@ function AnonymousRateForm({
     if (savedDraft.yearAttended !== null && savedDraft.yearAttended !== undefined) {
       setYearAttended(savedDraft.yearAttended);
     }
-    if (savedDraft.email) setEmail(savedDraft.email);
   }
 
   useEffect(() => {
     if (responseId) return; // already submitted -- stop autosaving over a cleared draft
-    saveDraft(programSlug, { values, naFlags, reviewTexts, yearAttended, email });
-  }, [programSlug, values, naFlags, reviewTexts, yearAttended, email, responseId]);
+    saveDraft(programSlug, { values, naFlags, reviewTexts, yearAttended });
+  }, [programSlug, values, naFlags, reviewTexts, yearAttended, responseId]);
 
   async function handleSubmit() {
     const { answers, naQuestionIds, reviews, hasComments } = buildSubmission(
@@ -570,17 +629,12 @@ function AnonymousRateForm({
       setConsentError(true);
       return;
     }
-    if (contactOptIn.consent && !isContactOptInComplete(contactOptIn)) {
-      setContactOptInError(true);
-      return;
-    }
     if (answers.length === 0 && reviews.length === 0) {
       setError(EMPTY_SUBMISSION_MESSAGE);
       return;
     }
 
     setConsentError(false);
-    setContactOptInError(false);
     setSubmitting(true);
     setError(null);
     try {
@@ -594,15 +648,11 @@ function AnonymousRateForm({
           naQuestionIds,
           reviews,
           yearAttended,
-          email: email.trim() || undefined,
-          contactOptIn: isContactOptInComplete(contactOptIn)
-            ? {
-                consent: true,
-                ageAttested: true,
-                contactMethod: contactOptIn.contactMethod.trim(),
-                contactName: contactOptIn.contactName.trim(),
-              }
-            : undefined,
+          // Entering the email under the consent label is the consent; the 18+ attestation
+          // gates it. Both optional -- never block submission. A malformed email is sent
+          // as-is and skipped server-side (never 400s the submit).
+          referenceEmail: referenceEmail.trim() || undefined,
+          ageAttested: ageAttested || undefined,
         }),
       });
       if (!res.ok) {
@@ -620,7 +670,7 @@ function AnonymousRateForm({
   }
 
   if (responseId) {
-    return <ThankYouScreen programName={programName} />;
+    return <ThankYouScreen programName={programName} postPollCta={postPollCta} />;
   }
 
   return (
@@ -651,18 +701,6 @@ function AnonymousRateForm({
           ))}
         </Select>
       </label>
-      <label className="flex max-w-xs flex-col gap-1">
-        <span className="text-sm font-medium text-foreground">Email (optional)</span>
-        <Input
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <span className="text-xs text-muted">
-          Only if you&rsquo;re open to being contacted -- never required, and your rating counts either way.
-        </span>
-      </label>
       <ReviewConsentCheckbox
         checked={consentGiven}
         onChange={(checked) => {
@@ -671,13 +709,16 @@ function AnonymousRateForm({
         }}
         error={consentError}
       />
-      <ContactOptInBlock
-        state={contactOptIn}
-        onChange={(next) => {
-          setContactOptIn(next);
-          if (isContactOptInComplete(next) || !next.consent) setContactOptInError(false);
+      <ReferenceOptInBlock
+        email={referenceEmail}
+        onEmailChange={setReferenceEmail}
+        ageAttested={ageAttested}
+        onAgeAttestedChange={(next) => {
+          setAgeAttested(next);
+          // Un-attesting age disables and clears the email -- an email must never be sent
+          // without the 18+ affirmation that gates it.
+          if (!next) setReferenceEmail("");
         }}
-        error={contactOptInError}
       />
       <Button type="button" disabled={submitting} onClick={handleSubmit} className="self-start">
         {submitting ? "Submitting..." : "Submit rating"}
@@ -691,13 +732,21 @@ function AnonymousRateForm({
  * upfront, same as the signed-in form, so there's no longer a post-submit "add more
  * detail" step here -- just the confirmation.
  */
-function ThankYouScreen({ programName }: { programName: string }) {
+function ThankYouScreen({
+  programName,
+  postPollCta,
+}: {
+  programName: string;
+  postPollCta: PartnerLinkSlot | null;
+}) {
+  // Reached ONLY after a successful submit sets responseId -- never a pre-submission step.
+  // Slot 3 renders here (and only here).
   return (
-    <div
-      data-poll-mode="anonymous"
-      className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
-    >
-      Thanks -- your rating of {programName} has been recorded!
+    <div data-poll-mode="anonymous" className="flex flex-col gap-6">
+      <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+        Thanks -- your rating of {programName} has been recorded!
+      </div>
+      <PartnerCta slot={postPollCta} />
     </div>
   );
 }

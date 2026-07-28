@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { POLL_FLAGS, type PollFlag } from "@/lib/pollShared";
 import { buildContactOptInFields, type ContactOptInInput } from "@/lib/contactOptIn";
+import { upsertReferenceFromPoll } from "@/lib/references";
 import type { PollCompletion, PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
@@ -179,17 +180,18 @@ type AnonymousSubmitInput = {
   yearAttended: number | null;
   completion: PollCompletion | null;
   ipHash: string;
-  /** Optional, informational only -- never required, never gates counting (see
-   * lib/pollShared.ts's anonymousSubmitSchema). */
-  email: string | null;
   /** Whether the request already carried this program's `poll_v_<programId>` browser
    * cookie -- the route reads/sets this, this function only makes the counting decision
    * from it. See the POLL_FLAGS.REPEAT_BROWSER case below. */
   hasBrowserMarker: boolean;
-  /** Null when the respondent didn't check the opt-in box -- see
-   * lib/contactOptIn.ts's buildContactOptInFields. An anonymous submission is always a
-   * fresh create (no resubmit-in-place path), so there's no retraction case here. */
-  contactOptIn: ContactOptInInput | null;
+  /** The single 18+-gated contact-email field's value (or null when blank). When
+   * `ageAttested` is true and this parses as a valid email, a PENDING Reference is created
+   * (best-effort, wrapped -- see below). Deliberately NOT written to PollResponse.email:
+   * that legacy column is no longer populated on this path, which is what keeps historical
+   * rows out of the reference-creation cutover. */
+  referenceEmail: string | null;
+  /** The respondent's "I'm 18 or older" attestation -- gates reference creation. */
+  ageAttested: boolean;
 };
 
 /**
@@ -225,20 +227,22 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
   ];
   const status: PollResponseStatus = flags.length > 0 ? "FLAGGED" : "COUNTED";
 
+  // The old standalone email field and ContactOptInBlock are gone from the anonymous
+  // form, so this path no longer writes PollResponse.email or the contactOptIn columns
+  // (they keep their schema defaults). The contact email now flows only into a PENDING
+  // Reference below -- never onto the PollResponse row.
   const response = await prisma.pollResponse.create({
     data: {
       programId: input.programId,
       referrerTokenId: input.referrerTokenId,
       status,
       verified: false,
-      email: input.email,
       yearAttended: input.yearAttended,
       completion: input.completion,
       ipHash: input.ipHash,
       flags,
       presentedQuestionIds: input.presentedQuestionIds,
       naQuestionIds: input.naQuestionIds,
-      ...buildContactOptInFields(input.contactOptIn, new Date()),
     },
   });
 
@@ -256,6 +260,29 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
   }
 
   const { skippedQuestionIds } = await insertReviews(response.id, input.programId, input.reviews, versionById);
+
+  // Best-effort: turn the 18+-gated contact email into a PENDING alumni Reference. Wrapped
+  // so a failure (or the DB not yet having the new columns) can NEVER fail the poll
+  // submission -- the response is already persisted and returned regardless. The function
+  // itself no-ops unless ageAttested is true and the email parses as valid.
+  //
+  // COUNTED only: a FLAGGED submission (anti-abuse -- repeat ip/browser, token over
+  // cap/revoked/expired) never spawns a reference, even with a valid email and 18+
+  // attested. The PollResponse still saves exactly as above; only the reference is skipped.
+  if (input.referenceEmail && status === "COUNTED") {
+    try {
+      await upsertReferenceFromPoll({
+        programId: input.programId,
+        pollResponseId: response.id,
+        email: input.referenceEmail,
+        ageAttested: input.ageAttested,
+        yearAttended: input.yearAttended,
+      });
+    } catch (err) {
+      console.error("upsertReferenceFromPoll failed for poll response", response.id, err);
+    }
+  }
+
   return { response, skippedReviewQuestionIds: skippedQuestionIds };
 }
 

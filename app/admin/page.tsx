@@ -128,6 +128,12 @@ export default async function AdminPage() {
             >
               Poll question tiers
             </Link>
+            <Link
+              href="/admin/partner-links"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Partner Links
+            </Link>
           </div>
         )}
       </PageHeader>

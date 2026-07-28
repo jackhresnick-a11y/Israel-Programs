@@ -133,9 +133,12 @@ export async function POST(request: Request) {
       yearAttended: body.yearAttended ?? null,
       completion: body.completion ?? null,
       ipHash: hashIp(ip),
-      email: body.email ?? null,
       hasBrowserMarker,
-      contactOptIn: body.contactOptIn ?? null,
+      // The single 18+-gated contact-email field. When both are set-and-valid,
+      // submitAnonymousResponse creates a PENDING Reference (best-effort). Never gates the
+      // submit or its response shape.
+      referenceEmail: body.referenceEmail ?? null,
+      ageAttested: body.ageAttested ?? false,
     });
 
     // Only a clean, COUNTED submit sets the marker -- a FLAGGED one doesn't, so a
