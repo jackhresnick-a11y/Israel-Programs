@@ -9,6 +9,8 @@ import { getSiteContentMany } from "@/lib/siteContent";
 import { trackSearch, trackFilterUse } from "@/lib/analytics";
 import { SITE_NAME } from "@/lib/siteUrl";
 import ProgramCard from "@/components/ProgramCard";
+import PartnerCta from "@/components/PartnerCta";
+import { resolveAllScopePartnerCta } from "@/lib/partnerLinks";
 import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
 import CompareCheckbox from "@/components/CompareCheckbox";
@@ -223,6 +225,11 @@ export default async function ProgramsPage({
   }
   const clearAllHref = q ? `/programs?q=${encodeURIComponent(q)}` : "/programs";
 
+  // Slot 5: partner CTA for an empty result set. Resolved only when there are no results
+  // (no extra query on a normal search), and against `all`-scoped slots only.
+  const emptySearchPartnerCta =
+    programs.length === 0 ? await resolveAllScopePartnerCta("EMPTY_SEARCH") : null;
+
   return (
     <PageContainer width="wide">
       <div className="relative">
@@ -356,6 +363,9 @@ export default async function ProgramsPage({
               </CompareProvider>
             </div>
           )}
+
+          {/* Slot 5: partner CTA at the bottom of the empty results container. */}
+          <PartnerCta slot={emptySearchPartnerCta} />
         </div>
       ) : (
         <CompareProvider>

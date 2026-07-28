@@ -23,6 +23,8 @@ import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
 import PollSummaryStrip from "@/components/PollSummaryStrip";
+import PartnerCta from "@/components/PartnerCta";
+import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
 import ReviewsSection from "@/components/ReviewsSection";
 import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
@@ -109,6 +111,18 @@ export default async function ProgramDetailPage({
   const publicPollLink = await getPublicPollLink(program.id);
   const showContactHint = shouldShowContactHint(openContactOptIns, approvedReferenceCount);
 
+  // Poll summary is used both by PollSummaryStrip and by the partner-CTA placement below,
+  // so resolve it once. `summary.visible` is the locked/insufficient-ratings signal.
+  const pollSummary = await getProgramPollSummary(program.id);
+  const hasReferences = showReferenceList && references.length > 0;
+  // At most one partner CTA per program page: slot 4 (locked ratings) wins any tie with
+  // slot 1 (no references). `placement` tells us which region renders it.
+  const partnerCta = await resolveProgramPagePartnerCta({
+    programId: program.id,
+    hasReferences,
+    pollVisible: pollSummary.visible,
+  });
+
   // Exactly one banner ever renders — a just-submitted confirmation takes
   // priority over the program's persistent status, so the two never stack.
   const banner =
@@ -192,11 +206,16 @@ export default async function ProgramDetailPage({
       </p>
 
       <PollSummaryStrip
-        summary={await getProgramPollSummary(program.id)}
+        summary={pollSummary}
         programSlug={program.slug}
         publicPollLink={publicPollLink}
         isModerator={isModerator}
       />
+
+      {/* Slot 4: partner CTA in the locked / insufficient-ratings region. Renders only
+          when the one-per-page resolver picked PROGRAM_LOCKED (which already required
+          !pollSummary.visible). */}
+      {partnerCta?.placement === "PROGRAM_LOCKED" && <PartnerCta slot={partnerCta.slot} />}
 
       {publicPollLink && <PublicPollLink link={publicPollLink} />}
 
@@ -314,6 +333,10 @@ export default async function ProgramDetailPage({
           </p>
         )}
         {showReferenceList && <ReferenceList references={references} isModerator={isModerator} />}
+        {/* Slot 1: partner CTA IN PLACE OF the references list, only when the program has
+            no references AND the one-per-page resolver picked PROGRAM_NO_REFERENCES (i.e.
+            slot 4 did not win). Never renders alongside an actual references list. */}
+        {partnerCta?.placement === "PROGRAM_NO_REFERENCES" && <PartnerCta slot={partnerCta.slot} />}
         <Show
           when="signed-in"
           fallback={

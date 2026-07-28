@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import QuestionInput from "@/components/polls/QuestionInput";
+import PartnerCta from "@/components/PartnerCta";
 import {
   pollDraftKey,
   yearAttendedOptions,
@@ -14,6 +15,7 @@ import {
   type PollQuestionDTO,
   type PollBucketDTO,
 } from "@/lib/pollShared";
+import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
 
 type RateFormProps =
   | {
@@ -23,6 +25,9 @@ type RateFormProps =
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
       existingAnswers?: Record<string, number>;
       existingNaQuestionIds?: string[];
+      /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
+       * post-submission confirmation state -- never before submission. */
+      postPollCta: PartnerLinkSlot | null;
     }
   | {
       mode: "anonymous";
@@ -32,6 +37,9 @@ type RateFormProps =
       referrerToken: string;
       questions: PollQuestionDTO[];
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
+      /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
+       * post-submission ThankYouScreen -- never before submission. */
+      postPollCta: PartnerLinkSlot | null;
     };
 
 export default function RateForm(props: RateFormProps) {
@@ -354,6 +362,7 @@ function SignedInRateForm({
   extras,
   existingAnswers,
   existingNaQuestionIds,
+  postPollCta,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
@@ -434,12 +443,14 @@ function SignedInRateForm({
   }
 
   if (submitted) {
+    // Post-submission confirmation state -- reached ONLY after the submit handler's fetch
+    // returned success. Slot 3 renders here (and only here), never before submission.
     return (
-      <div
-        data-poll-mode="signed-in"
-        className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
-      >
-        {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+      <div data-poll-mode="signed-in" className="flex flex-col gap-6">
+        <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+          {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+        </div>
+        <PartnerCta slot={postPollCta} />
       </div>
     );
   }
@@ -551,6 +562,7 @@ function AnonymousRateForm({
   referrerToken,
   questions,
   extras,
+  postPollCta,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
   // Same full resolved question set (Core plus every extra bucket) as the signed-in
   // form -- see QuestionSections, shared by both -- so an anonymous link visitor sees
@@ -658,7 +670,7 @@ function AnonymousRateForm({
   }
 
   if (responseId) {
-    return <ThankYouScreen programName={programName} />;
+    return <ThankYouScreen programName={programName} postPollCta={postPollCta} />;
   }
 
   return (
@@ -720,13 +732,21 @@ function AnonymousRateForm({
  * upfront, same as the signed-in form, so there's no longer a post-submit "add more
  * detail" step here -- just the confirmation.
  */
-function ThankYouScreen({ programName }: { programName: string }) {
+function ThankYouScreen({
+  programName,
+  postPollCta,
+}: {
+  programName: string;
+  postPollCta: PartnerLinkSlot | null;
+}) {
+  // Reached ONLY after a successful submit sets responseId -- never a pre-submission step.
+  // Slot 3 renders here (and only here).
   return (
-    <div
-      data-poll-mode="anonymous"
-      className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
-    >
-      Thanks -- your rating of {programName} has been recorded!
+    <div data-poll-mode="anonymous" className="flex flex-col gap-6">
+      <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+        Thanks -- your rating of {programName} has been recorded!
+      </div>
+      <PartnerCta slot={postPollCta} />
     </div>
   );
 }

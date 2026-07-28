@@ -7,6 +7,7 @@ import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { getExistingSignedInResponse } from "@/lib/pollResponses";
 import { validateReferrerToken } from "@/lib/pollTokens";
 import RateForm from "@/components/polls/RateForm";
+import { resolveAllScopePartnerCta } from "@/lib/partnerLinks";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
@@ -40,6 +41,11 @@ export default async function RateProgramPage({
 
   const { userId } = await auth();
 
+  // Slot 3, resolved once for both the anonymous and signed-in forms. `all`-scope only --
+  // the confirmation surface never resolves scope across a program. Fail-closed to null.
+  // The RateForm renders it ONLY inside its post-submission confirmation state.
+  const postPollCta = await resolveAllScopePartnerCta("POST_POLL");
+
   if (!userId) {
     // Signed out + a referrer token that resolves to this program (even a
     // revoked/expired/over-cap one -- those are accepted-and-flagged, never rejected):
@@ -68,6 +74,7 @@ export default async function RateProgramPage({
               referrerToken={ref as string}
               questions={core}
               extras={extras}
+              postPollCta={postPollCta}
             />
           )}
         </PageContainer>
@@ -124,6 +131,7 @@ export default async function RateProgramPage({
           extras={extras}
           existingAnswers={existingAnswers}
           existingNaQuestionIds={existing?.naQuestionIds}
+          postPollCta={postPollCta}
         />
       )}
     </PageContainer>

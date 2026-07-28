@@ -8,6 +8,8 @@ import { getDurationLabelMap } from "@/lib/duration";
 import type { DurationType } from "@/app/generated/prisma/enums";
 import { MAX_COMPARE } from "@/lib/compare";
 import CompareAddControl from "@/components/CompareAddControl";
+import PartnerCta from "@/components/PartnerCta";
+import { resolveAllScopePartnerCta } from "@/lib/partnerLinks";
 import BackButton from "@/components/BackButton";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
@@ -73,10 +75,13 @@ export default async function ComparePage({
     new Set((slugsParam ?? "").split(",").map((s) => s.trim()).filter(Boolean))
   ).slice(0, MAX_COMPARE);
 
-  const [programs, allProgramNames, durationLabelMap] = await Promise.all([
+  const [programs, allProgramNames, durationLabelMap, comparePartnerCta] = await Promise.all([
     getProgramsBySlugs(requestedSlugs),
     listPublishedProgramNames(),
     getDurationLabelMap(),
+    // Compare mode has no single-program context, so this resolves against `all`-scoped
+    // slots only.
+    resolveAllScopePartnerCta("COMPARE"),
   ]);
 
   const currentSlugs = programs.map((p) => p.slug);
@@ -156,6 +161,9 @@ export default async function ComparePage({
               <CompareAddControl currentSlugs={currentSlugs} options={allProgramNames} />
             </div>
           )}
+
+          {/* Slot 2: partner CTA at the bottom of compare mode, only with 2+ programs. */}
+          {programs.length >= 2 && <PartnerCta slot={comparePartnerCta} />}
         </>
       )}
     </PageContainer>
