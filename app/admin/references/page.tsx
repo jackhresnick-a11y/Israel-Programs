@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
-import { listAllReferencesForAdmin } from "@/lib/references";
+import { listAllReferencesForAdmin, countRecentPendingReferences } from "@/lib/references";
 import { listProgramsWithReferenceConfig } from "@/lib/referenceConfig";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
@@ -15,9 +15,10 @@ export default async function AdminReferencesPage() {
   const role = await getCurrentRole();
   if (role !== "admin") redirect("/");
 
-  const [references, programsWithConfig] = await Promise.all([
+  const [references, programsWithConfig, recentPendingCount] = await Promise.all([
     listAllReferencesForAdmin(),
     listProgramsWithReferenceConfig(),
+    countRecentPendingReferences(7),
   ]);
 
   return (
@@ -26,6 +27,13 @@ export default async function AdminReferencesPage() {
         title="References"
         description="Alumni references across all programs, including their WhatsApp number and its source. Never shown publicly."
       />
+
+      {/* Health signal: poll-driven reference creation is wrapped (silent on failure), so a
+          0 here while poll submissions are happening means it has quietly broken. */}
+      <p className="text-sm text-muted">
+        Pending references created in the last 7 days:{" "}
+        <span className="font-semibold text-foreground">{recentPendingCount}</span>
+      </p>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-foreground">Public list visibility</h2>

@@ -23,6 +23,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       consentVersion: string | null;
       pollResponseId: string | null;
       pollEmailKey: string | null;
+      createdAt: Date;
     };
     type PollResponseRow = {
       id: string;
@@ -68,11 +69,22 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
             consentVersion: null,
             pollResponseId: null,
             pollEmailKey: null,
+            createdAt: new Date(),
             ...(args.create as Partial<ReferenceRow>),
           } as ReferenceRow;
           db.references.push(row);
           return row;
         }),
+        count: vi.fn(
+          async (args: { where?: { status?: string; createdAt?: { gte?: Date } } }) => {
+            const where = args?.where ?? {};
+            return db.references.filter(
+              (r) =>
+                (where.status === undefined || r.status === where.status) &&
+                (where.createdAt?.gte === undefined || r.createdAt >= where.createdAt.gte)
+            ).length;
+          }
+        ),
         findMany: vi.fn(
           async (args: { where?: { programId?: string; status?: string }; select?: Record<string, boolean> }) => {
           db.lastReferenceFindManyArgs = args;
@@ -139,6 +151,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
           consentLabel: "label",
           consentVersion: "v1",
           pollResponseId: "resp_seed",
+          createdAt: new Date(),
           ...row,
         };
         db.references.push(full);
@@ -157,6 +170,7 @@ const {
   upsertReferenceFromPoll,
   isValidReferenceEmail,
   listPublishedReferences,
+  countRecentPendingReferences,
   POLL_REFERENCE_DISPLAY_NAME,
 } = await import("./references");
 const { submitAnonymousResponse } = await import("./pollResponses");
@@ -327,6 +341,34 @@ describe("submitAnonymousResponse ↔ reference integration", () => {
     expect(response.id).toBeTruthy(); // poll still returns success
     expect(snapshot().pollResponses).toHaveLength(1);
     expect(snapshot().references).toHaveLength(0);
+  });
+
+  it("FLAGGED submission + valid email + 18+ → poll saved (FLAGGED), 0 references", async () => {
+    // hasBrowserMarker trips REPEAT_BROWSER → status FLAGGED. A valid email + 18+ still
+    // creates NO reference; only COUNTED submissions do.
+    const { response } = await submitAnonymousResponse(
+      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true, hasBrowserMarker: true })
+    );
+    expect(response.status).toBe("FLAGGED");
+    expect(snapshot().pollResponses).toHaveLength(1); // poll response still saved
+    expect(snapshot().references).toHaveLength(0); // but no reference
+    expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
+  });
+});
+
+describe("countRecentPendingReferences (admin health signal)", () => {
+  it("counts only PENDING references created within the window", async () => {
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+    seedReference({ programId: "p", pollEmailKey: "a@x.com", status: "PENDING", createdAt: new Date(now - 1 * day) });
+    seedReference({ programId: "p", pollEmailKey: "b@x.com", status: "PENDING", createdAt: new Date(now - 6 * day) });
+    seedReference({ programId: "p", pollEmailKey: "c@x.com", status: "PENDING", createdAt: new Date(now - 10 * day) }); // outside 7d
+    seedReference({ programId: "p", pollEmailKey: "d@x.com", status: "PUBLISHED", createdAt: new Date(now - 1 * day) }); // not pending
+    expect(await countRecentPendingReferences(7)).toBe(2);
+  });
+
+  it("returns 0 when nothing recent (the 'it broke' signal)", async () => {
+    expect(await countRecentPendingReferences(7)).toBe(0);
   });
 });
 

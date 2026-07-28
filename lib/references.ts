@@ -146,6 +146,21 @@ export async function listPendingReferences() {
 }
 
 /**
+ * How many PENDING references were created in the last `sinceDays` days. Surfaced as a
+ * plain read-only number on /admin/references. Poll-driven reference creation is wrapped
+ * (failures are silent by design), so this recent count is the operator's health signal:
+ * a 0 here when poll submissions are happening means creation has quietly broken (e.g. the
+ * migration hasn't been applied). Uses only pre-existing columns (status, createdAt), so it
+ * keeps working even if the poll-reference columns aren't in the DB yet.
+ */
+export async function countRecentPendingReferences(sinceDays = 7): Promise<number> {
+  const since = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+  return prisma.reference.count({
+    where: { status: "PENDING", createdAt: { gte: since } },
+  });
+}
+
+/**
  * Admin-only: every reference regardless of status, including contactEmail
  * and whatsappNumber, plus its total contact-request count. Only ever
  * consumed by the admin references page -- never pass the result of this to

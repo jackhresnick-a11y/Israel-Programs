@@ -265,7 +265,11 @@ export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
   // so a failure (or the DB not yet having the new columns) can NEVER fail the poll
   // submission -- the response is already persisted and returned regardless. The function
   // itself no-ops unless ageAttested is true and the email parses as valid.
-  if (input.referenceEmail) {
+  //
+  // COUNTED only: a FLAGGED submission (anti-abuse -- repeat ip/browser, token over
+  // cap/revoked/expired) never spawns a reference, even with a valid email and 18+
+  // attested. The PollResponse still saves exactly as above; only the reference is skipped.
+  if (input.referenceEmail && status === "COUNTED") {
     try {
       await upsertReferenceFromPoll({
         programId: input.programId,
