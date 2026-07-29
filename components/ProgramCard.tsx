@@ -47,7 +47,7 @@ export function ProgramCardInfo({
 
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
-      <div className={cn("flex items-center gap-3", actionSpace !== "none" && "pr-20")}>
+      <div className={cn("flex items-center gap-3", actionSpace !== "none" && "pr-16")}>
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
           {program.logoUrl ? (
             <Image
@@ -67,7 +67,7 @@ export function ProgramCardInfo({
           {program.name}
         </h3>
       </div>
-      <div className={cn("flex flex-wrap items-center gap-1.5", actionSpace === "lg" && "pr-28")}>
+      <div className={cn("flex flex-wrap items-center gap-1.5", actionSpace === "lg" && "pr-16")}>
         <Badge tone="neutral">{durationLabelMap[program.durationType]}</Badge>
         {program.location && (
           <span className="text-xs text-muted">{program.location}</span>
@@ -106,7 +106,7 @@ export default function ProgramCard({
   action?: React.ReactNode;
 }) {
   return (
-    <Card interactive className="relative flex flex-col gap-3 p-5">
+    <Card interactive className="relative flex flex-col gap-3 p-4">
       <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5">
         <div className="flex items-center gap-1.5">
           <BookmarkButton programId={program.id} name={program.name} />

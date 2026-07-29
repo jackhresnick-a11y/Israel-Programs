@@ -101,7 +101,7 @@ export default function PartnerLinksManager({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
       {slots.length === 0 && (

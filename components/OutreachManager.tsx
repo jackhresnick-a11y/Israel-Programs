@@ -490,7 +490,7 @@ export default function OutreachManager({
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-12">
       {/* Templates */}
       <section className="flex flex-col gap-3 rounded border border-border p-4">
         <h2 className="text-sm font-semibold text-foreground">Email template</h2>
@@ -683,7 +683,7 @@ export default function OutreachManager({
                   <CategoryDropdown program={program} onChange={handleSetCategory} disabled={busy !== null} />
                 </div>
                 {isEditing ? (
-                  <div className="flex flex-col gap-2 pl-7">
+                  <div className="flex flex-col gap-2 pl-6">
                     <label className="text-xs font-medium text-muted">To</label>
                     <Input type="email" value={editToEmail} onChange={(e) => setEditToEmail(e.target.value)} />
                     {editToEmail.trim() !== oe.toEmail && (
@@ -705,7 +705,7 @@ export default function OutreachManager({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-1 pl-7">
+                  <div className="flex flex-col gap-1 pl-6">
                     <p className="text-sm font-medium text-foreground">{oe.subject}</p>
                     <p className="whitespace-pre-wrap text-sm text-muted">{oe.body}</p>
                     <div className="mt-1 flex gap-2">

@@ -18,7 +18,7 @@ export default function PartnerCta({ slot }: { slot: PartnerLinkSlot | null }) {
   const description = slot.description.trim();
 
   return (
-    <div className="flex flex-col gap-3 rounded border border-border p-5">
+    <div className="flex flex-col gap-3 rounded border border-border p-4">
       {header && (
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">{header}</h2>
       )}

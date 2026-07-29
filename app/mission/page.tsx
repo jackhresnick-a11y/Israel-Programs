@@ -49,7 +49,7 @@ export default async function MissionPage() {
           {blocks.map((block, i) => (
             <div key={i} className="flex flex-col gap-6">
               {i > 0 && <hr className="border-t border-accent/40" />}
-              <div className="flex gap-4 sm:gap-5">
+              <div className="flex gap-4 sm:gap-6">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover">
                   <MissionIcon icon={block.icon} />
                 </div>

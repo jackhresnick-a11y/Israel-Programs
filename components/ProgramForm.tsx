@@ -212,7 +212,7 @@ export default function ProgramForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {error && (
         <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">
           {error}

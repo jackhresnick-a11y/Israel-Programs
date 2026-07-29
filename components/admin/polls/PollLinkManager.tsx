@@ -102,7 +102,7 @@ export default function PollLinkManager({
     <div className="flex flex-col gap-6">
       {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <Card className="flex flex-col gap-3 p-5">
+      <Card className="flex flex-col gap-3 p-4">
         <h2 className="text-sm font-semibold text-foreground">Mint a new outreach link</h2>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-xs text-muted">

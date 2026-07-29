@@ -222,7 +222,7 @@ export default async function ProgramDetailPage({
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
       {program.goodFor && (
-        <div className="rounded border border-accent/30 bg-accent/10 p-5">
+        <div className="rounded border border-accent/30 bg-accent/10 p-4">
           <h2 className="text-sm font-semibold text-accent-hover">
             Who it&apos;s for
           </h2>
@@ -232,7 +232,7 @@ export default async function ProgramDetailPage({
         </div>
       )}
 
-      <Card as="dl" className="grid grid-cols-1 gap-4 p-5 text-sm sm:grid-cols-2">
+      <Card as="dl" className="grid grid-cols-1 gap-4 p-4 text-sm sm:grid-cols-2">
         <div>
           <dt className="font-medium text-muted">Duration</dt>
           <dd>

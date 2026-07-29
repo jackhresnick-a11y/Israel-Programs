@@ -59,7 +59,7 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <PageContainer width="base" className="gap-10">
+    <PageContainer width="base" className="gap-12">
       <PageHeader title="Admin" description="Review submissions before they go live.">
         {role === "admin" && (
           <div className="mt-3 flex flex-wrap gap-3">

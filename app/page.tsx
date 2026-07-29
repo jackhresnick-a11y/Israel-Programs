@@ -34,7 +34,7 @@ export default async function Home() {
   ]);
 
   return (
-    <PageContainer width="wide" className="gap-10 py-16">
+    <PageContainer width="wide" className="gap-12 py-16">
       <div className="relative flex flex-col gap-4 text-center sm:text-left">
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Find your place in Israel
@@ -141,7 +141,7 @@ export default async function Home() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {recentReviews.map((review) => (
-              <Card key={review.id} className="flex flex-col gap-2 p-5">
+              <Card key={review.id} className="flex flex-col gap-2 p-4">
                 <span className="text-accent" aria-label={`${review.rating} out of 5 stars`}>
                   {"★".repeat(review.rating)}
                   <span className="text-border">{"★".repeat(5 - review.rating)}</span>

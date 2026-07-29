@@ -7,7 +7,7 @@ import type { DurationType } from "@/app/generated/prisma/client";
 /**
  * Used for manual "Recently added" entries that have a video attached.
  * Mobile: info stacked above the video. Desktop: side-by-side, with the
- * card enlarged overall (p-6/gap-6 vs the regular grid card's p-5) and a
+ * card enlarged overall (p-6/gap-6 vs the regular grid card's p-4) and a
  * condensed ~40% info column so the ~60% video column has room to render
  * at its natural size instead of being cramped.
  */
@@ -23,7 +23,7 @@ export default function FeaturedProgramCard({
   return (
     <Card
       interactive
-      className="flex flex-col gap-4 p-5 md:flex-row md:items-stretch md:gap-6 md:p-6"
+      className="flex flex-col gap-4 p-4 md:flex-row md:items-stretch md:gap-6 md:p-6"
     >
       <Link
         href={`/programs/${program.slug}`}

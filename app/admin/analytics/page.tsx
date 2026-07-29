@@ -12,7 +12,7 @@ export default async function AdminAnalyticsPage() {
   const summary = await getAnalyticsSummary();
 
   return (
-    <PageContainer width="narrow" className="gap-10">
+    <PageContainer width="narrow" className="gap-12">
       <PageHeader
         title="Usage analytics"
         description="Search and filter activity, last 30 days. No user identifiers are collected."

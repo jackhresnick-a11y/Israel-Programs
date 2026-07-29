@@ -30,11 +30,11 @@ export default async function Nav() {
           {showText && "Israel Programs Wiki"}
         </Link>
 
-        <div className="flex flex-nowrap items-center gap-x-3 sm:gap-x-5">
+        <div className="flex flex-nowrap items-center gap-x-3 sm:gap-x-6">
           {/* Public links: inline at sm+; tucked behind the mobile hamburger below
               sm, since a logo + 3 links + toggle + auth can't fit a 390px row at a
               tappable size no matter how tight the spacing gets. */}
-          <nav className="hidden items-center gap-x-5 text-sm font-medium text-primary-foreground/90 sm:flex">
+          <nav className="hidden items-center gap-x-6 text-sm font-medium text-primary-foreground/90 sm:flex">
             <Link href="/programs" className="hover:text-accent">
               Browse
             </Link>

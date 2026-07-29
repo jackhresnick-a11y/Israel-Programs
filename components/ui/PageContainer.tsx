@@ -18,7 +18,7 @@ export default function PageContainer({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full flex-col gap-8 px-6 py-10",
+        "mx-auto flex w-full flex-col gap-8 px-6 py-8",
         widths[width],
         className
       )}

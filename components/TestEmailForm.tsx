@@ -42,7 +42,7 @@ export default function TestEmailForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6 rounded border border-border p-5">
+    <div className="flex flex-col gap-6 rounded border border-border p-4">
       <div>
         <h2 className="font-serif text-lg font-semibold text-foreground">Send test email</h2>
         <p className="mt-1 text-sm text-muted">
