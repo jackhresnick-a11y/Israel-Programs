@@ -48,7 +48,7 @@ export function ProgramCardInfo({
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
       <div className={cn("flex items-center gap-3", actionSpace !== "none" && "pr-20")}>
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-muted">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
           {program.logoUrl ? (
             <Image
               src={program.logoUrl}

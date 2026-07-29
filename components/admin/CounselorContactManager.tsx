@@ -215,7 +215,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <section className="flex flex-col gap-3 rounded border border-border p-4">
         {editingId ? (
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -332,7 +332,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
         {visible.length === 0 ? (
           <p className="text-sm text-muted">No contacts match these filters.</p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {visible.map((contact) => (
               <div key={contact.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex flex-col gap-1">

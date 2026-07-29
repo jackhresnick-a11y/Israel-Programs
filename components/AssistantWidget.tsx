@@ -69,7 +69,7 @@ export default function AssistantWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg transition hover:bg-accent-hover"
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors duration-[120ms] ease-out hover:bg-accent-hover"
         aria-label="Open program-finder assistant"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
@@ -100,8 +100,8 @@ export default function AssistantWidget() {
               <div
                 className={
                   m.role === "user"
-                    ? "rounded-xl bg-accent px-3 py-2 text-sm text-accent-foreground"
-                    : "rounded-xl bg-surface-muted px-3 py-2 text-sm text-foreground"
+                    ? "rounded bg-accent px-3 py-2 text-sm text-accent-foreground"
+                    : "rounded bg-surface-muted px-3 py-2 text-sm text-foreground"
                 }
               >
                 {m.content}
@@ -112,7 +112,7 @@ export default function AssistantWidget() {
                     <Link
                       key={p.slug}
                       href={`/programs/${p.slug}`}
-                      className="rounded-lg border border-border p-2.5 text-xs transition hover:border-accent"
+                      className="rounded border border-border p-2.5 text-xs transition-colors duration-[120ms] ease-out hover:border-accent"
                     >
                       <p className="font-semibold text-foreground">{p.name}</p>
                       {p.location && <p className="text-muted">{p.location}</p>}
@@ -129,7 +129,7 @@ export default function AssistantWidget() {
               )}
             </div>
           ))}
-          {sending && <div className="self-start rounded-xl bg-surface-muted px-3 py-2 text-sm text-muted">Thinking...</div>}
+          {sending && <div className="self-start rounded bg-surface-muted px-3 py-2 text-sm text-muted">Thinking...</div>}
           {error && <p className="text-xs text-danger">{error}</p>}
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function AssistantWidget() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="What are you looking for?"
           disabled={sending}
-          className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent"
+          className="flex-1 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors duration-[120ms] ease-out focus:border-accent"
         />
         <Button type="submit" size="sm" disabled={sending || !input.trim()}>
           Send

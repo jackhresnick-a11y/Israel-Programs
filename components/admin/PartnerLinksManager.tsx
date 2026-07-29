@@ -102,10 +102,10 @@ export default function PartnerLinksManager({
 
   return (
     <div className="flex flex-col gap-5">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
       {slots.length === 0 && (
-        <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted">
+        <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
           No partner links configured. Add one below — it stays off until you enable it and give it a
           working link.
         </p>
@@ -116,7 +116,7 @@ export default function PartnerLinksManager({
           const meta = PLACEMENT_META[slot.placement];
           const urlInvalid = slotUrlInvalid(slot);
           return (
-            <div key={slot.id} className="flex flex-col gap-3 rounded-xl border border-border p-4">
+            <div key={slot.id} className="flex flex-col gap-3 rounded border border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Button
@@ -288,7 +288,7 @@ function ScopePicker({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-border p-3">
       <span className="text-xs font-semibold uppercase tracking-wide text-muted">{legend}</span>
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -312,7 +312,7 @@ function ScopePicker({
       {searchable && (
         <Input placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} />
       )}
-      <div className="max-h-48 overflow-y-auto rounded-md border border-border">
+      <div className="max-h-48 overflow-y-auto rounded border border-border">
         {filtered.length === 0 ? (
           <p className="p-2 text-xs text-muted">No matches.</p>
         ) : (

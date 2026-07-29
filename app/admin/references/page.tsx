@@ -42,11 +42,11 @@ export default async function AdminReferencesPage() {
           threshold (3 by default). Force show/hide overrides that in either direction.
         </p>
         {programsWithConfig.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted">
+          <p className="rounded border border-dashed border-border p-4 text-center text-sm text-muted">
             No programs have references yet.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {programsWithConfig.map((program) => (
               <div key={program.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
                 <Link
@@ -71,11 +71,11 @@ export default async function AdminReferencesPage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-foreground">All references</h2>
         {references.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
+          <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
             No references yet.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {references.map((reference) => (
               <div key={reference.id} className="flex flex-col gap-3 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">

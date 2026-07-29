@@ -31,7 +31,7 @@ export default function AssistantSettingsForm({ initialEnabled }: { initialEnabl
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-border p-4">
+    <div className="flex flex-col gap-2 rounded border border-border p-4">
       <h2 className="text-sm font-semibold text-foreground">Program-finder assistant</h2>
       <p className="text-xs text-muted">
         A chat widget that helps visitors describe what they&rsquo;re looking for (e.g. &ldquo;something religious,

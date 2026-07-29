@@ -87,7 +87,7 @@ export default function OutreachTemplateManager({ templates }: { templates: Outr
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <section className="flex flex-col gap-3 rounded border border-border p-4">
         <p className="text-xs text-muted">
           Merge fields: <code>{"{contactName|\"there\"}"}</code>, <code>{"{programName}"}</code>,{" "}
           <code>{"{listingUrl}"}</code>, <code>{"{programDescriptor}"}</code> (built only from duration + location --
@@ -136,7 +136,7 @@ export default function OutreachTemplateManager({ templates }: { templates: Outr
         {templates.length === 0 ? (
           <p className="text-sm text-muted">No saved templates yet.</p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {templates.map((template) => (
               <div key={template.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex flex-col gap-1">

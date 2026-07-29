@@ -121,9 +121,9 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {buckets.map((bucket, index) => {
           const unusedQuestions = activeQuestions.filter((q) => !bucket.questionIds.includes(q.id));
           return (
@@ -205,7 +205,7 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
 
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted">Questions in this bucket, in order</span>
-                    <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+                    <div className="flex flex-col divide-y divide-border rounded border border-border">
                       {bucket.questionIds.map((qid, qi) => {
                         const question = questionsById.get(qid);
                         return (

@@ -10,7 +10,7 @@ export default function Disclaimer() {
   return (
     <div
       role="note"
-      className="fixed bottom-4 left-4 z-40 max-w-xs rounded-lg border border-border bg-surface/95 p-3 pr-8 shadow-lg backdrop-blur-sm"
+      className="fixed bottom-4 left-4 z-40 max-w-xs rounded border border-border bg-surface/95 p-3 pr-8 backdrop-blur-sm"
     >
       <button
         type="button"

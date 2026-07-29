@@ -63,11 +63,11 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {blocks.map((block, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-xl border border-border p-4">
+        <div key={i} className="flex flex-col gap-3 rounded border border-border p-4">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-foreground">Block {i + 1}</span>
             <div className="flex items-center gap-2 text-xs">
@@ -136,7 +136,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
             </span>
           </label>
 
-          <div className="flex items-start gap-3 rounded-lg bg-surface-muted p-3">
+          <div className="flex items-start gap-3 rounded bg-surface-muted p-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover">
               <MissionIcon icon={block.icon} className="h-4 w-4" />
             </div>

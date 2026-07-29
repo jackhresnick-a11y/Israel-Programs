@@ -114,9 +114,9 @@ export default function FilterDropdown({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition",
+          "inline-flex items-center gap-1.5 rounded border px-3 py-2 text-sm font-medium transition-colors duration-[120ms] ease-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          open ? tone.active : "border-border bg-surface text-foreground shadow-sm",
+          open ? tone.active : "border-border bg-surface text-foreground",
           tone.hover,
           tone.ring
         )}
@@ -125,7 +125,7 @@ export default function FilterDropdown({
         {selected.length > 0 && (
           <span
             className={cn(
-              "inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
+              "inline-flex h-4 min-w-4 items-center justify-center rounded px-1 text-[10px] font-semibold",
               tone.count
             )}
           >
@@ -136,7 +136,7 @@ export default function FilterDropdown({
           aria-hidden
           viewBox="0 0 20 20"
           fill="none"
-          className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open && "rotate-180")}
+          className={cn("h-3.5 w-3.5 shrink-0", open && "rotate-180")}
         >
           <path
             d="M5 7.5L10 12.5L15 7.5"
@@ -152,7 +152,7 @@ export default function FilterDropdown({
         <div
           ref={measurePopover}
           className={cn(
-            "absolute top-full z-20 mt-1 min-w-48 rounded-lg border border-border bg-surface p-1.5 shadow-sm",
+            "absolute top-full z-20 mt-1 min-w-48 rounded border border-border bg-surface p-1.5",
             flip ? "right-0" : "left-0"
           )}
         >
@@ -163,7 +163,7 @@ export default function FilterDropdown({
               <label
                 key={option.value}
                 className={cn(
-                  "flex cursor-pointer items-center justify-between gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-surface-muted",
+                  "flex cursor-pointer items-center justify-between gap-3 rounded px-2 py-1.5 text-sm hover:bg-surface-muted",
                   isZero ? "text-muted" : "text-foreground"
                 )}
               >

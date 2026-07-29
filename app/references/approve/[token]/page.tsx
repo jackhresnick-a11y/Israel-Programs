@@ -43,7 +43,7 @@ export default async function ApproveReferenceRequestPage({
         description={`${preview.requesterName} would like to connect with you about ${preview.programName}.`}
       />
       {preview.note && (
-        <div className="rounded-xl border border-border p-4">
+        <div className="rounded border border-border p-4">
           <p className="text-xs font-medium text-muted">Their message</p>
           <p className="mt-1 text-sm text-foreground/80">{preview.note}</p>
         </div>

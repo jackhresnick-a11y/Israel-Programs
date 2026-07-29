@@ -282,7 +282,7 @@ export default async function ProgramsPage({
       </div>
 
       {programs.length === 0 ? (
-        <div className="flex flex-col gap-6 rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="flex flex-col gap-6 rounded border border-dashed border-border p-8 text-center">
           {activeDimensions.length > 0 ? (
             <>
               <p className="text-sm text-muted">
@@ -294,7 +294,7 @@ export default async function ProgramsPage({
                     key={dimension.kind === "duration" ? "duration" : dimension.category}
                     href={href}
                     prefetch={false}
-                    className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
+                    className="rounded border border-border bg-surface px-3 py-1.5 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
                   >
                     Remove {dimension.kind === "duration" ? durationFilter.label : dimension.label}
                     <span className="ml-1.5 text-xs text-muted">→ {count}</span>
@@ -303,7 +303,7 @@ export default async function ProgramsPage({
                 <Link
                   href={clearAllHref}
                   prefetch={false}
-                  className="rounded-full border border-border bg-surface-muted px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
+                  className="rounded border border-border bg-surface-muted px-3 py-1.5 text-sm font-medium text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
                 >
                   Clear all filters
                 </Link>

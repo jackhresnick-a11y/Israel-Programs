@@ -58,7 +58,7 @@ export default async function ReferenceRequestsPage() {
           {requests.map((req) => (
             <li
               key={req.id}
-              className="flex flex-col gap-2 rounded-xl border border-border p-4"
+              className="flex flex-col gap-2 rounded border border-border p-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <Link

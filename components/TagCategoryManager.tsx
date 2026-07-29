@@ -103,9 +103,9 @@ export default function TagCategoryManager({ categories }: { categories: TagCate
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {sorted.map((category, index) => (
           <div key={category.id} className="flex flex-wrap items-center gap-2 px-4 py-3">
             <div className="flex flex-col gap-0.5">
@@ -172,7 +172,7 @@ export default function TagCategoryManager({ categories }: { categories: TagCate
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border p-3">
+      <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-3">
         <Input
           placeholder="New category label, e.g. Language"
           value={newLabel}

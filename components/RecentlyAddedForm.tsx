@@ -118,7 +118,7 @@ export default function RecentlyAddedForm({
   return (
     <div className="flex flex-col gap-6">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       <form onSubmit={handleSaveHeading} className="flex flex-col gap-2 text-sm">
@@ -164,7 +164,7 @@ export default function RecentlyAddedForm({
       </div>
 
       {mode === "manual" && (
-        <div className="flex flex-col gap-3 rounded-xl border border-border p-4">
+        <div className="flex flex-col gap-3 rounded border border-border p-4">
           <span className="text-sm font-medium text-foreground">
             Featured programs ({items.length})
           </span>
@@ -179,7 +179,7 @@ export default function RecentlyAddedForm({
               return (
                 <div
                   key={item.slug}
-                  className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-2 text-sm"
+                  className="flex flex-wrap items-center gap-2 rounded border border-border p-2 text-sm"
                 >
                   <span className="min-w-0 flex-1 truncate font-medium text-foreground">
                     {nameBySlug.get(item.slug) ?? item.slug}

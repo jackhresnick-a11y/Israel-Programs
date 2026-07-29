@@ -114,7 +114,7 @@ function EmailSection({
         </div>
       </div>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {programs.map((program) => (
           <label key={program.id} className="flex items-center gap-3 px-4 py-2.5">
             <input
@@ -125,7 +125,7 @@ function EmailSection({
             />
             <span className="flex-1 text-sm text-foreground">{program.name}</span>
             {program.needsVerification ? (
-              <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[11px] font-medium text-warning">
+              <span className="rounded bg-warning-bg px-2 py-0.5 text-[11px] font-medium text-warning">
                 Not verified
               </span>
             ) : null}
@@ -137,7 +137,7 @@ function EmailSection({
                 onLanguageChange(program.id, (e.target.value || null) as WebsiteLanguage | null);
               }}
               onClick={(e) => e.stopPropagation()}
-              className="rounded-md border border-border bg-surface px-1.5 py-1 text-xs text-foreground"
+              className="rounded border border-border bg-surface px-1.5 py-1 text-xs text-foreground"
             >
               <option value="">Unclassified</option>
               <option value="ENGLISH">English</option>
@@ -224,7 +224,7 @@ export default function EmailListTable({ programs: initialPrograms }: { programs
               key={chip.key}
               type="button"
               onClick={() => setVerifiedFilter(chip.key)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+              className={`rounded border px-3 py-1 text-xs font-medium transition-colors duration-[120ms] ease-out ${
                 verifiedFilter === chip.key
                   ? "border-accent bg-accent text-accent-foreground"
                   : "border-border text-muted hover:bg-surface-muted"

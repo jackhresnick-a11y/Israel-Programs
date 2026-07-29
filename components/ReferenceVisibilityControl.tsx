@@ -60,7 +60,7 @@ export default function ReferenceVisibilityControl({
         value={value}
         disabled={saving}
         onChange={(e) => handleChange(e.target.value as ReferenceVisibility)}
-        className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
+        className="rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
       >
         {OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>

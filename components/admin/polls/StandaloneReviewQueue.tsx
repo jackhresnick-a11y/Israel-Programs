@@ -114,7 +114,7 @@ export default function StandaloneReviewQueue({ reviews }: { reviews: Standalone
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-sm font-semibold text-foreground">Written reviews</h2>
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {reviews.map((review) => (
           <ReviewRow key={review.id} review={review} />
         ))}

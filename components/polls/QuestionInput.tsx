@@ -61,7 +61,7 @@ export default function QuestionInput({
               aria-pressed={n === value}
               onClick={() => toggle(n)}
               className={cn(
-                "text-2xl leading-none transition",
+                "text-2xl leading-none transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
                 value !== null && n <= value ? "text-accent" : "text-border hover:text-accent/50"
               )}
@@ -118,7 +118,7 @@ export default function QuestionInput({
               aria-pressed={selected}
               onClick={() => toggle(n)}
               className={cn(
-                "rounded-lg border px-3 py-1.5 text-xs transition",
+                "rounded border px-3 py-1.5 text-xs transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
                 selected
                   ? "border-accent bg-accent/15 text-accent-hover"

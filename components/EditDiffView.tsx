@@ -38,7 +38,7 @@ export default function EditDiffView({
   }
 
   return (
-    <dl className="flex flex-col gap-2 rounded-lg border border-border bg-surface-muted p-3 text-xs">
+    <dl className="flex flex-col gap-2 rounded border border-border bg-surface-muted p-3 text-xs">
       {fieldDiffs.map((diff) => (
         <div key={diff.field}>
           <dt className="font-medium text-muted">{diff.label}</dt>
@@ -54,7 +54,7 @@ export default function EditDiffView({
             {tagDiff.added.map((name) => (
               <span
                 key={`added-${name}`}
-                className="rounded-full bg-success-bg px-2 py-0.5 text-success"
+                className="rounded bg-success-bg px-2 py-0.5 text-success"
               >
                 +{name}
               </span>
@@ -62,7 +62,7 @@ export default function EditDiffView({
             {tagDiff.removed.map((name) => (
               <span
                 key={`removed-${name}`}
-                className="rounded-full bg-danger-bg px-2 py-0.5 text-danger line-through"
+                className="rounded bg-danger-bg px-2 py-0.5 text-danger line-through"
               >
                 -{name}
               </span>

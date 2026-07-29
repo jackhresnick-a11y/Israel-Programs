@@ -21,7 +21,7 @@ export default function ObfuscatedEmail({ prominent = false }: { prominent?: boo
 
   if (prominent) {
     return (
-      <p className="rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm text-foreground">
+      <p className="rounded border border-border bg-surface-muted px-3 py-2 text-sm text-foreground">
         Or skip the form and email us directly at{" "}
         {addr ? (
           <a href={`mailto:${addr}`} className="font-medium text-accent hover:underline">

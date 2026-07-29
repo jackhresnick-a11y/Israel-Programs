@@ -28,7 +28,7 @@ export default async function AdminEmailVerificationPage() {
       {queue.length === 0 ? (
         <p className="text-muted">Nothing in the queue right now.</p>
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {queue.map((row) => (
             <div key={row.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-1">

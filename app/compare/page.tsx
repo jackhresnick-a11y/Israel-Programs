@@ -96,7 +96,7 @@ export default async function ComparePage({
       />
 
       {programs.length === 0 ? (
-        <div className="flex flex-col gap-4 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted">
+        <div className="flex flex-col gap-4 rounded border border-dashed border-border p-8 text-center text-sm text-muted">
           <p>No programs selected yet.</p>
           <Link
             href="/programs"

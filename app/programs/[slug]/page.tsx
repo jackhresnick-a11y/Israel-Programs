@@ -144,13 +144,13 @@ export default async function ProgramDetailPage({
     <PageContainer>
       <BackButton fallbackHref="/programs" />
       {banner && (
-        <p className={`rounded-lg px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
+        <p className={`rounded px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
           {banner.text}
         </p>
       )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
             {program.logoUrl ? (
               <Image
                 src={program.logoUrl}
@@ -222,7 +222,7 @@ export default async function ProgramDetailPage({
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
       {program.goodFor && (
-        <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
+        <div className="rounded border border-accent/30 bg-accent/10 p-5">
           <h2 className="text-sm font-semibold text-accent-hover">
             Who it&apos;s for
           </h2>

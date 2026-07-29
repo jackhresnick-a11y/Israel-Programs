@@ -163,7 +163,7 @@ export default function EditReviewForm({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -175,7 +175,7 @@ export default function EditReviewForm({
             <div
               key={d.fieldName}
               className={cn(
-                "flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between",
+                "flex flex-col gap-2 rounded border p-3 sm:flex-row sm:items-start sm:justify-between",
                 row.decision === "REJECTED"
                   ? "border-danger/30 bg-danger-bg/40"
                   : "border-border"
@@ -202,7 +202,7 @@ export default function EditReviewForm({
                 <button
                   onClick={() => setRow(d.fieldName, { decision: "ACCEPTED" })}
                   className={cn(
-                    "rounded-lg px-3 py-1 text-xs font-medium",
+                    "rounded px-3 py-1 text-xs font-medium",
                     row.decision === "ACCEPTED"
                       ? "bg-accent text-accent-foreground"
                       : "border border-border hover:border-accent"
@@ -213,7 +213,7 @@ export default function EditReviewForm({
                 <button
                   onClick={() => setRow(d.fieldName, { decision: "REJECTED" })}
                   className={cn(
-                    "rounded-lg px-3 py-1 text-xs font-medium",
+                    "rounded px-3 py-1 text-xs font-medium",
                     row.decision === "REJECTED"
                       ? "bg-danger text-white"
                       : "border border-border hover:border-danger"

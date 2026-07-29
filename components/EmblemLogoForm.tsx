@@ -113,10 +113,10 @@ export default function EmblemLogoForm({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
-      <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+      <div className="flex items-center gap-4 rounded border border-border p-4">
         {currentEmblemUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={currentEmblemUrl} alt="Current emblem" className="h-24 w-24" />
@@ -166,7 +166,7 @@ export default function EmblemLogoForm({
         </div>
 
         {currentDarkEmblemUrl && (
-          <div className="flex items-center gap-4 rounded-xl border border-border bg-primary p-4">
+          <div className="flex items-center gap-4 rounded border border-border bg-primary p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={currentDarkEmblemUrl} alt="Current dark-mode emblem" className="h-24 w-24" />
             <Button

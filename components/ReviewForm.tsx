@@ -45,7 +45,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">
+        <p className="rounded bg-danger-bg px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}

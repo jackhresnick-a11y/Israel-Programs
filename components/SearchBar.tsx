@@ -120,7 +120,7 @@ export default function SearchBar({
     });
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-muted p-3 shadow-sm">
+    <div className="flex flex-col gap-3 rounded border border-border bg-surface-muted p-3">
       <form
         onSubmit={(e) => {
           e.preventDefault();

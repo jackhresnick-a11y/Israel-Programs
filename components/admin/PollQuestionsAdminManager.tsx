@@ -121,7 +121,7 @@ function LivePreview({
           ))}
         </Select>
       </label>
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
       {loading && <p className="text-xs text-muted">Loading...</p>}
       {!loading && stats && (
         <p className="text-sm text-foreground">
@@ -220,7 +220,7 @@ function CategorySection({
         <h3 className="text-sm font-semibold text-foreground">{group.name}</h3>
         <span className="text-xs text-muted">({group.questions.length})</span>
         {definingCount === 0 && (
-          <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[10px] text-warning">
+          <span className="rounded bg-warning-bg px-2 py-0.5 text-[10px] text-warning">
             No Defining questions in this category
           </span>
         )}
@@ -230,7 +230,7 @@ function CategorySection({
           </Button>
         )}
       </div>
-      {error && <p className="mx-4 rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="mx-4 rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
       <div className="flex flex-col divide-y divide-border">
         {group.questions.map((q) => (
           <QuestionRow

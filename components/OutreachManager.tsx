@@ -94,7 +94,7 @@ function LanguageFilterChips({
             key={chip.key}
             type="button"
             onClick={() => onChange(chip.key)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+            className={`rounded border px-3 py-1 text-xs font-medium transition-colors duration-[120ms] ease-out ${
               active === chip.key
                 ? "border-accent bg-accent text-accent-foreground"
                 : "border-border text-muted hover:bg-surface-muted"
@@ -131,7 +131,7 @@ function CategoryDropdown({
       value={program.outreachCategory ?? ""}
       disabled={disabled}
       onChange={(e) => onChange(program.id, e.target.value ? (e.target.value as CategoryKey) : null)}
-      className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
+      className="rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
     >
       <option value="">Auto ({CATEGORY_LABELS[categorizeProgram({ ...program, outreachCategory: null })]})</option>
       {CATEGORY_KEYS.map((key) => (
@@ -492,7 +492,7 @@ export default function OutreachManager({
   return (
     <div className="flex flex-col gap-10">
       {/* Templates */}
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <section className="flex flex-col gap-3 rounded border border-border p-4">
         <h2 className="text-sm font-semibold text-foreground">Email template</h2>
         <p className="text-xs text-muted">
           Merge fields: <code>{"{contactName|\"there\"}"}</code>, <code>{"{programName}"}</code>,{" "}
@@ -527,7 +527,7 @@ export default function OutreachManager({
       </section>
 
       {/* Generate */}
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <section className="flex flex-col gap-3 rounded border border-border p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-foreground">
             {noDraft.length} eligible program(s) have no draft yet. {drafts.length} draft(s), {approved.length} approved,{" "}
@@ -559,7 +559,7 @@ export default function OutreachManager({
             id="generate-template-select"
             value={generateTemplateId}
             onChange={(e) => setGenerateTemplateId(e.target.value)}
-            className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
+            className="rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
           >
             <option value="">Default (global template)</option>
             {savedTemplates.map((t) => (
@@ -583,7 +583,7 @@ export default function OutreachManager({
             const categoryPrograms = noDraftGrouped[key];
             if (categoryPrograms.length === 0) return null;
             return (
-              <div key={key} className="flex flex-col gap-2 rounded-lg border border-border">
+              <div key={key} className="flex flex-col gap-2 rounded border border-border">
                 <div className="flex items-center justify-between gap-3 border-b border-border bg-surface-muted p-3">
                   <h3 className="text-sm font-semibold text-foreground">
                     {CATEGORY_LABELS[key]} ({categoryPrograms.length})
@@ -659,7 +659,7 @@ export default function OutreachManager({
             </Button>
           </div>
         </div>
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {draftsFiltered.length === 0 && <p className="p-4 text-sm text-muted">No drafts{draftLanguageFilter !== "ALL" ? " match this filter" : ""}.</p>}
           {draftsFiltered.map((program) => {
             const oe = program.outreachEmail!;
@@ -740,7 +740,7 @@ export default function OutreachManager({
           that filtered selection above before clicking send.
         </p>
         <LanguageFilterChips programs={approved} active={approvedLanguageFilter} onChange={setApprovedLanguageFilter} />
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {approvedFiltered.length === 0 && (
             <p className="p-4 text-sm text-muted">
               {approved.length === 0 ? "Nothing approved yet." : "No approved drafts match this filter."}
@@ -773,7 +773,7 @@ export default function OutreachManager({
       {/* Sent / outcomes */}
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-foreground">Sent &amp; outcomes ({actioned.length})</h2>
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {actioned.length === 0 && <p className="p-4 text-sm text-muted">Nothing sent yet.</p>}
           {actioned.map((program) => {
             const oe = program.outreachEmail!;
@@ -817,7 +817,7 @@ export default function OutreachManager({
           Has a contact email but no recorded provenance (no source URL) -- excluded from drafting and sending until a
           source is confirmed via the program edit page.
         </p>
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {needsSourceCheck.length === 0 && <p className="p-4 text-sm text-muted">None -- every contact email has a recorded source.</p>}
           {needsSourceCheck.map((program) => (
             <div key={program.id} className="flex items-center justify-between gap-3 p-4">

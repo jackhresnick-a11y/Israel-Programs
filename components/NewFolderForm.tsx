@@ -44,7 +44,7 @@ export default function NewFolderForm() {
         placeholder="New folder name…"
         maxLength={80}
         disabled={creating}
-        className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="min-w-0 flex-1 rounded border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
       <Button type="submit" size="sm" disabled={creating || !name.trim()}>
         {creating ? "Creating…" : "Create"}

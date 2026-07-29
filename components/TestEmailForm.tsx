@@ -42,7 +42,7 @@ export default function TestEmailForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-border p-5">
+    <div className="flex flex-col gap-6 rounded border border-border p-5">
       <div>
         <h2 className="font-serif text-lg font-semibold text-foreground">Send test email</h2>
         <p className="mt-1 text-sm text-muted">
@@ -63,7 +63,7 @@ export default function TestEmailForm() {
             value={to}
             onChange={(e) => setTo(e.target.value)}
             placeholder="you@example.com"
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+            className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground"
           />
         </div>
 
@@ -75,7 +75,7 @@ export default function TestEmailForm() {
             id="test-email-template"
             value={template}
             onChange={(e) => setTemplate(e.target.value as Template)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+            className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground"
           >
             {TEMPLATE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -95,7 +95,7 @@ export default function TestEmailForm() {
       </form>
 
       {result && (
-        <div className="flex flex-col gap-1.5 rounded-lg border border-border p-4 text-sm">
+        <div className="flex flex-col gap-1.5 rounded border border-border p-4 text-sm">
           {result.ok ? (
             <>
               <Badge tone="success">Sent</Badge>

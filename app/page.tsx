@@ -78,11 +78,11 @@ export default async function Home() {
         <details className="group max-w-2xl text-left">
           <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden">
             About this project
-            <span className="transition-transform group-open:rotate-180">
+            <span className="group-open:rotate-180">
               ▾
             </span>
           </summary>
-          <div className="mt-3 flex flex-col gap-3 rounded-lg border border-border bg-surface-muted p-4 text-sm leading-relaxed text-foreground/70">
+          <div className="mt-3 flex flex-col gap-3 rounded border border-border bg-surface-muted p-4 text-sm leading-relaxed text-foreground/70">
             <p>
               Every year, thousands of Jews — mostly from America — set out to
               explore, live, volunteer, serve, or study in Israel. But finding

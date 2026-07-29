@@ -119,11 +119,11 @@ export default function SiteLogoForm({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {currentLogoUrl && (
-        <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+        <div className="flex items-center gap-4 rounded border border-border p-4">
           {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={currentLogoUrl} alt="Current site logo" className="h-12 w-auto" />
@@ -194,7 +194,7 @@ export default function SiteLogoForm({
         </div>
 
         {currentDarkLogoUrl && (
-          <div className="flex items-center gap-4 rounded-xl border border-border bg-primary p-4">
+          <div className="flex items-center gap-4 rounded border border-border bg-primary p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={currentDarkLogoUrl} alt="Current dark-mode logo" className="h-12 w-auto" />
             <Button

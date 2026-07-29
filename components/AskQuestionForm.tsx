@@ -22,7 +22,7 @@ export default function AskQuestionForm({ programId }: { programId: string }) {
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-success/30 bg-success-bg p-4 text-center text-sm font-medium text-success">
+      <div className="rounded border border-success/30 bg-success-bg p-4 text-center text-sm font-medium text-success">
         Thanks — your question has been submitted for review.
       </div>
     );
@@ -67,8 +67,8 @@ export default function AskQuestionForm({ programId }: { programId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-4">
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>}
+    <div className="flex flex-col gap-2 rounded border border-border bg-surface p-4">
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>}
       <p className="text-xs text-muted">{FAQ_CONSENT_CONTEXT}</p>
       <Textarea
         placeholder="What would you like to know?"

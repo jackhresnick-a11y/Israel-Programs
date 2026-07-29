@@ -98,7 +98,7 @@ function ReferenceRow({
   const [requesting, setRequesting] = useState(false);
 
   return (
-    <li className="rounded-lg border border-border p-4">
+    <li className="rounded border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm">
           <span className="font-medium text-foreground">{reference.displayName}</span>

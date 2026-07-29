@@ -75,7 +75,7 @@ export default async function Nav() {
               </summary>
             }
           >
-            <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-surface p-2 text-sm shadow-lg">
+            <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded border border-border bg-surface p-2 text-sm">
               <Link
                 href="/programs"
                 className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"

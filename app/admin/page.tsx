@@ -111,7 +111,7 @@ export default async function AdminPage() {
             >
               Ratings
               {pendingRatingsCount > 0 && (
-                <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover">
+                <span className="inline-flex min-w-4 items-center justify-center rounded bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover">
                   {pendingRatingsCount}
                 </span>
               )}
@@ -147,7 +147,7 @@ export default async function AdminPage() {
             {recentPrograms.length === 0 ? (
               <p className="text-sm text-muted">No programs yet.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+              <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {recentPrograms.map((program) => (
                   <div key={program.id} className="flex items-center justify-between gap-4 px-4 py-3">
                     <div>
@@ -174,7 +174,7 @@ export default async function AdminPage() {
             {recentReviews.length === 0 ? (
               <p className="text-sm text-muted">No reviews yet.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+              <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {recentReviews.map((review) => (
                   <div key={review.id} className="flex flex-col gap-1 px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
@@ -209,7 +209,7 @@ export default async function AdminPage() {
             No new program submissions waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {pendingPrograms.map((program) => (
               <div
                 key={program.id}
@@ -247,7 +247,7 @@ export default async function AdminPage() {
             No new tag names waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {pendingTags.map((pendingTag) => (
               <div
                 key={pendingTag.id}
@@ -296,7 +296,7 @@ export default async function AdminPage() {
               return (
                 <div
                   key={edit.id}
-                  className="flex flex-col gap-3 rounded-xl border border-border p-4"
+                  className="flex flex-col gap-3 rounded border border-border p-4"
                 >
                   <div>
                     <Link
@@ -331,7 +331,7 @@ export default async function AdminPage() {
             No alumni reference submissions waiting for review.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {pendingReferences.map((reference) => (
               <div
                 key={reference.id}
@@ -384,7 +384,7 @@ async function UserRoleManagement() {
           {users.length === 1 ? "" : "s"}.
         </p>
       </div>
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {users.map((user) => (
           <div
             key={user.id}

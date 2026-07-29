@@ -239,7 +239,7 @@ function ContactOptInBlock({
   error: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-border p-3">
       <label className="flex items-start gap-2 text-sm text-foreground">
         <input
           type="checkbox"
@@ -304,7 +304,7 @@ function ReferenceOptInBlock({
   onAgeAttestedChange: (ageAttested: boolean) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-border p-3">
       <label className="flex items-start gap-2 text-sm text-foreground">
         <input
           type="checkbox"
@@ -447,7 +447,7 @@ function SignedInRateForm({
     // returned success. Slot 3 renders here (and only here), never before submission.
     return (
       <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-        <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+        <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
           {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
         </div>
         <PartnerCta slot={postPollCta} />
@@ -457,7 +457,7 @@ function SignedInRateForm({
 
   return (
     <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -675,7 +675,7 @@ function AnonymousRateForm({
 
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -743,7 +743,7 @@ function ThankYouScreen({
   // Slot 3 renders here (and only here).
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+      <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
         Thanks -- your rating of {programName} has been recorded!
       </div>
       <PartnerCta slot={postPollCta} />

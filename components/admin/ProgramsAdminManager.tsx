@@ -110,7 +110,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
         ))}
       </div>
 
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
 
       {open && (
         <Card className="flex flex-col gap-3 p-4">
@@ -134,7 +134,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
               <p className="text-xs font-semibold text-muted">
                 Open to contact ({program.contactOptIns.length}) -- never shown publicly
               </p>
-              <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+              <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {program.contactOptIns.map((c, i) => (
                   <div key={i} className="flex flex-col gap-0.5 px-3 py-2 text-xs">
                     <span className="font-medium text-foreground">{c.contactName}</span>
@@ -260,9 +260,9 @@ export default function ProgramsAdminManager({
             onChange={(e) => setTagFilterSearch(e.target.value)}
             className="max-w-xs text-sm"
           />
-          <div className="max-h-32 overflow-y-auto rounded-lg border border-border p-2">
+          <div className="max-h-32 overflow-y-auto rounded border border-border p-2">
             {filteredTagOptions.map((tag) => (
-              <label key={tag.slug} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-surface-muted">
+              <label key={tag.slug} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs text-foreground hover:bg-surface-muted">
                 <input
                   type="checkbox"
                   checked={selectedTags.has(tag.slug)}
@@ -277,7 +277,7 @@ export default function ProgramsAdminManager({
         </div>
       </Card>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {filtered.map((program) => (
           <ProgramRowCard key={program.id} program={program} allTags={allTags} categories={categories} />
         ))}
