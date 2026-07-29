@@ -167,7 +167,7 @@ export default function RegionManager({
             </option>
           ))}
         </Select>
-        <label className="flex items-center gap-1.5 text-xs text-muted">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={header.show}
@@ -182,7 +182,7 @@ export default function RegionManager({
         {sorted.map((region, index) => (
           <div key={region.id} className="flex flex-col gap-2 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 <Button
                   type="button"
                   variant="ghost"
@@ -234,7 +234,7 @@ export default function RegionManager({
                 {locationTags.map((tag) => (
                   <label
                     key={tag.slug}
-                    className="flex items-center gap-1.5 text-xs text-foreground"
+                    className="flex items-center gap-2 text-xs text-foreground"
                   >
                     <input
                       type="checkbox"

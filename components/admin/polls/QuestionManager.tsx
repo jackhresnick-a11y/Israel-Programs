@@ -277,7 +277,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
             </div>
             <div className="flex flex-wrap gap-1 text-xs text-muted">
               {question.labels.map((l, i) => (
-                <span key={i} className="rounded bg-surface-muted px-1.5 py-0.5">
+                <span key={i} className="rounded bg-surface-muted px-2 py-1">
                   {i + 1}: {l}
                 </span>
               ))}

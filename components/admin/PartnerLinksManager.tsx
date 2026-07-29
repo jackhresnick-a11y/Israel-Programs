@@ -292,7 +292,7 @@ function ScopePicker({
     <div className="flex flex-col gap-2 rounded border border-border p-3">
       <span className="text-xs font-semibold uppercase tracking-wide text-muted">{legend}</span>
       {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {selected.map((value) => (
             <Badge key={value} tone="neutral">
               <span className="flex items-center gap-1">
@@ -318,7 +318,7 @@ function ScopePicker({
           <p className="p-2 text-xs text-muted">No matches.</p>
         ) : (
           filtered.map((o) => (
-            <label key={o.value} className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-surface-muted">
+            <label key={o.value} className="flex items-center gap-2 px-2 py-2 text-sm hover:bg-surface-muted">
               <input
                 type="checkbox"
                 checked={selectedSet.has(o.value)}

@@ -216,7 +216,7 @@ function FaqEntryRow({
             <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
           </Button>
         </div>
-        <div className="flex flex-1 flex-col gap-0.5">
+        <div className="flex flex-1 flex-col gap-1">
           <span className="text-sm font-medium text-foreground">{faq.question}</span>
           {faq.answer && <span className="text-xs text-muted">{faq.answer}</span>}
         </div>

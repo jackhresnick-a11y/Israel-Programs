@@ -85,7 +85,7 @@ function RateCta({
   showResponseCount: boolean;
 }) {
   return (
-    <div className="flex flex-col items-start gap-1.5">
+    <div className="flex flex-col items-start gap-2">
       <Link href={rateHref} className={buttonVariants({ variant: "primary", className: "w-full sm:w-auto" })}>
         Rate this program
       </Link>

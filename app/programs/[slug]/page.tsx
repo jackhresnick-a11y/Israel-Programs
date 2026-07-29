@@ -191,7 +191,7 @@ export default async function ProgramDetailPage({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {program.tags.map((tag) => (
           <Link key={tag.id} href={`/programs?tags=${tag.slug}`} prefetch={false}>
             <Badge tone="tag" className="hover:bg-accent/25">
@@ -260,9 +260,9 @@ export default async function ProgramDetailPage({
         </div>
         <div className="sm:col-span-2">
           <dt className="font-medium text-muted">Contact</dt>
-          <dd className="flex flex-col gap-0.5">
+          <dd className="flex flex-col gap-1">
             {showContactEmail && (
-              <span className="flex flex-wrap items-center gap-1.5">
+              <span className="flex flex-wrap items-center gap-2">
                 <a
                   href={`mailto:${program.contactEmail}?subject=${encodeURIComponent(
                     `Inquiry about ${program.name} (via Israel Programs Wiki)`

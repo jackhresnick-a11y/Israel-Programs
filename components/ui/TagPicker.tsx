@@ -120,7 +120,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
       </button>
 
       {selectedNames.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {selectedNames.map((name) => (
             <Badge key={name} tone="tag" className="gap-1">
               {name}
@@ -159,7 +159,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                   {options.map((tag) => (
                     <label
                       key={tag.slug}
-                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                     >
                       <input
                         type="checkbox"
@@ -182,7 +182,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                 {grouped.uncategorized.map((tag) => (
                   <label
                     key={tag.slug}
-                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                   >
                     <input
                       type="checkbox"

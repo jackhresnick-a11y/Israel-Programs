@@ -121,7 +121,7 @@ export default function QuestionInput({
               aria-pressed={selected}
               onClick={() => toggle(n)}
               className={cn(
-                "rounded border px-3 py-1.5 text-xs transition-colors duration-[120ms] ease-out",
+                "rounded border px-3 py-2 text-xs transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
                 selected
                   ? "border-accent bg-accent/15 text-accent-hover"
@@ -140,7 +140,7 @@ export default function QuestionInput({
 
 function NaCheckbox({ na, onToggle }: { na: boolean; onToggle: () => void }) {
   return (
-    <label className="flex w-fit items-center gap-1.5 text-[11px] text-muted">
+    <label className="flex w-fit items-center gap-2 text-[11px] text-muted">
       <input type="checkbox" checked={na} onChange={onToggle} className="accent-accent" />
       N/A
     </label>

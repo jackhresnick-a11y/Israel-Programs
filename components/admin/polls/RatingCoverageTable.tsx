@@ -67,7 +67,7 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
       </div>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-3 border-b border-border bg-surface-muted px-4 py-2.5 text-xs font-semibold text-muted">
+        <div className="flex items-center gap-3 border-b border-border bg-surface-muted px-4 py-3 text-xs font-semibold text-muted">
           <button
             type="button"
             onClick={() => toggleSort("name")}
@@ -91,7 +91,7 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
             return (
               <div
                 key={row.id}
-                className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", below && "bg-warning-bg/40")}
+                className={cn("flex items-center gap-3 px-4 py-3 text-sm", below && "bg-warning-bg/40")}
               >
                 <Link
                   href={`/programs/${row.slug}`}

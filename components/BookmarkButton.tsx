@@ -240,13 +240,13 @@ export default function BookmarkButton({ programId, name }: { programId: string;
             className="fixed z-50 w-56 rounded border border-border bg-surface p-2"
           >
             {folders === null ? (
-              <p className="px-2 py-1.5 text-sm text-muted">Loading folders…</p>
+              <p className="px-2 py-2 text-sm text-muted">Loading folders…</p>
             ) : (
-              <div className="flex max-h-56 flex-col gap-0.5 overflow-y-auto">
+              <div className="flex max-h-56 flex-col gap-1 overflow-y-auto">
                 {folders.map((folder) => (
                   <label
                     key={folder.id}
-                    className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                    className="flex items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                   >
                     <input
                       type="checkbox"
@@ -260,7 +260,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
                 ))}
               </div>
             )}
-            <div className="mt-1.5 flex items-center gap-1 border-t border-border pt-1.5">
+            <div className="mt-2 flex items-center gap-1 border-t border-border pt-2">
               <input
                 type="text"
                 value={newFolderName}

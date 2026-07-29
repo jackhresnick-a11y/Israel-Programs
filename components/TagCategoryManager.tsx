@@ -109,7 +109,7 @@ export default function TagCategoryManager({ categories }: { categories: TagCate
       <div className="flex flex-col divide-y divide-border rounded border border-border">
         {sorted.map((category, index) => (
           <div key={category.id} className="flex flex-wrap items-center gap-2 px-4 py-3">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
               <Button
                 type="button"
                 variant="ghost"
@@ -152,7 +152,7 @@ export default function TagCategoryManager({ categories }: { categories: TagCate
                 </option>
               ))}
             </Select>
-            <label className="flex items-center gap-1.5 text-xs text-muted">
+            <label className="flex items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={category.showInFilter}

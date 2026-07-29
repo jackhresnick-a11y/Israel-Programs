@@ -107,7 +107,7 @@ export default function FolderItemsList({
                     </Link>
                   )}
                   {item.unavailable ? (
-                    <div className="mt-0.5">
+                    <div className="mt-1">
                       <Badge tone="warning">No longer listed</Badge>
                     </div>
                   ) : (
@@ -122,7 +122,7 @@ export default function FolderItemsList({
                 </div>
                 <div>
                   <span className="font-medium text-foreground">Removed program</span>
-                  <div className="mt-0.5">
+                  <div className="mt-1">
                     <Badge tone="warning">No longer available</Badge>
                   </div>
                 </div>

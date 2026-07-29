@@ -41,7 +41,7 @@ export default function PollsTabs({
             href={tab.href}
             className={cn(
               buttonVariants({ variant: active ? "primary" : "secondary", size: "sm" }),
-              "gap-1.5"
+              "gap-2"
             )}
           >
             {tab.label}

@@ -113,7 +113,7 @@ export default function AssistantWidget() {
                     <Link
                       key={p.slug}
                       href={`/programs/${p.slug}`}
-                      className="rounded border border-border p-2.5 text-xs transition-colors duration-[120ms] ease-out hover:border-accent"
+                      className="rounded border border-border p-3 text-xs transition-colors duration-[120ms] ease-out hover:border-accent"
                     >
                       <p className="font-semibold text-foreground">{p.name}</p>
                       {p.location && <p className="text-muted">{p.location}</p>}

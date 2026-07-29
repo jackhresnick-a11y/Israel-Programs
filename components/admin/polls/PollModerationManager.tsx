@@ -239,7 +239,7 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col divide-y divide-border rounded border border-border">
             {response.answers.map((a) => (
-              <div key={a.questionId} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+              <div key={a.questionId} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
                 <span className="text-foreground">
                   {a.question.text} <span className="text-muted">(v{a.questionVersion})</span>
                 </span>
@@ -247,13 +247,13 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
               </div>
             ))}
             {response.naQuestions.map((q) => (
-              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
                 <span className="text-muted">{q.text}</span>
                 <Badge tone="info">N/A</Badge>
               </div>
             ))}
             {response.skippedQuestions.map((q) => (
-              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+              <div key={q.id} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
                 <span className="text-muted">{q.text}</span>
                 <Badge tone="neutral">Skipped</Badge>
               </div>

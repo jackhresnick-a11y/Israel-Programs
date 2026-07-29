@@ -87,7 +87,7 @@ function QuestionWithReview({
   return (
     <div className="flex flex-col gap-2">
       <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
-      <div className="flex flex-col gap-1.5 pl-1">
+      <div className="flex flex-col gap-2 pl-1">
         <Textarea
           placeholder="Want to say more? Your answer may be published publicly in this program's reviews after moderation. (optional)"
           value={reviewText}
@@ -184,7 +184,7 @@ function ReviewConsentCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I understand my written comments may be published publicly on this program&rsquo;s page after moderation.</span>
       </label>
@@ -245,7 +245,7 @@ function ContactOptInBlock({
           type="checkbox"
           checked={state.consent}
           onChange={(e) => onChange({ ...state, consent: e.target.checked })}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I&rsquo;m open to being contacted by prospective participants about this program.</span>
       </label>
@@ -256,7 +256,7 @@ function ContactOptInBlock({
               type="checkbox"
               checked={state.ageAttested}
               onChange={(e) => onChange({ ...state, ageAttested: e.target.checked })}
-              className="mt-0.5 accent-accent"
+              className="mt-1 accent-accent"
             />
             <span>I&rsquo;m 18 or older.</span>
           </label>
@@ -310,7 +310,7 @@ function ReferenceOptInBlock({
           type="checkbox"
           checked={ageAttested}
           onChange={(e) => onAgeAttestedChange(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I&rsquo;m 18 or older.</span>
       </label>

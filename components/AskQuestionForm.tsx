@@ -83,7 +83,7 @@ export default function AskQuestionForm({ programId }: { programId: string }) {
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>{FAQ_CONSENT_LABEL}</span>
       </label>

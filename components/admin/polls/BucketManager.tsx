@@ -130,7 +130,7 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
           return (
             <div key={bucket.id} className="flex flex-col gap-2 px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-1">
                   <Button
                     type="button"
                     variant="ghost"
@@ -212,8 +212,8 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
                       {bucket.questionIds.map((qid, qi) => {
                         const question = questionsById.get(qid);
                         return (
-                          <div key={qid} className="flex items-center gap-2 px-3 py-1.5">
-                            <div className="flex flex-col gap-0.5">
+                          <div key={qid} className="flex items-center gap-2 px-3 py-2">
+                            <div className="flex flex-col gap-1">
                               <Button
                                 type="button"
                                 variant="ghost"

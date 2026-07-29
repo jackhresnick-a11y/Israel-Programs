@@ -295,10 +295,10 @@ export default async function ProgramsPage({
                     key={dimension.kind === "duration" ? "duration" : dimension.category}
                     href={href}
                     prefetch={false}
-                    className="rounded border border-border bg-surface px-3 py-1.5 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
+                    className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
                   >
                     Remove {dimension.kind === "duration" ? durationFilter.label : dimension.label}
-                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted">
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted">
                       <ArrowRight className="h-4 w-4" strokeWidth={1.5} /> {count}
                     </span>
                   </Link>
@@ -306,7 +306,7 @@ export default async function ProgramsPage({
                 <Link
                   href={clearAllHref}
                   prefetch={false}
-                  className="rounded border border-border bg-surface-muted px-3 py-1.5 text-sm font-medium text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
+                  className="rounded border border-border bg-surface-muted px-3 py-2 text-sm font-medium text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
                 >
                   Clear all filters
                 </Link>

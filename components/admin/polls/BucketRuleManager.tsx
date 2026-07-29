@@ -190,7 +190,7 @@ function RuleForm({
           {durationOptions.map((d) => (
             <label
               key={d.value}
-              className="flex cursor-pointer items-center gap-1.5 rounded border border-border px-2 py-1 text-xs text-foreground"
+              className="flex cursor-pointer items-center gap-2 rounded border border-border px-2 py-1 text-xs text-foreground"
             >
               <input
                 type="checkbox"

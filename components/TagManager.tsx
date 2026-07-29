@@ -156,7 +156,7 @@ export default function TagManager({
     return (
       <div key={tag.id} className="flex flex-wrap items-center gap-2 px-4 py-2">
         {reorderable && (
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             <Button
               type="button"
               variant="ghost"

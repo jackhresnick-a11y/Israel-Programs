@@ -143,7 +143,7 @@ export default function DurationManager({
             </option>
           ))}
         </Select>
-        <label className="flex items-center gap-1.5 text-xs text-muted">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={header.show}
@@ -157,7 +157,7 @@ export default function DurationManager({
       <div className="flex flex-col divide-y divide-border rounded border border-border">
         {sorted.map((option, index) => (
           <div key={option.value} className="flex flex-wrap items-center gap-2 px-4 py-3">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
               <Button
                 type="button"
                 variant="ghost"
@@ -188,7 +188,7 @@ export default function DurationManager({
               onBlur={(e) => handleRename(option, e.target.value)}
             />
             <span className="text-xs text-muted">({option.value})</span>
-            <label className="ml-auto flex items-center gap-1.5 text-xs text-muted">
+            <label className="ml-auto flex items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={option.showInFilter}

@@ -52,7 +52,7 @@ export default function TestEmailForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <label htmlFor="test-email-to" className="text-sm font-medium text-foreground">
             Destination email
           </label>
@@ -67,7 +67,7 @@ export default function TestEmailForm() {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <label htmlFor="test-email-template" className="text-sm font-medium text-foreground">
             Template
           </label>
@@ -95,7 +95,7 @@ export default function TestEmailForm() {
       </form>
 
       {result && (
-        <div className="flex flex-col gap-1.5 rounded border border-border p-4 text-sm">
+        <div className="flex flex-col gap-2 rounded border border-border p-4 text-sm">
           {result.ok ? (
             <>
               <Badge tone="success">Sent</Badge>

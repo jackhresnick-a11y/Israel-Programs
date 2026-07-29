@@ -145,7 +145,7 @@ function QuestionRow({
 }) {
   const dirty = pendingTier !== question.tier;
   return (
-    <div className="flex flex-col gap-1.5 px-4 py-3">
+    <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="tag">{question.key}</Badge>
         <span className="text-sm text-foreground">{question.text}</span>
@@ -153,7 +153,7 @@ function QuestionRow({
         <span className="ml-auto text-xs text-muted">n={question.countedN}</span>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
-        <label className="flex items-center gap-1.5">
+        <label className="flex items-center gap-2">
           Tier
           <Select
             value={pendingTier}
@@ -220,7 +220,7 @@ function CategorySection({
         <h3 className="text-sm font-semibold text-foreground">{group.name}</h3>
         <span className="text-xs text-muted">({group.questions.length})</span>
         {definingCount === 0 && (
-          <span className="rounded bg-warning-bg px-2 py-0.5 text-[10px] text-warning">
+          <span className="rounded bg-warning-bg px-2 py-1 text-[10px] text-warning">
             No Defining questions in this category
           </span>
         )}

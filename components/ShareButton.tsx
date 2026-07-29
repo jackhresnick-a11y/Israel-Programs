@@ -150,7 +150,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
             role="menu"
             aria-label={`Share ${name}`}
             style={{ top: pos.top, right: pos.right }}
-            className="fixed z-50 min-w-44 rounded border border-border bg-surface p-1.5"
+            className="fixed z-50 min-w-44 rounded border border-border bg-surface p-2"
           >
             {channels.map((c) => (
               <a
@@ -160,7 +160,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                className="flex items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
               >
                 {c.label}
               </a>
@@ -169,7 +169,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
               type="button"
               role="menuitem"
               onClick={copyLink}
-              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-foreground hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm text-foreground hover:bg-surface-muted"
             >
               Copy link
             </button>

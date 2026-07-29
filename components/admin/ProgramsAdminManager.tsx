@@ -137,7 +137,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
               </p>
               <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {program.contactOptIns.map((c, i) => (
-                  <div key={i} className="flex flex-col gap-0.5 px-3 py-2 text-xs">
+                  <div key={i} className="flex flex-col gap-1 px-3 py-2 text-xs">
                     <span className="font-medium text-foreground">{c.contactName}</span>
                     <span className="text-muted">{c.contactMethod}</span>
                     <span className="text-muted">

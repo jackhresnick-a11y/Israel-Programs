@@ -419,7 +419,7 @@ function ProgramRow({
             </p>
             <div className="flex flex-col divide-y divide-border rounded border border-border">
               {provenance.questions.map(({ question, source }) => (
-                <div key={question.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                <div key={question.id} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
                   <span className="text-foreground">{question.text}</span>
                   <ProvenanceBadge source={source} />
                 </div>

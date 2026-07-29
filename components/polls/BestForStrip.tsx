@@ -41,7 +41,7 @@ export default function BestForStrip({
         {content}
       </p>
       {hasOverride && isModerator && (
-        <span className="self-start rounded bg-surface-muted px-2 py-0.5 text-[10px] text-muted">
+        <span className="self-start rounded bg-surface-muted px-2 py-1 text-[10px] text-muted">
           Editorial override
         </span>
       )}

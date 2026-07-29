@@ -108,7 +108,7 @@ export default async function AdminPage() {
             </Link>
             <Link
               href="/admin/polls"
-              className={buttonVariants({ variant: "secondary", size: "sm", className: "gap-1.5" })}
+              className={buttonVariants({ variant: "secondary", size: "sm", className: "gap-2" })}
             >
               Ratings
               {pendingRatingsCount > 0 && (

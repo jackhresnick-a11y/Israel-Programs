@@ -81,7 +81,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>
           I consent to being listed publicly (display name + the note above) and to
