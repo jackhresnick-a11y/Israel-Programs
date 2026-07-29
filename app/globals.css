@@ -140,9 +140,15 @@
   --text-meta: 12px;
   --text-meta--line-height: 1.4;
 
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-fraunces);
-  --font-mono: var(--font-geist-mono);
+  /* Frank Ruhl Libre (400/500/700, latin+hebrew) for display/headings/wordmark;
+     IBM Plex Sans + IBM Plex Sans Hebrew (400/500/600) for body/UI -- IBM Plex Sans
+     itself has no Hebrew subset on Google Fonts, so the Hebrew-subset family sits
+     right after it in the stack for Hebrew glyphs; IBM Plex Mono (400/500) for
+     numerals/metadata, falling through to the Sans Hebrew/serif stack for any stray
+     Hebrew text since no Hebrew Plex Mono exists (§3/§4). */
+  --font-sans: var(--font-ibm-plex-sans), var(--font-ibm-plex-sans-hebrew), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-frank-ruhl-libre), Georgia, serif;
+  --font-mono: var(--font-ibm-plex-mono), var(--font-ibm-plex-sans-hebrew), ui-monospace, monospace;
 }
 
 body {
