@@ -18,7 +18,7 @@ export type RegionRow = {
 
 export type LocationTagOption = { slug: string; name: string };
 
-const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger", "violet"];
+const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger"];
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {

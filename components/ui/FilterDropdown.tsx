@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
-export type FilterDropdownTint = "accent" | "info" | "success" | "warning" | "danger" | "violet";
+export type FilterDropdownTint = "accent" | "info" | "success" | "warning" | "danger";
 
 type Option = { value: string; label: string };
 
@@ -55,12 +55,6 @@ const TINTS: Record<
     active: "border-danger bg-danger-bg",
     ring: "focus-visible:ring-danger",
     count: "bg-danger text-white",
-  },
-  violet: {
-    hover: "hover:border-violet hover:bg-violet-bg",
-    active: "border-violet bg-violet-bg",
-    ring: "focus-visible:ring-violet",
-    count: "bg-violet text-white",
   },
 };
 

@@ -32,8 +32,6 @@
   --warning-bg: #faf1e0;
   --danger: #a6402f; /* clay — reserved for destructive/error only, never decorative (§2) */
   --danger-bg: #f7eae7;
-  --violet: #7c5cbf;
-  --violet-bg: #f1ecfa;
 
   /* Poll-results question-group (bucket) identity colors -- deliberately separate
      from info/success/warning/danger above: those carry status meaning elsewhere in
@@ -84,8 +82,6 @@
   --color-warning-bg: var(--warning-bg);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
-  --color-violet: var(--violet);
-  --color-violet-bg: var(--violet-bg);
 
   --color-poll-bucket-1: var(--poll-bucket-1);
   --color-poll-bucket-2: var(--poll-bucket-2);

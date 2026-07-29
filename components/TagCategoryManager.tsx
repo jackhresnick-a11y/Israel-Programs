@@ -16,7 +16,7 @@ export type TagCategoryRow = {
   showInFilter: boolean;
 };
 
-const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger", "violet"];
+const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger"];
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
