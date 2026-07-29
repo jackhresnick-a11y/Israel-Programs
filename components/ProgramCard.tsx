@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Star } from "lucide-react";
 import { averageRating } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
 import Card from "@/components/ui/Card";
@@ -85,9 +86,9 @@ export function ProgramCardInfo({
           ))}
         </div>
         {rating !== null && (
-          <span className="whitespace-nowrap text-muted">
-            <span className="text-accent">★</span> {rating.toFixed(1)} (
-            {program.reviews.length})
+          <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted">
+            <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
+            {rating.toFixed(1)} ({program.reviews.length})
           </span>
         )}
       </div>

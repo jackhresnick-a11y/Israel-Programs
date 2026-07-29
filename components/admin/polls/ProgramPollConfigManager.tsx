@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -153,8 +153,13 @@ function BulkAssignPanel({ buckets, tags }: { buckets: BucketRow[]; tags: TagOpt
             {Array.from(selectedTags).map((slug) => (
               <Badge key={slug} tone="tag" className="gap-1">
                 {slug}
-                <button type="button" onClick={() => toggleTag(slug)} className="ml-0.5 hover:text-danger">
-                  &times;
+                <button
+                  type="button"
+                  onClick={() => toggleTag(slug)}
+                  aria-label={`Remove ${slug}`}
+                  className="ml-1 hover:text-danger"
+                >
+                  <X width={16} height={16} strokeWidth={1.5} />
                 </button>
               </Badge>
             ))}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import StarRating from "@/components/ui/StarRating";
 
 export type StandaloneReviewRow = {
   id: string;
@@ -70,7 +71,7 @@ function ReviewRow({ review }: { review: StandaloneReviewRow }) {
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="tag">{review.program.name}</Badge>
-            <span className="text-xs text-accent">{"★".repeat(review.rating)}</span>
+            <StarRating rating={review.rating} />
             <span className="text-xs font-medium text-foreground">{review.reviewerName}</span>
             {review.isAnonymous && <Badge tone="info">Posted anonymously</Badge>}
           </div>

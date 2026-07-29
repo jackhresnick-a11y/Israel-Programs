@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import Select from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
 import type { PollQuestionDTO } from "@/lib/pollShared";
@@ -61,12 +62,14 @@ export default function QuestionInput({
               aria-pressed={n === value}
               onClick={() => toggle(n)}
               className={cn(
-                "text-2xl leading-none transition-colors duration-[120ms] ease-out",
+                "leading-none transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
-                value !== null && n <= value ? "text-accent" : "text-border hover:text-accent/50"
+                value !== null && n <= value
+                  ? "fill-current text-accent-hover"
+                  : "text-border hover:text-accent-hover/50"
               )}
             >
-              ★
+              <Star width={20} height={20} strokeWidth={1.5} aria-hidden="true" />
             </button>
           ))}
           <span className="ml-2 text-xs text-muted">

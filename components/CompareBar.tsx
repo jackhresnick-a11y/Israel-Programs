@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import { useCompare } from "./CompareContext";
 import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
@@ -22,9 +23,9 @@ export default function CompareBar() {
             <button
               onClick={() => remove(p.slug)}
               aria-label={`Remove ${p.name} from comparison`}
-              className="ml-0.5 hover:text-danger"
+              className="ml-1 hover:text-danger"
             >
-              ×
+              <X width={16} height={16} strokeWidth={1.5} />
             </button>
           </Badge>
         ))}

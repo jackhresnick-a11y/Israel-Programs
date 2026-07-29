@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown, Info } from "lucide-react";
 import { listPrograms } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listRecentReviews } from "@/lib/reviews";
@@ -7,6 +7,7 @@ import ProgramCard from "@/components/ProgramCard";
 import FeaturedProgramCard from "@/components/FeaturedProgramCard";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
+import StarRating from "@/components/ui/StarRating";
 import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getHomeVideoSettings } from "@/lib/homeVideo";
@@ -60,9 +61,13 @@ export default async function Home() {
         {/* Same copy as the old floating Disclaimer -- now a static strip under the
             primary search action instead of covering content on every page. */}
         <p className="mx-auto max-w-2xl text-xs text-muted sm:mx-0">
-          <span className="text-accent" aria-hidden="true">
-            &#9432;{" "}
-          </span>
+          <Info
+            width={14}
+            height={14}
+            strokeWidth={1.5}
+            aria-hidden="true"
+            className="mr-1 inline align-text-bottom text-accent-hover"
+          />
           Information may not be 100% accurate. If you&apos;re interested in a program, we
           recommend contacting them directly to confirm details.
         </p>
@@ -79,9 +84,7 @@ export default async function Home() {
         <details className="group max-w-2xl text-left">
           <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden">
             About this project
-            <span className="group-open:rotate-180">
-              ▾
-            </span>
+            <ChevronDown width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="group-open:rotate-180" />
           </summary>
           <div className="mt-3 flex flex-col gap-3 rounded border border-border bg-surface-muted p-4 text-sm leading-relaxed text-foreground/70">
             <p>
@@ -142,10 +145,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {recentReviews.map((review) => (
               <Card key={review.id} className="flex flex-col gap-2 p-4">
-                <span className="text-accent" aria-label={`${review.rating} out of 5 stars`}>
-                  {"★".repeat(review.rating)}
-                  <span className="text-border">{"★".repeat(5 - review.rating)}</span>
-                </span>
+                <StarRating rating={review.rating} />
                 <p className="line-clamp-3 text-sm text-foreground/80">{review.text}</p>
                 <p className="mt-auto text-xs text-muted">
                   {review.reviewerName} · {new Date(review.createdAt).toLocaleDateString()}

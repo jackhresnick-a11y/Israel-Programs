@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Play } from "lucide-react";
 import { platformForStoredUrl, watchUrlForStoredUrl, type Provider } from "@/lib/videoEmbed";
 
 type Video = {
@@ -86,9 +86,9 @@ function LazyEmbedFacade({
     >
       <span
         aria-hidden
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 text-lg transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"
       >
-        ▶
+        <Play width={20} height={20} strokeWidth={1.5} className="fill-current" />
       </span>
       <span>Play {label} video</span>
       {watchUrl && (

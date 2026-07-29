@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
@@ -302,7 +303,7 @@ function ScopePicker({
                   className="text-muted hover:text-danger"
                   onClick={() => toggle(value)}
                 >
-                  ×
+                  <X width={16} height={16} strokeWidth={1.5} />
                 </button>
               </span>
             </Badge>

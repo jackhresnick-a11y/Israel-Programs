@@ -1,6 +1,7 @@
 import { SignInButton, Show } from "@clerk/nextjs";
 import ReviewForm from "@/components/ReviewForm";
 import { buttonVariants } from "@/components/ui/Button";
+import StarRating from "@/components/ui/StarRating";
 import type { ProgramReviewsSummaryDTO } from "@/lib/pollResults";
 
 /** 0 is the "Earlier" sentinel used by RateForm's year-attended dropdown -- see
@@ -64,10 +65,7 @@ export default function ReviewsSection({
                 {summary.standaloneReviews.map((review) => (
                   <div key={review.id} className="rounded border border-border bg-surface p-4">
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-accent">
-                        {"★".repeat(review.rating)}
-                        {"☆".repeat(5 - review.rating)}
-                      </span>
+                      <StarRating rating={review.rating} />
                       <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
                     </div>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>

@@ -18,6 +18,7 @@ import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
+import StarRating from "@/components/ui/StarRating";
 import type { ProgramInput } from "@/lib/programs";
 
 const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger" } as const;
@@ -184,9 +185,7 @@ export default async function AdminPage() {
                       >
                         {review.program.name}
                       </Link>
-                      <span className="whitespace-nowrap text-xs text-accent">
-                        {"★".repeat(review.rating)}
-                      </span>
+                      <StarRating rating={review.rating} className="whitespace-nowrap" />
                     </div>
                     <p className="line-clamp-1 text-xs text-foreground/70">{review.text}</p>
                     <p className="text-xs text-muted">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Play } from "lucide-react";
 import { buttonVariants } from "@/components/ui/Button";
 import { EMBED_ALLOW, EMBED_REFERRER_POLICY, EMBED_SANDBOX } from "@/components/VideoList";
 import { effectivePosterUrl, type HomeVideoConfig } from "@/lib/homeVideoConfig";
@@ -94,18 +95,18 @@ export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
                 <div className="absolute inset-0 bg-black/30 transition-colors duration-[120ms] ease-out group-hover:bg-black/40" />
                 <span
                   aria-hidden
-                  className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-2xl text-foreground transition-colors duration-[120ms] ease-out group-hover:bg-white"
+                  className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground transition-colors duration-[120ms] ease-out group-hover:bg-white"
                 >
-                  ▶
+                  <Play width={20} height={20} strokeWidth={1.5} className="fill-current" />
                 </span>
               </>
             ) : (
               <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out group-hover:text-accent">
                 <span
                   aria-hidden
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 text-lg transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"
                 >
-                  ▶
+                  <Play width={20} height={20} strokeWidth={1.5} className="fill-current" />
                 </span>
                 <span>Play video</span>
                 <span className="text-xs underline decoration-dotted">or watch on {label}</span>

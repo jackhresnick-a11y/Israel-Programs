@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Star, X } from "lucide-react";
 import {
   getProgramsBySlugs,
   listPublishedProgramNames,
@@ -40,7 +41,12 @@ function buildRows(durationLabelMap: Record<DurationType, string>): Row[] {
       render: (p) => {
         const rating = averageRating(p.reviews);
         if (rating === null) return "No reviews yet";
-        return `★ ${rating.toFixed(1)} (${p.reviews.length} review${p.reviews.length === 1 ? "" : "s"})`;
+        return (
+          <span className="inline-flex items-center gap-1">
+            <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
+            {rating.toFixed(1)} ({p.reviews.length} review{p.reviews.length === 1 ? "" : "s"})
+          </span>
+        );
       },
     },
     {
@@ -131,7 +137,7 @@ export default async function ComparePage({
                         aria-label={`Remove ${program.name} from comparison`}
                         className="shrink-0 text-muted hover:text-danger"
                       >
-                        ×
+                        <X width={16} height={16} strokeWidth={1.5} />
                       </Link>
                     </div>
                     <p className="text-xs text-muted">

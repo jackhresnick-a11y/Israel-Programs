@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import Badge from "@/components/ui/Badge";
 import Input from "@/components/ui/Input";
@@ -127,9 +128,9 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                 type="button"
                 onClick={() => toggle(name)}
                 aria-label={`Remove ${name}`}
-                className="ml-0.5 hover:text-danger"
+                className="ml-1 hover:text-danger"
               >
-                &times;
+                <X width={16} height={16} strokeWidth={1.5} />
               </button>
             </Badge>
           ))}

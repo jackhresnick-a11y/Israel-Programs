@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, X } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -264,8 +264,13 @@ export default function ProgramsAdminManager({
                 return (
                   <Badge key={slug} tone="tag" className="gap-1">
                     {tag?.name ?? slug}
-                    <button type="button" onClick={() => toggleTagFilter(slug)} className="ml-0.5 hover:text-danger">
-                      &times;
+                    <button
+                      type="button"
+                      onClick={() => toggleTagFilter(slug)}
+                      aria-label={`Remove ${tag?.name ?? slug}`}
+                      className="ml-1 hover:text-danger"
+                    >
+                      <X width={16} height={16} strokeWidth={1.5} />
                     </button>
                   </Badge>
                 );
