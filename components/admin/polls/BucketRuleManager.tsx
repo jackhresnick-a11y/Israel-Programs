@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -349,7 +350,9 @@ export default function BucketRuleManager({
                 <span className="text-sm font-medium text-foreground">
                   {bucket ? bucket.name : `(missing bucket: ${rule.bucketId})`}
                 </span>
-                <span className="text-xs text-muted">→ when</span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted">
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} /> when
+                </span>
                 {rule.tagSlugs.map((slug, i) => (
                   <span key={slug} className="flex items-center gap-1">
                     <Badge tone="tag">#{slug}</Badge>

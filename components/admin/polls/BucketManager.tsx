@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -137,8 +138,9 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
                     className="h-5 px-1 py-0"
                     disabled={index === 0 || busyId === bucket.id}
                     onClick={() => handleMoveBucket(index, -1)}
+                    aria-label="Move up"
                   >
-                    ↑
+                    <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   <Button
                     type="button"
@@ -147,8 +149,9 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
                     className="h-5 px-1 py-0"
                     disabled={index === buckets.length - 1 || busyId === bucket.id}
                     onClick={() => handleMoveBucket(index, 1)}
+                    aria-label="Move down"
                   >
-                    ↓
+                    <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                 </div>
                 <span className="text-sm font-medium text-foreground">{bucket.name}</span>
@@ -218,8 +221,9 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
                                 className="h-4 px-1 py-0 text-[10px]"
                                 disabled={qi === 0 || busyId === bucket.id}
                                 onClick={() => handleMoveQuestion(bucket, qi, -1)}
+                                aria-label="Move up"
                               >
-                                ↑
+                                <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
                               </Button>
                               <Button
                                 type="button"
@@ -228,8 +232,9 @@ export default function BucketManager({ buckets, questions }: { buckets: BucketR
                                 className="h-4 px-1 py-0 text-[10px]"
                                 disabled={qi === bucket.questionIds.length - 1 || busyId === bucket.id}
                                 onClick={() => handleMoveQuestion(bucket, qi, 1)}
+                                aria-label="Move down"
                               >
-                                ↓
+                                <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
                               </Button>
                             </div>
                             <span className="flex-1 text-sm text-foreground">

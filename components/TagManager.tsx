@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -163,8 +164,9 @@ export default function TagManager({
               className="h-5 px-1 py-0"
               disabled={index === 0 || busyId === tag.id}
               onClick={() => handleMove(rows, index, -1)}
+              aria-label="Move up"
             >
-              ↑
+              <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
             </Button>
             <Button
               type="button"
@@ -173,8 +175,9 @@ export default function TagManager({
               className="h-5 px-1 py-0"
               disabled={index === rows.length - 1 || busyId === tag.id}
               onClick={() => handleMove(rows, index, 1)}
+              aria-label="Move down"
             >
-              ↓
+              <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
             </Button>
           </div>
         )}

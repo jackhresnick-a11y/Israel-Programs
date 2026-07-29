@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -78,7 +79,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
                 className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move up"
               >
-                ↑
+                <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
@@ -87,7 +88,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
                 className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move down"
               >
-                ↓
+                <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"

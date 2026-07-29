@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -317,7 +318,15 @@ function ProgramRow({
           className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Badge tone={resultsVisible ? "success" : "neutral"}>
-            {toggling ? "Updating..." : resultsVisible ? "Results visible ✓" : "Results hidden -- click to show"}
+            {toggling ? (
+              "Updating..."
+            ) : resultsVisible ? (
+              <span className="inline-flex items-center gap-1">
+                Results visible <Check className="h-4 w-4" strokeWidth={1.5} />
+              </span>
+            ) : (
+              "Results hidden -- click to show"
+            )}
           </Badge>
         </button>
         {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -194,8 +195,15 @@ function FaqEntryRow({
     <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-col">
-          <Button type="button" variant="secondary" size="sm" disabled={index === 0 || busy} onClick={() => onMove(-1)}>
-            ↑
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={index === 0 || busy}
+            onClick={() => onMove(-1)}
+            aria-label="Move up"
+          >
+            <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
           </Button>
           <Button
             type="button"
@@ -203,8 +211,9 @@ function FaqEntryRow({
             size="sm"
             disabled={index === count - 1 || busy}
             onClick={() => onMove(1)}
+            aria-label="Move down"
           >
-            ↓
+            <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
           </Button>
         </div>
         <div className="flex flex-1 flex-col gap-0.5">

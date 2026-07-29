@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
@@ -40,7 +41,14 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
     }
   }
 
-  const arrow = (key: SortKey) => (sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "");
+  const arrow = (key: SortKey) =>
+    sortKey === key ? (
+      sortDir === "asc" ? (
+        <ArrowUp className="ml-1 inline h-4 w-4" strokeWidth={1.5} />
+      ) : (
+        <ArrowDown className="ml-1 inline h-4 w-4" strokeWidth={1.5} />
+      )
+    ) : null;
 
   return (
     <div className="flex flex-col gap-4">

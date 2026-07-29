@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { platformForStoredUrl, watchUrlForStoredUrl, type Provider } from "@/lib/videoEmbed";
 
 type Video = {
@@ -108,9 +109,7 @@ function WatchOnLink({ url, label }: { url: string; label: string }) {
       rel="noopener noreferrer"
       className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent hover:text-accent"
     >
-      <span aria-hidden className="text-lg">
-        ↗
-      </span>
+      <ArrowUpRight aria-hidden className="h-5 w-5" strokeWidth={1.5} />
       <span className="underline">Watch on {label}</span>
     </a>
   );

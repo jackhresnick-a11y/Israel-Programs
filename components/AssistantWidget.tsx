@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -89,7 +90,7 @@ export default function AssistantWidget() {
           className="text-muted hover:text-foreground"
           aria-label="Close assistant"
         >
-          ✕
+          <X className="h-4 w-4" strokeWidth={1.5} />
         </button>
       </div>
 

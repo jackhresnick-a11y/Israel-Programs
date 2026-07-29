@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { listPrograms, listAllTags, getFacetData, type ProgramFilters } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
@@ -297,7 +298,9 @@ export default async function ProgramsPage({
                     className="rounded border border-border bg-surface px-3 py-1.5 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent hover:bg-accent/10"
                   >
                     Remove {dimension.kind === "duration" ? durationFilter.label : dimension.label}
-                    <span className="ml-1.5 text-xs text-muted">→ {count}</span>
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-muted">
+                      <ArrowRight className="h-4 w-4" strokeWidth={1.5} /> {count}
+                    </span>
                   </Link>
                 ))}
                 <Link

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -223,8 +224,19 @@ export default function ProgramsAdminManager({
             className="max-w-sm"
           />
           <div className="flex gap-2">
-            <Button type="button" variant={sortKey === "name" ? "primary" : "secondary"} size="sm" onClick={() => toggleSort("name")}>
-              Name {sortKey === "name" ? (sortAsc ? "↑" : "↓") : ""}
+            <Button
+              type="button"
+              variant={sortKey === "name" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => toggleSort("name")}
+            >
+              Name
+              {sortKey === "name" &&
+                (sortAsc ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </Button>
             <Button
               type="button"
@@ -232,7 +244,13 @@ export default function ProgramsAdminManager({
               size="sm"
               onClick={() => toggleSort("responseCount")}
             >
-              Responses {sortKey === "responseCount" ? (sortAsc ? "↑" : "↓") : ""}
+              Responses
+              {sortKey === "responseCount" &&
+                (sortAsc ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </Button>
           </div>
         </div>

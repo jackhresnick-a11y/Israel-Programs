@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -316,10 +317,15 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
             <button
               key={key}
               onClick={() => toggleSort(key)}
-              className={`rounded px-2 py-1 hover:bg-surface-muted ${sortKey === key ? "font-semibold text-foreground" : ""}`}
+              className={`inline-flex items-center gap-1 rounded px-2 py-1 hover:bg-surface-muted ${sortKey === key ? "font-semibold text-foreground" : ""}`}
             >
               {key === "country" ? "Country" : key === "schoolName" ? "School" : "Date added"}
-              {sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+              {sortKey === key &&
+                (sortDir === "asc" ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </button>
           ))}
         </div>

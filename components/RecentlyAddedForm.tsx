@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -205,8 +206,9 @@ export default function RecentlyAddedForm({
                     size="sm"
                     disabled={index === 0}
                     onClick={() => handleMove(index, -1)}
+                    aria-label="Move up"
                   >
-                    ↑
+                    <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   <Button
                     type="button"
@@ -214,8 +216,9 @@ export default function RecentlyAddedForm({
                     size="sm"
                     disabled={index === items.length - 1}
                     onClick={() => handleMove(index, 1)}
+                    aria-label="Move down"
                   >
-                    ↓
+                    <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   <Button
                     type="button"

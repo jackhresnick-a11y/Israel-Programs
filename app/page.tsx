@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { listPrograms } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listRecentReviews } from "@/lib/reviews";
@@ -69,9 +70,9 @@ export default async function Home() {
         <div className="flex justify-center sm:justify-start">
           <Link
             href="/programs"
-            className="text-sm font-medium text-accent-hover hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-medium text-accent-hover hover:underline"
           >
-            Browse all programs →
+            Browse all programs <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </Link>
         </div>
 
