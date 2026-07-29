@@ -15,10 +15,22 @@
      use --foreground for ordinary text. */
   --primary: #16274a;
   --primary-foreground: #f4f2ed; /* text-inverse */
-  --accent: #b8912f; /* brass */
-  --accent-hover: #a17e28;
+  --accent: #b8912f; /* brass — one of the six frozen palette hexes (§2), never
+     changed for contrast; it's 2.82:1 on paper/surface, so it's fills-and-icons
+     only (with a dark foreground already on top) or large/decorative use, never
+     small text or a lone border/focus-ring standing in for a UI-component
+     boundary. --accent-hover below is the text-safe/UI-safe darker brass. */
+  --accent-hover: #8a6d23; /* darkened from #a17e28 -- that value was only
+     3.64:1 on paper, still short of 4.5:1 for the ~30 places this renders as
+     actual text (links, badges, the star-rating icon). 4.69:1 on paper /
+     4.89:1 on surface now. Same hue/saturation as brass, just deeper. */
   --accent-foreground: #1a1a17; /* text-primary reads on a brass fill per §6's numbered rating scale */
-  --accent-strong: #9c7a28;
+  --accent-strong: #907025; /* darkened from #9c7a28 -- white
+     (--accent-strong-foreground) on the old value was only 4.02:1, short of
+     4.5:1 for Button.tsx's primary variant (text-xs/text-sm, not large text
+     by WCAG's definition). White on this value is 4.64:1. --accent-strong-hover
+     stays as-is -- already darker than this, so its own white-text contrast
+     only improves. */
   --accent-strong-hover: #86691f;
   --accent-strong-foreground: #ffffff;
   --muted: #5b5a54; /* text-muted */
@@ -28,7 +40,9 @@
   --info-bg: #eaf1fb;
   --success: #3f5d4a; /* cypress — doubles as success per §2, no separate green */
   --success-bg: #eaf0ec;
-  --warning: #b37f22;
+  --warning: #91671b; /* darkened from #b37f22 -- that value was only 3.13:1 on
+     --warning-bg, short of 4.5:1 for the badges/banners that render it as
+     text. 4.50:1 on warning-bg / 4.84:1 on paper now. */
   --warning-bg: #faf1e0;
   --danger: #a6402f; /* clay — reserved for destructive/error only, never decorative (§2) */
   --danger-bg: #f7eae7;

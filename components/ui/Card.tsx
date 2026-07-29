@@ -16,7 +16,7 @@ export default function Card<T extends React.ElementType = "div">({
     <Component
       className={cn(
         "rounded border border-border bg-surface transition-colors duration-[120ms] ease-out",
-        interactive && "hover:border-accent",
+        interactive && "hover:border-accent-hover",
         className
       )}
       {...props}

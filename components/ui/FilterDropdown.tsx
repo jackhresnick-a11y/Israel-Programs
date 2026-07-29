@@ -27,9 +27,9 @@ const TINTS: Record<
   { hover: string; active: string; ring: string; count: string }
 > = {
   accent: {
-    hover: "hover:border-accent hover:bg-accent/10",
-    active: "border-accent bg-accent/10",
-    ring: "focus-visible:ring-accent",
+    hover: "hover:border-accent-hover hover:bg-accent/10",
+    active: "border-accent-hover bg-accent/10",
+    ring: "focus-visible:ring-accent-hover",
     count: "bg-accent text-accent-foreground",
   },
   info: {

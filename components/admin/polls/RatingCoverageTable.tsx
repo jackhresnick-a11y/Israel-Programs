@@ -95,7 +95,7 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
               >
                 <Link
                   href={`/programs/${row.slug}`}
-                  className="flex-1 truncate font-medium text-foreground hover:text-accent"
+                  className="flex-1 truncate font-medium text-foreground hover:text-accent-hover"
                   title={row.name}
                 >
                   {row.name}

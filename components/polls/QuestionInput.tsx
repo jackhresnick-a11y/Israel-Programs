@@ -124,7 +124,7 @@ export default function QuestionInput({
                 "rounded border px-3 py-2 text-xs transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
                 selected
-                  ? "border-accent bg-accent/15 text-accent-hover"
+                  ? "border-accent-hover bg-accent/15 text-accent-hover"
                   : "border-border text-muted hover:bg-surface-muted"
               )}
             >

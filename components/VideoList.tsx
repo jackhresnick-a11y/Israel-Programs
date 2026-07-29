@@ -82,7 +82,7 @@ function LazyEmbedFacade({
     <button
       type="button"
       onClick={() => setLoaded(true)}
-      className="group flex h-full w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent hover:text-accent"
+      className="group flex h-full w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:text-accent-hover"
     >
       <span
         aria-hidden
@@ -107,7 +107,7 @@ function WatchOnLink({ url, label }: { url: string; label: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent hover:text-accent"
+      className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:text-accent-hover"
     >
       <ArrowUpRight aria-hidden className="h-5 w-5" strokeWidth={1.5} />
       <span className="underline">Watch on {label}</span>

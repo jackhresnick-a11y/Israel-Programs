@@ -70,7 +70,7 @@ export default function FolderDetailControls({
             onChange={(e) => setDraft(e.target.value)}
             maxLength={80}
             autoFocus
-            className="rounded border border-border bg-background px-3 py-2 font-serif text-xl font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="rounded border border-border bg-background px-3 py-2 font-serif text-xl font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover"
           />
           <Button type="submit" size="sm" disabled={saving}>
             Save
@@ -94,7 +94,7 @@ export default function FolderDetailControls({
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-xs text-muted underline underline-offset-2 hover:text-accent"
+            className="text-xs text-muted underline underline-offset-2 hover:text-accent-hover"
           >
             Rename
           </button>

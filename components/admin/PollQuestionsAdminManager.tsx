@@ -158,7 +158,7 @@ function QuestionRow({
           <Select
             value={pendingTier}
             onChange={(e) => onTierChange(e.target.value as QuestionTier)}
-            className={dirty ? "w-40 border-accent" : "w-40"}
+            className={dirty ? "w-40 border-accent-hover" : "w-40"}
           >
             {(Object.keys(TIER_LABELS) as QuestionTier[]).map((t) => (
               <option key={t} value={t}>

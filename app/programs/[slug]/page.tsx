@@ -252,7 +252,7 @@ export default async function ProgramDetailPage({
               href={program.signupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-accent-hover underline hover:text-accent"
+              className="mt-1 inline-block text-sm text-accent-hover underline"
             >
               {program.signupUrl}
             </a>
@@ -269,7 +269,7 @@ export default async function ProgramDetailPage({
                   )}&body=${encodeURIComponent(
                     `Hello,\n\nI found ${program.name} on the Israel Programs Wiki and would like to learn more about the program.\n\nThank you!`
                   )}`}
-                  className="text-accent-hover underline hover:text-accent"
+                  className="text-accent-hover underline"
                 >
                   {program.contactEmail}
                 </a>
@@ -286,7 +286,7 @@ export default async function ProgramDetailPage({
                 href={program.contactWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent-hover underline hover:text-accent"
+                className="text-accent-hover underline"
               >
                 {program.contactWebsite}
               </a>

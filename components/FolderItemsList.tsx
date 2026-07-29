@@ -101,7 +101,7 @@ export default function FolderItemsList({
                   ) : (
                     <Link
                       href={`/programs/${item.program.slug}`}
-                      className="font-medium text-foreground hover:text-accent hover:underline"
+                      className="font-medium text-foreground hover:text-accent-hover hover:underline"
                     >
                       {item.program.name}
                     </Link>

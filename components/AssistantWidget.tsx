@@ -113,7 +113,7 @@ export default function AssistantWidget() {
                     <Link
                       key={p.slug}
                       href={`/programs/${p.slug}`}
-                      className="rounded border border-border p-3 text-xs transition-colors duration-[120ms] ease-out hover:border-accent"
+                      className="rounded border border-border p-3 text-xs transition-colors duration-[120ms] ease-out hover:border-accent-hover"
                     >
                       <p className="font-semibold text-foreground">{p.name}</p>
                       {p.location && <p className="text-muted">{p.location}</p>}
@@ -142,7 +142,7 @@ export default function AssistantWidget() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="What are you looking for?"
           disabled={sending}
-          className="flex-1 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors duration-[120ms] ease-out focus:border-accent"
+          className="flex-1 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition-colors duration-[120ms] ease-out focus:border-accent-hover"
         />
         <Button type="submit" size="sm" disabled={sending || !input.trim()}>
           Send

@@ -93,7 +93,7 @@ export default function FolderShareControl({
         type="button"
         onClick={handleShare}
         disabled={pending}
-        className="text-xs text-muted underline underline-offset-2 hover:text-accent"
+        className="text-xs text-muted underline underline-offset-2 hover:text-accent-hover"
       >
         Generate new link
       </button>

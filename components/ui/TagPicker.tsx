@@ -96,7 +96,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center justify-between gap-2 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="flex items-center justify-between gap-2 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover"
       >
         <span>
           {selectedNames.length > 0

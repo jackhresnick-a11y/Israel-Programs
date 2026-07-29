@@ -76,7 +76,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
                 type="button"
                 onClick={() => moveBlock(i, -1)}
                 disabled={i === 0}
-                className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-muted hover:text-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move up"
               >
                 <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
@@ -85,7 +85,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
                 type="button"
                 onClick={() => moveBlock(i, 1)}
                 disabled={i === blocks.length - 1}
-                className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-muted hover:text-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move down"
               >
                 <ArrowDown className="h-4 w-4" strokeWidth={1.5} />

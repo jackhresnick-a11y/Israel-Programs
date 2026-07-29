@@ -125,7 +125,7 @@ export default function ProgramCard({
       <Link
         href={`/programs/${program.slug}/edit`}
         prefetch={false}
-        className="self-end text-xs text-muted hover:text-accent hover:underline"
+        className="self-end text-xs text-muted hover:text-accent-hover hover:underline"
       >
         Edit
       </Link>

@@ -80,7 +80,7 @@ export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
             type="button"
             onClick={() => setPlaying(true)}
             aria-label={`Play video: ${title}`}
-            className="group relative h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="group relative h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {poster && !posterFailed ? (
               <>
@@ -101,7 +101,7 @@ export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
                 </span>
               </>
             ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out group-hover:text-accent">
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out group-hover:text-accent-hover">
                 <span
                   aria-hidden
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"

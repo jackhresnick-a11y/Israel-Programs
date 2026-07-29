@@ -119,10 +119,10 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
         aria-expanded={open}
         className={cn(
           "flex h-7 w-7 items-center justify-center rounded-full border backdrop-blur transition-colors duration-[120ms] ease-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           open
-            ? "border-accent bg-accent/10 text-accent"
-            : "border-border bg-surface/90 text-muted hover:border-accent hover:text-accent"
+            ? "border-accent-hover bg-accent/10 text-accent-hover"
+            : "border-border bg-surface/90 text-muted hover:border-accent-hover hover:text-accent-hover"
         )}
       >
         <svg

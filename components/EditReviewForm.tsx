@@ -205,7 +205,7 @@ export default function EditReviewForm({
                     "rounded px-3 py-1 text-xs font-medium",
                     row.decision === "ACCEPTED"
                       ? "bg-accent text-accent-foreground"
-                      : "border border-border hover:border-accent"
+                      : "border border-border hover:border-accent-hover"
                   )}
                 >
                   Accept
