@@ -69,14 +69,14 @@ export default async function Home() {
         <div className="flex justify-center sm:justify-start">
           <Link
             href="/programs"
-            className="text-sm font-medium text-accent-hover hover:underline dark:text-accent"
+            className="text-sm font-medium text-accent-hover hover:underline"
           >
             Browse all programs →
           </Link>
         </div>
 
         <details className="group max-w-2xl text-left">
-          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden dark:text-accent dark:hover:text-accent-hover">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-accent-hover hover:text-accent [&::-webkit-details-marker]:hidden">
             About this project
             <span className="transition-transform group-open:rotate-180">
               ▾
@@ -151,7 +151,7 @@ export default async function Home() {
                 </p>
                 <Link
                   href={`/programs/${review.program.slug}`}
-                  className="text-sm font-medium text-accent-hover hover:underline dark:text-accent"
+                  className="text-sm font-medium text-accent-hover hover:underline"
                 >
                   {review.program.name}
                 </Link>

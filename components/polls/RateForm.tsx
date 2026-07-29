@@ -528,8 +528,8 @@ function clearDraft(programSlug: string) {
   }
 }
 
-// Same useSyncExternalStore pattern as components/ThemeToggle.tsx for reading a
-// browser-only value without a hydration mismatch: the server (and React's initial
+// useSyncExternalStore for reading a browser-only value without a hydration
+// mismatch: the server (and React's initial
 // client hydration pass) always sees getServerSnapshot's null, and the real draft
 // arrives one tick later on the client -- no useEffect+setState needed to "load" it.
 // Cached per programSlug so getSnapshot returns a referentially stable value (a fresh

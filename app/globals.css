@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
   color-scheme: light;
   /* Brand & Visual Style Guide v1.0 palette — six colors, nothing outside this
@@ -13,8 +11,8 @@
   --surface: #ffffff; /* surface */
   --surface-muted: #f3f0e9; /* derived warm tint of stone-on-paper, for background-tint separation per §1 — not one of the six named colors */
   --foreground: #1a1a17; /* text-primary */
-  /* ink-navy — deliberately constant across themes (Nav's solid header
-     background); use --foreground for text that should adapt instead. */
+  /* ink-navy — chrome (header/footer/section bands), not the page background;
+     use --foreground for ordinary text. */
   --primary: #16274a;
   --primary-foreground: #f4f2ed; /* text-inverse */
   --accent: #b8912f; /* brass */
@@ -145,41 +143,6 @@
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-fraunces);
   --font-mono: var(--font-geist-mono);
-}
-
-.dark {
-  color-scheme: dark;
-
-  --background: #14110b;
-  --surface: #201b12;
-  --surface-muted: #2a2318;
-  --foreground: #f3ecdd;
-  --accent: #e0ac4a;
-  --accent-hover: #ebbb5e;
-  --accent-foreground: #14110b;
-  --accent-strong: #e0ac4a;
-  --accent-strong-hover: #ebbb5e;
-  --accent-strong-foreground: #14110b;
-  --muted: #a79e8b;
-  --border: #37301f;
-
-  --info: #8fb6e8;
-  --info-bg: #1c2a3d;
-  --success: #8bc9a0;
-  --success-bg: #1b3024;
-  --warning: #e0ac4a;
-  --warning-bg: #332512;
-  --danger: #e5a08f;
-  --danger-bg: #3a201a;
-  --violet: #b79ce8;
-  --violet-bg: #2a2140;
-
-  --poll-bucket-1: #3987e5;
-  --poll-bucket-2: #199e70;
-  --poll-bucket-3: #c98500;
-  --poll-bucket-4: #008300;
-  --poll-bucket-5: #9085e9;
-  --poll-bucket-6: #e66767;
 }
 
 body {

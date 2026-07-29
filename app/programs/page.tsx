@@ -89,7 +89,6 @@ export default async function ProgramsPage({
         "backgroundLogoOffsetY",
         "backgroundLogoSizeMobile",
         "backgroundLogoOffsetYMobile",
-        "backgroundLogoUrlDark",
         "durationFilterLabel",
         "durationFilterTint",
         "durationFilterShow",
@@ -106,7 +105,6 @@ export default async function ProgramsPage({
     backgroundLogoOffsetY: backgroundOffsetYDesktop,
     backgroundLogoSizeMobile: backgroundSizeMobile,
     backgroundLogoOffsetYMobile: backgroundOffsetYMobile,
-    backgroundLogoUrlDark: backgroundUrlDark,
     durationFilterLabel,
     durationFilterTint,
     durationFilterShow,
@@ -248,7 +246,7 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
               }}
-              className={`absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden ${backgroundUrlDark ? "dark:hidden" : ""}`}
+              className="absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -259,34 +257,8 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
               }}
-              className={`absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block ${backgroundUrlDark ? "dark:hidden" : ""}`}
+              className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
             />
-            {backgroundUrlDark && (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={backgroundUrlDark}
-                  alt=""
-                  style={{
-                    height: `${backgroundMobileHeight}px`,
-                    opacity: backgroundOpacityValue,
-                    transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
-                  }}
-                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none dark:block sm:dark:hidden"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={backgroundUrlDark}
-                  alt=""
-                  style={{
-                    height: `${backgroundDesktopHeight}px`,
-                    opacity: backgroundOpacityValue,
-                    transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
-                  }}
-                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:dark:block"
-                />
-              </>
-            )}
           </div>
         )}
         <div className="relative flex flex-col gap-8">

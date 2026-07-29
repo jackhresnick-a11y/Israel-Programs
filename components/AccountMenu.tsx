@@ -1,7 +1,6 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { toggleTheme } from "@/components/ThemeToggle";
 
 const ICON_PROPS = {
   xmlns: "http://www.w3.org/2000/svg",
@@ -40,20 +39,11 @@ function AdminIcon() {
   );
 }
 
-// Same moon path as ThemeToggle.tsx's light-mode icon.
-function ThemeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M20 12.5A8.5 8.5 0 1 1 11.5 4a7 7 0 0 0 8.5 8.5Z" />
-    </svg>
-  );
-}
-
 /**
  * Wraps Clerk's <UserButton> with the app's own nav destinations as custom menu
- * items -- moves Saved / My Reference Requests / (admin-only) Admin / the dark-mode
- * toggle off the header row and into the avatar menu, so the header fits one row on
- * mobile (see components/Nav.tsx, which only mounts this for a signed-in user).
+ * items -- moves Saved / My Reference Requests / (admin-only) Admin off the header
+ * row and into the avatar menu, so the header fits one row on mobile (see
+ * components/Nav.tsx, which only mounts this for a signed-in user).
  */
 export default function AccountMenu({ isAdmin }: { isAdmin: boolean }) {
   return (
@@ -66,7 +56,6 @@ export default function AccountMenu({ isAdmin }: { isAdmin: boolean }) {
           labelIcon={<RequestsIcon />}
         />
         {isAdmin && <UserButton.Link href="/admin" label="Admin" labelIcon={<AdminIcon />} />}
-        <UserButton.Action label="Dark mode" labelIcon={<ThemeIcon />} onClick={toggleTheme} />
       </UserButton.MenuItems>
     </UserButton>
   );

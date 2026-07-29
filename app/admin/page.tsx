@@ -111,7 +111,7 @@ export default async function AdminPage() {
             >
               Ratings
               {pendingRatingsCount > 0 && (
-                <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover dark:text-accent">
+                <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-accent/20 px-1 text-[10px] font-semibold text-accent-hover">
                   {pendingRatingsCount}
                 </span>
               )}

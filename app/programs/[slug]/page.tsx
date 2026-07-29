@@ -223,7 +223,7 @@ export default async function ProgramDetailPage({
 
       {program.goodFor && (
         <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
-          <h2 className="text-sm font-semibold text-accent-hover dark:text-accent">
+          <h2 className="text-sm font-semibold text-accent-hover">
             Who it&apos;s for
           </h2>
           <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
@@ -252,7 +252,7 @@ export default async function ProgramDetailPage({
               href={program.signupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+              className="mt-1 inline-block text-sm text-accent-hover underline hover:text-accent"
             >
               {program.signupUrl}
             </a>
@@ -269,7 +269,7 @@ export default async function ProgramDetailPage({
                   )}&body=${encodeURIComponent(
                     `Hello,\n\nI found ${program.name} on the Israel Programs Wiki and would like to learn more about the program.\n\nThank you!`
                   )}`}
-                  className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+                  className="text-accent-hover underline hover:text-accent"
                 >
                   {program.contactEmail}
                 </a>
@@ -286,7 +286,7 @@ export default async function ProgramDetailPage({
                 href={program.contactWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+                className="text-accent-hover underline hover:text-accent"
               >
                 {program.contactWebsite}
               </a>

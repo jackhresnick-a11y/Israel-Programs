@@ -137,7 +137,7 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
           </label>
 
           <div className="flex items-start gap-3 rounded-lg bg-surface-muted p-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover dark:text-accent">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover">
               <MissionIcon icon={block.icon} className="h-4 w-4" />
             </div>
             <div className="flex flex-col gap-1">

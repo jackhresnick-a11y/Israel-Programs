@@ -3,16 +3,14 @@ import { SignInButton, SignUpButton, Show } from "@clerk/nextjs";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { buttonVariants } from "@/components/ui/Button";
-import ThemeToggle from "@/components/ThemeToggle";
 import AccountMenu from "@/components/AccountMenu";
 import MobileNavDrawer from "@/components/MobileNavDrawer";
 
 export default async function Nav() {
-  const [role, logoUrl, logoMode, logoUrlDark] = await Promise.all([
+  const [role, logoUrl, logoMode] = await Promise.all([
     getCurrentRole(),
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
-    getSiteContent("headerLogoUrlDark"),
   ]);
   const isAdmin = role === "admin";
   const showText = !logoUrl || logoMode === "alongside";
@@ -25,23 +23,9 @@ export default async function Nav() {
           className="flex shrink-0 items-center gap-2 font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
           {logoUrl && (
-            <>
-              {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={logoUrl}
-                alt="Israel Programs Wiki"
-                className={`h-9 w-auto sm:h-12 md:h-14 ${logoUrlDark ? "dark:hidden" : ""}`}
-              />
-              {logoUrlDark && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={logoUrlDark}
-                  alt="Israel Programs Wiki"
-                  className="hidden h-9 w-auto dark:block sm:h-12 md:h-14"
-                />
-              )}
-            </>
+            // External Blob URL — plain img avoids next/image remotePatterns config.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Israel Programs Wiki" className="h-9 w-auto sm:h-12 md:h-14" />
           )}
           {showText && "Israel Programs Wiki"}
         </Link>
@@ -61,14 +45,6 @@ export default async function Nav() {
               Add Program
             </Link>
           </nav>
-
-          {/* Desktop-only header toggle for both auth states -- on mobile it moves
-              into a menu instead (the hamburger drawer below for signed-out, since
-              that state has no other menu; AccountMenu's avatar menu for signed-in,
-              which already includes it -- see components/AccountMenu.tsx). */}
-          <div className="hidden sm:block">
-            <ThemeToggle />
-          </div>
 
           {/* Mobile nav drawer -- native <details>/<summary>, same zero-JS disclosure
               pattern as the homepage's "About this project" section, progressively
@@ -119,7 +95,6 @@ export default async function Nav() {
                 Add Program
               </Link>
               <Show when="signed-out">
-                <ThemeToggle variant="menu" />
                 {/* Sign in/up live here on mobile, not on the row -- neither auth
                     action is what a first-time mobile visitor is there to do; the row
                     is for search/browse, and signup belongs in context (next to Save,

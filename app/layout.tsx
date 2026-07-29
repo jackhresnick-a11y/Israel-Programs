@@ -66,11 +66,6 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col bg-background text-foreground">
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem("theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`,
-            }}
-          />
           <ToastProvider>
             <Nav />
             <div className="flex flex-1 flex-col overflow-x-clip">{children}</div>

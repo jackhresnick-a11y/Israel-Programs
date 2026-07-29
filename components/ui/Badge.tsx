@@ -9,7 +9,7 @@ export type BadgeTone =
   | "danger";
 
 const tones: Record<BadgeTone, string> = {
-  tag: "bg-accent/15 text-accent-hover dark:text-accent",
+  tag: "bg-accent/15 text-accent-hover",
   neutral: "bg-surface-muted text-muted",
   info: "bg-info-bg text-info",
   success: "bg-success-bg text-success",

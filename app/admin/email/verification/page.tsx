@@ -44,7 +44,7 @@ export default async function AdminEmailVerificationPage() {
                     href={row.contactEmailSource}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-accent-hover underline dark:text-accent"
+                    className="text-xs text-accent-hover underline"
                   >
                     {row.contactEmailSource}
                   </a>

@@ -49,7 +49,7 @@ export default function PollsTabs({
               <span
                 className={cn(
                   "inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
-                  active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover dark:text-accent"
+                  active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover"
                 )}
               >
                 {badgeCount}

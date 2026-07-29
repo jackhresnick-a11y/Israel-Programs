@@ -352,7 +352,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
                     href={contact.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-accent-hover underline dark:text-accent"
+                    className="text-xs text-accent-hover underline"
                   >
                     {contact.sourceUrl}
                   </a>
