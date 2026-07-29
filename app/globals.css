@@ -41,16 +41,25 @@
      from info/success/warning/danger above: those carry status meaning elsewhere in
      the app (error banners, verified badges), and reusing them here would make a
      bucket's color read as "good"/"bad" rather than "which group" -- exactly what
-     the descriptive-question spectrum is designed to avoid. Six-slot categorical
-     palette, CVD-validated (dataviz skill's scripts/validate_palette.js) against
-     this app's light/dark surfaces; ordering is the CVD-safety mechanism, not
-     cosmetic -- don't reorder. */
-  --poll-bucket-1: #2a78d6;
-  --poll-bucket-2: #1baf7a;
-  --poll-bucket-3: #eda100;
-  --poll-bucket-4: #008300;
-  --poll-bucket-5: #4a3aa7;
-  --poll-bucket-6: #e34948;
+     the descriptive-question spectrum is designed to avoid. Ten-slot categorical
+     "field-guide atlas" ramp: one saturation register, hue-ordered warm-to-cool-to-
+     warm, every value held at low lightness so each clears 3:1 against --background
+     (paper) on its own -- see the contrast gate script -- and reads as visually
+     distinct from --accent (brass, a lighter gold) and --primary (ink-navy, a much
+     darker desaturated blue). Assigned by a bucket's own QuestionBucket.order mod 10
+     (see components/PollSummaryStrip.tsx's bucketColorVar), not by array position,
+     so a bucket keeps the same color on every program; don't reorder these slots
+     without re-running the contrast check. */
+  --poll-bucket-1: #b23a2e; /* brick red */
+  --poll-bucket-2: #b4611f; /* terracotta */
+  --poll-bucket-3: #7e6a1b; /* dark olive */
+  --poll-bucket-4: #3f7a34; /* fern green */
+  --poll-bucket-5: #0f6e63; /* deep teal */
+  --poll-bucket-6: #1c6e8c; /* lagoon */
+  --poll-bucket-7: #285c9a; /* cerulean */
+  --poll-bucket-8: #8e3a57; /* wine */
+  --poll-bucket-9: #a6335e; /* raspberry */
+  --poll-bucket-10: #6b4a2e; /* bark brown */
 }
 
 @theme inline {
@@ -86,6 +95,10 @@
   --color-poll-bucket-4: var(--poll-bucket-4);
   --color-poll-bucket-5: var(--poll-bucket-5);
   --color-poll-bucket-6: var(--poll-bucket-6);
+  --color-poll-bucket-7: var(--poll-bucket-7);
+  --color-poll-bucket-8: var(--poll-bucket-8);
+  --color-poll-bucket-9: var(--poll-bucket-9);
+  --color-poll-bucket-10: var(--poll-bucket-10);
 
   /* Guide-named aliases (§2) — same values as the tokens above, exposed under
      the style guide's own vocabulary for code that wants to spell it that way

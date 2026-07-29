@@ -8,15 +8,18 @@ import { MIN_RESPONSES_PER_QUESTION } from "@/lib/pollBestFor";
 import { deriveCtaLayout } from "@/lib/contactOptIn";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
-/** Six-slot categorical palette for question-group (bucket) identity in the results
- * grid -- CSS custom properties defined in app/globals.css (both light and dark),
- * kept deliberately separate from the info/success/warning/danger tokens (those carry
- * status meaning elsewhere; reusing them here would make a bucket's color read as
- * "good"/"bad"). Assigned by each bucket's position in `summary.buckets` -- fixed
- * order, never cycled; a 7th+ bucket falls back to neutral rather than repeating a
- * hue. Referenced via inline style (not Tailwind classes) since the color is
- * data-driven and a dynamically-built class name wouldn't survive Tailwind's static
- * content scan. */
+/** Ten-slot categorical palette for question-group (bucket) identity in the results
+ * grid -- CSS custom properties defined in app/globals.css, kept deliberately separate
+ * from the info/success/warning/danger tokens (those carry status meaning elsewhere;
+ * reusing them here would make a bucket's color read as "good"/"bad"). Assigned by
+ * `bucket.order` (QuestionBucket.order -- a global, admin-assigned, stable field), not
+ * by a bucket's position within this one program's resolved `summary.buckets` list --
+ * that's what makes the same bucket render the same color on every program it appears
+ * on. A newly created bucket gets `order = max(order)+1` (lib/pollQuestions.ts's
+ * createBucket), so it automatically draws the next ramp color rather than reusing or
+ * inventing one; an 11th+ bucket wraps via modulo rather than falling back to neutral.
+ * Referenced via inline style (not Tailwind classes) since the color is data-driven and
+ * a dynamically-built class name wouldn't survive Tailwind's static content scan. */
 const BUCKET_COLOR_VARS = [
   "--poll-bucket-1",
   "--poll-bucket-2",
@@ -24,12 +27,17 @@ const BUCKET_COLOR_VARS = [
   "--poll-bucket-4",
   "--poll-bucket-5",
   "--poll-bucket-6",
+  "--poll-bucket-7",
+  "--poll-bucket-8",
+  "--poll-bucket-9",
+  "--poll-bucket-10",
 ] as const;
 
 function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]): string | null {
   if (!bucketId) return null;
-  const index = buckets.findIndex((b) => b.id === bucketId);
-  if (index < 0 || index >= BUCKET_COLOR_VARS.length) return null;
+  const bucket = buckets.find((b) => b.id === bucketId);
+  if (!bucket) return null;
+  const index = ((bucket.order % BUCKET_COLOR_VARS.length) + BUCKET_COLOR_VARS.length) % BUCKET_COLOR_VARS.length;
   return `var(${BUCKET_COLOR_VARS[index]})`;
 }
 
