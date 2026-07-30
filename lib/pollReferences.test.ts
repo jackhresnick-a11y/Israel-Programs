@@ -3,10 +3,22 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 /**
  * Task A: the anonymous poll's single 18+-gated contact-email field creates a PENDING
  * alumni Reference (lib/references.ts's upsertReferenceFromPoll), wired into
- * lib/pollResponses.ts's submitAnonymousResponse. These tests exercise the gate, DB-level
- * idempotency, the privacy invariants, the cutover, and the "reference write never fails
- * the poll" guarantee against an in-memory Prisma fake (same posture as folders.test.ts).
+ * lib/pollResponses.ts's maybeTransition -- the moment an autosaved response crosses the
+ * majority-of-Core "unlock" bar (see lib/pollUnlock.ts), not at a one-shot submit
+ * anymore. These tests exercise the gate, DB-level idempotency, the privacy invariants,
+ * the cutover, and the "reference write never fails the poll" guarantee against an
+ * in-memory Prisma fake (same posture as folders.test.ts). `@/lib/pollConfig` is mocked
+ * at the module boundary (rather than simulating its own several Prisma calls) to
+ * resolve a single fake Core question -- majority of 1 is 1, so a single saveAnswer call
+ * crosses the bar immediately, mirroring the old one-shot test shape as closely as
+ * possible while exercising the real autosave/transition code path.
  */
+vi.mock("@/lib/pollConfig", () => ({
+  getQuestionsForProgram: vi.fn(async () => ({
+    core: [{ id: "q_core_1" }],
+    extras: [],
+  })),
+}));
 const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindManyArgs } =
   vi.hoisted(() => {
     type ReferenceRow = {
@@ -30,11 +42,22 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       programId: string;
       status: string;
       email: string | null;
+      userId: string | null;
+      referrerTokenId: string | null;
+      ipHash: string;
+      flags: string[];
+      naQuestionIds: string[];
+      presentedQuestionIds: string[];
+      referenceEmail: string | null;
+      ageAttested: boolean;
+      yearAttended: number | null;
     };
+    type PollAnswerRow = { responseId: string; questionId: string; value: number };
 
     const db = {
       references: [] as ReferenceRow[],
       pollResponses: [] as PollResponseRow[],
+      pollAnswers: [] as PollAnswerRow[],
       seq: 0,
       upsertError: null as Error | null,
       lastReferenceFindManyArgs: null as unknown,
@@ -106,21 +129,85 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       },
       pollResponse: {
         count: vi.fn(async () => 0),
-        create: vi.fn(
-          async (args: { data: { programId: string; status: string; email?: string | null } }) => {
+        create: vi.fn(async (args: { data: Partial<PollResponseRow> & { programId: string; status: string } }) => {
           const row: PollResponseRow = {
             id: nextId("resp"),
             programId: args.data.programId,
             status: args.data.status,
             email: args.data.email ?? null,
+            userId: args.data.userId ?? null,
+            referrerTokenId: args.data.referrerTokenId ?? null,
+            ipHash: args.data.ipHash ?? "hash",
+            flags: args.data.flags ?? [],
+            naQuestionIds: args.data.naQuestionIds ?? [],
+            presentedQuestionIds: args.data.presentedQuestionIds ?? [],
+            referenceEmail: args.data.referenceEmail ?? null,
+            ageAttested: args.data.ageAttested ?? false,
+            yearAttended: args.data.yearAttended ?? null,
           };
           db.pollResponses.push(row);
           return row;
         }),
+        findUnique: vi.fn(async (args: { where: { id: string }; select?: Record<string, boolean> }) => {
+          const row = db.pollResponses.find((r) => r.id === args.where.id);
+          if (!row) return null;
+          if (!args.select) return row;
+          return Object.fromEntries(Object.keys(args.select).filter((k) => args.select![k]).map((k) => [k, (row as Record<string, unknown>)[k]]));
+        }),
+        findFirst: vi.fn(async (args: { where: Record<string, unknown> }) => {
+          return db.pollResponses.find((r) =>
+            Object.entries(args.where).every(([k, v]) => {
+              if (k === "status" && v && typeof v === "object" && "in" in (v as object)) {
+                return (v as { in: string[] }).in.includes(r.status);
+              }
+              return (r as Record<string, unknown>)[k] === v;
+            })
+          ) ?? null;
+        }),
+        update: vi.fn(async (args: { where: { id: string }; data: Partial<PollResponseRow> }) => {
+          const row = db.pollResponses.find((r) => r.id === args.where.id);
+          if (!row) throw new Error("not found");
+          Object.assign(row, args.data);
+          return row;
+        }),
+        updateMany: vi.fn(async (args: { where: { id: string; status?: string }; data: Partial<PollResponseRow> }) => {
+          const row = db.pollResponses.find(
+            (r) => r.id === args.where.id && (args.where.status === undefined || r.status === args.where.status)
+          );
+          if (!row) return { count: 0 };
+          Object.assign(row, args.data);
+          return { count: 1 };
+        }),
       },
-      pollAnswer: { createMany: vi.fn(async () => ({ count: 0 })) },
+      pollAnswer: {
+        createMany: vi.fn(async () => ({ count: 0 })),
+        upsert: vi.fn(async (args: { where: { responseId_questionId: { responseId: string; questionId: string } }; create: PollAnswerRow; update: { value: number } }) => {
+          const { responseId, questionId } = args.where.responseId_questionId;
+          const existing = db.pollAnswers.find((a) => a.responseId === responseId && a.questionId === questionId);
+          if (existing) {
+            Object.assign(existing, args.update);
+            return existing;
+          }
+          const row = { ...args.create };
+          db.pollAnswers.push(row);
+          return row;
+        }),
+        deleteMany: vi.fn(async (args: { where: { responseId: string; questionId?: string } }) => {
+          const before = db.pollAnswers.length;
+          db.pollAnswers = db.pollAnswers.filter(
+            (a) => !(a.responseId === args.where.responseId && (args.where.questionId === undefined || a.questionId === args.where.questionId))
+          );
+          return { count: before - db.pollAnswers.length };
+        }),
+        findMany: vi.fn(async (args: { where: { responseId: string } }) => {
+          return db.pollAnswers.filter((a) => a.responseId === args.where.responseId).map((a) => ({ questionId: a.questionId }));
+        }),
+      },
       pollReview: { create: vi.fn(async () => ({})) },
-      pollQuestion: { findMany: vi.fn(async () => [] as { id: string; version: number }[]) },
+      pollQuestion: { findMany: vi.fn(async () => [] as { id: string; version: number }[]), findUnique: vi.fn(async () => ({ version: 1 })) },
+      referrerToken: {
+        findUnique: vi.fn(async () => ({ id: "tok_1", revoked: false, expiresAt: null, maxResponses: null })),
+      },
     };
 
     return {
@@ -128,6 +215,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       resetDb() {
         db.references = [];
         db.pollResponses = [];
+        db.pollAnswers = [];
         db.seq = 0;
         db.upsertError = null;
         db.lastReferenceFindManyArgs = null;
@@ -137,7 +225,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
           }
         }
       },
-      snapshot: () => ({ references: db.references, pollResponses: db.pollResponses }),
+      snapshot: () => ({ references: db.references, pollResponses: db.pollResponses, pollAnswers: db.pollAnswers }),
       seedReference(row: Partial<ReferenceRow> & { programId: string; pollEmailKey: string }) {
         const full: ReferenceRow = {
           id: nextId("ref"),
@@ -173,26 +261,46 @@ const {
   countRecentPendingReferences,
   POLL_REFERENCE_DISPLAY_NAME,
 } = await import("./references");
-const { submitAnonymousResponse } = await import("./pollResponses");
+const { openAnonymousResponse, saveAnswer, addDetailAnswersAndReviews } = await import("./pollResponses");
 const { POLL_REFERENCE_CONSENT_LABEL, POLL_REFERENCE_CONSENT_VERSION } = await import("./pollShared");
 
-function baseAnonymousInput(overrides: Record<string, unknown> = {}) {
-  return {
+/** Opens a fresh anonymous response, then autosaves the (mocked) single Core question's
+ * answer -- majority of 1 is 1, so this one saveAnswer call is exactly the moment the
+ * response would cross the bar and transition, mirroring the old one-shot submit test
+ * shape as closely as possible while exercising the real autosave path. Reference-related
+ * fields (referenceEmail/ageAttested) are autosaved first via addDetailAnswersAndReviews
+ * (the details/contact-field autosave path), same order the real form saves them in --
+ * whenever they're typed, always before the rating that actually crosses the bar. */
+async function openAndCrossMajority(overrides: {
+  referenceEmail?: string | null;
+  ageAttested?: boolean;
+  hasBrowserMarker?: boolean;
+} = {}) {
+  const response = await openAnonymousResponse({
     programId: "prog_1",
     referrerTokenId: "tok_1",
-    tokenFlags: [] as never[],
-    answers: [] as { questionId: string; value: number }[],
-    naQuestionIds: [] as string[],
-    reviews: [] as { questionId: string; text: string }[],
-    presentedQuestionIds: [] as string[],
-    yearAttended: 2020 as number | null,
-    completion: null,
     ipHash: "hash",
-    hasBrowserMarker: false,
-    referenceEmail: null as string | null,
-    ageAttested: false,
-    ...overrides,
-  };
+    presentedQuestionIds: ["q_core_1"],
+  });
+  if (overrides.referenceEmail !== undefined || overrides.ageAttested !== undefined) {
+    await addDetailAnswersAndReviews(
+      response.id,
+      [],
+      [],
+      [],
+      [],
+      { referenceEmail: overrides.referenceEmail ?? undefined, ageAttested: overrides.ageAttested ?? undefined }
+    );
+  }
+  const result = await saveAnswer({
+    responseId: response.id,
+    questionId: "q_core_1",
+    questionVersion: 1,
+    value: 5,
+    na: false,
+    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
+  });
+  return { responseId: response.id, status: result.status };
 }
 
 beforeEach(() => resetDb());
@@ -286,72 +394,84 @@ describe("upsertReferenceFromPoll (the gate)", () => {
   });
 });
 
-describe("submitAnonymousResponse ↔ reference integration", () => {
-  it("valid email + 18+ → poll saved AND 1 reference", async () => {
-    const { response } = await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true })
-    );
-    expect(response.id).toBeTruthy();
+describe("autosave/majority-transition ↔ reference integration", () => {
+  it("valid email + 18+ → poll transitions COUNTED AND 1 reference", async () => {
+    const { responseId, status } = await openAndCrossMajority({
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+    });
+    expect(responseId).toBeTruthy();
+    expect(status).toBe("COUNTED");
     expect(snapshot().pollResponses).toHaveLength(1);
     expect(snapshot().references).toHaveLength(1);
   });
 
-  it("no email → poll saved, 0 references (legacy PollResponse.email is never consulted)", async () => {
-    await submitAnonymousResponse(baseAnonymousInput({ referenceEmail: null, ageAttested: true }));
+  it("no email → poll transitions COUNTED, 0 references (legacy PollResponse.email is never consulted)", async () => {
+    await openAndCrossMajority({ ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(1);
-    // the created PollResponse row carries no email at all under the new path
+    // the created PollResponse row carries no legacy email at all under the new path
     expect(snapshot().pollResponses[0].email).toBeNull();
     expect(snapshot().references).toHaveLength(0);
     expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
   });
 
-  it("malformed email → poll saved, 0 references", async () => {
-    await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "notanemail", ageAttested: true })
-    );
+  it("malformed email → poll transitions COUNTED, 0 references", async () => {
+    await openAndCrossMajority({ referenceEmail: "notanemail", ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(1);
     expect(snapshot().references).toHaveLength(0);
   });
 
-  it("pre-existing PollResponse email values can never produce a reference", async () => {
-    // Simulate the cutover: an old-style row that had an email but no new-path payload.
-    // The new code path receives no referenceEmail → creates nothing, and never reads
-    // PollResponse.email.
-    await submitAnonymousResponse(baseAnonymousInput({ referenceEmail: null, ageAttested: false }));
+  it("email autosaved without 18+ attested → 0 references", async () => {
+    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: false });
     expect(snapshot().references).toHaveLength(0);
     expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
   });
 
-  it("resubmitting the same email through the poll stays exactly 1 reference", async () => {
-    await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true })
-    );
-    await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true })
-    );
+  it("resubmitting the same email through two separate responses stays exactly 1 reference", async () => {
+    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: true });
+    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(2); // two responses
     expect(snapshot().references).toHaveLength(1); // but one reference
   });
 
-  it("reference write throwing never fails the poll submission", async () => {
+  it("reference write throwing never fails the transition", async () => {
     setUpsertError(new Error("db down"));
-    const { response } = await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true })
-    );
-    expect(response.id).toBeTruthy(); // poll still returns success
+    const { responseId, status } = await openAndCrossMajority({
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+    });
+    expect(responseId).toBeTruthy();
+    expect(status).toBe("COUNTED"); // transition still succeeds
     expect(snapshot().pollResponses).toHaveLength(1);
     expect(snapshot().references).toHaveLength(0);
   });
 
-  it("FLAGGED submission + valid email + 18+ → poll saved (FLAGGED), 0 references", async () => {
-    // hasBrowserMarker trips REPEAT_BROWSER → status FLAGGED. A valid email + 18+ still
-    // creates NO reference; only COUNTED submissions do.
-    const { response } = await submitAnonymousResponse(
-      baseAnonymousInput({ referenceEmail: "alum@example.com", ageAttested: true, hasBrowserMarker: true })
-    );
-    expect(response.status).toBe("FLAGGED");
+  it("FLAGGED transition (repeat browser) + valid email + 18+ → 0 references", async () => {
+    // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED. A valid email + 18+ still
+    // creates NO reference; only a COUNTED transition does.
+    const { status } = await openAndCrossMajority({
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+      hasBrowserMarker: true,
+    });
+    expect(status).toBe("FLAGGED");
     expect(snapshot().pollResponses).toHaveLength(1); // poll response still saved
     expect(snapshot().references).toHaveLength(0); // but no reference
+    expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
+  });
+
+  it("an abandoned INCOMPLETE response (never crossing majority) never triggers a reference", async () => {
+    // Open only -- no saveAnswer at all, so it never crosses the majority-of-1 bar and
+    // stays INCOMPLETE forever, exactly like a real abandoned poll.
+    await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1"],
+    });
+    expect(snapshot().pollResponses).toHaveLength(1);
+    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE");
+    expect(snapshot().references).toHaveLength(0);
     expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
   });
 });

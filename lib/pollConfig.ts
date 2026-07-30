@@ -18,6 +18,12 @@ export type ProgramPollConfigDTO = {
   removedQuestionIds: string[];
   resultsVisible: boolean;
   minResponsesToPublish: number;
+  /** Questions already displaying (count >= 3) when the 7-response publish bar was
+   * introduced -- backfilled once, never admin-editable (not part of
+   * programPollConfigPatchSchema below, deliberately: this is a system-managed,
+   * one-way "already earned its spot" list, not a config field). See
+   * lib/pollShared.ts's PollSummaryQuestionDTO.published doc comment for how it's used. */
+  grandfatheredQuestionIds: string[];
   displayFormat: PollDisplayFormat;
   placeholderOverride: string | null;
   /** When set, replaces the generated "Best for someone who wants..." strip on the
@@ -34,6 +40,7 @@ const DEFAULT_POLL_CONFIG: ProgramPollConfigDTO = {
   removedQuestionIds: [],
   resultsVisible: false,
   minResponsesToPublish: 7,
+  grandfatheredQuestionIds: [],
   displayFormat: "STARS",
   placeholderOverride: null,
   editorialBestFor: null,
@@ -52,6 +59,7 @@ export async function getProgramPollConfig(programId: string): Promise<ProgramPo
     removedQuestionIds: row.removedQuestionIds,
     resultsVisible: row.resultsVisible,
     minResponsesToPublish: row.minResponsesToPublish,
+    grandfatheredQuestionIds: row.grandfatheredQuestionIds,
     displayFormat: row.displayFormat,
     placeholderOverride: row.placeholderOverride,
     editorialBestFor: row.editorialBestFor,
@@ -189,6 +197,7 @@ export async function listProgramsWithPollConfig({ q }: { q?: string } = {}): Pr
             removedQuestionIds: p.pollConfig.removedQuestionIds,
             resultsVisible: p.pollConfig.resultsVisible,
             minResponsesToPublish: p.pollConfig.minResponsesToPublish,
+            grandfatheredQuestionIds: p.pollConfig.grandfatheredQuestionIds,
             displayFormat: p.pollConfig.displayFormat,
             placeholderOverride: p.pollConfig.placeholderOverride,
             editorialBestFor: p.pollConfig.editorialBestFor,

@@ -21,7 +21,7 @@ export type PollResponseRow = {
   referrerToken: { label: string } | null;
   yearAttended: number | null;
   completion: "FULL" | "PARTIAL" | "DROPPED" | null;
-  status: "PENDING" | "COUNTED" | "FLAGGED" | "VOIDED";
+  status: "PENDING" | "INCOMPLETE" | "COUNTED" | "FLAGGED" | "VOIDED";
   flags: string[];
   ipHash: string;
   createdAt: Date;
@@ -77,6 +77,7 @@ const FLAG_LABELS: Record<PollFlag, string> = {
 
 const STATUS_TONE: Record<PollResponseRow["status"], "neutral" | "success" | "warning" | "danger"> = {
   PENDING: "neutral",
+  INCOMPLETE: "neutral",
   COUNTED: "success",
   FLAGGED: "warning",
   VOIDED: "danger",

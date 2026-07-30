@@ -145,6 +145,14 @@ export type PollSummaryQuestionDTO = {
   scaleType: PollScaleType;
   bucketId: string | null;
   labels: string[];
+  /** Computed server-side in getProgramPollSummary: `count >= minResponsesToPublish OR
+   * this question is in the program's grandfatheredQuestionIds`. A question already
+   * displaying when the 7-response bar was introduced keeps displaying regardless of its
+   * current count -- grandfathering is a one-way, never-revoked list, not a live
+   * recomputation -- while a question that's never yet published is subject to the bar
+   * like normal. The results grid checks this flag directly rather than re-deriving it
+   * from count/minResponsesToPublish, so there's exactly one place the OR lives. */
+  published: boolean;
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same
@@ -182,6 +190,13 @@ export type PollSummaryDTO = {
   editorialBestFor: string | null;
   varianceNote: boolean;
   responseCount: number;
+  /** Per-program publish bar for an individual question's result (reactivated
+   * ProgramPollConfig.minResponsesToPublish, admin-editable, default 7) -- a question's
+   * own `count` must clear this before the results grid renders it instead of "Not
+   * enough responses yet." Deliberately separate from lib/pollBestFor.ts's own
+   * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility and the
+   * variance note -- two different features with two different bars. */
+  minResponsesToPublish: number;
 };
 
 /** One approved review as rendered on the public program page -- never carries
@@ -332,17 +347,52 @@ export const anonymousSubmitSchema = z
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
-/** The "Add more detail" / details endpoint: non-core answers and reviews for an
- * already-submitted response. No empty-submission refine here -- an empty details
- * payload is a no-op, not an error (the parent response already satisfied that rule
- * at initial submit). */
+/** The details/autosave endpoint: reviews and response-level fields (contact email,
+ * 18+ attestation, the signed-in contact opt-in) for a response that may still be
+ * INCOMPLETE. `answers` here is deliberately extras-shaped history from before autosave
+ * existed -- the star-rating values themselves now go through saveAnswerSchema/the
+ * `/answer` route one question at a time, never batched. No empty-submission refine --
+ * every field is independently optional, since autosave calls this repeatedly with
+ * whatever subset of fields just changed. */
 export const detailsSubmitSchema = z
   .object({
-    answers: answerListSchema,
+    answers: answerListSchema.default([]),
     reviews: reviewListSchema.default([]),
     naQuestionIds: naQuestionIdsSchema,
+    referenceEmail: z.string().trim().max(320).optional(),
+    ageAttested: z.boolean().optional(),
+    contactOptIn: contactOptInSchema.optional(),
+    yearAttended: yearAttendedSchema,
   })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
+
+/** Body for `POST /api/polls/responses/open` -- the poll-open endpoint that creates (or
+ * resumes) a response the moment the page loads, before any answer exists. `resumeId` is
+ * client-supplied (anonymous path only, sourced from localStorage the same way the old
+ * draft mechanism was) -- the server only ever honors it if that response actually
+ * belongs to this program and is still INCOMPLETE; anything else is silently ignored in
+ * favor of minting a fresh response, never trusted blindly. */
+export const openPollSchema = z.object({
+  programId: z.string().min(1),
+  ref: z.string().min(1).optional(),
+  resumeId: z.string().min(1).optional(),
+});
+
+/** Body for `PATCH /api/polls/responses/[id]/answer` -- one question's value per call,
+ * debounced client-side. `value: null` clears a prior answer (the respondent tapped the
+ * same star again, or unchecked N/A without picking a new value); `na: true` marks N/A
+ * and implies `value` must be null in the same call -- a question can't be both answered
+ * and N/A'd, same rule as the old batched submit's noAnswerNaOverlap check. */
+export const saveAnswerSchema = z
+  .object({
+    questionId: z.string().min(1),
+    value: z.number().int().min(1).max(5).nullable(),
+    na: z.boolean().optional().default(false),
+  })
+  .refine((body) => !(body.na && body.value !== null), {
+    message: "A question can't be both answered and marked N/A",
+    path: ["value"],
+  });
 
 export const questionLabelsSchema = z.array(z.string().min(1)).length(5);
 
@@ -485,8 +535,8 @@ export function resolvePollQuestionSet(
  * bucket's questions, deduped. This is "everything the poll form could have presented,"
  * and is the single derivation both the render path and the submit-validation allowlist
  * must use: a route that grabs `.core` alone and forgets `.extras` will reject answers
- * to questions the form itself just rendered (see app/api/polls/responses/route.ts's
- * fix for exactly that bug). */
+ * to questions the form itself just rendered (see app/api/polls/responses/open/route.ts
+ * and the /answer and /details routes, which all allowlist against this). */
 export function flattenResolvedQuestionIds(resolved: ResolvedPollQuestionSet): string[] {
   return [...new Set([...resolved.core, ...resolved.extras.flatMap((e) => e.questions)].map((q) => q.id))];
 }

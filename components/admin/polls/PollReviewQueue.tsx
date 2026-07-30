@@ -21,7 +21,7 @@ export type PollReviewRow = {
   program: { name: string; slug: string };
   response: {
     id: string;
-    status: "PENDING" | "COUNTED" | "FLAGGED" | "VOIDED";
+    status: "PENDING" | "INCOMPLETE" | "COUNTED" | "FLAGGED" | "VOIDED";
     verified: boolean;
     email: string | null;
     ipHash: string;

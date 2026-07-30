@@ -58,10 +58,12 @@ export type ReferrerTokenRow = {
 };
 
 /** Every referrer token (optionally scoped to one program), each with its counted vs.
- * flagged response split -- feeds the /admin/polls/links table. Voided responses count
- * toward neither bucket (they're neither a live flagged submission nor part of the
- * public math). Legacy PENDING rows (pre-dating the removal of email verification) fold
- * into `flaggedCount` -- both are "not yet counted, needs an admin look" states. */
+ * flagged response split -- feeds the /admin/polls/links table. Voided **and INCOMPLETE**
+ * responses count toward neither bucket -- an INCOMPLETE row is an abandoned draft, not
+ * something needing an admin look, and folding it into flaggedCount would make normal
+ * poll abandonment look like an abuse spike. Legacy PENDING rows (pre-dating the removal
+ * of email verification) still fold into `flaggedCount` -- both are "not yet counted,
+ * needs an admin look" states, unlike INCOMPLETE. */
 export async function listReferrerTokens(programId?: string): Promise<ReferrerTokenRow[]> {
   const tokens = await prisma.referrerToken.findMany({
     where: programId ? { programId } : undefined,
@@ -72,7 +74,7 @@ export async function listReferrerTokens(programId?: string): Promise<ReferrerTo
 
   const counts = await prisma.pollResponse.groupBy({
     by: ["referrerTokenId", "status"],
-    where: { referrerTokenId: { in: tokens.map((t) => t.id) }, status: { not: "VOIDED" } },
+    where: { referrerTokenId: { in: tokens.map((t) => t.id) }, status: { notIn: ["VOIDED", "INCOMPLETE"] } },
     _count: { _all: true },
   });
 
@@ -109,6 +111,28 @@ export type TokenValidation =
   | { ok: true; token: { id: string; programId: string }; flags: PollFlag[] }
   | { ok: false; reason: "missing" };
 
+type TokenCapRow = { id: string; revoked: boolean; expiresAt: Date | null; maxResponses: number | null };
+
+/** Shared by validateReferrerToken (by raw token string, at poll-open time) and
+ * getTokenFlagsById (by DB id, re-evaluated fresh at the moment a response crosses the
+ * majority bar -- a token could be revoked or go over cap in the time between a
+ * respondent opening the poll and actually finishing it, so this is deliberately
+ * recomputed then, not carried over from open time). The cap check only counts
+ * COUNTED/FLAGGED responses -- never INCOMPLETE -- so an abandoned draft can never
+ * silently consume a token's slot. */
+async function computeTokenFlags(row: TokenCapRow): Promise<PollFlag[]> {
+  const flags: PollFlag[] = [];
+  if (row.revoked) flags.push(POLL_FLAGS.TOKEN_REVOKED);
+  if (row.expiresAt && row.expiresAt < new Date()) flags.push(POLL_FLAGS.TOKEN_EXPIRED);
+  if (row.maxResponses !== null) {
+    const usedCount = await prisma.pollResponse.count({
+      where: { referrerTokenId: row.id, status: { in: ["COUNTED", "FLAGGED"] } },
+    });
+    if (usedCount >= row.maxResponses) flags.push(POLL_FLAGS.TOKEN_OVER_CAP);
+  }
+  return flags;
+}
+
 /**
  * Revoked and expired tokens are still accepted, not rejected -- they just carry a flag
  * for moderation to review later, same "never silently drop, always flag" posture as an
@@ -118,16 +142,15 @@ export type TokenValidation =
 export async function validateReferrerToken(token: string): Promise<TokenValidation> {
   const row = await prisma.referrerToken.findUnique({ where: { token } });
   if (!row) return { ok: false, reason: "missing" };
-
-  const flags: PollFlag[] = [];
-  if (row.revoked) flags.push(POLL_FLAGS.TOKEN_REVOKED);
-  if (row.expiresAt && row.expiresAt < new Date()) flags.push(POLL_FLAGS.TOKEN_EXPIRED);
-  if (row.maxResponses !== null) {
-    const usedCount = await prisma.pollResponse.count({
-      where: { referrerTokenId: row.id, status: { not: "VOIDED" } },
-    });
-    if (usedCount >= row.maxResponses) flags.push(POLL_FLAGS.TOKEN_OVER_CAP);
-  }
-
+  const flags = await computeTokenFlags(row);
   return { ok: true, token: { id: row.id, programId: row.programId }, flags };
+}
+
+/** Same flag computation as validateReferrerToken, but by the token's DB id -- used at
+ * the moment a response crosses the majority bar, when only the id (stored on
+ * PollResponse.referrerTokenId at poll-open) is available, not the raw token string. */
+export async function getTokenFlagsById(referrerTokenId: string): Promise<PollFlag[]> {
+  const row = await prisma.referrerToken.findUnique({ where: { id: referrerTokenId } });
+  if (!row) return [];
+  return computeTokenFlags(row);
 }

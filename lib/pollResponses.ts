@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { POLL_FLAGS, type PollFlag } from "@/lib/pollShared";
 import { buildContactOptInFields, type ContactOptInInput } from "@/lib/contactOptIn";
 import { upsertReferenceFromPoll } from "@/lib/references";
-import type { PollCompletion, PollResponseStatus } from "@/app/generated/prisma/enums";
+import { getQuestionsForProgram } from "@/lib/pollConfig";
+import { getTokenFlagsById } from "@/lib/pollTokens";
+import { hasReachedCoreMajority, decideAnonymousStatus } from "@/lib/pollUnlock";
+import type { PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
   return Boolean(err && typeof err === "object" && "code" in err && err.code === "P2002");
@@ -51,266 +53,278 @@ async function insertReviews(
   return { skippedQuestionIds };
 }
 
-/** The signed-in user's current counted rating for this program, if any -- used to
- * pre-fill RateForm ("Update your rating") for the update-in-place flow (locked
- * decision: a repeat signed-in visitor edits their existing response rather than being
- * rejected or creating a second row). */
+/** A signed-in respondent's current response for this program, if any -- COUNTED/
+ * FLAGGED takes priority over a still-INCOMPLETE draft (defensive tiebreak; only one of
+ * each should ever exist, since openSignedInResponse always reuses before creating).
+ * Used both to pre-fill RateForm ("Update your rating" / resume a draft) and by
+ * openSignedInResponse itself to avoid ever minting a second row for the same user. */
 export async function getExistingSignedInResponse(programId: string, userId: string) {
+  const real = await prisma.pollResponse.findFirst({
+    where: { programId, userId, status: { in: ["COUNTED", "FLAGGED"] } },
+    include: { answers: true },
+  });
+  if (real) return real;
   return prisma.pollResponse.findFirst({
-    where: { programId, userId, status: "COUNTED" },
+    where: { programId, userId, status: "INCOMPLETE" },
     include: { answers: true },
   });
 }
 
-type SignedInSubmitInput = {
+/**
+ * Poll-open for a signed-in respondent: resumes an existing COUNTED/FLAGGED response
+ * (the long-standing "update in place" precedent -- a repeat visitor edits their
+ * existing rating rather than creating a second row) or a still-INCOMPLETE draft;
+ * otherwise creates a fresh INCOMPLETE row. Never creates a second row for a user who
+ * already has one in any of these statuses.
+ */
+export async function openSignedInResponse(input: {
   programId: string;
   userId: string;
-  answers: { questionId: string; value: number }[];
-  naQuestionIds: string[];
-  reviews: ReviewInput[];
-  presentedQuestionIds: string[];
   ipHash: string;
-  /** Null when the respondent didn't check the opt-in box -- see
-   * lib/contactOptIn.ts's buildContactOptInFields, which this feeds directly. Passing
-   * null on a resubmit is what retracts a prior opt-in (the update branch below writes
-   * the same cleared columns as a fresh unopted-in create). */
-  contactOptIn: ContactOptInInput | null;
-};
-
-async function attemptSignedInSubmit(input: SignedInSubmitInput) {
-  const allQuestionIds = [...new Set([...input.answers.map((a) => a.questionId), ...input.reviews.map((r) => r.questionId)])];
-  const questions = await prisma.pollQuestion.findMany({
-    where: { id: { in: allQuestionIds } },
-    select: { id: true, version: true },
+  presentedQuestionIds: string[];
+}) {
+  const existing = await getExistingSignedInResponse(input.programId, input.userId);
+  if (existing) return existing;
+  return prisma.pollResponse.create({
+    data: {
+      programId: input.programId,
+      userId: input.userId,
+      status: "INCOMPLETE",
+      verified: false,
+      ipHash: input.ipHash,
+      presentedQuestionIds: input.presentedQuestionIds,
+    },
+    include: { answers: true },
   });
-  const versionById = new Map(questions.map((q) => [q.id, q.version]));
-  // One `now` shared by the create/update branch below AND (if opted in) both consent
-  // and age-attestation timestamps -- one moment of assertion, not three separate clock
-  // reads that could theoretically disagree by a few ms.
-  const contactFields = buildContactOptInFields(input.contactOptIn, new Date());
-
-  const response = await prisma.$transaction(async (tx) => {
-    const existing = await tx.pollResponse.findFirst({
-      where: { programId: input.programId, userId: input.userId, status: "COUNTED" },
-    });
-
-    const response = existing
-      ? await tx.pollResponse.update({
-          where: { id: existing.id },
-          data: {
-            ipHash: input.ipHash,
-            presentedQuestionIds: input.presentedQuestionIds,
-            naQuestionIds: input.naQuestionIds,
-            ...contactFields,
-          },
-        })
-      : await tx.pollResponse.create({
-          data: {
-            programId: input.programId,
-            userId: input.userId,
-            verified: true,
-            status: "COUNTED",
-            ipHash: input.ipHash,
-            presentedQuestionIds: input.presentedQuestionIds,
-            naQuestionIds: input.naQuestionIds,
-            ...contactFields,
-          },
-        });
-
-    if (existing) {
-      await tx.pollAnswer.deleteMany({ where: { responseId: existing.id } });
-    }
-
-    // Skips are absence, not a row -- only questions the respondent actually answered
-    // get a PollAnswer at all. `skipDuplicates` is defense-in-depth, same posture as
-    // addDetailAnswersAndReviews's answer insert below: resolvePollQuestionSet already
-    // dedups a question that's reachable via more than one bucket, so `input.answers`
-    // shouldn't contain a repeated questionId in practice -- but if it ever did (a
-    // resolver edge case, a tampered client), this makes it a harmless no-op on the
-    // second row instead of a P2002 that fails the whole submit.
-    if (input.answers.length > 0) {
-      await tx.pollAnswer.createMany({
-        data: input.answers.map((a) => ({
-          responseId: response.id,
-          questionId: a.questionId,
-          questionVersion: versionById.get(a.questionId) ?? 1,
-          value: a.value,
-        })),
-        skipDuplicates: true,
-      });
-    }
-
-    return response;
-  });
-
-  const { skippedQuestionIds } = await insertReviews(response.id, input.programId, input.reviews, versionById);
-  return { response, skippedReviewQuestionIds: skippedQuestionIds };
 }
 
 /**
- * Signed-in submission: verified + COUNTED immediately, no email step, ever. A repeat
- * visit updates the existing counted response in place (deletes and recreates its
- * answers in the same transaction) rather than creating a second row or rejecting the
- * resubmit -- the partial unique index on (userId, programId, status=COUNTED) is the
- * DB-level backstop against a concurrent double-submit race, which this function
- * retries once against (the retry's findFirst will see the row the losing race created
- * and update it instead of colliding again). Reviews insert after the answer
- * transaction commits (see insertReviews) so a duplicate review can never roll back an
- * otherwise-valid rating.
+ * Poll-open for an anonymous respondent: resumes the client-supplied `resumeId` if it's
+ * a real, still-INCOMPLETE response belonging to this program -- the client sources this
+ * from localStorage (the same mechanism the old form-value draft used, now storing just
+ * an id) -- never trusted beyond that one check; anything else about the supplied id is
+ * ignored in favor of minting a fresh response. There is still no identity to dedupe an
+ * anonymous respondent by, so a mismatched/expired/missing resumeId always gets a
+ * brand-new INCOMPLETE row -- the anti-abuse flags, evaluated later at the moment this
+ * response would cross the majority bar, are still the only repeat-detection mechanism.
  */
-export async function submitSignedInResponse(input: SignedInSubmitInput) {
-  try {
-    return await attemptSignedInSubmit(input);
-  } catch (err) {
-    if (isUniqueConstraintError(err)) {
-      return await attemptSignedInSubmit(input);
-    }
-    throw err;
-  }
-}
-
-type AnonymousSubmitInput = {
+export async function openAnonymousResponse(input: {
   programId: string;
-  referrerTokenId: string | null;
-  tokenFlags: PollFlag[];
-  answers: { questionId: string; value: number }[];
-  naQuestionIds: string[];
-  reviews: ReviewInput[];
-  presentedQuestionIds: string[];
-  yearAttended: number | null;
-  completion: PollCompletion | null;
+  referrerTokenId: string;
   ipHash: string;
-  /** Whether the request already carried this program's `poll_v_<programId>` browser
-   * cookie -- the route reads/sets this, this function only makes the counting decision
-   * from it. See the POLL_FLAGS.REPEAT_BROWSER case below. */
-  hasBrowserMarker: boolean;
-  /** The single 18+-gated contact-email field's value (or null when blank). When
-   * `ageAttested` is true and this parses as a valid email, a PENDING Reference is created
-   * (best-effort, wrapped -- see below). Deliberately NOT written to PollResponse.email:
-   * that legacy column is no longer populated on this path, which is what keeps historical
-   * rows out of the reference-creation cutover. */
-  referenceEmail: string | null;
-  /** The respondent's "I'm 18 or older" attestation -- gates reference creation. */
-  ageAttested: boolean;
-};
-
-/**
- * Anonymous link-path submission: counts immediately (`status: COUNTED`) unless a
- * submit-time anti-abuse check trips, in which case it lands `FLAGGED` instead --
- * replaces the old after-submit email-verification step, which caused too much
- * drop-off (real completions sat PENDING forever because the follow-up click never
- * happened). `verified` stays false either way -- it no longer gates counting, see the
- * PollResponse doc comment in schema.prisma. Three checks route to FLAGGED, each
- * additive (a response can carry several): the token's own flags (over cap, revoked,
- * expired -- lib/pollTokens.ts's validateReferrerToken), a prior non-voided response
- * from this same ipHash on this program (`REPEAT_IP`), and this browser already having
- * a counted response for this program per its `poll_v_<programId>` cookie
- * (`REPEAT_BROWSER`). A clean submission is the only way to land COUNTED. Reviews on a
- * FLAGGED response are stored (PENDING, same as any review) but stay unapprovable until
- * the parent is approved to COUNTED -- see lib/pollReviews.ts's approvePollReview.
- */
-export async function submitAnonymousResponse(input: AnonymousSubmitInput) {
-  const allQuestionIds = [...new Set([...input.answers.map((a) => a.questionId), ...input.reviews.map((r) => r.questionId)])];
-  const questions = await prisma.pollQuestion.findMany({
-    where: { id: { in: allQuestionIds } },
-    select: { id: true, version: true },
-  });
-  const versionById = new Map(questions.map((q) => [q.id, q.version]));
-
-  const priorFromSameIp = await prisma.pollResponse.count({
-    where: { programId: input.programId, ipHash: input.ipHash, status: { not: "VOIDED" } },
-  });
-  const flags = [
-    ...input.tokenFlags,
-    ...(priorFromSameIp > 0 ? [POLL_FLAGS.REPEAT_IP] : []),
-    ...(input.hasBrowserMarker ? [POLL_FLAGS.REPEAT_BROWSER] : []),
-  ];
-  const status: PollResponseStatus = flags.length > 0 ? "FLAGGED" : "COUNTED";
-
-  // The old standalone email field and ContactOptInBlock are gone from the anonymous
-  // form, so this path no longer writes PollResponse.email or the contactOptIn columns
-  // (they keep their schema defaults). The contact email now flows only into a PENDING
-  // Reference below -- never onto the PollResponse row.
-  const response = await prisma.pollResponse.create({
+  presentedQuestionIds: string[];
+  resumeId?: string;
+}) {
+  if (input.resumeId) {
+    const existing = await prisma.pollResponse.findFirst({
+      where: { id: input.resumeId, programId: input.programId, status: "INCOMPLETE" },
+      include: { answers: true },
+    });
+    if (existing) return existing;
+  }
+  return prisma.pollResponse.create({
     data: {
       programId: input.programId,
       referrerTokenId: input.referrerTokenId,
-      status,
+      status: "INCOMPLETE",
       verified: false,
-      yearAttended: input.yearAttended,
-      completion: input.completion,
       ipHash: input.ipHash,
-      flags,
       presentedQuestionIds: input.presentedQuestionIds,
-      naQuestionIds: input.naQuestionIds,
     },
+    include: { answers: true },
   });
+}
 
-  if (input.answers.length > 0) {
-    await prisma.pollAnswer.createMany({
-      data: input.answers.map((a) => ({
-        responseId: response.id,
-        questionId: a.questionId,
-        questionVersion: versionById.get(a.questionId) ?? 1,
-        value: a.value,
-      })),
-      // Same defense-in-depth as attemptSignedInSubmit's createMany above.
-      skipDuplicates: true,
+export type SaveAnswerResult = { status: PollResponseStatus };
+
+/**
+ * Debounced per-question autosave -- upserts (or clears, on `value: null`/`na: true`)
+ * exactly one PollAnswer row keyed on the existing (responseId, questionId) primary key,
+ * updates `naQuestionIds`, then checks for the majority-bar transition if the response
+ * is still INCOMPLETE (a no-op call once it's already COUNTED/FLAGGED -- editing an
+ * already-real response's answers afterward doesn't re-run anti-abuse checks). Refuses
+ * to touch a VOIDED response, same guard `addDetailAnswersAndReviews` already used.
+ * `hasBrowserMarker` is threaded in from the route (which reads/writes the cookie) --
+ * this function only makes the counting decision from it, never touches cookies itself.
+ */
+export async function saveAnswer(input: {
+  responseId: string;
+  questionId: string;
+  questionVersion: number;
+  value: number | null;
+  na: boolean;
+  hasBrowserMarker: boolean;
+}): Promise<SaveAnswerResult> {
+  const response = await prisma.pollResponse.findUnique({
+    where: { id: input.responseId },
+    select: { status: true, programId: true, naQuestionIds: true },
+  });
+  if (!response || response.status === "VOIDED") {
+    throw new Error("This response can no longer be edited");
+  }
+
+  if (input.na || input.value === null) {
+    await prisma.pollAnswer.deleteMany({ where: { responseId: input.responseId, questionId: input.questionId } });
+  } else {
+    await prisma.pollAnswer.upsert({
+      where: { responseId_questionId: { responseId: input.responseId, questionId: input.questionId } },
+      create: {
+        responseId: input.responseId,
+        questionId: input.questionId,
+        questionVersion: input.questionVersion,
+        value: input.value,
+      },
+      update: { value: input.value, questionVersion: input.questionVersion },
     });
   }
 
-  const { skippedQuestionIds } = await insertReviews(response.id, input.programId, input.reviews, versionById);
+  const naSet = new Set(response.naQuestionIds);
+  if (input.na) naSet.add(input.questionId);
+  else naSet.delete(input.questionId);
+  await prisma.pollResponse.update({
+    where: { id: input.responseId },
+    data: { naQuestionIds: [...naSet] },
+  });
 
-  // Best-effort: turn the 18+-gated contact email into a PENDING alumni Reference. Wrapped
-  // so a failure (or the DB not yet having the new columns) can NEVER fail the poll
-  // submission -- the response is already persisted and returned regardless. The function
-  // itself no-ops unless ageAttested is true and the email parses as valid.
-  //
-  // COUNTED only: a FLAGGED submission (anti-abuse -- repeat ip/browser, token over
-  // cap/revoked/expired) never spawns a reference, even with a valid email and 18+
-  // attested. The PollResponse still saves exactly as above; only the reference is skipped.
-  if (input.referenceEmail && status === "COUNTED") {
-    try {
-      await upsertReferenceFromPoll({
-        programId: input.programId,
-        pollResponseId: response.id,
-        email: input.referenceEmail,
-        ageAttested: input.ageAttested,
-        yearAttended: input.yearAttended,
-      });
-    } catch (err) {
-      console.error("upsertReferenceFromPoll failed for poll response", response.id, err);
-    }
+  if (response.status !== "INCOMPLETE") {
+    return { status: response.status };
   }
-
-  return { response, skippedReviewQuestionIds: skippedQuestionIds };
+  return maybeTransition(input.responseId, response.programId, input.hasBrowserMarker);
 }
 
 /**
- * Adds non-core "add more detail" answers, reviews, and N/A marks to a response, right
- * after the initial submit (the thank-you screen's expander). Restricted to non-VOIDED
- * responses -- the responseId is a bare cuid capability (no auth), so this must never
- * be able to mutate a response that's been voided. Anonymous responses are now COUNTED
- * (or FLAGGED) immediately on initial submit rather than sitting PENDING, so this no
- * longer needs a PENDING-only guard; appended answers are always non-core (extra
- * buckets only, never `overall` or any other core question), so they can never
- * retroactively change an already-locked score. `skipDuplicates` makes a
- * retried/double-submitted expander harmless rather than a 500 for answers (the
- * composite PollAnswer PK would otherwise reject it); reviews go through the same
- * per-row insertReviews as initial submission. `extraQuestionIds` is the full set of
- * non-core questions the expander displayed (from the route's resolved config, not the
- * client) -- appended onto `presentedQuestionIds` so moderation's skip diff reflects
- * everything actually shown, not just what was answered. `naQuestionIds` is
- * union-merged onto the response's existing marks (same posture as
- * `presentedQuestionIds`) rather than overwritten, since this call only ever adds to
- * a response's non-core detail, never replaces its initial-submit state.
+ * Checks whether an INCOMPLETE response has crossed the majority-of-Core bar and, if so,
+ * transitions it to COUNTED/FLAGGED exactly once. The `updateMany` with `status:
+ * "INCOMPLETE"` in its own where-clause is the concurrency guard: if two answer-saves
+ * for the same response race each other past the majority check, only the first
+ * `updateMany` actually matches a row (count: 1); the loser's `count: 0` short-circuits
+ * to re-reading whatever status won, so the transition (and its anti-abuse side effects
+ * below) can never run twice for the same response.
+ *
+ * Runs the *exact* anti-abuse decision the old one-shot submit used to run at
+ * final-submit time -- see lib/pollUnlock.ts's decideAnonymousStatus -- just moved to
+ * this crossing moment instead. Token flags are recomputed fresh here (see
+ * lib/pollTokens.ts's getTokenFlagsById), never carried over from poll-open, since a
+ * token could be revoked or go over cap in the time between opening and finishing a
+ * poll. On a clean anonymous COUNTED transition, attempts the 18+-gated contact-email ->
+ * pending Reference exactly once, using whatever referenceEmail/ageAttested were already
+ * autosaved via the details endpoint -- same best-effort try/catch as the old flow, so a
+ * reference-write failure only logs, never fails the transition.
+ */
+async function maybeTransition(
+  responseId: string,
+  programId: string,
+  hasBrowserMarker: boolean
+): Promise<SaveAnswerResult> {
+  const [resolved, response, answers] = await Promise.all([
+    getQuestionsForProgram(programId),
+    prisma.pollResponse.findUnique({
+      where: { id: responseId },
+      select: {
+        status: true,
+        userId: true,
+        referrerTokenId: true,
+        ipHash: true,
+        naQuestionIds: true,
+        referenceEmail: true,
+        ageAttested: true,
+        yearAttended: true,
+      },
+    }),
+    prisma.pollAnswer.findMany({ where: { responseId }, select: { questionId: true } }),
+  ]);
+  if (!response || response.status !== "INCOMPLETE") {
+    return { status: response?.status ?? "INCOMPLETE" };
+  }
+
+  const coreIds = resolved.core.map((q) => q.id);
+  const answeredIds = new Set(answers.map((a) => a.questionId));
+  const naIds = new Set(response.naQuestionIds);
+  if (!hasReachedCoreMajority(coreIds, answeredIds, naIds)) {
+    return { status: "INCOMPLETE" };
+  }
+
+  if (response.userId) {
+    // Signed-in: straight to COUNTED, no anti-abuse recompute -- same as the old
+    // one-shot signed-in submit.
+    const { count } = await prisma.pollResponse.updateMany({
+      where: { id: responseId, status: "INCOMPLETE" },
+      data: { status: "COUNTED", verified: true },
+    });
+    if (count === 0) {
+      const fresh = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
+      return { status: fresh?.status ?? "COUNTED" };
+    }
+    return { status: "COUNTED" };
+  }
+
+  const tokenFlags = response.referrerTokenId ? await getTokenFlagsById(response.referrerTokenId) : [];
+  const { status, flags } = await decideAnonymousStatus({
+    programId,
+    ipHash: response.ipHash ?? "",
+    tokenFlags,
+    hasBrowserMarker,
+  });
+
+  const { count } = await prisma.pollResponse.updateMany({
+    where: { id: responseId, status: "INCOMPLETE" },
+    data: { status, flags },
+  });
+  if (count === 0) {
+    const fresh = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
+    return { status: fresh?.status ?? status };
+  }
+
+  // Best-effort: turn the 18+-gated contact email (already autosaved via the details
+  // endpoint) into a PENDING alumni Reference. Wrapped so a failure can NEVER fail the
+  // transition -- the response's new status is already persisted regardless. COUNTED
+  // only: a FLAGGED transition never spawns a reference, even with a valid email and
+  // 18+ attested.
+  if (response.referenceEmail && status === "COUNTED") {
+    try {
+      await upsertReferenceFromPoll({
+        programId,
+        pollResponseId: responseId,
+        email: response.referenceEmail,
+        ageAttested: response.ageAttested,
+        yearAttended: response.yearAttended,
+      });
+    } catch (err) {
+      console.error("upsertReferenceFromPoll failed for poll response", responseId, err);
+    }
+  }
+
+  return { status };
+}
+
+/**
+ * Autosaves reviews, N/A marks, response-level contact fields (the anonymous path's
+ * 18+-gated reference email, and the signed-in path's contact opt-in), and any answers
+ * passed through it -- originally built for "add more detail" after an initial submit,
+ * now doing double duty as the autosave endpoint for everything that isn't a star
+ * rating (star ratings go through saveAnswer/the `/answer` route instead). Restricted to
+ * non-VOIDED responses -- the responseId is a bare cuid capability (no auth), so this
+ * must never be able to mutate a voided response. `skipDuplicates` makes a
+ * retried/double-fired autosave harmless rather than a 500 (the composite PollAnswer PK
+ * would otherwise reject it); reviews go through the same per-row insertReviews as
+ * always. `presentedQuestionIds` is union-merged (never overwritten) so moderation's
+ * skip diff keeps reflecting everything ever shown. If an N/A mark landed on a Core
+ * question and the response is still INCOMPLETE, this can cross the majority bar just
+ * like an answer would -- so the same transition check runs here too.
  */
 export async function addDetailAnswersAndReviews(
   responseId: string,
   answers: { questionId: string; value: number }[],
   reviews: ReviewInput[],
   extraQuestionIds: string[],
-  naQuestionIds: string[] = []
+  naQuestionIds: string[] = [],
+  contactFields: {
+    referenceEmail?: string;
+    ageAttested?: boolean;
+    contactOptIn?: ContactOptInInput | null;
+    yearAttended?: number | null;
+  } = {},
+  hasBrowserMarker = false
 ) {
   const response = await prisma.pollResponse.findUnique({
     where: { id: responseId },
@@ -341,12 +355,26 @@ export async function addDetailAnswersAndReviews(
 
   const nextPresented = [...new Set([...response.presentedQuestionIds, ...extraQuestionIds])];
   const nextNaQuestionIds = [...new Set([...response.naQuestionIds, ...naQuestionIds])];
+  const optInFields =
+    contactFields.contactOptIn !== undefined ? buildContactOptInFields(contactFields.contactOptIn, new Date()) : {};
   await prisma.pollResponse.update({
     where: { id: responseId },
-    data: { presentedQuestionIds: nextPresented, naQuestionIds: nextNaQuestionIds },
+    data: {
+      presentedQuestionIds: nextPresented,
+      naQuestionIds: nextNaQuestionIds,
+      ...(contactFields.referenceEmail !== undefined ? { referenceEmail: contactFields.referenceEmail } : {}),
+      ...(contactFields.ageAttested !== undefined ? { ageAttested: contactFields.ageAttested } : {}),
+      ...(contactFields.yearAttended !== undefined ? { yearAttended: contactFields.yearAttended } : {}),
+      ...optInFields,
+    },
   });
 
   const { skippedQuestionIds } = await insertReviews(responseId, response.programId, reviews, versionById);
+
+  if (response.status === "INCOMPLETE") {
+    await maybeTransition(responseId, response.programId, hasBrowserMarker);
+  }
+
   return { skippedReviewQuestionIds: skippedQuestionIds };
 }
 
@@ -369,12 +397,17 @@ export type PollResponseFilter = {
  * (`presentedQuestionIds` minus whatever has a PollAnswer row minus whatever is in
  * `naQuestions`, i.e. left untouched with no explicit mark either way) -- so
  * moderation can show "N/A" and "Skipped" as distinct, explicit states instead of both
- * reading as the same unexplained absence. */
+ * reading as the same unexplained absence.
+ *
+ * Excludes INCOMPLETE by default (an abandoned draft doesn't need a moderator's
+ * attention) unless explicitly requested via `filter.status === "INCOMPLETE"` -- kept
+ * reachable for support/debugging ("why didn't my response count") without cluttering
+ * the default queue view. */
 export async function listPollResponses(filter: PollResponseFilter = {}) {
   const responses = await prisma.pollResponse.findMany({
     where: {
       ...(filter.programId ? { programId: filter.programId } : {}),
-      ...(filter.status ? { status: filter.status } : {}),
+      ...(filter.status ? { status: filter.status } : { status: { not: "INCOMPLETE" } }),
       ...(filter.verified !== undefined ? { verified: filter.verified } : {}),
       ...(filter.referrerTokenId ? { referrerTokenId: filter.referrerTokenId } : {}),
       ...(filter.flaggedOnly ? { flags: { isEmpty: false } } : {}),
