@@ -322,6 +322,7 @@ export async function addDetailAnswersAndReviews(
     referenceEmail?: string;
     ageAttested?: boolean;
     contactOptIn?: ContactOptInInput | null;
+    yearAttended?: number | null;
   } = {},
   hasBrowserMarker = false
 ) {
@@ -363,6 +364,7 @@ export async function addDetailAnswersAndReviews(
       naQuestionIds: nextNaQuestionIds,
       ...(contactFields.referenceEmail !== undefined ? { referenceEmail: contactFields.referenceEmail } : {}),
       ...(contactFields.ageAttested !== undefined ? { ageAttested: contactFields.ageAttested } : {}),
+      ...(contactFields.yearAttended !== undefined ? { yearAttended: contactFields.yearAttended } : {}),
       ...optInFields,
     },
   });

@@ -347,6 +347,7 @@ export const detailsSubmitSchema = z
     referenceEmail: z.string().trim().max(320).optional(),
     ageAttested: z.boolean().optional(),
     contactOptIn: contactOptInSchema.optional(),
+    yearAttended: yearAttendedSchema,
   })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
