@@ -332,17 +332,51 @@ export const anonymousSubmitSchema = z
   .refine(requireAnswerOrReview, { message: EMPTY_SUBMISSION_MESSAGE, path: ["answers"] })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
 
-/** The "Add more detail" / details endpoint: non-core answers and reviews for an
- * already-submitted response. No empty-submission refine here -- an empty details
- * payload is a no-op, not an error (the parent response already satisfied that rule
- * at initial submit). */
+/** The details/autosave endpoint: reviews and response-level fields (contact email,
+ * 18+ attestation, the signed-in contact opt-in) for a response that may still be
+ * INCOMPLETE. `answers` here is deliberately extras-shaped history from before autosave
+ * existed -- the star-rating values themselves now go through saveAnswerSchema/the
+ * `/answer` route one question at a time, never batched. No empty-submission refine --
+ * every field is independently optional, since autosave calls this repeatedly with
+ * whatever subset of fields just changed. */
 export const detailsSubmitSchema = z
   .object({
-    answers: answerListSchema,
+    answers: answerListSchema.default([]),
     reviews: reviewListSchema.default([]),
     naQuestionIds: naQuestionIdsSchema,
+    referenceEmail: z.string().trim().max(320).optional(),
+    ageAttested: z.boolean().optional(),
+    contactOptIn: contactOptInSchema.optional(),
   })
   .refine(noAnswerNaOverlap, { message: NA_OVERLAP_MESSAGE, path: ["naQuestionIds"] });
+
+/** Body for `POST /api/polls/responses/open` -- the poll-open endpoint that creates (or
+ * resumes) a response the moment the page loads, before any answer exists. `resumeId` is
+ * client-supplied (anonymous path only, sourced from localStorage the same way the old
+ * draft mechanism was) -- the server only ever honors it if that response actually
+ * belongs to this program and is still INCOMPLETE; anything else is silently ignored in
+ * favor of minting a fresh response, never trusted blindly. */
+export const openPollSchema = z.object({
+  programId: z.string().min(1),
+  ref: z.string().min(1).optional(),
+  resumeId: z.string().min(1).optional(),
+});
+
+/** Body for `PATCH /api/polls/responses/[id]/answer` -- one question's value per call,
+ * debounced client-side. `value: null` clears a prior answer (the respondent tapped the
+ * same star again, or unchecked N/A without picking a new value); `na: true` marks N/A
+ * and implies `value` must be null in the same call -- a question can't be both answered
+ * and N/A'd, same rule as the old batched submit's noAnswerNaOverlap check. */
+export const saveAnswerSchema = z
+  .object({
+    questionId: z.string().min(1),
+    value: z.number().int().min(1).max(5).nullable(),
+    na: z.boolean().optional().default(false),
+  })
+  .refine((body) => !(body.na && body.value !== null), {
+    message: "A question can't be both answered and marked N/A",
+    path: ["value"],
+  });
 
 export const questionLabelsSchema = z.array(z.string().min(1)).length(5);
 
