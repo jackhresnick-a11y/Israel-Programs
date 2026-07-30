@@ -946,6 +946,16 @@ model PollResponse {
   /// Display name or initial, required alongside contactMethod when opted in -- a
   /// nameless contact record isn't usable by a moderator (can't vet, can't attribute).
   contactName          String?
+  /// The anonymous path's single 18+-gated contact-email field, now autosaved (via the
+  /// details endpoint) well before the response transitions out of INCOMPLETE -- held
+  /// here until the majority-bar transition consumes it into a PENDING Reference
+  /// (lib/pollResponses.ts's maybeTransition), same gate as always (ageAttested true AND
+  /// a valid email AND the transition lands COUNTED). Distinct from the dormant `email`
+  /// column above (a different, historical concept -- see its own comment) and from
+  /// Reference.pollEmailKey (the eventual destination, not this staging field).
+  referenceEmail       String?
+  /// The "I'm 18 or older" self-attestation for the field above, autosaved the same way.
+  ageAttested          Boolean            @default(false)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]
