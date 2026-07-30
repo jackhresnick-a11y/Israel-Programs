@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { computeBestForPhrases, computeVarianceNote, type BestForQuestionInput } from "@/lib/pollBestFor";
+import { responseMeetsHistoricalMajority } from "@/lib/pollUnlock";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
 import {
   flattenResolvedQuestionIds,
@@ -168,16 +169,19 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       }),
   ];
 
+  const grandfatheredIds = new Set(config.grandfatheredQuestionIds);
   const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId }) => {
     const stats = statsByQuestionId.get(question.id);
+    const count = stats?._count._all ?? 0;
     return {
       key: question.key,
       text: question.text,
       mean: stats?._avg.value ?? null,
-      count: stats?._count._all ?? 0,
+      count,
       scaleType: question.scaleType,
       bucketId,
       labels: question.labels,
+      published: count >= config.minResponsesToPublish || grandfatheredIds.has(question.id),
     };
   });
 
@@ -278,7 +282,7 @@ export type ProgramBestForRow = {
  * at all" signal for sorting, not a per-question figure.
  */
 export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
-  const [programs, questions, answerRows, responseCounts, contactOptInRows] = await Promise.all([
+  const [programs, questions, answerRows, contactOptInRows] = await Promise.all([
     prisma.program.findMany({
       where: { status: "PUBLISHED" },
       select: {
@@ -304,13 +308,8 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       where: { response: { status: "COUNTED" } },
       select: { questionId: true, value: true, response: { select: { programId: true } } },
     }),
-    prisma.pollResponse.groupBy({
-      by: ["programId"],
-      where: { status: "COUNTED" },
-      _count: { _all: true },
-    }),
     // One batched fetch of every opt-in-carrying response, not a query per program --
-    // same posture as the answer/response-count queries above. contactMethod/contactName/
+    // same posture as the answer query above. contactMethod/contactName/
     // contactAgeAttestedAt are guaranteed non-null here since they're only ever written
     // together with contactOptIn=true (see lib/contactOptIn.ts's buildContactOptInFields).
     prisma.pollResponse.findMany({
@@ -318,8 +317,6 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       select: { programId: true, contactName: true, contactMethod: true, contactOptInAt: true, contactAgeAttestedAt: true },
     }),
   ]);
-
-  const responseCountByProgramId = new Map(responseCounts.map((r) => [r.programId, r._count._all]));
 
   const contactOptInsByProgramId = new Map<string, ContactOptInRow[]>();
   for (const row of contactOptInRows) {
@@ -343,7 +340,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
     perQuestion.set(row.questionId, { sum: existing.sum + row.value, n: existing.n + 1 });
   }
 
-  return programs.map((p) => {
+  return Promise.all(programs.map(async (p) => {
     const programStats = statsByProgramId.get(p.id);
     const candidates: BestForQuestionInput[] = questions.map((q) => {
       const stat = programStats?.get(q.id);
@@ -363,12 +360,15 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       organization: p.organization,
       location: p.location,
       tags: p.tags,
-      responseCount: responseCountByProgramId.get(p.id) ?? 0,
+      // countResponsesMeetingHistoricalMajority -- was a raw COUNTED-row count, now the
+      // same shared "genuine engagement" definition listRatingCoverage uses, so this
+      // admin list and the coverage list can never disagree with each other again.
+      responseCount: await countResponsesMeetingHistoricalMajority(p.id),
       bestForPhrases: computeBestForPhrases(candidates),
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
       contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
     };
-  });
+  }));
 }
 
 /** One question's raw mean/count for one program -- the input shape the
@@ -406,44 +406,89 @@ export async function getProgramQuestionStats(programId: string): Promise<Progra
 }
 
 /**
- * Every published program with its rating-response count, for the admin coverage
- * overview (/admin/polls/coverage). `count` mirrors the publish gate in
- * getProgramPollSummary: COUNTED responses that answered the `overall` question -- the
- * same measure that unlocks a public score -- not raw PollResponse rows (a response that
- * skipped `overall` doesn't move a program toward a publishable rating).
+ * How many of a program's COUNTED responses meet the historical majority-of-Core bar --
+ * "genuine engagement," judged against the Core question set as it existed when EACH
+ * response was created (see lib/pollUnlock.ts's responseMeetsHistoricalMajority), not
+ * today's Core set. This is the single shared definition behind both the admin coverage
+ * list (listRatingCoverage) and the admin programs list (listProgramsBestFor) -- they
+ * used to disagree (one counted "answered the vestigial `overall` question," the other
+ * counted raw COUNTED rows with no majority check at all), which is exactly the bug this
+ * replaces both with one number.
  *
- * Three set-based queries, no per-program loop: the `overall` question id, the full
- * published-program list, and one grouped count keyed by programId. Programs with no
- * qualifying responses don't appear in the grouped result and are backfilled to 0.
- * Sorted ascending by count so the programs most in need of responses sort to the top.
+ * Reuses getQuestionsForProgram's already-correct, per-program resolution (respecting
+ * that program's own addedQuestionIds/removedQuestionIds, and already ACTIVE-only) for
+ * *which* questions are Core, then layers the createdAt-based historical filter on top
+ * -- rather than re-deriving core membership from the raw bucket array, which would miss
+ * a program's own customizations.
  */
-export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
-  const [overallQuestion, programs] = await Promise.all([
-    prisma.pollQuestion.findUnique({ where: { key: "overall" }, select: { id: true } }),
-    prisma.program.findMany({
-      where: { status: "PUBLISHED" },
-      select: { id: true, name: true, slug: true },
+export async function countResponsesMeetingHistoricalMajority(programId: string): Promise<number> {
+  const resolved = await getQuestionsForProgram(programId);
+  const coreIds = resolved.core.map((q) => q.id);
+  if (coreIds.length === 0) return 0;
+
+  const [coreQuestions, responses] = await Promise.all([
+    prisma.pollQuestion.findMany({
+      where: { id: { in: coreIds } },
+      select: { id: true, createdAt: true, status: true },
+    }),
+    prisma.pollResponse.findMany({
+      where: { programId, status: "COUNTED" },
+      select: { id: true, createdAt: true, naQuestionIds: true },
     }),
   ]);
+  if (responses.length === 0) return 0;
 
-  // Without an `overall` question no program can accrue a publishable rating, so every
-  // count is 0 -- skip the grouped query entirely.
-  const countByProgramId = new Map<string, number>();
-  if (overallQuestion) {
-    const grouped = await prisma.pollResponse.groupBy({
-      by: ["programId"],
-      where: {
-        status: "COUNTED",
-        answers: { some: { questionId: overallQuestion.id } },
-      },
-      _count: { _all: true },
-    });
-    for (const g of grouped) countByProgramId.set(g.programId, g._count._all);
+  const answers = await prisma.pollAnswer.groupBy({
+    by: ["responseId", "questionId"],
+    where: { response: { programId, status: "COUNTED" } },
+  });
+  const answeredByResponse = new Map<string, Set<string>>();
+  for (const a of answers) {
+    if (!answeredByResponse.has(a.responseId)) answeredByResponse.set(a.responseId, new Set());
+    answeredByResponse.get(a.responseId)!.add(a.questionId);
   }
 
-  return programs
-    .map((p) => ({ id: p.id, name: p.name, slug: p.slug, count: countByProgramId.get(p.id) ?? 0 }))
-    .sort((a, b) => a.count - b.count || a.name.localeCompare(b.name));
+  let count = 0;
+  for (const r of responses) {
+    const answeredIds = answeredByResponse.get(r.id) ?? new Set<string>();
+    const naIds = new Set(r.naQuestionIds);
+    if (responseMeetsHistoricalMajority(coreQuestions, r.createdAt, answeredIds, naIds)) count++;
+  }
+  return count;
+}
+
+/**
+ * Every published program with its rating-response count, for the admin coverage
+ * overview (/admin/polls/coverage). `count` is countResponsesMeetingHistoricalMajority
+ * -- COUNTED responses that met the majority-of-Core bar as it stood when each was
+ * created -- replacing the old "answered the `overall` question" proxy, which had
+ * drifted far from what actually gates a program's real, visible results (the `overall`
+ * question is vestigial and easy to skip; a program could have many genuinely engaged
+ * responses that happen to have skipped that one specific question).
+ *
+ * One per-program loop (not a single set query) since each program's Core set can be
+ * individually customized (addedQuestionIds/removedQuestionIds) -- see
+ * countResponsesMeetingHistoricalMajority's own doc comment. Bounded by the published-
+ * program count (tens, not thousands), on an admin-only page, so this is an acceptable
+ * cost. Sorted ascending by count so the programs most in need of responses sort to the
+ * top.
+ */
+export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
+  const programs = await prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: { id: true, name: true, slug: true },
+  });
+
+  const rows = await Promise.all(
+    programs.map(async (p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      count: await countResponsesMeetingHistoricalMajority(p.id),
+    }))
+  );
+
+  return rows.sort((a, b) => a.count - b.count || a.name.localeCompare(b.name));
 }
 
 /**

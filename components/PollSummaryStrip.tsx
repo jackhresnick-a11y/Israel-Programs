@@ -45,24 +45,17 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
  * DESCRIPTIVE never shows a ring or a star (those imply good/bad, wrong for a neutral
  * spectrum) -- it renders as a labeled spectrum track instead (see DescriptiveTrack).
- * Below `minResponsesToPublish` (the program's own reactivated ProgramPollConfig field,
- * default 7 -- see lib/pollShared.ts's PollSummaryDTO doc comment), neither renders --
- * each question publishes independently once IT crosses this bar, so the same grid can
- * show a mix of published and "not enough yet" questions side by side. Deliberately a
- * different, higher bar than lib/pollBestFor.ts's own MIN_RESPONSES_PER_QUESTION (=3),
- * which only gates Best-For-strip eligibility -- a different feature, untouched here. */
-function QuestionBlock({
-  question,
-  colorVar,
-  minResponsesToPublish,
-}: {
-  question: PollSummaryQuestionDTO;
-  colorVar: string | null;
-  minResponsesToPublish: number;
-}) {
-  const { text, mean, count, labels, scaleType } = question;
+ * `question.published` (computed server-side in getProgramPollSummary: count >=
+ * minResponsesToPublish OR grandfathered) gates both -- each question publishes
+ * independently once IT crosses the bar (or was already showing before the bar existed),
+ * so the same grid can show a mix of published and "not enough yet" questions side by
+ * side. Deliberately a different, higher bar than lib/pollBestFor.ts's own
+ * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility -- a
+ * different feature, untouched here. */
+function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
+  const { text, mean, count, labels, scaleType, published } = question;
 
-  if (count < minResponsesToPublish) {
+  if (!published) {
     return (
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{text}</p>
@@ -180,7 +173,7 @@ export default function PollSummaryStrip({
             <div className="flex flex-col divide-y divide-border">
               {bucketQuestions.map((q) => (
                 <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                  <QuestionBlock question={q} colorVar={colorVar} minResponsesToPublish={summary.minResponsesToPublish} />
+                  <QuestionBlock question={q} colorVar={colorVar} />
                 </div>
               ))}
             </div>
@@ -194,7 +187,7 @@ export default function PollSummaryStrip({
           <div className="flex flex-col divide-y divide-border">
             {ungroupedQuestions.map((q) => (
               <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                <QuestionBlock question={q} colorVar={null} minResponsesToPublish={summary.minResponsesToPublish} />
+                <QuestionBlock question={q} colorVar={null} />
               </div>
             ))}
           </div>

@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { computeMajority, hasReachedCoreMajority } from "./pollUnlock";
+import {
+  computeMajority,
+  hasReachedCoreMajority,
+  resolveHistoricalCoreQuestionIds,
+  responseMeetsHistoricalMajority,
+  type HistoricalCoreQuestion,
+} from "./pollUnlock";
 
 describe("computeMajority", () => {
   it("computes floor(n/2)+1 for a range of Core question counts", () => {
@@ -73,5 +79,71 @@ describe("hasReachedCoreMajority", () => {
     const answeredFive = new Set(core9.slice(0, 5));
     expect(hasReachedCoreMajority(core9, answeredFive, new Set())).toBe(true);
     expect(hasReachedCoreMajority(core10, answeredFive, new Set())).toBe(false);
+  });
+});
+
+function q(id: string, createdAt: string, status: "ACTIVE" | "RETIRED" = "ACTIVE"): HistoricalCoreQuestion {
+  return { id, createdAt: new Date(createdAt), status };
+}
+
+describe("resolveHistoricalCoreQuestionIds", () => {
+  it("excludes a question created after the response", () => {
+    const questions = [q("old", "2026-01-01"), q("new", "2026-06-01")];
+    const responseCreatedAt = new Date("2026-03-01"); // before "new" existed
+    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old"]);
+  });
+
+  it("includes a question created before or exactly at the response's createdAt", () => {
+    const questions = [q("old", "2026-01-01"), q("same-instant", "2026-03-01")];
+    const responseCreatedAt = new Date("2026-03-01");
+    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old", "same-instant"]);
+  });
+
+  it("excludes a currently-retired question regardless of when it was created", () => {
+    const questions = [q("old-active", "2026-01-01"), q("old-retired", "2026-01-01", "RETIRED")];
+    const responseCreatedAt = new Date("2026-06-01"); // long after both existed
+    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old-active"]);
+  });
+
+  it("adding a new Core question never enlarges an older response's historical set", () => {
+    // The task's own monotonicity requirement: a response created in March, evaluated
+    // once against the June Core set (2 questions) and once against a hypothetical
+    // September Core set (3 questions, one added in August) -- must get the SAME
+    // historical set either way, since the September addition postdates the response.
+    const juneSet = [q("a", "2026-01-01"), q("b", "2026-01-01")];
+    const septemberSet = [...juneSet, q("c", "2026-08-01")];
+    const marchResponse = new Date("2026-03-01");
+    expect(resolveHistoricalCoreQuestionIds(juneSet, marchResponse)).toEqual(
+      resolveHistoricalCoreQuestionIds(septemberSet, marchResponse)
+    );
+  });
+});
+
+describe("responseMeetsHistoricalMajority", () => {
+  it("Yeshivat Har Etzion's own scenario: a response answered all questions live at its time, but a later-added question must not dilute it", () => {
+    // 2 Core questions existed when this response was submitted; it answered both.
+    // Later, a 3rd Core question is added (today). Historically this response only ever
+    // had 2 questions to answer, majority of 2 -- both answered, so it still counts,
+    // even though today's LIVE Core set is 3 (which would need majority of 2 anyway in
+    // this specific case, but the point is the historical set, not today's, gates it).
+    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01"), q("c", "2026-08-01")];
+    const responseCreatedAt = new Date("2026-02-01");
+    const answered = new Set(["a", "b"]);
+    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(true);
+  });
+
+  it("a response that answered only 1 of 2 historically-live questions does not meet majority", () => {
+    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01")];
+    const responseCreatedAt = new Date("2026-02-01");
+    const answered = new Set(["a"]);
+    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(false);
+  });
+
+  it("a retired question is never part of the historical set even for a response old enough to have answered it", () => {
+    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01", "RETIRED")];
+    const responseCreatedAt = new Date("2026-02-01");
+    const answered = new Set(["a", "b"]); // answered both, but b no longer counts
+    // Historical set is just ["a"], majority of 1 is 1, "a" answered -> true.
+    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(true);
   });
 });

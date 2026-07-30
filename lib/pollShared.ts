@@ -145,6 +145,14 @@ export type PollSummaryQuestionDTO = {
   scaleType: PollScaleType;
   bucketId: string | null;
   labels: string[];
+  /** Computed server-side in getProgramPollSummary: `count >= minResponsesToPublish OR
+   * this question is in the program's grandfatheredQuestionIds`. A question already
+   * displaying when the 7-response bar was introduced keeps displaying regardless of its
+   * current count -- grandfathering is a one-way, never-revoked list, not a live
+   * recomputation -- while a question that's never yet published is subject to the bar
+   * like normal. The results grid checks this flag directly rather than re-deriving it
+   * from count/minResponsesToPublish, so there's exactly one place the OR lives. */
+  published: boolean;
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same
