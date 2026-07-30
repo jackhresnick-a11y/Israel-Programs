@@ -6,11 +6,13 @@
  */
 import type { FilterDropdownTint } from "@/components/ui/FilterDropdown";
 
-export const VALID_TINTS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger", "violet"];
+export const VALID_TINTS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger"];
 
 /** Coerces a free-form DB tint string to a known FilterDropdownTint, falling back to
  * "accent" -- protects the filter bar from breaking if a tint value becomes stale
- * (e.g. after a code change removes a tint that's still referenced in the DB). */
+ * (e.g. after a code change removes a tint that's still referenced in the DB; this is
+ * exactly what happens to any pre-existing "violet" row now that the style guide
+ * retired that token -- no DB write needed, this coercion already covers it). */
 export function coerceTint(tint: string): FilterDropdownTint {
   return (VALID_TINTS as string[]).includes(tint) ? (tint as FilterDropdownTint) : "accent";
 }

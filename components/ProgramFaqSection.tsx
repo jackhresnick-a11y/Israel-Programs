@@ -18,9 +18,9 @@ export default function ProgramFaqSection({ programId, faqs }: { programId: stri
           </h2>
           <div className="flex flex-col gap-3">
             {faqs.map((faq) => (
-              <div key={faq.id} className="rounded-xl border border-border bg-surface p-4">
+              <div key={faq.id} className="rounded border border-border bg-surface p-4">
                 <p className="text-sm font-semibold text-foreground">{faq.question}</p>
-                <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
                   {faq.answer}
                 </p>
               </div>

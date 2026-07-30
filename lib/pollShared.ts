@@ -148,10 +148,15 @@ export type PollSummaryQuestionDTO = {
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same
- * order the rating form itself presents buckets in (see resolvePollQuestionSet). */
+ * order the rating form itself presents buckets in (see resolvePollQuestionSet).
+ * `order` is the bucket's own QuestionBucket.order (global, admin-assigned, stable
+ * across every program) -- carried here so the results grid can pick a ring color by
+ * the bucket's identity rather than its position within this one program's resolved
+ * list (see components/PollSummaryStrip.tsx's bucketColorVar). */
 export type PollSummaryBucketDTO = {
   id: string;
   name: string;
+  order: number;
 };
 
 /** The program page's survey-results data. Deliberately carries no aggregate/overall

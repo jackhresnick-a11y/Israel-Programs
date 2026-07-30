@@ -1,6 +1,7 @@
 import { SignInButton, Show } from "@clerk/nextjs";
 import ReviewForm from "@/components/ReviewForm";
 import { buttonVariants } from "@/components/ui/Button";
+import StarRating from "@/components/ui/StarRating";
 import type { ProgramReviewsSummaryDTO } from "@/lib/pollResults";
 
 /** 0 is the "Earlier" sentinel used by RateForm's year-attended dropdown -- see
@@ -47,7 +48,7 @@ export default function ReviewsSection({
                 {group.reviews.map((review, i) => {
                   const yearLabel = yearAttendedLabel(review.yearAttended);
                   return (
-                    <div key={i} className="rounded-xl border border-border bg-surface p-4">
+                    <div key={i} className="rounded border border-border bg-surface p-4">
                       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
                       {yearLabel && <p className="mt-2 text-xs text-muted">{yearLabel}</p>}
                     </div>
@@ -62,12 +63,9 @@ export default function ReviewsSection({
               <h3 className="text-sm font-semibold text-foreground">General reviews</h3>
               <div className="flex flex-col gap-3">
                 {summary.standaloneReviews.map((review) => (
-                  <div key={review.id} className="rounded-xl border border-border bg-surface p-4">
+                  <div key={review.id} className="rounded border border-border bg-surface p-4">
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-accent">
-                        {"★".repeat(review.rating)}
-                        {"☆".repeat(5 - review.rating)}
-                      </span>
+                      <StarRating rating={review.rating} />
                       <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
                     </div>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>

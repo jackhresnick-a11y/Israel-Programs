@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 
 type ToastTone = "success" | "info";
 type ToastAction = { label: string } & ({ href: string } | { onClick: () => void });
@@ -48,7 +49,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={item.id}
             role="status"
             aria-live="polite"
-            className={`flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm shadow-lg backdrop-blur ${TONE_CLASSES[item.tone]}`}
+            className={`flex items-start justify-between gap-3 rounded border px-4 py-3 text-sm backdrop-blur ${TONE_CLASSES[item.tone]}`}
           >
             <span>
               {item.message}
@@ -79,7 +80,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               aria-label="Dismiss notification"
               className="shrink-0 opacity-70 hover:opacity-100"
             >
-              ×
+              <X width={16} height={16} strokeWidth={1.5} />
             </button>
           </div>
         ))}

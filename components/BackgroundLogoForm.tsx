@@ -246,11 +246,11 @@ export default function BackgroundLogoForm({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {currentUrl && (
-        <div className="flex flex-col gap-4 rounded-xl border border-border p-4">
+        <div className="flex flex-col gap-4 rounded border border-border p-4">
           <div className="flex items-center gap-4">
             {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -305,7 +305,7 @@ export default function BackgroundLogoForm({
               640px wide counts as mobile). Not reflected in the preview below.
             </span>
 
-            <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface-muted">
+            <div className="relative flex h-32 items-center justify-center overflow-hidden rounded border border-border bg-surface-muted">
               <span className="text-xs text-muted">Preview</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -356,7 +356,7 @@ export default function BackgroundLogoForm({
         </div>
 
         {currentDarkUrl && (
-          <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+          <div className="flex items-center gap-4 rounded border border-border p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={currentDarkUrl} alt="Current dark-mode background logo" className="h-12 w-auto" />
             <Button

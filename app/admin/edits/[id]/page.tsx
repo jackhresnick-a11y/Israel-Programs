@@ -43,7 +43,7 @@ export default async function EditReviewPage({
       >
         <Link
           href={`/programs/${edit.program.slug}`}
-          className="mt-1 inline-block text-sm text-accent-hover hover:underline dark:text-accent"
+          className="mt-1 inline-block text-sm text-accent-hover hover:underline"
         >
           View current program
         </Link>

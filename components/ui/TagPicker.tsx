@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import Badge from "@/components/ui/Badge";
 import Input from "@/components/ui/Input";
@@ -95,7 +96,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="flex items-center justify-between gap-2 rounded border border-border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover"
       >
         <span>
           {selectedNames.length > 0
@@ -106,7 +107,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
           aria-hidden
           viewBox="0 0 20 20"
           fill="none"
-          className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open && "rotate-180")}
+          className={cn("h-3.5 w-3.5 shrink-0", open && "rotate-180")}
         >
           <path
             d="M5 7.5L10 12.5L15 7.5"
@@ -119,7 +120,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
       </button>
 
       {selectedNames.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {selectedNames.map((name) => (
             <Badge key={name} tone="tag" className="gap-1">
               {name}
@@ -127,9 +128,9 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                 type="button"
                 onClick={() => toggle(name)}
                 aria-label={`Remove ${name}`}
-                className="ml-0.5 hover:text-danger"
+                className="ml-1 hover:text-danger"
               >
-                &times;
+                <X width={16} height={16} strokeWidth={1.5} />
               </button>
             </Badge>
           ))}
@@ -137,7 +138,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
       )}
 
       {open && (
-        <div className="absolute top-full z-20 mt-1 w-full min-w-72 rounded-lg border border-border bg-surface p-2 shadow-lg">
+        <div className="absolute top-full z-20 mt-1 w-full min-w-72 rounded border border-border bg-surface p-2">
           <Input
             autoFocus
             placeholder="Search tags..."
@@ -158,7 +159,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                   {options.map((tag) => (
                     <label
                       key={tag.slug}
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                     >
                       <input
                         type="checkbox"
@@ -181,7 +182,7 @@ export default function TagPicker({ value, onChange, allTags, categories }: TagP
                 {grouped.uncategorized.map((tag) => (
                   <label
                     key={tag.slug}
-                    className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                   >
                     <input
                       type="checkbox"

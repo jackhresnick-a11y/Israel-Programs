@@ -67,7 +67,7 @@ export default function VideoUploader({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 text-sm">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-3 py-2 text-danger">
+        <p className="rounded bg-danger-bg px-3 py-2 text-danger">
           {error}
         </p>
       )}

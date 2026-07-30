@@ -208,11 +208,11 @@ export default function BookmarkButton({ programId, name }: { programId: string;
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
-          "flex h-7 w-7 items-center justify-center rounded-full border shadow-sm backdrop-blur transition disabled:opacity-60",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "flex h-7 w-7 items-center justify-center rounded-full border backdrop-blur transition-colors duration-[120ms] ease-out disabled:opacity-60",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           saved || open
-            ? "border-accent bg-accent/10 text-accent"
-            : "border-border bg-surface/90 text-muted hover:border-accent hover:text-accent"
+            ? "border-accent-hover bg-accent/10 text-accent-hover"
+            : "border-border bg-surface/90 text-muted hover:border-accent-hover hover:text-accent-hover"
         )}
       >
         <svg
@@ -237,16 +237,16 @@ export default function BookmarkButton({ programId, name }: { programId: string;
             role="menu"
             aria-label={`Save ${name} to a folder`}
             style={{ top: pos.top, right: pos.right }}
-            className="fixed z-50 w-56 rounded-lg border border-border bg-surface p-2 shadow-md"
+            className="fixed z-50 w-56 rounded border border-border bg-surface p-2"
           >
             {folders === null ? (
-              <p className="px-2 py-1.5 text-sm text-muted">Loading folders…</p>
+              <p className="px-2 py-2 text-sm text-muted">Loading folders…</p>
             ) : (
-              <div className="flex max-h-56 flex-col gap-0.5 overflow-y-auto">
+              <div className="flex max-h-56 flex-col gap-1 overflow-y-auto">
                 {folders.map((folder) => (
                   <label
                     key={folder.id}
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                    className="flex items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
                   >
                     <input
                       type="checkbox"
@@ -260,7 +260,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
                 ))}
               </div>
             )}
-            <div className="mt-1.5 flex items-center gap-1 border-t border-border pt-1.5">
+            <div className="mt-2 flex items-center gap-1 border-t border-border pt-2">
               <input
                 type="text"
                 value={newFolderName}
@@ -274,13 +274,13 @@ export default function BookmarkButton({ programId, name }: { programId: string;
                 placeholder="New folder…"
                 maxLength={80}
                 disabled={creating}
-                className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="min-w-0 flex-1 rounded border border-border bg-background px-2 py-1 text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover"
               />
               <button
                 type="button"
                 onClick={createFolderAndAdd}
                 disabled={creating || !newFolderName.trim()}
-                className="shrink-0 rounded-md px-2 py-1 text-sm font-medium text-accent hover:bg-surface-muted disabled:opacity-50"
+                className="shrink-0 rounded px-2 py-1 text-sm font-medium text-accent-hover hover:bg-surface-muted disabled:opacity-50"
               >
                 Add
               </button>

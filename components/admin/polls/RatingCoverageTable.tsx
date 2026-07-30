@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
@@ -40,7 +41,14 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
     }
   }
 
-  const arrow = (key: SortKey) => (sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "");
+  const arrow = (key: SortKey) =>
+    sortKey === key ? (
+      sortDir === "asc" ? (
+        <ArrowUp className="ml-1 inline h-4 w-4" strokeWidth={1.5} />
+      ) : (
+        <ArrowDown className="ml-1 inline h-4 w-4" strokeWidth={1.5} />
+      )
+    ) : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,7 +67,7 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
       </div>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-3 border-b border-border bg-surface-muted px-4 py-2.5 text-xs font-semibold text-muted">
+        <div className="flex items-center gap-3 border-b border-border bg-surface-muted px-4 py-3 text-xs font-semibold text-muted">
           <button
             type="button"
             onClick={() => toggleSort("name")}
@@ -83,11 +91,11 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
             return (
               <div
                 key={row.id}
-                className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", below && "bg-warning-bg/40")}
+                className={cn("flex items-center gap-3 px-4 py-3 text-sm", below && "bg-warning-bg/40")}
               >
                 <Link
                   href={`/programs/${row.slug}`}
-                  className="flex-1 truncate font-medium text-foreground hover:text-accent"
+                  className="flex-1 truncate font-medium text-foreground hover:text-accent-hover"
                   title={row.name}
                 >
                   {row.name}

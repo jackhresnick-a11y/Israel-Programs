@@ -212,9 +212,9 @@ export default function ProgramForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -379,7 +379,7 @@ export default function ProgramForm({
 
       <Field label="Logo" error={fieldErrors.logo}>
         {values.logoUrl && (
-          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+          <div className="flex items-center gap-3 rounded border border-border p-3">
             {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={values.logoUrl} alt="Current logo" className="h-12 w-12 rounded object-contain" />

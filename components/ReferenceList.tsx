@@ -98,7 +98,7 @@ function ReferenceRow({
   const [requesting, setRequesting] = useState(false);
 
   return (
-    <li className="rounded-lg border border-border p-4">
+    <li className="rounded border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm">
           <span className="font-medium text-foreground">{reference.displayName}</span>
@@ -127,7 +127,7 @@ function ReferenceRow({
         when="signed-in"
         fallback={
           <SignInButton mode="modal">
-            <button className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent">
+            <button className="mt-2 text-xs text-accent-hover hover:underline">
               Sign in to request contact
             </button>
           </SignInButton>
@@ -141,7 +141,7 @@ function ReferenceRow({
         ) : (
           <button
             onClick={() => setRequesting(true)}
-            className="mt-2 text-xs text-accent-hover hover:underline dark:text-accent"
+            className="mt-2 text-xs text-accent-hover hover:underline"
           >
             Request to connect
           </button>

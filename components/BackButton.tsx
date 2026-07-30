@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type BackButtonProps = {
@@ -26,7 +27,7 @@ export default function BackButton({ fallbackHref = "/programs", className = "" 
       }}
       className={`inline-flex w-fit items-center gap-1 text-sm text-muted hover:text-foreground ${className}`}
     >
-      <span aria-hidden="true">&larr;</span> Back
+      <ArrowLeft width={16} height={16} strokeWidth={1.5} aria-hidden="true" /> Back
     </button>
   );
 }

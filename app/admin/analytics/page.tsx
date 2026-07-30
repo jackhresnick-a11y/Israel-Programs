@@ -12,7 +12,7 @@ export default async function AdminAnalyticsPage() {
   const summary = await getAnalyticsSummary();
 
   return (
-    <PageContainer width="narrow" className="gap-10">
+    <PageContainer width="narrow" className="gap-12">
       <PageHeader
         title="Usage analytics"
         description="Search and filter activity, last 30 days. No user identifiers are collected."
@@ -23,11 +23,11 @@ export default async function AdminAnalyticsPage() {
           Top filters
         </h2>
         {summary.topFilters.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
+          <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
             No filter activity yet.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {summary.topFilters.map((f) => (
               <div key={`${f.kind}:${f.value}`} className="flex items-center justify-between gap-4 px-4 py-3">
                 <div className="flex items-center gap-2">
@@ -46,11 +46,11 @@ export default async function AdminAnalyticsPage() {
           Top searches
         </h2>
         {summary.topSearches.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
+          <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
             No searches yet.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {summary.topSearches.map((s) => (
               <div key={s.q} className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm text-foreground">
@@ -76,11 +76,11 @@ export default async function AdminAnalyticsPage() {
           Queries that returned nothing — a signal for content gaps.
         </p>
         {summary.zeroResultSearches.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
+          <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
             No zero-result searches yet.
           </p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {summary.zeroResultSearches.map((s) => (
               <div key={s.q} className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm text-foreground">{s.q}</span>
@@ -95,7 +95,7 @@ export default async function AdminAnalyticsPage() {
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Events per day
         </h2>
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {summary.perDay.map((d) => (
             <div key={d.date} className="flex items-center justify-between gap-4 px-4 py-3">
               <span className="text-sm text-foreground">{d.date}</span>

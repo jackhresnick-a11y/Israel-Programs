@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -16,7 +17,7 @@ export type DurationOptionRow = {
 
 export type FilterHeaderConfig = { label: string; tint: string; show: boolean };
 
-const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger", "violet"];
+const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger"];
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
@@ -120,9 +121,9 @@ export default function DurationManager({
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2 rounded border border-border px-4 py-3">
         <span className="text-xs text-muted">Dropdown header:</span>
         <Input
           defaultValue={header.label}
@@ -142,7 +143,7 @@ export default function DurationManager({
             </option>
           ))}
         </Select>
-        <label className="flex items-center gap-1.5 text-xs text-muted">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={header.show}
@@ -153,10 +154,10 @@ export default function DurationManager({
         </label>
       </div>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {sorted.map((option, index) => (
           <div key={option.value} className="flex flex-wrap items-center gap-2 px-4 py-3">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
               <Button
                 type="button"
                 variant="ghost"
@@ -164,8 +165,9 @@ export default function DurationManager({
                 className="h-5 px-1 py-0"
                 disabled={index === 0 || busyValue === option.value}
                 onClick={() => handleMove(index, -1)}
+                aria-label="Move up"
               >
-                ↑
+                <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
               </Button>
               <Button
                 type="button"
@@ -174,8 +176,9 @@ export default function DurationManager({
                 className="h-5 px-1 py-0"
                 disabled={index === sorted.length - 1 || busyValue === option.value}
                 onClick={() => handleMove(index, 1)}
+                aria-label="Move down"
               >
-                ↓
+                <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
               </Button>
             </div>
             <Input
@@ -185,7 +188,7 @@ export default function DurationManager({
               onBlur={(e) => handleRename(option, e.target.value)}
             />
             <span className="text-xs text-muted">({option.value})</span>
-            <label className="ml-auto flex items-center gap-1.5 text-xs text-muted">
+            <label className="ml-auto flex items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={option.showInFilter}

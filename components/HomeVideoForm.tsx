@@ -95,7 +95,7 @@ export default function HomeVideoForm({
         </span>
       </div>
 
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
       <div className="flex items-center gap-3">
         <Button
@@ -113,7 +113,7 @@ export default function HomeVideoForm({
         </span>
       </div>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <form onSubmit={handleSave} className="flex flex-col gap-3 rounded border border-border p-4">
         <label className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-foreground">Video URL (YouTube or Vimeo)</span>
           <Input
@@ -175,7 +175,7 @@ export default function HomeVideoForm({
       </form>
 
       {savedConfig && (
-        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border p-4">
+        <div className="flex flex-col gap-2 rounded border border-dashed border-border p-4">
           <p className="text-xs text-muted">Preview (as saved)</p>
           <HomeVideoHero config={savedConfig} />
           {savedConfig.provider === "vimeo" && !savedConfig.derivedPosterUrl && !savedConfig.posterOverrideUrl && (

@@ -41,15 +41,15 @@ export default function PollsTabs({
             href={tab.href}
             className={cn(
               buttonVariants({ variant: active ? "primary" : "secondary", size: "sm" }),
-              "gap-1.5"
+              "gap-2"
             )}
           >
             {tab.label}
             {badgeCount > 0 && (
               <span
                 className={cn(
-                  "inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
-                  active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover dark:text-accent"
+                  "inline-flex min-w-4 items-center justify-center rounded px-1 text-[10px] font-semibold",
+                  active ? "bg-white/25 text-accent-foreground" : "bg-accent/20 text-accent-hover"
                 )}
               >
                 {badgeCount}

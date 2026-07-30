@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown, X } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -110,7 +111,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
         ))}
       </div>
 
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
 
       {open && (
         <Card className="flex flex-col gap-3 p-4">
@@ -134,9 +135,9 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
               <p className="text-xs font-semibold text-muted">
                 Open to contact ({program.contactOptIns.length}) -- never shown publicly
               </p>
-              <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+              <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {program.contactOptIns.map((c, i) => (
-                  <div key={i} className="flex flex-col gap-0.5 px-3 py-2 text-xs">
+                  <div key={i} className="flex flex-col gap-1 px-3 py-2 text-xs">
                     <span className="font-medium text-foreground">{c.contactName}</span>
                     <span className="text-muted">{c.contactMethod}</span>
                     <span className="text-muted">
@@ -223,8 +224,19 @@ export default function ProgramsAdminManager({
             className="max-w-sm"
           />
           <div className="flex gap-2">
-            <Button type="button" variant={sortKey === "name" ? "primary" : "secondary"} size="sm" onClick={() => toggleSort("name")}>
-              Name {sortKey === "name" ? (sortAsc ? "↑" : "↓") : ""}
+            <Button
+              type="button"
+              variant={sortKey === "name" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => toggleSort("name")}
+            >
+              Name
+              {sortKey === "name" &&
+                (sortAsc ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </Button>
             <Button
               type="button"
@@ -232,7 +244,13 @@ export default function ProgramsAdminManager({
               size="sm"
               onClick={() => toggleSort("responseCount")}
             >
-              Responses {sortKey === "responseCount" ? (sortAsc ? "↑" : "↓") : ""}
+              Responses
+              {sortKey === "responseCount" &&
+                (sortAsc ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </Button>
           </div>
         </div>
@@ -246,8 +264,13 @@ export default function ProgramsAdminManager({
                 return (
                   <Badge key={slug} tone="tag" className="gap-1">
                     {tag?.name ?? slug}
-                    <button type="button" onClick={() => toggleTagFilter(slug)} className="ml-0.5 hover:text-danger">
-                      &times;
+                    <button
+                      type="button"
+                      onClick={() => toggleTagFilter(slug)}
+                      aria-label={`Remove ${tag?.name ?? slug}`}
+                      className="ml-1 hover:text-danger"
+                    >
+                      <X width={16} height={16} strokeWidth={1.5} />
                     </button>
                   </Badge>
                 );
@@ -260,9 +283,9 @@ export default function ProgramsAdminManager({
             onChange={(e) => setTagFilterSearch(e.target.value)}
             className="max-w-xs text-sm"
           />
-          <div className="max-h-32 overflow-y-auto rounded-lg border border-border p-2">
+          <div className="max-h-32 overflow-y-auto rounded border border-border p-2">
             {filteredTagOptions.map((tag) => (
-              <label key={tag.slug} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-surface-muted">
+              <label key={tag.slug} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs text-foreground hover:bg-surface-muted">
                 <input
                   type="checkbox"
                   checked={selectedTags.has(tag.slug)}
@@ -277,7 +300,7 @@ export default function ProgramsAdminManager({
         </div>
       </Card>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {filtered.map((program) => (
           <ProgramRowCard key={program.id} program={program} allTags={allTags} categories={categories} />
         ))}

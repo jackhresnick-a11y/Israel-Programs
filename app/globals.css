@@ -1,51 +1,75 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
   color-scheme: light;
-  --background: #fbf8f2;
-  --surface: #ffffff;
-  --surface-muted: #f4efe6;
-  --foreground: #1a2740;
-  /* Brand navy — deliberately constant across themes (Nav's solid header
-     background); use --foreground for text that should adapt instead. */
-  --primary: #1a2740;
-  --primary-foreground: #fbf8f2;
-  --accent: #c8912f;
-  --accent-hover: #b37f22;
-  --accent-foreground: #1a2740;
-  --accent-strong: #986e24;
-  --accent-strong-hover: #886320;
+  /* Brand & Visual Style Guide v1.0 palette — six colors, nothing outside this
+     list ships (§2). Existing token names are kept so class names like
+     bg-surface/text-foreground/bg-primary don't need an app-wide rename;
+     guide-named aliases (--color-paper, --color-ink-navy, etc.) are exposed
+     below in @theme inline for code that wants the guide's own vocabulary. */
+  --background: #fbfaf7; /* paper */
+  --surface: #ffffff; /* surface */
+  --surface-muted: #f3f0e9; /* derived warm tint of stone-on-paper, for background-tint separation per §1 — not one of the six named colors */
+  --foreground: #1a1a17; /* text-primary */
+  /* ink-navy — chrome (header/footer/section bands), not the page background;
+     use --foreground for ordinary text. */
+  --primary: #16274a;
+  --primary-foreground: #f4f2ed; /* text-inverse */
+  --accent: #b8912f; /* brass — one of the six frozen palette hexes (§2), never
+     changed for contrast; it's 2.82:1 on paper/surface, so it's fills-and-icons
+     only (with a dark foreground already on top) or large/decorative use, never
+     small text or a lone border/focus-ring standing in for a UI-component
+     boundary. --accent-hover below is the text-safe/UI-safe darker brass. */
+  --accent-hover: #8a6d23; /* darkened from #a17e28 -- that value was only
+     3.64:1 on paper, still short of 4.5:1 for the ~30 places this renders as
+     actual text (links, badges, the star-rating icon). 4.69:1 on paper /
+     4.89:1 on surface now. Same hue/saturation as brass, just deeper. */
+  --accent-foreground: #1a1a17; /* text-primary reads on a brass fill per §6's numbered rating scale */
+  --accent-strong: #907025; /* darkened from #9c7a28 -- white
+     (--accent-strong-foreground) on the old value was only 4.02:1, short of
+     4.5:1 for Button.tsx's primary variant (text-xs/text-sm, not large text
+     by WCAG's definition). White on this value is 4.64:1. --accent-strong-hover
+     stays as-is -- already darker than this, so its own white-text contrast
+     only improves. */
+  --accent-strong-hover: #86691f;
   --accent-strong-foreground: #ffffff;
-  --muted: #6b6656;
-  --border: #e7dfd0;
+  --muted: #5b5a54; /* text-muted */
+  --border: #e4e0d6; /* stone */
 
   --info: #2f5fa8;
   --info-bg: #eaf1fb;
-  --success: #3a7d4f;
-  --success-bg: #eaf5ee;
-  --warning: #b37f22;
+  --success: #3f5d4a; /* cypress — doubles as success per §2, no separate green */
+  --success-bg: #eaf0ec;
+  --warning: #91671b; /* darkened from #b37f22 -- that value was only 3.13:1 on
+     --warning-bg, short of 4.5:1 for the badges/banners that render it as
+     text. 4.50:1 on warning-bg / 4.84:1 on paper now. */
   --warning-bg: #faf1e0;
-  --danger: #b3432f;
-  --danger-bg: #fbecea;
-  --violet: #7c5cbf;
-  --violet-bg: #f1ecfa;
+  --danger: #a6402f; /* clay — reserved for destructive/error only, never decorative (§2) */
+  --danger-bg: #f7eae7;
 
   /* Poll-results question-group (bucket) identity colors -- deliberately separate
      from info/success/warning/danger above: those carry status meaning elsewhere in
      the app (error banners, verified badges), and reusing them here would make a
      bucket's color read as "good"/"bad" rather than "which group" -- exactly what
-     the descriptive-question spectrum is designed to avoid. Six-slot categorical
-     palette, CVD-validated (dataviz skill's scripts/validate_palette.js) against
-     this app's light/dark surfaces; ordering is the CVD-safety mechanism, not
-     cosmetic -- don't reorder. */
-  --poll-bucket-1: #2a78d6;
-  --poll-bucket-2: #1baf7a;
-  --poll-bucket-3: #eda100;
-  --poll-bucket-4: #008300;
-  --poll-bucket-5: #4a3aa7;
-  --poll-bucket-6: #e34948;
+     the descriptive-question spectrum is designed to avoid. Ten-slot categorical
+     "field-guide atlas" ramp: one saturation register, hue-ordered warm-to-cool-to-
+     warm, every value held at low lightness so each clears 3:1 against --background
+     (paper) on its own -- see the contrast gate script -- and reads as visually
+     distinct from --accent (brass, a lighter gold) and --primary (ink-navy, a much
+     darker desaturated blue). Assigned by a bucket's own QuestionBucket.order mod 10
+     (see components/PollSummaryStrip.tsx's bucketColorVar), not by array position,
+     so a bucket keeps the same color on every program; don't reorder these slots
+     without re-running the contrast check. */
+  --poll-bucket-1: #b23a2e; /* brick red */
+  --poll-bucket-2: #b4611f; /* terracotta */
+  --poll-bucket-3: #7e6a1b; /* dark olive */
+  --poll-bucket-4: #3f7a34; /* fern green */
+  --poll-bucket-5: #0f6e63; /* deep teal */
+  --poll-bucket-6: #1c6e8c; /* lagoon */
+  --poll-bucket-7: #285c9a; /* cerulean */
+  --poll-bucket-8: #8e3a57; /* wine */
+  --poll-bucket-9: #a6335e; /* raspberry */
+  --poll-bucket-10: #6b4a2e; /* bark brown */
 }
 
 @theme inline {
@@ -72,8 +96,6 @@
   --color-warning-bg: var(--warning-bg);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
-  --color-violet: var(--violet);
-  --color-violet-bg: var(--violet-bg);
 
   --color-poll-bucket-1: var(--poll-bucket-1);
   --color-poll-bucket-2: var(--poll-bucket-2);
@@ -81,49 +103,79 @@
   --color-poll-bucket-4: var(--poll-bucket-4);
   --color-poll-bucket-5: var(--poll-bucket-5);
   --color-poll-bucket-6: var(--poll-bucket-6);
+  --color-poll-bucket-7: var(--poll-bucket-7);
+  --color-poll-bucket-8: var(--poll-bucket-8);
+  --color-poll-bucket-9: var(--poll-bucket-9);
+  --color-poll-bucket-10: var(--poll-bucket-10);
 
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-fraunces);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Guide-named aliases (§2) — same values as the tokens above, exposed under
+     the style guide's own vocabulary for code that wants to spell it that way
+     (bg-paper, text-ink-navy, border-stone, etc.) rather than renaming every
+     existing bg-background/text-foreground/bg-primary usage across the app. */
+  --color-paper: var(--background);
+  --color-ink-navy: var(--primary);
+  --color-brass: var(--accent);
+  --color-cypress: var(--success);
+  --color-stone: var(--border);
+  --color-clay: var(--danger);
+  --color-text-primary: var(--foreground);
+  --color-text-muted: var(--muted);
+  --color-text-inverse: var(--primary-foreground);
 
-.dark {
-  color-scheme: dark;
+  /* Border radius — a single 4px token, full stop (§1/§4). Overriding every
+     Tailwind radius step means an un-swept rounded-lg/xl still renders at 4px;
+     the class-name sweep (global cleanup pass) is the belt to this suspenders. */
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-4xl: 4px;
 
-  --background: #14110b;
-  --surface: #201b12;
-  --surface-muted: #2a2318;
-  --foreground: #f3ecdd;
-  --accent: #e0ac4a;
-  --accent-hover: #ebbb5e;
-  --accent-foreground: #14110b;
-  --accent-strong: #e0ac4a;
-  --accent-strong-hover: #ebbb5e;
-  --accent-strong-foreground: #14110b;
-  --muted: #a79e8b;
-  --border: #37301f;
+  /* Type scale (§3, mobile-first 1.2 ratio). Added as new named steps rather
+     than overriding text-sm/text-lg/etc., so existing sizing across the app is
+     unaffected until a later prompt applies these to specific headings. */
+  --text-display: 30px;
+  --text-display--line-height: 1.15;
+  --text-h2: 22px;
+  --text-h2--line-height: 1.25;
+  --text-h3: 18px;
+  --text-h3--line-height: 1.3;
+  --text-body: 16px;
+  --text-body--line-height: 1.55;
+  --text-small: 14px;
+  --text-small--line-height: 1.5;
+  --text-meta: 12px;
+  --text-meta--line-height: 1.4;
 
-  --info: #8fb6e8;
-  --info-bg: #1c2a3d;
-  --success: #8bc9a0;
-  --success-bg: #1b3024;
-  --warning: #e0ac4a;
-  --warning-bg: #332512;
-  --danger: #e5a08f;
-  --danger-bg: #3a201a;
-  --violet: #b79ce8;
-  --violet-bg: #2a2140;
-
-  --poll-bucket-1: #3987e5;
-  --poll-bucket-2: #199e70;
-  --poll-bucket-3: #c98500;
-  --poll-bucket-4: #008300;
-  --poll-bucket-5: #9085e9;
-  --poll-bucket-6: #e66767;
+  /* Frank Ruhl Libre (400/500/700, latin+hebrew) for display/headings/wordmark;
+     IBM Plex Sans + IBM Plex Sans Hebrew (400/500/600) for body/UI -- IBM Plex Sans
+     itself has no Hebrew subset on Google Fonts, so the Hebrew-subset family sits
+     right after it in the stack for Hebrew glyphs; IBM Plex Mono (400/500) for
+     numerals/metadata, falling through to the Sans Hebrew/serif stack for any stray
+     Hebrew text since no Hebrew Plex Mono exists (§3/§4). */
+  --font-sans: var(--font-ibm-plex-sans), var(--font-ibm-plex-sans-hebrew), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-frank-ruhl-libre), Georgia, serif;
+  --font-mono: var(--font-ibm-plex-mono), var(--font-ibm-plex-sans-hebrew), ui-monospace, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Motion is color/border transitions only, nothing else animates (§6) -- this is the
+   hard off-switch for prefers-reduced-motion rather than a per-component opt-out. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

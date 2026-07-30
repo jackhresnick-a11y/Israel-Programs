@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -189,7 +190,7 @@ function RuleForm({
           {durationOptions.map((d) => (
             <label
               key={d.value}
-              className="flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-foreground"
+              className="flex cursor-pointer items-center gap-2 rounded border border-border px-2 py-1 text-xs text-foreground"
             >
               <input
                 type="checkbox"
@@ -322,7 +323,7 @@ export default function BucketRuleManager({
         is one of its selected durations -- on top of Core and any buckets attached manually below. A per-program
         question removal still wins over a rule-attached bucket.
       </p>
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
       {showCreate && (
         <Card className="p-4">
@@ -338,7 +339,7 @@ export default function BucketRuleManager({
         </Card>
       )}
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {rules.map((rule) => {
           const bucket = bucketsById.get(rule.bucketId);
           const editBuckets =
@@ -349,7 +350,9 @@ export default function BucketRuleManager({
                 <span className="text-sm font-medium text-foreground">
                   {bucket ? bucket.name : `(missing bucket: ${rule.bucketId})`}
                 </span>
-                <span className="text-xs text-muted">→ when</span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted">
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} /> when
+                </span>
                 {rule.tagSlugs.map((slug, i) => (
                   <span key={slug} className="flex items-center gap-1">
                     <Badge tone="tag">#{slug}</Badge>

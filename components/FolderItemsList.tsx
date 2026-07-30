@@ -71,7 +71,7 @@ export default function FolderItemsList({
   return (
     <div className="flex flex-col gap-3">
       {unavailableCount > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning/30 bg-warning-bg px-4 py-2 text-sm text-warning">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-warning/30 bg-warning-bg px-4 py-2 text-sm text-warning">
           <span>
             {unavailableCount} {unavailableCount === 1 ? "program is" : "programs are"} no longer available.
           </span>
@@ -90,7 +90,7 @@ export default function FolderItemsList({
           <Card key={item.id} className="flex items-center justify-between gap-3 px-4 py-3">
             {item.program ? (
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-muted">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
                   <span className="font-serif text-base font-semibold text-muted">
                     {item.program.name.charAt(0)}
                   </span>
@@ -101,13 +101,13 @@ export default function FolderItemsList({
                   ) : (
                     <Link
                       href={`/programs/${item.program.slug}`}
-                      className="font-medium text-foreground hover:text-accent hover:underline"
+                      className="font-medium text-foreground hover:text-accent-hover hover:underline"
                     >
                       {item.program.name}
                     </Link>
                   )}
                   {item.unavailable ? (
-                    <div className="mt-0.5">
+                    <div className="mt-1">
                       <Badge tone="warning">No longer listed</Badge>
                     </div>
                   ) : (
@@ -117,12 +117,12 @@ export default function FolderItemsList({
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-muted text-muted">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-surface-muted text-muted">
                   ?
                 </div>
                 <div>
                   <span className="font-medium text-foreground">Removed program</span>
-                  <div className="mt-0.5">
+                  <div className="mt-1">
                     <Badge tone="warning">No longer available</Badge>
                   </div>
                 </div>

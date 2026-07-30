@@ -15,11 +15,11 @@ export default async function AdminLeadsPage() {
     <PageContainer width="narrow">
       <PageHeader title="Leads" description="Footer 'ask us' submissions, newest first." />
       {leads.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
+        <p className="rounded border border-dashed border-border p-6 text-center text-sm text-muted">
           No leads yet.
         </p>
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {leads.map((lead) => (
             <div key={lead.id} className="flex flex-col gap-1 p-4">
               <span className="text-sm font-medium text-foreground">{lead.email}</span>

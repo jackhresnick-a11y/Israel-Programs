@@ -144,13 +144,13 @@ export default async function ProgramDetailPage({
     <PageContainer>
       <BackButton fallbackHref="/programs" />
       {banner && (
-        <p className={`rounded-lg px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
+        <p className={`rounded px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
           {banner.text}
         </p>
       )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
             {program.logoUrl ? (
               <Image
                 src={program.logoUrl}
@@ -191,7 +191,7 @@ export default async function ProgramDetailPage({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {program.tags.map((tag) => (
           <Link key={tag.id} href={`/programs?tags=${tag.slug}`} prefetch={false}>
             <Badge tone="tag" className="hover:bg-accent/25">
@@ -222,8 +222,8 @@ export default async function ProgramDetailPage({
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
       {program.goodFor && (
-        <div className="rounded-xl border border-accent/30 bg-accent/10 p-5">
-          <h2 className="text-sm font-semibold text-accent-hover dark:text-accent">
+        <div className="rounded border border-accent/30 bg-accent/10 p-4">
+          <h2 className="text-sm font-semibold text-accent-hover">
             Who it&apos;s for
           </h2>
           <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
@@ -232,7 +232,7 @@ export default async function ProgramDetailPage({
         </div>
       )}
 
-      <Card as="dl" className="grid grid-cols-1 gap-4 p-5 text-sm sm:grid-cols-2">
+      <Card as="dl" className="grid grid-cols-1 gap-4 p-4 text-sm sm:grid-cols-2">
         <div>
           <dt className="font-medium text-muted">Duration</dt>
           <dd>
@@ -252,7 +252,7 @@ export default async function ProgramDetailPage({
               href={program.signupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+              className="mt-1 inline-block text-sm text-accent-hover underline"
             >
               {program.signupUrl}
             </a>
@@ -260,16 +260,16 @@ export default async function ProgramDetailPage({
         </div>
         <div className="sm:col-span-2">
           <dt className="font-medium text-muted">Contact</dt>
-          <dd className="flex flex-col gap-0.5">
+          <dd className="flex flex-col gap-1">
             {showContactEmail && (
-              <span className="flex flex-wrap items-center gap-1.5">
+              <span className="flex flex-wrap items-center gap-2">
                 <a
                   href={`mailto:${program.contactEmail}?subject=${encodeURIComponent(
                     `Inquiry about ${program.name} (via Israel Programs Wiki)`
                   )}&body=${encodeURIComponent(
                     `Hello,\n\nI found ${program.name} on the Israel Programs Wiki and would like to learn more about the program.\n\nThank you!`
                   )}`}
-                  className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+                  className="text-accent-hover underline"
                 >
                   {program.contactEmail}
                 </a>
@@ -286,7 +286,7 @@ export default async function ProgramDetailPage({
                 href={program.contactWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent-hover underline hover:text-accent dark:text-accent dark:hover:text-accent-hover"
+                className="text-accent-hover underline"
               >
                 {program.contactWebsite}
               </a>

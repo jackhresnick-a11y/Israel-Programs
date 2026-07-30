@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -63,11 +64,11 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+        <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {blocks.map((block, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-xl border border-border p-4">
+        <div key={i} className="flex flex-col gap-3 rounded border border-border p-4">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-foreground">Block {i + 1}</span>
             <div className="flex items-center gap-2 text-xs">
@@ -75,19 +76,19 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
                 type="button"
                 onClick={() => moveBlock(i, -1)}
                 disabled={i === 0}
-                className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-muted hover:text-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move up"
               >
-                ↑
+                <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 onClick={() => moveBlock(i, 1)}
                 disabled={i === blocks.length - 1}
-                className="text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-muted hover:text-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Move down"
               >
-                ↓
+                <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
@@ -136,8 +137,8 @@ export default function MissionBlocksForm({ initial }: { initial: MissionBlock[]
             </span>
           </label>
 
-          <div className="flex items-start gap-3 rounded-lg bg-surface-muted p-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover dark:text-accent">
+          <div className="flex items-start gap-3 rounded bg-surface-muted p-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover">
               <MissionIcon icon={block.icon} className="h-4 w-4" />
             </div>
             <div className="flex flex-col gap-1">

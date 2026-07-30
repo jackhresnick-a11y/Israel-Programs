@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import Select from "@/components/ui/Select";
 import { cn } from "@/lib/cn";
 import type { PollQuestionDTO } from "@/lib/pollShared";
@@ -61,12 +62,14 @@ export default function QuestionInput({
               aria-pressed={n === value}
               onClick={() => toggle(n)}
               className={cn(
-                "text-2xl leading-none transition",
+                "leading-none transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
-                value !== null && n <= value ? "text-accent" : "text-border hover:text-accent/50"
+                value !== null && n <= value
+                  ? "fill-current text-accent-hover"
+                  : "text-border hover:text-accent-hover/50"
               )}
             >
-              ★
+              <Star width={20} height={20} strokeWidth={1.5} aria-hidden="true" />
             </button>
           ))}
           <span className="ml-2 text-xs text-muted">
@@ -118,10 +121,10 @@ export default function QuestionInput({
               aria-pressed={selected}
               onClick={() => toggle(n)}
               className={cn(
-                "rounded-lg border px-3 py-1.5 text-xs transition",
+                "rounded border px-3 py-2 text-xs transition-colors duration-[120ms] ease-out",
                 na && "cursor-not-allowed",
                 selected
-                  ? "border-accent bg-accent/15 text-accent-hover dark:text-accent"
+                  ? "border-accent-hover bg-accent/15 text-accent-hover"
                   : "border-border text-muted hover:bg-surface-muted"
               )}
             >
@@ -137,7 +140,7 @@ export default function QuestionInput({
 
 function NaCheckbox({ na, onToggle }: { na: boolean; onToggle: () => void }) {
   return (
-    <label className="flex w-fit items-center gap-1.5 text-[11px] text-muted">
+    <label className="flex w-fit items-center gap-2 text-[11px] text-muted">
       <input type="checkbox" checked={na} onChange={onToggle} className="accent-accent" />
       N/A
     </label>

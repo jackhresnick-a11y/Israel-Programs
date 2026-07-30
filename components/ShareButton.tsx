@@ -118,11 +118,11 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
-          "flex h-7 w-7 items-center justify-center rounded-full border shadow-sm backdrop-blur transition",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "flex h-7 w-7 items-center justify-center rounded-full border backdrop-blur transition-colors duration-[120ms] ease-out",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           open
-            ? "border-accent bg-accent/10 text-accent"
-            : "border-border bg-surface/90 text-muted hover:border-accent hover:text-accent"
+            ? "border-accent-hover bg-accent/10 text-accent-hover"
+            : "border-border bg-surface/90 text-muted hover:border-accent-hover hover:text-accent-hover"
         )}
       >
         <svg
@@ -150,7 +150,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
             role="menu"
             aria-label={`Share ${name}`}
             style={{ top: pos.top, right: pos.right }}
-            className="fixed z-50 min-w-44 rounded-lg border border-border bg-surface p-1.5 shadow-md"
+            className="fixed z-50 min-w-44 rounded border border-border bg-surface p-2"
           >
             {channels.map((c) => (
               <a
@@ -160,7 +160,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-surface-muted"
+                className="flex items-center gap-2 rounded px-2 py-2 text-sm text-foreground hover:bg-surface-muted"
               >
                 {c.label}
               </a>
@@ -169,7 +169,7 @@ export default function ShareButton({ slug, name }: { slug: string; name: string
               type="button"
               role="menuitem"
               onClick={copyLink}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm text-foreground hover:bg-surface-muted"
             >
               Copy link
             </button>

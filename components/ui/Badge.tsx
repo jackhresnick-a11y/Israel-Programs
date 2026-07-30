@@ -9,7 +9,7 @@ export type BadgeTone =
   | "danger";
 
 const tones: Record<BadgeTone, string> = {
-  tag: "bg-accent/15 text-accent-hover dark:text-accent",
+  tag: "bg-accent/15 text-accent-hover",
   neutral: "bg-surface-muted text-muted",
   info: "bg-info-bg text-info",
   success: "bg-success-bg text-success",
@@ -25,7 +25,7 @@ export default function Badge({ tone = "neutral", className, ...props }: BadgePr
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded px-3 py-1 text-xs font-medium",
         tones[tone],
         className
       )}

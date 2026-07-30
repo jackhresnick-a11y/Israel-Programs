@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -155,7 +156,7 @@ export default function TagManager({
     return (
       <div key={tag.id} className="flex flex-wrap items-center gap-2 px-4 py-2">
         {reorderable && (
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             <Button
               type="button"
               variant="ghost"
@@ -163,8 +164,9 @@ export default function TagManager({
               className="h-5 px-1 py-0"
               disabled={index === 0 || busyId === tag.id}
               onClick={() => handleMove(rows, index, -1)}
+              aria-label="Move up"
             >
-              ↑
+              <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
             </Button>
             <Button
               type="button"
@@ -173,8 +175,9 @@ export default function TagManager({
               className="h-5 px-1 py-0"
               disabled={index === rows.length - 1 || busyId === tag.id}
               onClick={() => handleMove(rows, index, 1)}
+              aria-label="Move down"
             >
-              ↓
+              <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
             </Button>
           </div>
         )}
@@ -214,7 +217,7 @@ export default function TagManager({
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
       <Input
         placeholder="Search tags by name or slug..."
@@ -232,7 +235,7 @@ export default function TagManager({
             {rows.length === 0 ? (
               <p className="px-4 py-2 text-xs text-muted">No tags in this category yet.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+              <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {rows.map((_, index) => renderRow(rows, index))}
               </div>
             )}
@@ -243,13 +246,13 @@ export default function TagManager({
           <h3 className="px-1 text-sm font-semibold text-foreground">
             Other / uncategorized ({groups.other.length})
           </h3>
-          <div className="flex max-h-96 flex-col divide-y divide-border overflow-y-auto rounded-xl border border-border">
+          <div className="flex max-h-96 flex-col divide-y divide-border overflow-y-auto rounded border border-border">
             {groups.other.map((_, index) => renderRow(groups.other, index))}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border p-3">
+      <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-3">
         <Input
           placeholder="New tag name"
           value={newName}
@@ -269,7 +272,7 @@ export default function TagManager({
         </Button>
       </div>
 
-      <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-3">
+      <div className="flex flex-col gap-2 rounded border border-dashed border-border p-3">
         <span className="text-sm font-medium text-foreground">Merge duplicate tags</span>
         <p className="text-xs text-muted">
           Moves every program from the first tag onto the second, then deletes the first.

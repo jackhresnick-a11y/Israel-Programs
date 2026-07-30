@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check, X } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -114,9 +115,9 @@ function BulkAssignPanel({ buckets, tags }: { buckets: BucketRow[]; tags: TagOpt
   return (
     <Card className="flex flex-col gap-3 p-4">
       <h2 className="text-sm font-semibold text-foreground">Bulk-assign a bucket by tag</h2>
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
       {result && (
-        <p className="rounded-lg bg-success-bg px-3 py-2 text-xs text-success">
+        <p className="rounded bg-success-bg px-3 py-2 text-xs text-success">
           Matched {result.matchedPrograms} program{result.matchedPrograms === 1 ? "" : "s"} -- changed{" "}
           {result.affected} (the rest already had this bucket {mode === "add" ? "attached" : "detached"}).
         </p>
@@ -152,18 +153,23 @@ function BulkAssignPanel({ buckets, tags }: { buckets: BucketRow[]; tags: TagOpt
             {Array.from(selectedTags).map((slug) => (
               <Badge key={slug} tone="tag" className="gap-1">
                 {slug}
-                <button type="button" onClick={() => toggleTag(slug)} className="ml-0.5 hover:text-danger">
-                  &times;
+                <button
+                  type="button"
+                  onClick={() => toggleTag(slug)}
+                  aria-label={`Remove ${slug}`}
+                  className="ml-1 hover:text-danger"
+                >
+                  <X width={16} height={16} strokeWidth={1.5} />
                 </button>
               </Badge>
             ))}
           </div>
         )}
-        <div className="max-h-40 overflow-y-auto rounded-lg border border-border p-2">
+        <div className="max-h-40 overflow-y-auto rounded border border-border p-2">
           {filteredTags.map((tag) => (
             <label
               key={tag.slug}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-surface-muted"
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs text-foreground hover:bg-surface-muted"
             >
               <input
                 type="checkbox"
@@ -317,7 +323,15 @@ function ProgramRow({
           className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Badge tone={resultsVisible ? "success" : "neutral"}>
-            {toggling ? "Updating..." : resultsVisible ? "Results visible ✓" : "Results hidden -- click to show"}
+            {toggling ? (
+              "Updating..."
+            ) : resultsVisible ? (
+              <span className="inline-flex items-center gap-1">
+                Results visible <Check className="h-4 w-4" strokeWidth={1.5} />
+              </span>
+            ) : (
+              "Results hidden -- click to show"
+            )}
           </Badge>
         </button>
         {program.config.pollLinkPublic && <Badge tone="info">Public link</Badge>}
@@ -336,7 +350,7 @@ function ProgramRow({
         </Button>
       </div>
 
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
 
       {open && (
         <Card className="flex flex-col gap-4 p-4">
@@ -403,9 +417,9 @@ function ProgramRow({
               Resolved questions ({provenance.questions.length}) -- what&rsquo;s actually on this program&rsquo;s poll
               right now, and why
             </p>
-            <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
+            <div className="flex flex-col divide-y divide-border rounded border border-border">
               {provenance.questions.map(({ question, source }) => (
-                <div key={question.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+                <div key={question.id} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
                   <span className="text-foreground">{question.text}</span>
                   <ProvenanceBadge source={source} />
                 </div>
@@ -529,7 +543,7 @@ export default function ProgramPollConfigManager({
         className="max-w-sm"
       />
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {filtered.map((program) => (
           <ProgramRow key={program.id} program={program} buckets={buckets} allBuckets={allBuckets} questions={questions} />
         ))}

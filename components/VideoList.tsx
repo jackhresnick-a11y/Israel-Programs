@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { ArrowUpRight, Play } from "lucide-react";
 import { platformForStoredUrl, watchUrlForStoredUrl, type Provider } from "@/lib/videoEmbed";
 
 type Video = {
@@ -51,7 +52,7 @@ function EmbedFrame({ url }: { url: string }) {
     <iframe
       src={url}
       title="Program video"
-      className="h-full w-full rounded-lg border border-border"
+      className="h-full w-full rounded border border-border"
       sandbox={EMBED_SANDBOX}
       allow={EMBED_ALLOW}
       referrerPolicy={EMBED_REFERRER_POLICY}
@@ -81,13 +82,13 @@ function LazyEmbedFacade({
     <button
       type="button"
       onClick={() => setLoaded(true)}
-      className="group flex h-full w-full flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface-muted text-sm text-muted transition hover:border-accent hover:text-accent"
+      className="group flex h-full w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:text-accent-hover"
     >
       <span
         aria-hidden
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 text-lg transition group-hover:bg-accent/20"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/10 transition-colors duration-[120ms] ease-out group-hover:bg-accent/20"
       >
-        ▶
+        <Play width={20} height={20} strokeWidth={1.5} className="fill-current" />
       </span>
       <span>Play {label} video</span>
       {watchUrl && (
@@ -106,11 +107,9 @@ function WatchOnLink({ url, label }: { url: string; label: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface-muted text-sm text-muted transition hover:border-accent hover:text-accent"
+      className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded border border-border bg-surface-muted text-sm text-muted transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:text-accent-hover"
     >
-      <span aria-hidden className="text-lg">
-        ↗
-      </span>
+      <ArrowUpRight aria-hidden className="h-5 w-5" strokeWidth={1.5} />
       <span className="underline">Watch on {label}</span>
     </a>
   );
@@ -162,7 +161,7 @@ export function VideoPlayer({ url }: { url: string }) {
   if (/\.public\.blob\.vercel-storage\.com\//.test(url)) {
     if (failed) {
       return (
-        <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-border bg-surface-muted text-sm text-muted">
+        <div className="flex aspect-video w-full items-center justify-center rounded border border-border bg-surface-muted text-sm text-muted">
           Video failed to load. Try refreshing the page.
         </div>
       );
@@ -174,7 +173,7 @@ export function VideoPlayer({ url }: { url: string }) {
         controls
         preload="metadata"
         onError={handleError}
-        className="w-full rounded-lg border border-border"
+        className="w-full rounded border border-border"
       />
     );
   }

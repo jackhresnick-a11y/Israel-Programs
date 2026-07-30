@@ -73,7 +73,7 @@ export default function ReferenceWhatsappEditor({
   return (
     <div className="flex flex-col gap-2">
       {error && <p className="text-xs text-danger">{error}</p>}
-      <div className="flex flex-col gap-1.5 sm:flex-row">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           placeholder="+972 50 123 4567"
           value={number}

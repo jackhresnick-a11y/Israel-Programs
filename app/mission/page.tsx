@@ -11,11 +11,10 @@ import { buttonVariants } from "@/components/ui/Button";
 import ContactForm from "@/components/ContactForm";
 
 export default async function MissionPage() {
-  const [blocks, legacyBody, emblemUrl, emblemUrlDark, role] = await Promise.all([
+  const [blocks, legacyBody, emblemUrl, role] = await Promise.all([
     getMissionBlocks(),
     getSiteContent("mission"),
     getSiteContent("emblemLogoUrl"),
-    getSiteContent("emblemLogoUrlDark"),
     getCurrentRole(),
   ]);
 
@@ -23,23 +22,9 @@ export default async function MissionPage() {
     <PageContainer width="base" className="gap-8">
       <div className="flex justify-center">
         {emblemUrl ? (
-          <>
-            {/* External Blob URL — plain img avoids next/image remotePatterns config. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={emblemUrl}
-              alt="Israel Program Wiki emblem"
-              className={`h-40 w-40 sm:h-48 sm:w-48 ${emblemUrlDark ? "dark:hidden" : ""}`}
-            />
-            {emblemUrlDark && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={emblemUrlDark}
-                alt="Israel Program Wiki emblem"
-                className="hidden h-40 w-40 sm:h-48 sm:w-48 dark:block"
-              />
-            )}
-          </>
+          // External Blob URL — plain img avoids next/image remotePatterns config.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={emblemUrl} alt="Israel Program Wiki emblem" className="h-40 w-40 sm:h-48 sm:w-48" />
         ) : (
           <EmblemDefault className="h-40 w-40 sm:h-48 sm:w-48" />
         )}
@@ -64,8 +49,8 @@ export default async function MissionPage() {
           {blocks.map((block, i) => (
             <div key={i} className="flex flex-col gap-6">
               {i > 0 && <hr className="border-t border-accent/40" />}
-              <div className="flex gap-4 sm:gap-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover dark:text-accent">
+              <div className="flex gap-4 sm:gap-6">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-hover">
                   <MissionIcon icon={block.icon} />
                 </div>
                 <div className="flex flex-col gap-2">

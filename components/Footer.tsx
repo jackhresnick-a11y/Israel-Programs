@@ -52,7 +52,7 @@ export default function Footer() {
               Not sure which program fits? Ask us.
             </p>
             {error && (
-              <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>
+              <p className="rounded bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <Input

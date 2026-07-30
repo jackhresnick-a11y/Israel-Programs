@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -194,8 +195,15 @@ function FaqEntryRow({
     <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-col">
-          <Button type="button" variant="secondary" size="sm" disabled={index === 0 || busy} onClick={() => onMove(-1)}>
-            ↑
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={index === 0 || busy}
+            onClick={() => onMove(-1)}
+            aria-label="Move up"
+          >
+            <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
           </Button>
           <Button
             type="button"
@@ -203,11 +211,12 @@ function FaqEntryRow({
             size="sm"
             disabled={index === count - 1 || busy}
             onClick={() => onMove(1)}
+            aria-label="Move down"
           >
-            ↓
+            <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
           </Button>
         </div>
-        <div className="flex flex-1 flex-col gap-0.5">
+        <div className="flex flex-1 flex-col gap-1">
           <span className="text-sm font-medium text-foreground">{faq.question}</span>
           {faq.answer && <span className="text-xs text-muted">{faq.answer}</span>}
         </div>
@@ -235,7 +244,7 @@ function FaqEntryRow({
       </div>
 
       {editing && (
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-2 rounded border border-border p-3">
           <Input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Question" />
           <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer" rows={3} />
           <Button type="button" size="sm" className="self-start" disabled={rowBusy} onClick={handleSave}>
@@ -280,7 +289,7 @@ function AddFaqForm({ programId }: { programId: string }) {
   return (
     <Card className="flex flex-col gap-2 p-4">
       <h3 className="text-sm font-semibold text-foreground">Add an FAQ entry</h3>
-      {error && <p className="rounded-lg bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
       <Input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Question" />
       <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer (optional -- can add later)" rows={2} />
       <label className="flex flex-col gap-1 text-xs text-muted">
@@ -330,7 +339,7 @@ export default function FaqManager({
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-foreground">Pending questions ({pending.length})</h2>
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {pending.map((item) => (
             <PendingQuestionRow key={item.id} item={item} />
           ))}
@@ -355,7 +364,7 @@ export default function FaqManager({
 
         {selectedProgramId && <AddFaqForm programId={selectedProgramId} />}
 
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+        <div className="flex flex-col divide-y divide-border rounded border border-border">
           {faqs.map((faq, index) => (
             <FaqEntryRow key={faq.id} faq={faq} index={index} count={faqs.length} onMove={(d) => handleMove(index, d)} busy={reorderBusy} />
           ))}

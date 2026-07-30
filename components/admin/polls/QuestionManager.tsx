@@ -257,9 +257,9 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {questions.map((question) => (
           <div key={question.id} className="flex flex-col gap-2 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -277,7 +277,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
             </div>
             <div className="flex flex-wrap gap-1 text-xs text-muted">
               {question.labels.map((l, i) => (
-                <span key={i} className="rounded bg-surface-muted px-1.5 py-0.5">
+                <span key={i} className="rounded bg-surface-muted px-2 py-1">
                   {i + 1}: {l}
                 </span>
               ))}

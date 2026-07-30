@@ -93,7 +93,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
-    prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true, name: true } }),
+    prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true, name: true, order: true } }),
     prisma.pollAnswer.groupBy({
       by: ["questionId"],
       where: { response: { programId, status: "COUNTED" } },
@@ -112,9 +112,15 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       question,
       bucketId: coreBucket?.id ?? null,
       bucketName: coreBucket?.name ?? null,
+      bucketOrder: coreBucket?.order ?? null,
     })),
     ...resolved.extras.flatMap(({ bucket, questions: bucketQuestions }) =>
-      bucketQuestions.map((question) => ({ question, bucketId: bucket.id, bucketName: bucket.name }))
+      bucketQuestions.map((question) => ({
+        question,
+        bucketId: bucket.id,
+        bucketName: bucket.name,
+        bucketOrder: bucket.order,
+      }))
     ),
   ].filter(({ question }) => question.key !== OVERALL_QUESTION_KEY);
 
@@ -136,11 +142,11 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   // Legend: distinct buckets behind the resolved questions, in resolved order.
   const buckets: PollSummaryBucketDTO[] = [];
   const seenBucketIds = new Set<string>();
-  for (const { bucketId, bucketName } of flat) {
-    if (!bucketId || !bucketName) continue;
+  for (const { bucketId, bucketName, bucketOrder } of flat) {
+    if (!bucketId || !bucketName || bucketOrder === null) continue;
     if (!seenBucketIds.has(bucketId)) {
       seenBucketIds.add(bucketId);
-      buckets.push({ id: bucketId, name: bucketName });
+      buckets.push({ id: bucketId, name: bucketName, order: bucketOrder });
     }
   }
 

@@ -9,11 +9,10 @@ export type ButtonVariant =
 export type ButtonSize = "sm" | "md";
 
 const base =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "inline-flex items-center justify-center gap-2 rounded font-semibold transition-colors duration-[120ms] ease-out disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 const variants: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent-strong text-accent-strong-foreground duration-150 hover:bg-accent-strong-hover hover:shadow-md active:shadow-sm active:duration-100 motion-safe:active:scale-[0.97]",
+  primary: "bg-accent-strong text-accent-strong-foreground hover:bg-accent-strong-hover",
   secondary: "border border-border text-foreground hover:bg-surface-muted",
   ghost: "text-muted hover:text-foreground hover:bg-surface-muted",
   destructive: "border border-danger/30 text-danger hover:bg-danger-bg",
@@ -23,7 +22,7 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs",
+  sm: "px-3 py-2 text-xs",
   md: "px-5 py-2 text-sm",
 };
 

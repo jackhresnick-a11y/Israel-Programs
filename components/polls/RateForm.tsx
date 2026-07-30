@@ -87,7 +87,7 @@ function QuestionWithReview({
   return (
     <div className="flex flex-col gap-2">
       <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
-      <div className="flex flex-col gap-1.5 pl-1">
+      <div className="flex flex-col gap-2 pl-1">
         <Textarea
           placeholder="Want to say more? Your answer may be published publicly in this program's reviews after moderation. (optional)"
           value={reviewText}
@@ -184,7 +184,7 @@ function ReviewConsentCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I understand my written comments may be published publicly on this program&rsquo;s page after moderation.</span>
       </label>
@@ -239,13 +239,13 @@ function ContactOptInBlock({
   error: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-border p-3">
       <label className="flex items-start gap-2 text-sm text-foreground">
         <input
           type="checkbox"
           checked={state.consent}
           onChange={(e) => onChange({ ...state, consent: e.target.checked })}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I&rsquo;m open to being contacted by prospective participants about this program.</span>
       </label>
@@ -256,7 +256,7 @@ function ContactOptInBlock({
               type="checkbox"
               checked={state.ageAttested}
               onChange={(e) => onChange({ ...state, ageAttested: e.target.checked })}
-              className="mt-0.5 accent-accent"
+              className="mt-1 accent-accent"
             />
             <span>I&rsquo;m 18 or older.</span>
           </label>
@@ -304,13 +304,13 @@ function ReferenceOptInBlock({
   onAgeAttestedChange: (ageAttested: boolean) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-border p-3">
       <label className="flex items-start gap-2 text-sm text-foreground">
         <input
           type="checkbox"
           checked={ageAttested}
           onChange={(e) => onAgeAttestedChange(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>I&rsquo;m 18 or older.</span>
       </label>
@@ -447,7 +447,7 @@ function SignedInRateForm({
     // returned success. Slot 3 renders here (and only here), never before submission.
     return (
       <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-        <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+        <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
           {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
         </div>
         <PartnerCta slot={postPollCta} />
@@ -457,7 +457,7 @@ function SignedInRateForm({
 
   return (
     <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -528,8 +528,8 @@ function clearDraft(programSlug: string) {
   }
 }
 
-// Same useSyncExternalStore pattern as components/ThemeToggle.tsx for reading a
-// browser-only value without a hydration mismatch: the server (and React's initial
+// useSyncExternalStore for reading a browser-only value without a hydration
+// mismatch: the server (and React's initial
 // client hydration pass) always sees getServerSnapshot's null, and the real draft
 // arrives one tick later on the client -- no useEffect+setState needed to "load" it.
 // Cached per programSlug so getSnapshot returns a referentially stable value (a fresh
@@ -675,7 +675,7 @@ function AnonymousRateForm({
 
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -743,7 +743,7 @@ function ThankYouScreen({
   // Slot 3 renders here (and only here).
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      <div className="rounded-xl border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+      <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
         Thanks -- your rating of {programName} has been recorded!
       </div>
       <PartnerCta slot={postPollCta} />

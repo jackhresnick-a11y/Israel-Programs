@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -215,7 +216,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+      <section className="flex flex-col gap-3 rounded border border-border p-4">
         {editingId ? (
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -316,10 +317,15 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
             <button
               key={key}
               onClick={() => toggleSort(key)}
-              className={`rounded px-2 py-1 hover:bg-surface-muted ${sortKey === key ? "font-semibold text-foreground" : ""}`}
+              className={`inline-flex items-center gap-1 rounded px-2 py-1 hover:bg-surface-muted ${sortKey === key ? "font-semibold text-foreground" : ""}`}
             >
               {key === "country" ? "Country" : key === "schoolName" ? "School" : "Date added"}
-              {sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+              {sortKey === key &&
+                (sortDir === "asc" ? (
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+                ) : (
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+                ))}
             </button>
           ))}
         </div>
@@ -332,7 +338,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
         {visible.length === 0 ? (
           <p className="text-sm text-muted">No contacts match these filters.</p>
         ) : (
-          <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+          <div className="flex flex-col divide-y divide-border rounded border border-border">
             {visible.map((contact) => (
               <div key={contact.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex flex-col gap-1">
@@ -352,7 +358,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
                     href={contact.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-accent-hover underline dark:text-accent"
+                    className="text-xs text-accent-hover underline"
                   >
                     {contact.sourceUrl}
                   </a>

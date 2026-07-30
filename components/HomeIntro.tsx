@@ -58,7 +58,7 @@ export default function HomeIntro({
     return (
       <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-2 text-left">
         {error && (
-          <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
+          <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>
         )}
         <Textarea
           required

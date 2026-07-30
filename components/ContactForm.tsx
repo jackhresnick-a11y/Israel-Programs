@@ -37,7 +37,7 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="rounded-xl border border-border bg-surface-muted p-4 text-sm text-foreground">
+      <div className="rounded border border-border bg-surface-muted p-4 text-sm text-foreground">
         Thanks — your message has been sent. We&apos;ll get back to you soon.
       </div>
     );
@@ -47,7 +47,7 @@ export default function ContactForm() {
     <div className="flex flex-col gap-3">
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {error && (
-          <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>
+          <p className="rounded bg-danger-bg px-3 py-2 text-sm text-danger">{error}</p>
         )}
         <Input
           required

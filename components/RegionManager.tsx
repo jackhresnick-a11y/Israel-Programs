@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -18,7 +19,7 @@ export type RegionRow = {
 
 export type LocationTagOption = { slug: string; name: string };
 
-const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger", "violet"];
+const TINT_OPTIONS: FilterDropdownTint[] = ["accent", "info", "success", "warning", "danger"];
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
@@ -144,9 +145,9 @@ export default function RegionManager({
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2 rounded border border-border px-4 py-3">
         <span className="text-xs text-muted">Dropdown header:</span>
         <Input
           defaultValue={header.label}
@@ -166,7 +167,7 @@ export default function RegionManager({
             </option>
           ))}
         </Select>
-        <label className="flex items-center gap-1.5 text-xs text-muted">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={header.show}
@@ -177,11 +178,11 @@ export default function RegionManager({
         </label>
       </div>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {sorted.map((region, index) => (
           <div key={region.id} className="flex flex-col gap-2 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 <Button
                   type="button"
                   variant="ghost"
@@ -189,8 +190,9 @@ export default function RegionManager({
                   className="h-5 px-1 py-0"
                   disabled={index === 0 || busyId === region.id}
                   onClick={() => handleMove(index, -1)}
+                  aria-label="Move up"
                 >
-                  ↑
+                  <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
                 <Button
                   type="button"
@@ -199,8 +201,9 @@ export default function RegionManager({
                   className="h-5 px-1 py-0"
                   disabled={index === sorted.length - 1 || busyId === region.id}
                   onClick={() => handleMove(index, 1)}
+                  aria-label="Move down"
                 >
-                  ↓
+                  <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
               </div>
               <Input
@@ -231,7 +234,7 @@ export default function RegionManager({
                 {locationTags.map((tag) => (
                   <label
                     key={tag.slug}
-                    className="flex items-center gap-1.5 text-xs text-foreground"
+                    className="flex items-center gap-2 text-xs text-foreground"
                   >
                     <input
                       type="checkbox"
@@ -248,7 +251,7 @@ export default function RegionManager({
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border p-3">
+      <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-3">
         <Input
           placeholder="New region label, e.g. Golan"
           value={newLabel}

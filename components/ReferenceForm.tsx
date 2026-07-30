@@ -52,7 +52,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {error && (
-        <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger">
+        <p className="rounded bg-danger-bg px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -81,7 +81,7 @@ export default function ReferenceForm({ programId }: { programId: string }) {
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 accent-accent"
+          className="mt-1 accent-accent"
         />
         <span>
           I consent to being listed publicly (display name + the note above) and to

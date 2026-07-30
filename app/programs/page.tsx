@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { listPrograms, listAllTags, getFacetData, type ProgramFilters } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
@@ -89,7 +90,6 @@ export default async function ProgramsPage({
         "backgroundLogoOffsetY",
         "backgroundLogoSizeMobile",
         "backgroundLogoOffsetYMobile",
-        "backgroundLogoUrlDark",
         "durationFilterLabel",
         "durationFilterTint",
         "durationFilterShow",
@@ -106,7 +106,6 @@ export default async function ProgramsPage({
     backgroundLogoOffsetY: backgroundOffsetYDesktop,
     backgroundLogoSizeMobile: backgroundSizeMobile,
     backgroundLogoOffsetYMobile: backgroundOffsetYMobile,
-    backgroundLogoUrlDark: backgroundUrlDark,
     durationFilterLabel,
     durationFilterTint,
     durationFilterShow,
@@ -248,7 +247,7 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
               }}
-              className={`absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden ${backgroundUrlDark ? "dark:hidden" : ""}`}
+              className="absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -259,34 +258,8 @@ export default async function ProgramsPage({
                 opacity: backgroundOpacityValue,
                 transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
               }}
-              className={`absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block ${backgroundUrlDark ? "dark:hidden" : ""}`}
+              className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
             />
-            {backgroundUrlDark && (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={backgroundUrlDark}
-                  alt=""
-                  style={{
-                    height: `${backgroundMobileHeight}px`,
-                    opacity: backgroundOpacityValue,
-                    transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
-                  }}
-                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none dark:block sm:dark:hidden"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={backgroundUrlDark}
-                  alt=""
-                  style={{
-                    height: `${backgroundDesktopHeight}px`,
-                    opacity: backgroundOpacityValue,
-                    transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
-                  }}
-                  className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:dark:block"
-                />
-              </>
-            )}
           </div>
         )}
         <div className="relative flex flex-col gap-8">
@@ -310,7 +283,7 @@ export default async function ProgramsPage({
       </div>
 
       {programs.length === 0 ? (
-        <div className="flex flex-col gap-6 rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="flex flex-col gap-6 rounded border border-dashed border-border p-8 text-center">
           {activeDimensions.length > 0 ? (
             <>
               <p className="text-sm text-muted">
@@ -322,16 +295,18 @@ export default async function ProgramsPage({
                     key={dimension.kind === "duration" ? "duration" : dimension.category}
                     href={href}
                     prefetch={false}
-                    className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
+                    className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:bg-accent/10"
                   >
                     Remove {dimension.kind === "duration" ? durationFilter.label : dimension.label}
-                    <span className="ml-1.5 text-xs text-muted">→ {count}</span>
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted">
+                      <ArrowRight className="h-4 w-4" strokeWidth={1.5} /> {count}
+                    </span>
                   </Link>
                 ))}
                 <Link
                   href={clearAllHref}
                   prefetch={false}
-                  className="rounded-full border border-border bg-surface-muted px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
+                  className="rounded border border-border bg-surface-muted px-3 py-2 text-sm font-medium text-foreground transition-colors duration-[120ms] ease-out hover:border-accent-hover hover:bg-accent/10"
                 >
                   Clear all filters
                 </Link>

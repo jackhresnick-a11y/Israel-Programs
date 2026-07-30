@@ -100,9 +100,9 @@ export default function PollLinkManager({
 
   return (
     <div className="flex flex-col gap-6">
-      {error && <p className="rounded-lg bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}
 
-      <Card className="flex flex-col gap-3 p-5">
+      <Card className="flex flex-col gap-3 p-4">
         <h2 className="text-sm font-semibold text-foreground">Mint a new outreach link</h2>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-xs text-muted">
@@ -165,7 +165,7 @@ export default function PollLinkManager({
         </Button>
       </Card>
 
-      <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      <div className="flex flex-col divide-y divide-border rounded border border-border">
         {tokens.length === 0 && (
           <p className="px-4 py-6 text-center text-sm text-muted">No links minted yet.</p>
         )}
@@ -244,7 +244,7 @@ function BlurbGenerator({
   const composed = `${line1}\n${line2}\n${url}`;
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border p-3">
+    <div className="flex flex-col gap-2 rounded border border-dashed border-border p-3">
       <label className="flex flex-col gap-1 text-xs text-muted">
         Line 1
         <Input value={line1} onChange={(e) => setLine1(e.target.value)} />
