@@ -4,7 +4,6 @@ import { buttonVariants } from "@/components/ui/Button";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
 import BestForStrip from "@/components/polls/BestForStrip";
-import { MIN_RESPONSES_PER_QUESTION } from "@/lib/pollBestFor";
 import { deriveCtaLayout } from "@/lib/contactOptIn";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
@@ -46,14 +45,24 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
  * DESCRIPTIVE never shows a ring or a star (those imply good/bad, wrong for a neutral
  * spectrum) -- it renders as a labeled spectrum track instead (see DescriptiveTrack).
- * Below MIN_RESPONSES_PER_QUESTION responses, neither renders -- a mean/track built on
- * one or two answers reads as more confident than it is, so the block is replaced with a
- * plain "not enough yet" line instead of a donut/track that looks as authoritative as a
- * well-answered one. */
-function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
+ * Below `minResponsesToPublish` (the program's own reactivated ProgramPollConfig field,
+ * default 7 -- see lib/pollShared.ts's PollSummaryDTO doc comment), neither renders --
+ * each question publishes independently once IT crosses this bar, so the same grid can
+ * show a mix of published and "not enough yet" questions side by side. Deliberately a
+ * different, higher bar than lib/pollBestFor.ts's own MIN_RESPONSES_PER_QUESTION (=3),
+ * which only gates Best-For-strip eligibility -- a different feature, untouched here. */
+function QuestionBlock({
+  question,
+  colorVar,
+  minResponsesToPublish,
+}: {
+  question: PollSummaryQuestionDTO;
+  colorVar: string | null;
+  minResponsesToPublish: number;
+}) {
   const { text, mean, count, labels, scaleType } = question;
 
-  if (count < MIN_RESPONSES_PER_QUESTION) {
+  if (count < minResponsesToPublish) {
     return (
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{text}</p>
@@ -103,8 +112,8 @@ function RateCta({
  * PollResponse/answer/email/ipHash. Deliberately carries no aggregate/overall scored
  * number anywhere: leads with the fit-phrased BestForStrip (see that component), then
  * the bucket-grouped question grid below it, unchanged from before except each
- * individual question now suppresses itself under MIN_RESPONSES_PER_QUESTION (see
- * QuestionBlock) rather than the whole strip waiting on one global publish threshold.
+ * individual question now suppresses itself under the program's own minResponsesToPublish
+ * (see QuestionBlock) rather than the whole strip waiting on one global publish threshold.
  *
  * The primary "Rate this program" button (see RateCta) is deliberately NOT gated on
  * `summary.visible` -- an admin can leave a program's results hidden ("ships dark")
@@ -171,7 +180,7 @@ export default function PollSummaryStrip({
             <div className="flex flex-col divide-y divide-border">
               {bucketQuestions.map((q) => (
                 <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                  <QuestionBlock question={q} colorVar={colorVar} />
+                  <QuestionBlock question={q} colorVar={colorVar} minResponsesToPublish={summary.minResponsesToPublish} />
                 </div>
               ))}
             </div>
@@ -185,7 +194,7 @@ export default function PollSummaryStrip({
           <div className="flex flex-col divide-y divide-border">
             {ungroupedQuestions.map((q) => (
               <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                <QuestionBlock question={q} colorVar={null} />
+                <QuestionBlock question={q} colorVar={null} minResponsesToPublish={summary.minResponsesToPublish} />
               </div>
             ))}
           </div>

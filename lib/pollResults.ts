@@ -34,9 +34,10 @@ export async function isPollKillSwitchOn(): Promise<boolean> {
   return value === "true";
 }
 
-/** Everything but `responseCount`, which varies per program even in the empty-visibility
- * path (see getProgramPollSummary) and so can't be baked into a shared constant. */
-const EMPTY_SUMMARY_BASE: Omit<PollSummaryDTO, "responseCount"> = {
+/** Everything but `responseCount`/`minResponsesToPublish`, which vary per program even
+ * in the empty-visibility path (see getProgramPollSummary) and so can't be baked into a
+ * shared constant. */
+const EMPTY_SUMMARY_BASE: Omit<PollSummaryDTO, "responseCount" | "minResponsesToPublish"> = {
   visible: false,
   questions: [],
   buckets: [],
@@ -89,7 +90,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   ]);
 
   const visible = config.resultsVisible && !killSwitchOn;
-  if (!visible) return { ...EMPTY_SUMMARY_BASE, responseCount };
+  if (!visible) return { ...EMPTY_SUMMARY_BASE, responseCount, minResponsesToPublish: config.minResponsesToPublish };
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
@@ -126,7 +127,48 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   const statsByQuestionId = new Map(answerStats.map((s) => [s.questionId, s]));
 
-  const questions: PollSummaryQuestionDTO[] = flat.map(({ question, bucketId }) => {
+  // A retired question is dropped from the live-resolved set (resolvePollQuestionSet
+  // filters to ACTIVE only -- correct for the rating form, which must never serve a
+  // retired question to a new respondent) but its PollAnswer rows still exist and are
+  // still counted in `answerStats` above (a raw, status-agnostic groupBy). Without this,
+  // retiring a question would also silently erase its historical result from every
+  // program page that already displays it -- the actual gap this closes: retired
+  // questions are never served going forward, but their existing results keep showing
+  // with their existing n. Any answered question id not already covered by the live-
+  // resolved set is "orphaned" (retired, or otherwise no longer resolvable) and gets
+  // fetched directly, with no status filter.
+  const resolvedIds = new Set(flat.map(({ question }) => question.id));
+  const orphanedIds = answerStats.map((s) => s.questionId).filter((id) => !resolvedIds.has(id));
+  const orphanedQuestions =
+    orphanedIds.length > 0
+      ? await prisma.pollQuestion.findMany({
+          where: { id: { in: orphanedIds } },
+          select: { id: true, key: true, text: true, scaleType: true, labels: true },
+        })
+      : [];
+
+  // A retired question's bucket is found by scanning ALL buckets (any status), not just
+  // the live-resolved set -- it may still be listed in its original bucket's
+  // questionIds array even though the question itself is retired (retiring is a status
+  // flag on PollQuestion, not a structural removal from the bucket). If no bucket lists
+  // it anymore, it renders ungrouped (bucketId: null), same fallback the results grid
+  // already has for any unmatched bucket.
+  const allBuckets = orphanedQuestions.length > 0 ? await prisma.questionBucket.findMany({ select: { id: true, name: true, order: true, questionIds: true } }) : [];
+  function findBucketFor(questionId: string) {
+    return allBuckets.find((b) => b.questionIds.includes(questionId)) ?? null;
+  }
+
+  const flatWithOrphans = [
+    ...flat,
+    ...orphanedQuestions
+      .filter((q) => q.key !== OVERALL_QUESTION_KEY)
+      .map((question) => {
+        const bucket = findBucketFor(question.id);
+        return { question, bucketId: bucket?.id ?? null, bucketName: bucket?.name ?? null, bucketOrder: bucket?.order ?? null };
+      }),
+  ];
+
+  const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId }) => {
     const stats = statsByQuestionId.get(question.id);
     return {
       key: question.key,
@@ -142,7 +184,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   // Legend: distinct buckets behind the resolved questions, in resolved order.
   const buckets: PollSummaryBucketDTO[] = [];
   const seenBucketIds = new Set<string>();
-  for (const { bucketId, bucketName, bucketOrder } of flat) {
+  for (const { bucketId, bucketName, bucketOrder } of flatWithOrphans) {
     if (!bucketId || !bucketName || bucketOrder === null) continue;
     if (!seenBucketIds.has(bucketId)) {
       seenBucketIds.add(bucketId);
@@ -180,6 +222,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     editorialBestFor: config.editorialBestFor ?? null,
     varianceNote,
     responseCount,
+    minResponsesToPublish: config.minResponsesToPublish,
   };
 });
 

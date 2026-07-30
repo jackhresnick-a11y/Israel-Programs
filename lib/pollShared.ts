@@ -182,6 +182,13 @@ export type PollSummaryDTO = {
   editorialBestFor: string | null;
   varianceNote: boolean;
   responseCount: number;
+  /** Per-program publish bar for an individual question's result (reactivated
+   * ProgramPollConfig.minResponsesToPublish, admin-editable, default 7) -- a question's
+   * own `count` must clear this before the results grid renders it instead of "Not
+   * enough responses yet." Deliberately separate from lib/pollBestFor.ts's own
+   * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility and the
+   * variance note -- two different features with two different bars. */
+  minResponsesToPublish: number;
 };
 
 /** One approved review as rendered on the public program page -- never carries
@@ -520,8 +527,8 @@ export function resolvePollQuestionSet(
  * bucket's questions, deduped. This is "everything the poll form could have presented,"
  * and is the single derivation both the render path and the submit-validation allowlist
  * must use: a route that grabs `.core` alone and forgets `.extras` will reject answers
- * to questions the form itself just rendered (see app/api/polls/responses/route.ts's
- * fix for exactly that bug). */
+ * to questions the form itself just rendered (see app/api/polls/responses/open/route.ts
+ * and the /answer and /details routes, which all allowlist against this). */
 export function flattenResolvedQuestionIds(resolved: ResolvedPollQuestionSet): string[] {
   return [...new Set([...resolved.core, ...resolved.extras.flatMap((e) => e.questions)].map((q) => q.id))];
 }
