@@ -58,8 +58,6 @@ export default async function Home() {
           </button>
         </form>
 
-        {/* Same copy as the old floating Disclaimer -- now a static strip under the
-            primary search action instead of covering content on every page. */}
         <p className="mx-auto max-w-2xl text-xs text-muted sm:mx-0">
           <Info
             width={14}
