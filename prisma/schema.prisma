@@ -141,13 +141,26 @@ enum PollQuestionTier {
 enum PollResponseStatus {
   /// Vestigial -- no new response is ever written PENDING since the after-submit email
   /// verification step was removed (see FLAGGED below). Kept because Postgres can't
-  /// drop an enum value in place, same posture as DurationType.CUSTOM.
+  /// drop an enum value in place, same posture as DurationType.CUSTOM. Deliberately NOT
+  /// reused for the autosave draft state below -- a different concept (awaiting an
+  /// email-verification click that no longer exists at all) and reusing it would risk
+  /// conflating any stray legacy row with a live in-progress draft.
   PENDING
+  /// A response created the moment a poll page opens, before enough Core-bucket
+  /// questions have been answered to cross the majority "unlock" bar (see
+  /// lib/pollUnlock.ts). Inert everywhere: excluded from anti-abuse repeat/cap counts,
+  /// from getProgramPollSummary's per-question stats, and from any displayed result.
+  /// Abandoned INCOMPLETE rows are never deleted (see PollAnswer/PollResponse comments) --
+  /// they just sit forever, harmlessly, the same retain-never-delete posture as
+  /// everything else in this feature. Transitions to COUNTED or FLAGGED exactly once,
+  /// the moment the majority bar is crossed; never transitions back.
+  INCOMPLETE
   COUNTED
-  /// An anonymous link submission that tripped an anti-abuse signal at submit time
-  /// (repeat ipHash, repeat browser cookie, token over cap/revoked/expired) -- not in
-  /// public math until an admin approves it in /admin/polls/moderation. Replaces the
-  /// old PENDING-awaiting-email-click state; nothing sits waiting on an email anymore.
+  /// An anonymous link submission that tripped an anti-abuse signal at the moment it
+  /// crossed the majority bar (repeat ipHash, repeat browser cookie, token over
+  /// cap/revoked/expired) -- not in public math until an admin approves it in
+  /// /admin/polls/moderation. Replaces the old PENDING-awaiting-email-click state;
+  /// nothing sits waiting on an email anymore.
   FLAGGED
   VOIDED
 }
