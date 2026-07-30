@@ -23,7 +23,7 @@ export default async function AdminEmailOutreachPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Outreach: verify your listing"
-        description="Draft, review, and send personalized 'verify your listing' emails to program contacts with a sourced address. Sending is manual and batch-based -- nothing goes out until you approve it and click Send."
+        description="Draft, review, and send personalized ‘verify your listing’ emails to program contacts with a sourced address. Sending is manual and batch-based — nothing goes out until you approve it and click Send."
         actions={
           <a
             href="/api/admin/outreach-contacts.csv"

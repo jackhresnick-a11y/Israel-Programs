@@ -125,7 +125,7 @@ function QuestionForm({
         </div>
       </div>
       <label className="flex flex-col gap-1 text-xs text-muted">
-        Tier (strip ranking weight -- see the &ldquo;Best for&rdquo; strip)
+        Tier (strip ranking weight — see the &ldquo;Best for&rdquo; strip)
         <Select value={tier} onChange={(e) => setTier(e.target.value as QuestionTier)} className="w-48">
           {(Object.keys(TIER_LABELS) as QuestionTier[]).map((t) => (
             <option key={t} value={t}>
@@ -136,7 +136,7 @@ function QuestionForm({
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-xs text-muted">
-          Strip phrase, low end (mean &lt; 3 -- leave blank to never surface a low-end phrase)
+          Strip phrase, low end (mean &lt; 3 — leave blank to never surface a low-end phrase)
           <Input
             value={lowPhrase}
             onChange={(e) => setLowPhrase(e.target.value)}
@@ -144,7 +144,7 @@ function QuestionForm({
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-muted">
-          Strip phrase, high end (mean &gt; 3 -- leave blank to never surface a high-end phrase)
+          Strip phrase, high end (mean &gt; 3 — leave blank to never surface a high-end phrase)
           <Input
             value={highPhrase}
             onChange={(e) => setHighPhrase(e.target.value)}

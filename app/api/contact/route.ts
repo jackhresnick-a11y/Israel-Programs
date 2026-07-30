@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     if (!sent) {
       return NextResponse.json(
-        { error: "We couldn't send your message right now." },
+        { error: "We couldn’t send your message right now." },
         { status: 502 }
       );
     }

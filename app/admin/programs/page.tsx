@@ -21,7 +21,7 @@ export default async function AdminProgramsPage() {
     <PageContainer width="wide">
       <PageHeader
         title="Programs"
-        description="Every published program's live-computed &ldquo;Best for&rdquo; strip, alongside its editorial override and tags. Editing here saves immediately -- no separate publish step."
+        description="Every published program&rsquo;s live-computed &ldquo;Best for&rdquo; strip, alongside its editorial override and tags. Editing here saves immediately — no separate publish step."
       />
       <ProgramsAdminManager
         programs={programs}

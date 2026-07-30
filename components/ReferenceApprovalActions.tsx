@@ -9,13 +9,13 @@ const ACTION_COPY: Record<Action, { confirm: string; pending: string; success: s
   approve: {
     confirm: "Approve & share contacts",
     pending: "Approving...",
-    success: "Done — you and the requester will each receive an email with the other's contact info.",
+    success: "Done — you and the requester will each receive an email with the other’s contact info.",
     variant: "primary",
   },
   decline: {
     confirm: "Decline",
     pending: "Declining...",
-    success: "Done — we've let the requester know, gently. No contact info was shared.",
+    success: "Done — we’ve let the requester know, gently. No contact info was shared.",
     variant: "secondary",
   },
 };

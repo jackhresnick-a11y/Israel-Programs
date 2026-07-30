@@ -38,7 +38,7 @@ export default function VideoUploader({ programId }: { programId: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!looksLikeSupportedLink(link)) {
-      setError("That doesn't look like a YouTube, Vimeo, Facebook, Instagram, or TikTok link.");
+      setError("That doesn’t look like a YouTube, Vimeo, Facebook, Instagram, or TikTok link.");
       return;
     }
     setSaving(true);

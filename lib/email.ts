@@ -241,12 +241,12 @@ export type ReferenceApprovalEmailInput = {
  * contact info is shared by this email itself. */
 export async function sendReferenceApprovalEmail(input: ReferenceApprovalEmailInput): Promise<boolean> {
   const subject = `${input.requesterName} would like to connect with you about ${input.programName}`;
-  const noteBlock = input.requesterNote ? `Their message:\n"${input.requesterNote}"\n\n` : "";
+  const noteBlock = input.requesterNote ? `Their message:\n“${input.requesterNote}”\n\n` : "";
   const text =
     `${input.requesterName} found your Alumni Reference listing for ${input.programName} on Israel Programs Wiki and would like to connect.\n\n` +
     noteBlock +
-    `If you're open to it, approve below and we'll share both your contact details by email:\n${input.approveUrl}\n\n` +
-    `If not, no problem -- just decline and we'll let them know:\n${input.declineUrl}\n\n` +
+    `If you’re open to it, approve below and we’ll share both your contact details by email:\n${input.approveUrl}\n\n` +
+    `If not, no problem — just decline and we’ll let them know:\n${input.declineUrl}\n\n` +
     `Nothing is shared with them unless you click Approve.`;
   return sendReferenceEmail(input.to, subject, text);
 }
@@ -256,13 +256,13 @@ export async function sendReferenceApprovalEmail(input: ReferenceApprovalEmailIn
  * ContactRequest.reminderSent flag). */
 export async function sendReferenceReminderEmail(input: ReferenceApprovalEmailInput): Promise<boolean> {
   const subject = `Reminder: ${input.requesterName} is still hoping to connect about ${input.programName}`;
-  const noteBlock = input.requesterNote ? `Their message:\n"${input.requesterNote}"\n\n` : "";
+  const noteBlock = input.requesterNote ? `Their message:\n“${input.requesterNote}”\n\n` : "";
   const text =
-    `Just a gentle reminder -- ${input.requesterName} is still waiting to hear back about connecting regarding ${input.programName}.\n\n` +
+    `Just a gentle reminder — ${input.requesterName} is still waiting to hear back about connecting regarding ${input.programName}.\n\n` +
     noteBlock +
-    `Approve and we'll share both your contact details by email:\n${input.approveUrl}\n\n` +
-    `Or decline and we'll let them know:\n${input.declineUrl}\n\n` +
-    `No pressure either way -- nothing is shared with them unless you click Approve.`;
+    `Approve and we’ll share both your contact details by email:\n${input.approveUrl}\n\n` +
+    `Or decline and we’ll let them know:\n${input.declineUrl}\n\n` +
+    `No pressure either way — nothing is shared with them unless you click Approve.`;
   return sendReferenceEmail(input.to, subject, text);
 }
 
@@ -279,13 +279,13 @@ export type ReferenceIntroEmailsInput = {
 export async function sendReferenceIntroEmails(input: ReferenceIntroEmailsInput): Promise<boolean> {
   const toAlumnus = sendReferenceEmail(
     input.alumnusEmail,
-    `You're connected with ${input.requesterName} about ${input.programName}`,
-    `You approved the request to connect. ${input.requesterName}'s email is ${input.requesterEmail} -- feel free to reach out directly.`
+    `You’re connected with ${input.requesterName} about ${input.programName}`,
+    `You approved the request to connect. ${input.requesterName}’s email is ${input.requesterEmail} — feel free to reach out directly.`
   );
   const toRequester = sendReferenceEmail(
     input.requesterEmail,
     `${input.alumnusName} approved your request to connect`,
-    `Good news -- ${input.alumnusName} is happy to connect about ${input.programName}. Their email is ${input.alumnusEmail} -- feel free to reach out directly.`
+    `Good news — ${input.alumnusName} is happy to connect about ${input.programName}. Their email is ${input.alumnusEmail} — feel free to reach out directly.`
   );
   const [alumnusSent, requesterSent] = await Promise.all([toAlumnus, toRequester]);
   return alumnusSent && requesterSent;
@@ -296,7 +296,7 @@ export async function sendReferenceIntroEmails(input: ReferenceIntroEmailsInput)
 export async function sendReferenceDeclinedEmail(to: string, programName: string): Promise<boolean> {
   const text =
     `Thanks for your interest in connecting with an alumni reference for ${programName}. ` +
-    `Unfortunately they weren't able to connect this time. Feel free to check back later, ` +
+    `Unfortunately they weren’t able to connect this time. Feel free to check back later, ` +
     `or explore other alumni references listed on the program page.`;
   return sendReferenceEmail(to, `About your request to connect regarding ${programName}`, text);
 }
@@ -306,7 +306,7 @@ export async function sendReferenceDeclinedEmail(to: string, programName: string
 export async function sendReferenceExpiredEmail(to: string, programName: string): Promise<boolean> {
   const text =
     `Thanks for your interest in connecting with an alumni reference for ${programName}. ` +
-    `We weren't able to connect you this time. Feel free to check back later, ` +
+    `We weren’t able to connect you this time. Feel free to check back later, ` +
     `or explore other alumni references listed on the program page.`;
   return sendReferenceEmail(to, `About your request to connect regarding ${programName}`, text);
 }
@@ -325,11 +325,11 @@ const TEST_SAMPLES: Record<TestEmailTemplate, { subject: string; text: string }>
   // copy/formatting and confirm inbox routing, not because a real send path uses it.
   verification: {
     subject: "Please verify your program listing on Israel Programs Wiki",
-    text: "Hi,\n\nThis is a sample verification-request email. It previews the copy and confirms inbox routing -- the app does not currently send this automatically.",
+    text: "Hi,\n\nThis is a sample verification-request email. It previews the copy and confirms inbox routing — the app does not currently send this automatically.",
   },
   outreach: {
     subject: "Verify your listing on Israel Programs Wiki",
-    text: "Hi,\n\nThis is a sample outreach email, rendered as a preview of the real 'verify your listing' template that programs receive.",
+    text: "Hi,\n\nThis is a sample outreach email, rendered as a preview of the real ‘verify your listing’ template that programs receive.",
   },
 };
 

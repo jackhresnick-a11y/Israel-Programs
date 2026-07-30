@@ -102,7 +102,7 @@ export class AnthropicProvider implements AIProvider {
   }): Promise<RecommendationResult> {
     if (input.candidates.length === 0) {
       return {
-        reply: "I couldn't find any programs matching that. Try describing what you're looking for differently.",
+        reply: "I couldn’t find any programs matching that. Try describing what you’re looking for differently.",
         recommendedSlugs: [],
       };
     }

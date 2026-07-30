@@ -25,7 +25,7 @@ type RecommendedProgram = {
 const GREETING: Message = {
   role: "assistant",
   content:
-    "Hi! Tell me what you're looking for -- e.g. \"something religious, 3 months, focused on volunteering\" -- and I'll suggest programs from the directory.",
+    "Hi! Tell me what you’re looking for — e.g. “something religious, 3 months, focused on volunteering” — and I’ll suggest programs from the directory.",
 };
 
 export default function AssistantWidget() {

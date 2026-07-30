@@ -40,7 +40,7 @@ export default async function SavedFoldersPage() {
 
   return (
     <PageContainer width="base" className="gap-6">
-      <PageHeader title="My saved programs" description="Folders you've saved programs into, and any you've shared." />
+      <PageHeader title="My saved programs" description="Folders you’ve saved programs into, and any you’ve shared." />
 
       <NewFolderForm />
 

@@ -291,7 +291,7 @@ function AddFaqForm({ programId }: { programId: string }) {
       <h3 className="text-sm font-semibold text-foreground">Add an FAQ entry</h3>
       {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
       <Input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Question" />
-      <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer (optional -- can add later)" rows={2} />
+      <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer (optional — can add later)" rows={2} />
       <label className="flex flex-col gap-1 text-xs text-muted">
         Source
         <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="staff / admin / alumni poll" className="max-w-xs" />

@@ -24,7 +24,7 @@ export async function POST(request: Request, { params }: Params) {
 
     const ip = getClientIp(request);
     if (!checkRateLimit(`faq-question:${ip}`, { limit: 10, windowMs: 10 * 60_000 })) {
-      return NextResponse.json({ error: "Too many questions -- try again in a few minutes" }, { status: 429 });
+      return NextResponse.json({ error: "Too many questions — try again in a few minutes" }, { status: 429 });
     }
 
     const program = await prisma.program.findUnique({ where: { id }, select: { id: true, status: true } });

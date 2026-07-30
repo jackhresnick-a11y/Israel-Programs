@@ -111,7 +111,7 @@ export default function ProgramForm({
 
   async function handleRemoveLogo() {
     if (!initial?.id) return;
-    if (!confirm("Remove this program's logo?")) return;
+    if (!confirm("Remove this program’s logo?")) return;
     setRemovingLogo(true);
     setError(null);
     try {

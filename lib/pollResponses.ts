@@ -497,7 +497,7 @@ export async function approvePollResponse(id: string): Promise<ApproveResult> {
   const response = await prisma.pollResponse.findUnique({ where: { id }, select: { status: true } });
   if (!response) return { ok: false, reason: "Response not found" };
   if (response.status !== "FLAGGED" && response.status !== "PENDING") {
-    return { ok: false, reason: "This response isn't flagged or pending" };
+    return { ok: false, reason: "This response isn’t flagged or pending" };
   }
 
   try {

@@ -35,4 +35,4 @@ export const FAQ_CONSENT_CONTEXT =
   "Questions are reviewed by a moderator before an answer is published, and may not be published at all.";
 
 export const FAQ_CONSENT_LABEL =
-  "I understand this question may be published publicly on this program's page.";
+  "I understand this question may be published publicly on this program’s page.";

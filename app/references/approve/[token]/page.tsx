@@ -4,9 +4,9 @@ import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 
 const RESOLVED_COPY: Record<string, string> = {
-  APPROVED: "You already approved this request — you and the requester should each have an email with the other's contact info.",
+  APPROVED: "You already approved this request — you and the requester should each have an email with the other’s contact info.",
   DECLINED: "You already declined this request. No contact info was shared.",
-  EXPIRED: "This request has expired — it's no longer awaiting a response.",
+  EXPIRED: "This request has expired — it’s no longer awaiting a response.",
 };
 
 export default async function ApproveReferenceRequestPage({
@@ -20,7 +20,7 @@ export default async function ApproveReferenceRequestPage({
   if (!preview) {
     return (
       <PageContainer width="narrow" className="items-start gap-4">
-        <PageHeader title="Link not found" description="This link isn't valid. It may have been mistyped or already used." />
+        <PageHeader title="Link not found" description="This link isn’t valid. It may have been mistyped or already used." />
       </PageContainer>
     );
   }

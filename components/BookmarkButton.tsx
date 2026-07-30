@@ -42,7 +42,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
         return;
       }
       if (!res.ok) {
-        toast("Couldn't save this program — try again.", "info");
+        toast("Couldn’t save this program — try again.", "info");
         return;
       }
 
@@ -50,7 +50,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
       setSaved(true);
       toast("Saved to My saved programs", "success", { label: "View list", href: `/saved/${data.folderId}` });
     } catch {
-      toast("Couldn't save this program — try again.", "info");
+      toast("Couldn’t save this program — try again.", "info");
     } finally {
       setPending(false);
     }
@@ -78,7 +78,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
       setMemberIds(new Set(membership.folderIds));
     } catch {
       setOpen(false);
-      toast("Couldn't load your folders — try again.", "info");
+      toast("Couldn’t load your folders — try again.", "info");
     } finally {
       setPending(false);
     }
@@ -108,7 +108,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
         : await fetch(`/api/folders/${folder.id}/items/${encodeURIComponent(programId)}`, { method: "DELETE" });
 
       if (!res.ok) {
-        toast(checked ? "Couldn't add to that folder." : "Couldn't remove from that folder.", "info");
+        toast(checked ? "Couldn’t add to that folder." : "Couldn’t remove from that folder.", "info");
         return;
       }
       setMemberIds((prev) => {
@@ -141,7 +141,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
       });
       if (!createRes.ok) {
         const body = await createRes.json().catch(() => ({}));
-        toast(body.error ?? "Couldn't create that folder.", "info");
+        toast(body.error ?? "Couldn’t create that folder.", "info");
         return;
       }
       const created = (await createRes.json()) as { id: string; name: string };
@@ -160,7 +160,7 @@ export default function BookmarkButton({ programId, name }: { programId: string;
       }
       setNewFolderName("");
     } catch {
-      toast("Couldn't create that folder.", "info");
+      toast("Couldn’t create that folder.", "info");
     } finally {
       setCreating(false);
     }

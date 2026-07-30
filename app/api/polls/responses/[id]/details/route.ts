@@ -30,7 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const ip = getClientIp(request);
     if (!checkRateLimit(`poll-details:${ip}`, { limit: 30, windowMs: 10 * 60_000 })) {
-      return NextResponse.json({ error: "Too many requests -- try again in a few minutes" }, { status: 429 });
+      return NextResponse.json({ error: "Too many requests — try again in a few minutes" }, { status: 429 });
     }
 
     const json = await request.json();
@@ -47,7 +47,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const invalidReviews = reviews.filter((r) => !allowedIds.has(r.questionId));
     const invalidNa = naQuestionIds.filter((qid) => !allowedIds.has(qid));
     if (invalidAnswers.length > 0 || invalidReviews.length > 0 || invalidNa.length > 0) {
-      return NextResponse.json({ error: "One or more questions are not part of this program's rating form" }, { status: 400 });
+      return NextResponse.json({ error: "One or more questions are not part of this program’s rating form" }, { status: 400 });
     }
 
     const cookieStore = await cookies();

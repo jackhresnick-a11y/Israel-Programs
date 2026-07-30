@@ -80,7 +80,7 @@ export type FaqWriteResult = { ok: true } | { ok: false; reason: string };
 
 function publishGuard(answer: string | null | undefined, status: string | undefined): string | null {
   if (status === "PUBLISHED" && (!answer || answer.trim().length === 0)) {
-    return "Can't publish a question with no answer";
+    return "Can’t publish a question with no answer";
   }
   return null;
 }
@@ -166,7 +166,7 @@ export async function deleteFaq(id: string): Promise<FaqWriteResult> {
   const existing = await prisma.programFAQ.findUnique({ where: { id }, select: { source: true } });
   if (!existing) return { ok: false, reason: "FAQ entry not found" };
   if (existing.source === "visitor") {
-    return { ok: false, reason: "Visitor-submitted questions can't be deleted -- reject them instead" };
+    return { ok: false, reason: "Visitor-submitted questions can’t be deleted — reject them instead" };
   }
 
   await prisma.programFAQ.delete({ where: { id } });

@@ -107,7 +107,7 @@ function BulkAssignPanel({ buckets, tags }: { buckets: BucketRow[]; tags: TagOpt
   if (buckets.length === 0) {
     return (
       <Card className="p-4 text-sm text-muted">
-        No extra buckets exist yet -- create one under the Buckets tab before bulk-assigning.
+        No extra buckets exist yet — create one under the Buckets tab before bulk-assigning.
       </Card>
     );
   }
@@ -319,7 +319,7 @@ function ProgramRow({
           type="button"
           onClick={handleQuickToggleVisible}
           disabled={toggling}
-          title="Click to toggle whether this program's score and approved reviews show on its public page"
+          title="Click to toggle whether this program’s score and approved reviews show on its public page"
           className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Badge tone={resultsVisible ? "success" : "neutral"}>
@@ -330,7 +330,7 @@ function ProgramRow({
                 Results visible <Check className="h-4 w-4" strokeWidth={1.5} />
               </span>
             ) : (
-              "Results hidden -- click to show"
+              "Results hidden — click to show"
             )}
           </Badge>
         </button>
@@ -404,7 +404,7 @@ function ProgramRow({
 
           <label className="flex flex-col gap-1 text-xs text-muted">
             &ldquo;Best for&rdquo; override (replaces the generated fit strip on the program page
-            entirely -- phrase as fit, not praise)
+            entirely — phrase as fit, not praise)
             <Input
               value={editorialBestFor}
               onChange={(e) => setEditorialBestFor(e.target.value)}
@@ -414,7 +414,7 @@ function ProgramRow({
 
           <div>
             <p className="mb-1 text-xs font-semibold text-muted">
-              Resolved questions ({provenance.questions.length}) -- what&rsquo;s actually on this program&rsquo;s poll
+              Resolved questions ({provenance.questions.length}) — what&rsquo;s actually on this program&rsquo;s poll
               right now, and why
             </p>
             <div className="flex flex-col divide-y divide-border rounded border border-border">
@@ -441,7 +441,7 @@ function ProgramRow({
 
           <div>
             <p className="mb-1 text-xs font-semibold text-muted">Core bucket</p>
-            <Badge tone="info">Always attached -- can&rsquo;t be removed</Badge>
+            <Badge tone="info">Always attached — can&rsquo;t be removed</Badge>
           </div>
 
           <div>

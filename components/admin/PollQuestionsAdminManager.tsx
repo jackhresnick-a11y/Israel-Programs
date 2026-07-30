@@ -127,7 +127,7 @@ function LivePreview({
         <p className="text-sm text-foreground">
           {phrases && phrases.length >= 2
             ? `Best for someone who wants ${phrases.join(" · ")}`
-            : "(no strip -- fewer than 2 eligible questions with current tiers)"}
+            : "(no strip — fewer than 2 eligible questions with current tiers)"}
         </p>
       )}
     </Card>

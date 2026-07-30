@@ -73,7 +73,7 @@ export async function POST(request: Request, { params }: Params) {
     // Unique constraint on [referenceId, requesterUserId] -- already sent a request.
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
       return NextResponse.json(
-        { error: "You've already sent a request to this reference" },
+        { error: "You’ve already sent a request to this reference" },
         { status: 409 }
       );
     }

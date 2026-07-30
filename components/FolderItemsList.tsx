@@ -41,7 +41,7 @@ export default function FolderItemsList({
         method: "DELETE",
       });
       if (!res.ok) {
-        toast("Couldn't remove that program — try again.", "info");
+        toast("Couldn’t remove that program — try again.", "info");
         return;
       }
       setItems((prev) => prev.filter((i) => i.id !== item.id));
@@ -55,7 +55,7 @@ export default function FolderItemsList({
     try {
       const res = await fetch(`/api/folders/${folderId}/clear-unavailable`, { method: "POST" });
       if (!res.ok) {
-        toast("Couldn't clear unavailable items — try again.", "info");
+        toast("Couldn’t clear unavailable items — try again.", "info");
         return;
       }
       setItems((prev) => prev.filter((item) => !item.unavailable));

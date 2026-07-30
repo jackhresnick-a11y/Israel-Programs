@@ -148,7 +148,7 @@ export async function updateQuestion(id: string, input: z.infer<typeof questionU
 export async function deleteQuestion(id: string) {
   const answerCount = await prisma.pollAnswer.count({ where: { questionId: id } });
   if (answerCount > 0) {
-    throw new Error("This question has answers and can't be deleted -- retire it instead");
+    throw new Error("This question has answers and can’t be deleted — retire it instead");
   }
 
   await prisma.$transaction(async (tx) => {

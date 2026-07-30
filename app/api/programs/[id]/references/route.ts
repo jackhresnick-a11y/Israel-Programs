@@ -61,7 +61,7 @@ export async function POST(request: Request, { params }: Params) {
     // Unique constraint on [programId, userId] -- already listed as a reference for this program.
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
       return NextResponse.json(
-        { error: "You've already volunteered as a reference for this program" },
+        { error: "You’ve already volunteered as a reference for this program" },
         { status: 409 }
       );
     }

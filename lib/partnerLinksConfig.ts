@@ -202,7 +202,7 @@ export const PLACEMENT_META: Record<
   },
   EMPTY_SEARCH: {
     label: "Search / filter results when nothing matches",
-    defaultLabel: "Can't find what you're looking for? A mentor can help",
+    defaultLabel: "Can’t find what you’re looking for? A mentor can help",
     defaultShowDisclosure: true,
     allowsScoping: false,
   },

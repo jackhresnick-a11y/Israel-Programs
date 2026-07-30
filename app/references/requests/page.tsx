@@ -48,7 +48,7 @@ export default async function ReferenceRequestsPage() {
     <PageContainer width="narrow" className="gap-6">
       <PageHeader
         title="My Reference Requests"
-        description="People who'd like to connect about a program you're a reference for. Approve or decline from the email we sent you -- this page is a read-only history."
+        description="People who&rsquo;d like to connect about a program you&rsquo;re a reference for. Approve or decline from the email we sent you — this page is a read-only history."
       />
 
       {requests.length === 0 ? (

@@ -206,7 +206,7 @@ export default function EmailListTable({ programs: initialPrograms }: { programs
       />
       <EmailSection
         title="Unclassified"
-        description="Website language hasn't been detected or set yet."
+        description="Website language hasn’t been detected or set yet."
         programs={unclassified}
         onLanguageChange={handleLanguageChange}
       />

@@ -77,7 +77,7 @@ export class NullProvider implements AIProvider {
     const top = input.candidates.slice(0, 5);
     if (top.length === 0) {
       return {
-        reply: "I couldn't find any programs matching that. Try describing what you're looking for differently.",
+        reply: "I couldn’t find any programs matching that. Try describing what you’re looking for differently.",
         recommendedSlugs: [],
       };
     }

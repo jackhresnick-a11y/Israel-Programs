@@ -162,8 +162,8 @@ function KillSwitch({ initialOn }: { initialOn: boolean }) {
         <p className="text-sm font-semibold text-foreground">Global kill switch</p>
         <p className="text-xs text-muted">
           {on
-            ? "ON -- every program's results are hidden right now, regardless of per-program settings."
-            : "OFF -- results show per-program config as normal."}
+            ? "ON — every program’s results are hidden right now, regardless of per-program settings."
+            : "OFF — results show per-program config as normal."}
         </p>
       </div>
       <Button type="button" variant={on ? "destructive" : "secondary"} size="sm" disabled={busy} onClick={toggle}>
@@ -305,7 +305,7 @@ export default function PollModerationManager({
         {responses.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted">No responses match these filters.</p>}
       </div>
       {responses.length === 200 && (
-        <p className="text-xs text-muted">Showing the 200 most recent matches -- narrow the filters to see more specific results.</p>
+        <p className="text-xs text-muted">Showing the 200 most recent matches — narrow the filters to see more specific results.</p>
       )}
     </div>
   );
