@@ -450,7 +450,7 @@ export async function getProgramsBySlugs(slugs: string[]) {
 export async function getProgramForRating(slug: string) {
   return prisma.program.findUnique({
     where: { slug },
-    select: { id: true, name: true, slug: true, status: true },
+    select: { id: true, name: true, nameHe: true, slug: true, status: true },
   });
 }
 
