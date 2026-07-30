@@ -769,6 +769,16 @@ model PollQuestion {
   dropdownOptions Json?
   status          PollLifecycleStatus @default(ACTIVE)
   scaleType       PollScaleType       @default(EVALUATIVE)
+  /// When this question started being served to respondents -- the historical-majority
+  /// "was this question live when response R was created" check (lib/pollUnlock.ts)
+  /// compares this against PollResponse.createdAt, so a question added later can never
+  /// retroactively enlarge (and thus never shrinks a response's chance of meeting) an
+  /// older response's majority bar. Existing rows were backfilled to the earliest
+  /// PollAnswer/PollReview referencing them (a defensible upper-bound estimate -- the
+  /// question must have existed by the time it was first answered), falling back to the
+  /// migration's own run time for a question that's never been answered. New rows get
+  /// the accurate real-time default going forward.
+  createdAt       DateTime            @default(now())
   /// The "Best for someone who wants..." strip phrase to show when this question's mean
   /// sits toward the low (1) end -- independent of scaleType (an EVALUATIVE question can
   /// carry a phrase; see PollQuestionTier's doc comment). Null for any question not wired
@@ -849,6 +859,15 @@ model ProgramPollConfig {
   removedQuestionIds    String[]
   resultsVisible        Boolean           @default(false)
   minResponsesToPublish Int               @default(7)
+  /// Questions that were already displaying (count >= 3, the old shared floor) at the
+  /// moment minResponsesToPublish's 7-response bar became the real per-question publish
+  /// gate -- backfilled once, at that migration, and never touched again (a question
+  /// that later drops below 7 due to a response being voided stays grandfathered; this
+  /// is a one-way "already earned its spot" list, not a live recomputation). A question
+  /// that has never yet published is subject to the 7 bar like normal -- this only
+  /// prevents newly-raising-the-bar from hiding a result that was already live. Soft
+  /// reference to PollQuestion.id, same non-FK posture as bucketIds/addedQuestionIds.
+  grandfatheredQuestionIds String[]       @default([])
   displayFormat         PollDisplayFormat @default(STARS)
   placeholderOverride   String?
   /// When set, replaces the entire generated "Best for someone who wants..." strip on
