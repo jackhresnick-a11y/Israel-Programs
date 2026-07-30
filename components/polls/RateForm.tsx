@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import Textarea from "@/components/ui/Textarea";
+import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
 import QuestionInput from "@/components/polls/QuestionInput";
 import PartnerCta from "@/components/PartnerCta";
 import { pollDraftKey, yearAttendedOptions, POLL_REFERENCE_CONSENT_LABEL, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
@@ -78,10 +78,15 @@ function ReviewConsentContext() {
 }
 
 /**
- * One question's rating control plus its optional review textarea -- shared by the
- * signed-in and anonymous forms so review UX never drifts between them. Consent for
- * written comments is collected once, at the bottom of the form -- see the single
- * consent checkbox rendered above the questions -- not per question.
+ * One question's rating control plus its optional, collapsed-by-default review comment --
+ * shared by the signed-in and anonymous forms so review UX never drifts between them.
+ * Consent for written comments is collected once, at the bottom of the form -- see the
+ * single consent checkbox rendered above the questions -- not per question. The
+ * moderation notice itself is likewise stated once, in ReviewConsentContext above the
+ * whole question list, not repeated as placeholder text under every question.
+ *
+ * Single flow container per question (style guide §8.3/§4): 32px bottom margin, nothing
+ * absolutely positioned inside it.
  */
 function QuestionWithReview({
   question,
@@ -100,18 +105,32 @@ function QuestionWithReview({
   reviewText: string;
   onReviewTextChange: (text: string) => void;
 }) {
+  // Initialized once from whatever reviewText this question already carries at mount --
+  // stays open if there's existing text, otherwise starts collapsed (style guide §8's
+  // "collapse the optional comment box" -- default state is collapsed).
+  const [commentOpen, setCommentOpen] = useState(() => reviewText.trim().length > 0);
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="mb-8 flex flex-col gap-2 last:mb-0">
       <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
-      <div className="flex flex-col gap-2 pl-1">
-        <Textarea
-          placeholder="Want to say more? Your answer may be published publicly in this program's reviews after moderation. (optional)"
-          value={reviewText}
-          onChange={(e) => onReviewTextChange(e.target.value)}
-          maxLength={1000}
-          rows={2}
-          className="text-sm"
-        />
+      <div className="pl-1">
+        {commentOpen ? (
+          <AutoGrowTextarea
+            placeholder="Optional — add a sentence or two."
+            value={reviewText}
+            onChange={(e) => onReviewTextChange(e.target.value)}
+            maxLength={1000}
+            className="text-sm"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setCommentOpen(true)}
+            className="w-fit text-sm font-medium text-primary hover:underline"
+          >
+            Add a comment
+          </button>
+        )}
       </div>
     </div>
   );
@@ -143,7 +162,7 @@ function QuestionSections({
   onReviewTextChange: (id: string, text: string) => void;
 }) {
   return (
-    <>
+    <div className="flex flex-col">
       {questions.map((q) => (
         <QuestionWithReview
           key={q.id}
@@ -157,8 +176,8 @@ function QuestionSections({
         />
       ))}
       {extras.map(({ bucket, questions: bucketQuestions }) => (
-        <div key={bucket.id} className="flex flex-col gap-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
+        <div key={bucket.id} className="flex flex-col">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">{bucket.name}</p>
           {bucketQuestions.map((q) => (
             <QuestionWithReview
               key={q.id}
@@ -173,7 +192,7 @@ function QuestionSections({
           ))}
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -200,6 +219,29 @@ function ReviewConsentCheckbox({
         <span>I understand my written comments may be published publicly on this program&rsquo;s page after moderation.</span>
       </label>
       {hint && <p className="pl-6 text-xs text-muted">Check the box above to publish your written comments.</p>}
+    </div>
+  );
+}
+
+/**
+ * How far through the poll the respondent is (item 10) -- answered counts a real value
+ * *or* an explicit Skip, matching exactly what counts toward the majority-of-Core unlock
+ * bar server-side, so this number and "did that last tap just unlock the response" never
+ * disagree. Sticky below the entry header so it stays visible while scrolling a long
+ * question list. Ink-navy, not brass -- the header hairline and the selected rating
+ * segment already spend this page's brass budget (style guide §1's "no more than ~5% of
+ * a screen is brass").
+ */
+function ProgressIndicator({ answered, total }: { answered: number; total: number }) {
+  const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+  return (
+    <div className="sticky top-[60px] z-30 border-b border-border bg-background py-2" role="status" aria-live="polite">
+      <div className="h-0.5 w-full bg-border">
+        <div className="h-full bg-primary transition-[width] duration-[120ms] ease-out" style={{ width: `${pct}%` }} />
+      </div>
+      <p className="mt-1 font-mono text-xs uppercase tracking-wide text-muted">
+        {answered} of {total} answered
+      </p>
     </div>
   );
 }
@@ -275,12 +317,12 @@ function ContactOptInBlock({
             value={state.contactName}
             onChange={(e) => onChange({ ...state, contactName: e.target.value })}
           />
-          <p className="text-xs text-muted">Never shown publicly -- program admins only.</p>
+          <p className="text-xs text-muted">Never shown publicly — program admins only.</p>
         </div>
       )}
       {hint && (
         <p className="pl-6 text-xs text-muted">
-          Confirm you&rsquo;re 18 or older and fill in a contact method and name to save this -- or uncheck the box above to skip it.
+          Confirm you&rsquo;re 18 or older and fill in a contact method and name to save this — or uncheck the box above to skip it.
         </p>
       )}
     </div>
@@ -512,8 +554,11 @@ function SignedInRateForm({
     );
   }
 
+  const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
+
   return (
     <div data-poll-mode="signed-in" className="flex flex-col gap-6">
+      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -704,8 +749,11 @@ function AnonymousRateForm({
     return <ThankYouScreen programName={programName} postPollCta={postPollCta} />;
   }
 
+  const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
+
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
+      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -752,7 +800,7 @@ function ThankYouScreen({ programName, postPollCta }: { programName: string; pos
   return (
     <div data-poll-mode="anonymous" className="flex flex-col gap-6">
       <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
-        Thanks -- your rating of {programName} has been recorded!
+        Thanks — your rating of {programName} has been recorded!
       </div>
       <PartnerCta slot={postPollCta} />
     </div>
