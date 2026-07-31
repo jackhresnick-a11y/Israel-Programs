@@ -1,149 +1,130 @@
 import { describe, it, expect } from "vitest";
 import {
-  computeMajority,
-  hasReachedCoreMajority,
-  resolveHistoricalCoreQuestionIds,
-  responseMeetsHistoricalMajority,
-  type HistoricalCoreQuestion,
+  hasReachedBucketSpread,
+  resolveHistoricalBucketGroups,
+  responseMeetsHistoricalSpread,
+  type HistoricalQuestion,
 } from "./pollUnlock";
 
-describe("computeMajority", () => {
-  it("computes floor(n/2)+1 for a range of Core question counts", () => {
-    // The task's own worked example: 8 Core questions -> majority of 5.
-    expect(computeMajority(8)).toBe(5);
-    expect(computeMajority(1)).toBe(1);
-    expect(computeMajority(2)).toBe(2);
-    expect(computeMajority(3)).toBe(2);
-    expect(computeMajority(4)).toBe(3);
-    expect(computeMajority(5)).toBe(3);
-    expect(computeMajority(7)).toBe(4);
-    expect(computeMajority(9)).toBe(5);
-    expect(computeMajority(10)).toBe(6);
+describe("hasReachedBucketSpread", () => {
+  it("a program with zero served buckets can never be crossed", () => {
+    expect(hasReachedBucketSpread([], new Set(), new Set())).toBe(false);
+    expect(hasReachedBucketSpread([[], []], new Set(), new Set())).toBe(false);
   });
 
-  it("never requires more than the full count", () => {
-    for (let n = 1; n <= 20; n++) {
-      expect(computeMajority(n)).toBeLessThanOrEqual(n);
-    }
-  });
-});
-
-describe("hasReachedCoreMajority", () => {
-  it("a program with zero Core questions can never be crossed", () => {
-    expect(hasReachedCoreMajority([], new Set(), new Set())).toBe(false);
+  it("every bucket covered plus floor of 3 total -> crosses", () => {
+    const groups = [
+      ["g1", "g2", "g3"], // Core
+      ["s1", "s2"], // Social Life
+      ["h1"], // Hebrew Learning
+    ];
+    const answered = new Set(["g1", "s1", "h1"]);
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(true);
   });
 
-  it("8 Core questions, exactly 5 answered -> crosses (the task's own example)", () => {
-    const core = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"];
-    const answered = new Set(["q1", "q2", "q3", "q4", "q5"]);
-    expect(hasReachedCoreMajority(core, answered, new Set())).toBe(true);
+  it("every bucket covered but fewer than 3 total -> does not cross (floor of 3)", () => {
+    const groups = [["g1", "g2"], ["s1"]];
+    const answered = new Set(["g1", "s1"]); // 2 total, both groups covered
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(false);
   });
 
-  it("8 Core questions, only 4 answered -> does not cross", () => {
-    const core = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"];
-    const answered = new Set(["q1", "q2", "q3", "q4"]);
-    expect(hasReachedCoreMajority(core, answered, new Set())).toBe(false);
+  it("3+ total answers but one served bucket untouched -> does not cross", () => {
+    const groups = [
+      ["g1", "g2", "g3"], // Core -- 3 answered here
+      ["s1", "s2"], // Social Life -- untouched
+    ];
+    const answered = new Set(["g1", "g2", "g3"]);
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(false);
   });
 
-  it("N/A counts the same as an answer toward the majority", () => {
-    const core = ["q1", "q2", "q3"]; // majority = 2
-    const answered = new Set(["q1"]);
-    const na = new Set(["q2"]);
-    expect(hasReachedCoreMajority(core, answered, na)).toBe(true);
+  it("N/A counts the same as an answer toward both per-group coverage and the floor", () => {
+    const groups = [["g1"], ["s1"], ["h1"]];
+    const na = new Set(["g1", "s1", "h1"]);
+    expect(hasReachedBucketSpread(groups, new Set(), na)).toBe(true);
   });
 
   it("a question that is neither answered nor N/A'd (a true skip) does not count", () => {
-    const core = ["q1", "q2", "q3"]; // majority = 2
-    const answered = new Set(["q1"]);
-    const na = new Set<string>();
-    expect(hasReachedCoreMajority(core, answered, na)).toBe(false);
+    const groups = [["g1", "g2"], ["s1"]];
+    const answered = new Set(["g1"]);
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(false);
   });
 
-  it("answering a non-Core question never contributes toward the Core majority", () => {
-    const core = ["q1", "q2", "q3"]; // majority = 2
-    const answered = new Set(["extra_1", "extra_2", "extra_3"]); // none of these are Core
-    expect(hasReachedCoreMajority(core, answered, new Set())).toBe(false);
+  it("an empty served group (a bucket resolved to zero questions) is ignored, not impossible", () => {
+    const groups = [["g1", "g2", "g3"], []];
+    const answered = new Set(["g1", "g2", "g3"]);
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(true);
   });
 
-  it("single-question program: one answer is enough (majority of 1 is 1)", () => {
-    expect(hasReachedCoreMajority(["only"], new Set(["only"]), new Set())).toBe(true);
-    expect(hasReachedCoreMajority(["only"], new Set(), new Set())).toBe(false);
+  it("single-bucket program still needs the floor of 3, not just 1", () => {
+    const groups = [["g1", "g2", "g3", "g4"]];
+    expect(hasReachedBucketSpread(groups, new Set(["g1"]), new Set())).toBe(false);
+    expect(hasReachedBucketSpread(groups, new Set(["g1", "g2"]), new Set())).toBe(false);
+    expect(hasReachedBucketSpread(groups, new Set(["g1", "g2", "g3"]), new Set())).toBe(true);
   });
 
-  it("adding or removing a Core question changes the bar without any hardcoded number", () => {
-    // Simulates an admin adding a 9th Core question by hand -- majority moves from 5 to 5
-    // still (floor(9/2)+1 = 5), but 10 moves it to 6. Nothing here is cached/hardcoded --
-    // callers always recompute from the live core id list length.
-    const core9 = Array.from({ length: 9 }, (_, i) => `q${i}`);
-    const core10 = Array.from({ length: 10 }, (_, i) => `q${i}`);
-    const answeredFive = new Set(core9.slice(0, 5));
-    expect(hasReachedCoreMajority(core9, answeredFive, new Set())).toBe(true);
-    expect(hasReachedCoreMajority(core10, answeredFive, new Set())).toBe(false);
+  it("answering a question outside every served group never contributes", () => {
+    const groups = [["g1", "g2"], ["s1"]];
+    const answered = new Set(["stray_1", "stray_2", "stray_3"]);
+    expect(hasReachedBucketSpread(groups, answered, new Set())).toBe(false);
   });
 });
 
-function q(id: string, createdAt: string, status: "ACTIVE" | "RETIRED" = "ACTIVE"): HistoricalCoreQuestion {
-  return { id, createdAt: new Date(createdAt), status };
+function hq(id: string, status: "ACTIVE" | "RETIRED" = "ACTIVE"): [string, HistoricalQuestion] {
+  return [id, { id, status }];
 }
 
-describe("resolveHistoricalCoreQuestionIds", () => {
-  it("excludes a question created after the response", () => {
-    const questions = [q("old", "2026-01-01"), q("new", "2026-06-01")];
-    const responseCreatedAt = new Date("2026-03-01"); // before "new" existed
-    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old"]);
+describe("resolveHistoricalBucketGroups", () => {
+  it("filters each group down to questions that were both presented and are still ACTIVE", () => {
+    const groups = [["g1", "g2", "g3"], ["s1", "s2"]];
+    const presented = ["g1", "g2", "s1"]; // g3/s2 never shown to this respondent
+    const questionsById = new Map([hq("g1"), hq("g2"), hq("g3"), hq("s1"), hq("s2")]);
+    expect(resolveHistoricalBucketGroups(groups, presented, questionsById)).toEqual([["g1", "g2"], ["s1"]]);
   });
 
-  it("includes a question created before or exactly at the response's createdAt", () => {
-    const questions = [q("old", "2026-01-01"), q("same-instant", "2026-03-01")];
-    const responseCreatedAt = new Date("2026-03-01");
-    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old", "same-instant"]);
+  it("drops a since-retired question even if it was presented at the time", () => {
+    const groups = [["g1", "g2"]];
+    const presented = ["g1", "g2"];
+    const questionsById = new Map([hq("g1"), hq("g2", "RETIRED")]);
+    expect(resolveHistoricalBucketGroups(groups, presented, questionsById)).toEqual([["g1"]]);
   });
 
-  it("excludes a currently-retired question regardless of when it was created", () => {
-    const questions = [q("old-active", "2026-01-01"), q("old-retired", "2026-01-01", "RETIRED")];
-    const responseCreatedAt = new Date("2026-06-01"); // long after both existed
-    expect(resolveHistoricalCoreQuestionIds(questions, responseCreatedAt)).toEqual(["old-active"]);
-  });
-
-  it("adding a new Core question never enlarges an older response's historical set", () => {
-    // The task's own monotonicity requirement: a response created in March, evaluated
-    // once against the June Core set (2 questions) and once against a hypothetical
-    // September Core set (3 questions, one added in August) -- must get the SAME
-    // historical set either way, since the September addition postdates the response.
-    const juneSet = [q("a", "2026-01-01"), q("b", "2026-01-01")];
-    const septemberSet = [...juneSet, q("c", "2026-08-01")];
-    const marchResponse = new Date("2026-03-01");
-    expect(resolveHistoricalCoreQuestionIds(juneSet, marchResponse)).toEqual(
-      resolveHistoricalCoreQuestionIds(septemberSet, marchResponse)
-    );
+  it("a bucket with nothing presented becomes an empty group, not an impossible one", () => {
+    const groups = [["g1"], ["s1", "s2"]];
+    const presented = ["g1"]; // this respondent's snapshot never included the extra bucket
+    const questionsById = new Map([hq("g1"), hq("s1"), hq("s2")]);
+    expect(resolveHistoricalBucketGroups(groups, presented, questionsById)).toEqual([["g1"], []]);
   });
 });
 
-describe("responseMeetsHistoricalMajority", () => {
-  it("Yeshivat Har Etzion's own scenario: a response answered all questions live at its time, but a later-added question must not dilute it", () => {
-    // 2 Core questions existed when this response was submitted; it answered both.
-    // Later, a 3rd Core question is added (today). Historically this response only ever
-    // had 2 questions to answer, majority of 2 -- both answered, so it still counts,
-    // even though today's LIVE Core set is 3 (which would need majority of 2 anyway in
-    // this specific case, but the point is the historical set, not today's, gates it).
-    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01"), q("c", "2026-08-01")];
-    const responseCreatedAt = new Date("2026-02-01");
-    const answered = new Set(["a", "b"]);
-    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(true);
+describe("responseMeetsHistoricalSpread", () => {
+  it("a response that covered every bucket it was actually served, floor of 3, meets the bar", () => {
+    const groups = [["g1", "g2", "g3"], ["s1", "s2"]];
+    const presented = ["g1", "g2", "s1"];
+    const questionsById = new Map([hq("g1"), hq("g2"), hq("g3"), hq("s1"), hq("s2")]);
+    const answered = new Set(["g1", "s1"]);
+    const na = new Set(["g2"]);
+    expect(responseMeetsHistoricalSpread(groups, presented, questionsById, answered, na)).toBe(true);
   });
 
-  it("a response that answered only 1 of 2 historically-live questions does not meet majority", () => {
-    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01")];
-    const responseCreatedAt = new Date("2026-02-01");
-    const answered = new Set(["a"]);
-    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(false);
+  it("a later-added bucket that was never presented to this response cannot retroactively fail it", () => {
+    // Today's live resolution includes a 3rd group the response was never shown --
+    // resolveHistoricalBucketGroups reduces it to an empty (ignored) group, not a
+    // requirement this old response could never have met.
+    const groups = [["g1", "g2", "g3"], ["s1"], ["a1", "a2"]]; // "a" bucket added after
+    const presented = ["g1", "g2", "g3", "s1"];
+    const questionsById = new Map([hq("g1"), hq("g2"), hq("g3"), hq("s1"), hq("a1"), hq("a2")]);
+    const answered = new Set(["g1", "g2", "s1"]);
+    expect(responseMeetsHistoricalSpread(groups, presented, questionsById, answered, new Set())).toBe(true);
   });
 
-  it("a retired question is never part of the historical set even for a response old enough to have answered it", () => {
-    const questions = [q("a", "2026-01-01"), q("b", "2026-01-01", "RETIRED")];
-    const responseCreatedAt = new Date("2026-02-01");
-    const answered = new Set(["a", "b"]); // answered both, but b no longer counts
-    // Historical set is just ["a"], majority of 1 is 1, "a" answered -> true.
-    expect(responseMeetsHistoricalMajority(questions, responseCreatedAt, answered, new Set())).toBe(true);
+  it("a retired question is never part of the historical set even if this response answered it", () => {
+    const groups = [["g1", "g2"]];
+    const presented = ["g1", "g2"];
+    const questionsById = new Map([hq("g1"), hq("g2", "RETIRED")]);
+    const answered = new Set(["g1", "g2"]);
+    // Historical group is just ["g1"] once "g2" is filtered out -- 1 total answered,
+    // below the floor of 3, so it no longer meets the bar even though it "answered
+    // everything" at the time.
+    expect(responseMeetsHistoricalSpread(groups, presented, questionsById, answered, new Set())).toBe(false);
   });
 });
