@@ -27,6 +27,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Neon
 - List and create branches freely. Never delete a branch or project without written approval naming the branch.
 
+### Environment fixes (missing tools, libs, browsers)
+- Attempt environment-level fixes yourself before handing the user a shell command to
+  run. This includes missing system libraries, browser binaries for tools like
+  Playwright, and similar local-environment gaps.
+- Try every root-free path first: userspace package extraction (`apt-get download`
+  doesn't require root, unlike `apt-get install`; a fetched `.deb` can be unpacked with
+  `dpkg -x <file> <dir>` into a scratch directory and picked up via `LD_LIBRARY_PATH`
+  without installing anything system-wide), a tool's own bundled/managed install path,
+  or reinstalling into a user-writable location.
+- Only escalate to the user once every alternative you tried has actually failed —
+  verify each attempt for real (e.g. launch the binary and check its version or output),
+  not by trusting a zero exit code alone. When you do escalate, name the specific
+  privilege or resource you're missing (e.g. "root to run `apt-get install`") rather than
+  just handing over a command to paste.
+
 `docs/PRODUCT_SPEC.md` is the product roadmap ("Living document," currently v0.1) —
 check it for target-state product direction beyond what's already built. Its own
 "Current State" section (§0) is partially stale (it still says "Prisma + SQLite"; the

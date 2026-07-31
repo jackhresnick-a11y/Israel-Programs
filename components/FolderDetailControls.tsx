@@ -37,7 +37,7 @@ export default function FolderDetailControls({
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        toast(body.error ?? "Couldn't rename this folder.", "info");
+        toast(body.error ?? "Couldn’t rename this folder.", "info");
         setDraft(name);
         return;
       }

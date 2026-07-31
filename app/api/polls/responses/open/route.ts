@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     if (userId) {
       if (!checkRateLimit(`poll-open:${userId}`, { limit: 20, windowMs: 10 * 60_000 })) {
-        return NextResponse.json({ error: "Too many requests -- try again in a few minutes" }, { status: 429 });
+        return NextResponse.json({ error: "Too many requests — try again in a few minutes" }, { status: 429 });
       }
       const response = await openSignedInResponse({
         programId: body.programId,
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     if (!checkRateLimit(`poll-open-anon:${ip}:${body.programId}`, { limit: 10, windowMs: 10 * 60_000 })) {
-      return NextResponse.json({ error: "Too many requests -- try again in a few minutes" }, { status: 429 });
+      return NextResponse.json({ error: "Too many requests — try again in a few minutes" }, { status: 429 });
     }
 
     if (!body.ref) {
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "This rating link is no longer valid" }, { status: 400 });
     }
     if (validation.token.programId !== body.programId) {
-      return NextResponse.json({ error: "This rating link doesn't match this program" }, { status: 400 });
+      return NextResponse.json({ error: "This rating link doesn’t match this program" }, { status: 400 });
     }
 
     const response = await openAnonymousResponse({

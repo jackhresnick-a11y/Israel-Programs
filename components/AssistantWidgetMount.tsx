@@ -3,7 +3,9 @@
 import { usePathname } from "next/navigation";
 import AssistantWidget from "@/components/AssistantWidget";
 
-const HIDDEN_PREFIXES = ["/admin", "/sign-in", "/sign-up"];
+// "/rate" is here because the floating button overlaps the poll form's content on
+// mobile -- it cut off the right-hand scale anchor label (style guide item 4).
+const HIDDEN_PREFIXES = ["/admin", "/sign-in", "/sign-up", "/rate"];
 
 /** Renders the assistant widget everywhere except admin/auth routes. The
  * visibility decision itself (admin-or-toggle-on) is made server-side in

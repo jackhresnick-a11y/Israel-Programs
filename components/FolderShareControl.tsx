@@ -32,7 +32,7 @@ export default function FolderShareControl({
     try {
       const res = await fetch(`/api/folders/${folderId}/share`, { method: "POST" });
       if (!res.ok) {
-        toast("Couldn't create a share link — try again.", "info");
+        toast("Couldn’t create a share link — try again.", "info");
         return;
       }
       const data = (await res.json()) as { shareToken: string };
@@ -48,7 +48,7 @@ export default function FolderShareControl({
       }
       await copyUrl(url);
       toast(
-        "Link copied — anyone with it can see this list's name and programs.",
+        "Link copied — anyone with it can see this list’s name and programs.",
         "success"
       );
     } finally {
@@ -59,7 +59,7 @@ export default function FolderShareControl({
   async function handleCopyExisting() {
     if (!shareToken) return;
     await copyUrl(folderShareUrl(shareToken));
-    toast("Link copied — anyone with it can see this list's name and programs.", "success");
+    toast("Link copied — anyone with it can see this list’s name and programs.", "success");
   }
 
   async function handleRevoke() {

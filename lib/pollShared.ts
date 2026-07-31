@@ -301,7 +301,7 @@ function noAnswerNaOverlap(body: { answers: { questionId: string }[]; naQuestion
   const naSet = new Set(body.naQuestionIds);
   return body.answers.every((a) => !naSet.has(a.questionId));
 }
-const NA_OVERLAP_MESSAGE = "A question can't be both answered and marked N/A";
+const NA_OVERLAP_MESSAGE = "A question can’t be both answered and marked N/A";
 
 /** Signed-in submit: no ref token, no honeypot (Clerk already gates identity). */
 export const signedInSubmitSchema = z
@@ -390,7 +390,7 @@ export const saveAnswerSchema = z
     na: z.boolean().optional().default(false),
   })
   .refine((body) => !(body.na && body.value !== null), {
-    message: "A question can't be both answered and marked N/A",
+    message: "A question can’t be both answered and marked N/A",
     path: ["value"],
   });
 

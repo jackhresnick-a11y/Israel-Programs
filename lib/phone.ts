@@ -27,7 +27,7 @@ export function normalizeToE164(raw: string): NormalizeResult {
   if (!E164_PATTERN.test(value)) {
     return {
       ok: false,
-      error: "That doesn't look like a valid phone number",
+      error: "That doesn’t look like a valid phone number",
     };
   }
 

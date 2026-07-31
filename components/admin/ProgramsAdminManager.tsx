@@ -100,7 +100,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
       </div>
 
       <p className="text-xs text-muted">
-        {strip ? <span className="text-foreground">{strip}</span> : "(no strip -- fewer than 2 eligible questions)"}
+        {strip ? <span className="text-foreground">{strip}</span> : "(no strip — fewer than 2 eligible questions)"}
       </p>
 
       <div className="flex flex-wrap gap-1">
@@ -133,7 +133,7 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
           {program.contactOptIns.length > 0 && (
             <div className="flex flex-col gap-2 border-t border-border pt-3">
               <p className="text-xs font-semibold text-muted">
-                Open to contact ({program.contactOptIns.length}) -- never shown publicly
+                Open to contact ({program.contactOptIns.length}) — never shown publicly
               </p>
               <div className="flex flex-col divide-y divide-border rounded border border-border">
                 {program.contactOptIns.map((c, i) => (

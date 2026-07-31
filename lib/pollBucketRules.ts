@@ -79,7 +79,7 @@ async function assertNoDuplicateRule(
 async function assertNotCoreBucket(bucketId: string) {
   const coreBucket = await prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true } });
   if (coreBucket && bucketId === coreBucket.id) {
-    throw new Error("The Core bucket is already attached to every program -- rules don't apply to it");
+    throw new Error("The Core bucket is already attached to every program — rules don’t apply to it");
   }
 }
 

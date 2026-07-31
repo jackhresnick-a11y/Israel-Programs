@@ -25,7 +25,7 @@ export default function NewFolderForm() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        toast(body.error ?? "Couldn't create that folder.", "info");
+        toast(body.error ?? "Couldn’t create that folder.", "info");
         return;
       }
       const created = (await res.json()) as { id: string };

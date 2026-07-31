@@ -44,7 +44,7 @@ export default async function AdminPollQuestionsPage() {
     <PageContainer width="wide">
       <PageHeader
         title="Poll Questions"
-        description="Tier controls how much weight a question's mean carries in the &ldquo;Best for&rdquo; strip ranking -- independent of whether it renders as a donut or a spectrum track. Pick a program below to preview a strip before committing a tier change."
+        description="Tier controls how much weight a question&rsquo;s mean carries in the &ldquo;Best for&rdquo; strip ranking — independent of whether it renders as a donut or a spectrum track. Pick a program below to preview a strip before committing a tier change."
       />
       <PollQuestionsAdminManager groups={groups} programs={programs} />
     </PageContainer>

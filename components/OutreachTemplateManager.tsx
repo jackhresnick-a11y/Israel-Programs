@@ -71,7 +71,7 @@ export default function OutreachTemplateManager({ templates }: { templates: Outr
   }
 
   async function handleDelete(template: OutreachTemplate) {
-    if (!window.confirm(`Delete the "${template.name}" template? This can't be undone.`)) return;
+    if (!window.confirm(`Delete the “${template.name}” template? This can’t be undone.`)) return;
     setBusy(template.id);
     try {
       await postJson(`/api/admin/outreach/saved-templates/${template.id}`, "DELETE", {});

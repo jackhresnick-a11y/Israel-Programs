@@ -129,9 +129,9 @@ export default async function ProgramDetailPage({
     query.created === "pending"
       ? { tone: "info" as const, text: "Thanks! Your submission is awaiting moderator approval." }
       : program.status === "PENDING"
-        ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn't public yet." }
+        ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn’t public yet." }
         : program.status === "REJECTED"
-          ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn't public." }
+          ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn’t public." }
           : null;
 
   const bannerClass = {

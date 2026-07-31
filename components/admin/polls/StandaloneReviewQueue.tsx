@@ -122,7 +122,7 @@ export default function StandaloneReviewQueue({ reviews }: { reviews: Standalone
         {reviews.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted">No reviews match these filters.</p>}
       </div>
       {reviews.length === 200 && (
-        <p className="text-xs text-muted">Showing the 200 oldest matches -- narrow the filters to see more.</p>
+        <p className="text-xs text-muted">Showing the 200 oldest matches — narrow the filters to see more.</p>
       )}
     </div>
   );

@@ -58,7 +58,7 @@ export async function POST(request: Request) {
           userId: check.userId,
           payloadKeys: [...formData.keys()],
         }, logoErr);
-        logoWarning = "Your program was saved, but the logo couldn't be uploaded. You can add it later by editing the program.";
+        logoWarning = "Your program was saved, but the logo couldn’t be uploaded. You can add it later by editing the program.";
       }
     }
 

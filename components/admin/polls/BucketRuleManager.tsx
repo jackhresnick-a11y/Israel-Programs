@@ -320,7 +320,7 @@ export default function BucketRuleManager({
       </div>
       <p className="text-xs text-muted">
         A rule additionally attaches a bucket to every program carrying ALL of its tags and (if set) whose duration
-        is one of its selected durations -- on top of Core and any buckets attached manually below. A per-program
+        is one of its selected durations — on top of Core and any buckets attached manually below. A per-program
         question removal still wins over a rule-attached bucket.
       </p>
       {error && <p className="rounded bg-danger-bg px-4 py-2 text-sm text-danger">{error}</p>}

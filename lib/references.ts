@@ -237,7 +237,7 @@ export async function deleteReference(id: string) {
 }
 
 export const contactRequestInputSchema = z.object({
-  note: z.string().trim().min(1, "Add a short note about why you're reaching out").max(1000),
+  note: z.string().trim().min(1, "Add a short note about why you’re reaching out").max(1000),
   // Honeypot -- real users never see or fill this field.
   website: z.string().optional(),
 });

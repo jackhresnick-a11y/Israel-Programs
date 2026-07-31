@@ -81,7 +81,7 @@ export async function PATCH(request: Request, { params }: Params) {
           userId: check.userId,
           payloadKeys: [...formData.keys()],
         }, logoErr);
-        logoWarning = "Your edit was saved, but the logo couldn't be uploaded. You can add it later by editing the program again.";
+        logoWarning = "Your edit was saved, but the logo couldn’t be uploaded. You can add it later by editing the program again.";
       }
     }
 

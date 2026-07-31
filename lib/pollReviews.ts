@@ -144,7 +144,7 @@ export async function approvePollReview(id: string, moderatorId: string): Promis
   });
   if (!review) return { ok: false, reason: "Review not found" };
   if (review.response.status !== "COUNTED") {
-    return { ok: false, reason: "The parent response isn't counted yet" };
+    return { ok: false, reason: "The parent response isn’t counted yet" };
   }
 
   await prisma.pollReview.update({

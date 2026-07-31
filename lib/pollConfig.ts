@@ -315,7 +315,7 @@ export const bulkAssignSchema = z.object({
 export async function bulkAssignBucket(input: z.infer<typeof bulkAssignSchema>) {
   const coreBucket = await prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true } });
   if (coreBucket && input.bucketId === coreBucket.id) {
-    throw new Error("The Core bucket is already attached to every program -- there's nothing to bulk-assign");
+    throw new Error("The Core bucket is already attached to every program — there’s nothing to bulk-assign");
   }
 
   const programs = await prisma.program.findMany({

@@ -23,7 +23,7 @@ export default async function AdminEmailContactsPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Program contact emails"
-        description="Select programs, then open a Gmail draft with everyone BCC'd. This list grows automatically as programs are added."
+        description="Select programs, then open a Gmail draft with everyone BCC’d. This list grows automatically as programs are added."
       />
       <EmailListTable programs={rows} />
     </div>

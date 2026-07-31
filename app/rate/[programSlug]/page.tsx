@@ -10,7 +10,12 @@ import RateForm from "@/components/polls/RateForm";
 import { resolveAllScopePartnerCta } from "@/lib/partnerLinks";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
+import EntryHeader from "@/components/ui/EntryHeader";
 import { buttonVariants } from "@/components/ui/Button";
+
+function questionCountCopy(total: number) {
+  return `${total} question${total === 1 ? "" : "s"} — you can skip any of them. Your answers save as you go.`;
+}
 
 export async function generateMetadata({
   params,
@@ -55,16 +60,16 @@ export default async function RateProgramPage({
     const validation = ref ? await validateReferrerToken(ref) : null;
     if (validation?.ok && validation.token.programId === program.id) {
       const { core, extras } = await getQuestionsForProgram(program.id);
+      const totalQuestions = core.length + extras.reduce((sum, e) => sum + e.questions.length, 0);
       return (
         <PageContainer width="narrow" className="gap-6">
-          <div className="border-l-4 border-accent pl-4">
-            <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Rate {program.name}
-            </h1>
-            <p className="mt-1 text-sm text-muted">Five quick questions -- takes about a minute.</p>
-          </div>
+          <EntryHeader
+            title={`Rate ${program.name}`}
+            nameHe={program.nameHe}
+            description={core.length > 0 ? questionCountCopy(totalQuestions) : undefined}
+          />
           {core.length === 0 ? (
-            <p className="text-sm text-muted">Ratings aren&apos;t set up for this program yet.</p>
+            <p className="text-sm text-muted">Ratings aren&rsquo;t set up for this program yet.</p>
           ) : (
             <RateForm
               mode="anonymous"
@@ -83,12 +88,11 @@ export default async function RateProgramPage({
 
     return (
       <PageContainer width="narrow" className="gap-6">
-        <div className="border-l-4 border-accent pl-4">
-          <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Rate {program.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted">Sign in to leave a rating for this program.</p>
-        </div>
+        <EntryHeader
+          title={`Rate ${program.name}`}
+          nameHe={program.nameHe}
+          description="Sign in to leave a rating for this program."
+        />
         <Card className="p-6 text-center">
           <Link href={`/sign-in?redirect_url=/rate/${program.slug}`} className={buttonVariants({ variant: "primary" })}>
             Sign in to rate
@@ -106,23 +110,23 @@ export default async function RateProgramPage({
   const existingAnswers = existing
     ? Object.fromEntries(existing.answers.map((a) => [a.questionId, a.value]))
     : undefined;
+  const totalQuestions = core.length + extras.reduce((sum, e) => sum + e.questions.length, 0);
 
   return (
     <PageContainer width="narrow" className="gap-6">
-      <div className="border-l-4 border-accent pl-4">
-        <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          Rate {program.name}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {existing
-            ? "Update your rating below."
-            : extras.length > 0
-              ? "A few quick questions, plus more specific to this program."
-              : "Five quick questions -- takes about a minute."}
-        </p>
-      </div>
+      <EntryHeader
+        title={`Rate ${program.name}`}
+        nameHe={program.nameHe}
+        description={
+          core.length === 0
+            ? undefined
+            : existing
+              ? "Update your rating below. You can skip any question."
+              : questionCountCopy(totalQuestions)
+        }
+      />
       {core.length === 0 ? (
-        <p className="text-sm text-muted">Ratings aren&apos;t set up for this program yet.</p>
+        <p className="text-sm text-muted">Ratings aren&rsquo;t set up for this program yet.</p>
       ) : (
         <RateForm
           mode="signed-in"

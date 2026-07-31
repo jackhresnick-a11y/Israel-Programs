@@ -84,7 +84,7 @@ const TEXT_FIELDS: { key: keyof ProgramInput; label: string }[] = [
   { key: "name", label: "Name" },
   { key: "nameHe", label: "Hebrew Name" },
   { key: "description", label: "Description" },
-  { key: "goodFor", label: "Who It's For" },
+  { key: "goodFor", label: "Who It’s For" },
   { key: "organization", label: "Organization" },
   { key: "location", label: "Location" },
   { key: "durationText", label: "Duration Details" },

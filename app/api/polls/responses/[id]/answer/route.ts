@@ -30,7 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     const ip = getClientIp(request);
     if (!checkRateLimit(`poll-answer:${ip}`, { limit: 60, windowMs: 10 * 60_000 })) {
-      return NextResponse.json({ error: "Too many requests -- try again in a few minutes" }, { status: 429 });
+      return NextResponse.json({ error: "Too many requests — try again in a few minutes" }, { status: 429 });
     }
 
     const json = await request.json();
@@ -47,7 +47,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const resolved = await getQuestionsForProgram(response.programId);
     const allowedIds = new Set(flattenResolvedQuestionIds(resolved));
     if (!allowedIds.has(body.questionId)) {
-      return NextResponse.json({ error: "This question isn't part of this program's rating form" }, { status: 400 });
+      return NextResponse.json({ error: "This question isn’t part of this program’s rating form" }, { status: 400 });
     }
 
     const question = await prisma.pollQuestion.findUnique({

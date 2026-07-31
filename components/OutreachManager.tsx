@@ -412,7 +412,7 @@ export default function OutreachManager({
   async function deleteAllDrafts() {
     const ids = drafts.map((p) => p.outreachEmail!.id);
     if (ids.length === 0) return;
-    if (!confirm(`Delete ALL ${ids.length} draft(s)? This ignores the current filter and removes every draft, not just what's shown. Programs and their real contact data are never touched.`)) {
+    if (!confirm(`Delete ALL ${ids.length} draft(s)? This ignores the current filter and removes every draft, not just what’s shown. Programs and their real contact data are never touched.`)) {
       return;
     }
     setBusy("delete-all");
@@ -736,7 +736,7 @@ export default function OutreachManager({
           </Button>
         </div>
         <p className="text-xs text-muted">
-          Send next batch sends every approved row regardless of language -- to send only one language, approve just
+          Send next batch sends every approved row regardless of language — to send only one language, approve just
           that filtered selection above before clicking send.
         </p>
         <LanguageFilterChips programs={approved} active={approvedLanguageFilter} onChange={setApprovedLanguageFilter} />
@@ -814,11 +814,11 @@ export default function OutreachManager({
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-foreground">Needs source check ({needsSourceCheck.length})</h2>
         <p className="text-xs text-muted">
-          Has a contact email but no recorded provenance (no source URL) -- excluded from drafting and sending until a
+          Has a contact email but no recorded provenance (no source URL) — excluded from drafting and sending until a
           source is confirmed via the program edit page.
         </p>
         <div className="flex flex-col divide-y divide-border rounded border border-border">
-          {needsSourceCheck.length === 0 && <p className="p-4 text-sm text-muted">None -- every contact email has a recorded source.</p>}
+          {needsSourceCheck.length === 0 && <p className="p-4 text-sm text-muted">None — every contact email has a recorded source.</p>}
           {needsSourceCheck.map((program) => (
             <div key={program.id} className="flex items-center justify-between gap-3 p-4">
               <Link href={`/programs/${program.slug}/edit`} className="font-medium text-foreground hover:underline">

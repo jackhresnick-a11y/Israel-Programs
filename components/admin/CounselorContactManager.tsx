@@ -184,7 +184,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
   }
 
   async function handleDelete(contact: CounselorContact) {
-    if (!window.confirm(`Delete the contact for "${contact.schoolName}"? This can't be undone.`)) return;
+    if (!window.confirm(`Delete the contact for “${contact.schoolName}”? This can’t be undone.`)) return;
     setBusy(contact.id);
     try {
       await postJson(`/api/admin/counselor-contacts/${contact.id}`, "DELETE", {});
@@ -256,7 +256,7 @@ export default function CounselorContactManager({ contacts }: { contacts: Counse
                 />
               </div>
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-xs font-medium text-muted">Source URL (required -- where the email was observed)</label>
+                <label className="text-xs font-medium text-muted">Source URL (required — where the email was observed)</label>
                 <Input value={form.sourceUrl} onChange={(e) => setForm((f) => ({ ...f, sourceUrl: e.target.value }))} />
               </div>
               <label className="flex items-center gap-2 text-sm text-foreground sm:col-span-2">

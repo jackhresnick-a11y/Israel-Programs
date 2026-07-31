@@ -33,7 +33,7 @@ export default function ReviewForm({ programId }: { programId: string }) {
       setText("");
       setRating(5);
       setIsAnonymous(false);
-      toast("Thanks -- your review is awaiting moderator approval");
+      toast("Thanks — your review is awaiting moderator approval");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit review");

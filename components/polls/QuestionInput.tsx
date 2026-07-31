@@ -1,7 +1,7 @@
 "use client";
 
-import { Star } from "lucide-react";
 import Select from "@/components/ui/Select";
+import SegmentedScale from "@/components/polls/SegmentedScale";
 import { cn } from "@/lib/cn";
 import type { PollQuestionDTO } from "@/lib/pollShared";
 
@@ -22,7 +22,10 @@ const SKIP_VALUE = "";
  * tracked independently (`na`/`onNaChange`) rather than folded into `value === null`,
  * so moderation can tell "never touched this" apart from "deliberately opted out."
  * Both still resolve to no PollAnswer row -- see RateForm.tsx's buildSubmission, which
- * routes `na` into a separate `naQuestionIds` array in the submission payload.
+ * routes `na` into a separate `naQuestionIds` array in the submission payload. That
+ * signal is now surfaced as a trailing "Skip" segment on the scale itself
+ * (SegmentedScale) rather than a separate checkbox row below it -- the `na`/`onNaChange`
+ * contract is unchanged either way.
  */
 export default function QuestionInput({
   question,
@@ -37,53 +40,26 @@ export default function QuestionInput({
   na: boolean;
   onNaChange: (na: boolean) => void;
 }) {
-  function toggle(n: number) {
-    if (na) return;
-    onChange(value === n ? null : n);
-  }
-
-  function toggleNa() {
-    const next = !na;
-    onNaChange(next);
-    if (next) onChange(null);
-  }
-
   if (question.type === "STARS") {
     return (
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{question.text}</p>
-        <div className={cn("flex items-center gap-1", na && "opacity-40")}>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              disabled={na}
-              aria-label={`${n} — ${question.labels[n - 1]}`}
-              aria-pressed={n === value}
-              onClick={() => toggle(n)}
-              className={cn(
-                "leading-none transition-colors duration-[120ms] ease-out",
-                na && "cursor-not-allowed",
-                value !== null && n <= value
-                  ? "fill-current text-accent-hover"
-                  : "text-border hover:text-accent-hover/50"
-              )}
-            >
-              <Star width={20} height={20} strokeWidth={1.5} aria-hidden="true" />
-            </button>
-          ))}
-          <span className="ml-2 text-xs text-muted">
-            {na ? "N/A" : value !== null ? question.labels[value - 1] : "Not answered"}
-          </span>
-        </div>
-        <NaCheckbox na={na} onToggle={toggleNa} />
+        <SegmentedScale
+          variant="numeric"
+          labels={question.labels}
+          value={value}
+          onChange={onChange}
+          na={na}
+          onNaChange={onNaChange}
+          ariaLabelPrefix={question.text}
+        />
       </div>
     );
   }
 
   if (question.type === "DROPDOWN") {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-foreground">{question.text}</span>
           <Select
@@ -100,49 +76,43 @@ export default function QuestionInput({
             ))}
           </Select>
         </label>
-        <NaCheckbox na={na} onToggle={toggleNa} />
+        <SkipToggle na={na} onToggle={() => onNaChange(!na)} />
       </div>
     );
   }
 
   // RADIO
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-medium text-foreground">{question.text}</legend>
-      <div className={cn("flex flex-wrap gap-2", na && "opacity-40")}>
-        {question.labels.map((label, i) => {
-          const n = i + 1;
-          const selected = value === n;
-          return (
-            <button
-              key={n}
-              type="button"
-              disabled={na}
-              aria-pressed={selected}
-              onClick={() => toggle(n)}
-              className={cn(
-                "rounded border px-3 py-2 text-xs transition-colors duration-[120ms] ease-out",
-                na && "cursor-not-allowed",
-                selected
-                  ? "border-accent-hover bg-accent/15 text-accent-hover"
-                  : "border-border text-muted hover:bg-surface-muted"
-              )}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-      <NaCheckbox na={na} onToggle={toggleNa} />
-    </fieldset>
+    <div className="flex flex-col gap-1">
+      <p className="text-sm font-medium text-foreground">{question.text}</p>
+      <SegmentedScale
+        variant="labels"
+        labels={question.labels}
+        value={value}
+        onChange={onChange}
+        na={na}
+        onNaChange={onNaChange}
+        ariaLabelPrefix={question.text}
+      />
+    </div>
   );
 }
 
-function NaCheckbox({ na, onToggle }: { na: boolean; onToggle: () => void }) {
+/** DROPDOWN's standalone Skip control -- no live question uses DROPDOWN today, but the
+ * branch still needs the same skip affordance SegmentedScale gives STARS/RADIO rather
+ * than reintroducing the old checkbox. */
+function SkipToggle({ na, onToggle }: { na: boolean; onToggle: () => void }) {
   return (
-    <label className="flex w-fit items-center gap-2 text-[11px] text-muted">
-      <input type="checkbox" checked={na} onChange={onToggle} className="accent-accent" />
-      N/A
-    </label>
+    <button
+      type="button"
+      aria-pressed={na}
+      onClick={onToggle}
+      className={cn(
+        "w-fit rounded border px-3 py-2 text-sm font-medium transition-colors duration-[120ms] ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        na ? "border-border bg-border text-foreground" : "border-border bg-surface text-muted hover:bg-surface-muted"
+      )}
+    >
+      Skip
+    </button>
   );
 }

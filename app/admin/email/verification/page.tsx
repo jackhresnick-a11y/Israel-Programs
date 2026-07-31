@@ -17,7 +17,7 @@ export default async function AdminEmailVerificationPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Contact email verification"
-        description={`Every program with a contact email that's never been confirmed by a human, plus any confirmed address older than ${STALE_AFTER_MONTHS} months. Ordered by when the program was added (oldest first) -- the closest available proxy, since there's no separate "email added at" timestamp.`}
+        description={`Every program with a contact email that’s never been confirmed by a human, plus any confirmed address older than ${STALE_AFTER_MONTHS} months. Ordered by when the program was added (oldest first) — the closest available proxy, since there’s no separate “email added at” timestamp.`}
         actions={
           <a href="/api/admin/email-verification-queue.csv" className={buttonVariants({ variant: "secondary", size: "sm" })}>
             Download CSV
@@ -36,7 +36,7 @@ export default async function AdminEmailVerificationPage() {
                   <Link href={`/programs/${row.slug}/edit`} className="font-medium text-foreground hover:underline">
                     {row.name}
                   </Link>
-                  {row.contactEmailStatus === "VERIFIED" && <Badge tone="warning">Stale -- re-verify</Badge>}
+                  {row.contactEmailStatus === "VERIFIED" && <Badge tone="warning">Stale — re-verify</Badge>}
                 </div>
                 <span className="text-sm text-muted">{row.contactEmail}</span>
                 {row.contactEmailSource && (
