@@ -10,6 +10,7 @@ const TABS = [
   { href: "/admin/polls/buckets", label: "Buckets" },
   { href: "/admin/polls/programs", label: "Programs" },
   { href: "/admin/polls/coverage", label: "Coverage" },
+  { href: "/admin/polls/funnel", label: "Funnel" },
   { href: "/admin/polls/links", label: "Links" },
   { href: "/admin/polls/moderation", label: "Moderation" },
   { href: "/admin/polls/reviews", label: "Reviews" },

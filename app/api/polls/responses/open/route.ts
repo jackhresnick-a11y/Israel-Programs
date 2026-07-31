@@ -7,16 +7,17 @@ import { openPollSchema, flattenResolvedQuestionIds } from "@/lib/pollShared";
 import { openSignedInResponse, openAnonymousResponse } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { validateReferrerToken } from "@/lib/pollTokens";
+import { trackPollOpened } from "@/lib/pollAnalytics";
 
 /**
  * Poll-open: creates (or resumes) a PollResponse the moment the rating page loads,
  * before any answer exists -- the response starts INCOMPLETE and stays inert (excluded
- * from anti-abuse counts, results, and any displayed number) until enough Core-bucket
- * questions are answered to cross the majority "unlock" bar (see lib/pollUnlock.ts and
- * lib/pollResponses.ts's maybeTransition). Signed-in respondents are looked up by
- * (userId, programId) server-side; anonymous respondents send back whatever `resumeId`
- * they have in localStorage from a prior visit, honored only if it's a real, still-
- * INCOMPLETE response for this exact program.
+ * from anti-abuse counts, results, and any displayed number) until enough of the served
+ * buckets are answered to cross the readiness "unlock" bar (see lib/pollUnlock.ts's
+ * hasReachedBucketSpread and lib/pollResponses.ts's maybeTransition). Signed-in
+ * respondents are looked up by (userId, programId) server-side; anonymous respondents
+ * send back whatever `resumeId` they have in localStorage from a prior visit, honored
+ * only if it's a real, still-INCOMPLETE response for this exact program.
  */
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
         ipHash: hashIp(ip),
         presentedQuestionIds,
       });
+      trackPollOpened(body.programId, response.id);
       return NextResponse.json({
         ok: true,
         responseId: response.id,
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
       presentedQuestionIds,
       resumeId: body.resumeId,
     });
+    trackPollOpened(body.programId, response.id);
     return NextResponse.json({
       ok: true,
       responseId: response.id,

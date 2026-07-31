@@ -22,8 +22,8 @@ function browserMarkerCookieName(programId: string): string {
  * auth), same posture as the answer route: rate-limited by IP, question-id allowlist
  * re-derived from the program's live config, and addDetailAnswersAndReviews itself
  * refuses anything not already INCOMPLETE/COUNTED/FLAGGED (never VOIDED). An N/A mark
- * landing on a Core question can cross the majority bar just like an answer would, so
- * this reads/sets the browser-marker cookie the same way the answer route does.
+ * can cross the readiness bar just like an answer would, so this reads/sets the
+ * browser-marker cookie the same way the answer route does.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
