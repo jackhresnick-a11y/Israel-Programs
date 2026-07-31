@@ -85,6 +85,13 @@ function ReviewConsentContext() {
  * moderation notice itself is likewise stated once, in ReviewConsentContext above the
  * whole question list, not repeated as placeholder text under every question.
  *
+ * `isFirst` (poll restructure item 4) governs the collapsed trigger's verbosity, not the
+ * moderation notice (already handled once, above): the poll's very first comment box
+ * carries a short explanatory caption alongside "Add a comment" so a respondent
+ * encounters the "may be published after moderation" framing exactly once, at the point
+ * they'd actually need it; every later box is the bare label -- repeating the caption on
+ * every question was the single biggest source of wasted scroll on the old page.
+ *
  * Single flow container per question (style guide §8.3/§4): 32px bottom margin, nothing
  * absolutely positioned inside it.
  */
@@ -96,6 +103,7 @@ function QuestionWithReview({
   onNaChange,
   reviewText,
   onReviewTextChange,
+  isFirst = false,
 }: {
   question: PollQuestionDTO;
   value: number | null;
@@ -104,6 +112,7 @@ function QuestionWithReview({
   onNaChange: (na: boolean) => void;
   reviewText: string;
   onReviewTextChange: (text: string) => void;
+  isFirst?: boolean;
 }) {
   // Initialized once from whatever reviewText this question already carries at mount --
   // stays open if there's existing text, otherwise starts collapsed (style guide §8's
@@ -123,13 +132,18 @@ function QuestionWithReview({
             className="text-sm"
           />
         ) : (
-          <button
-            type="button"
-            onClick={() => setCommentOpen(true)}
-            className="w-fit text-sm font-medium text-primary hover:underline"
-          >
-            Add a comment
-          </button>
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => setCommentOpen(true)}
+              className="w-fit text-sm font-medium text-primary hover:underline"
+            >
+              Add a comment
+            </button>
+            {isFirst && (
+              <p className="text-xs text-muted">Optional. May be published on this program&rsquo;s page after moderation.</p>
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -163,7 +177,7 @@ function QuestionSections({
 }) {
   return (
     <div className="flex flex-col">
-      {questions.map((q) => (
+      {questions.map((q, i) => (
         <QuestionWithReview
           key={q.id}
           question={q}
@@ -173,6 +187,7 @@ function QuestionSections({
           onNaChange={(na) => onNaChange(q.id, na)}
           reviewText={reviewTexts[q.id] ?? ""}
           onReviewTextChange={(text) => onReviewTextChange(q.id, text)}
+          isFirst={i === 0}
         />
       ))}
       {extras.map(({ bucket, questions: bucketQuestions }) => (
@@ -225,8 +240,8 @@ function ReviewConsentCheckbox({
 
 /**
  * How far through the poll the respondent is (item 10) -- answered counts a real value
- * *or* an explicit Skip, matching exactly what counts toward the majority-of-Core unlock
- * bar server-side, so this number and "did that last tap just unlock the response" never
+ * *or* an explicit Skip, matching exactly what counts toward the readiness unlock bar
+ * server-side, so this number and "did that last tap just unlock the response" never
  * disagree. Sticky below the entry header so it stays visible while scrolling a long
  * question list. Ink-navy, not brass -- the header hairline and the selected rating
  * segment already spend this page's brass budget (style guide §1's "no more than ~5% of
@@ -794,7 +809,7 @@ function AnonymousRateForm({
 /**
  * The anonymous form presents the full resolved question set (core + extras) upfront,
  * same as the signed-in form -- there's no post-completion "add more detail" step here,
- * just the confirmation, reached only once autosave crosses the majority bar.
+ * just the confirmation, reached only once autosave crosses the readiness bar.
  */
 function ThankYouScreen({ programName, postPollCta }: { programName: string; postPollCta: PartnerLinkSlot | null }) {
   return (
