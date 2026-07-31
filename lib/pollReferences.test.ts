@@ -4,18 +4,19 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
  * Task A: the anonymous poll's single 18+-gated contact-email field creates a PENDING
  * alumni Reference (lib/references.ts's upsertReferenceFromPoll), wired into
  * lib/pollResponses.ts's maybeTransition -- the moment an autosaved response crosses the
- * majority-of-Core "unlock" bar (see lib/pollUnlock.ts), not at a one-shot submit
- * anymore. These tests exercise the gate, DB-level idempotency, the privacy invariants,
- * the cutover, and the "reference write never fails the poll" guarantee against an
- * in-memory Prisma fake (same posture as folders.test.ts). `@/lib/pollConfig` is mocked
- * at the module boundary (rather than simulating its own several Prisma calls) to
- * resolve a single fake Core question -- majority of 1 is 1, so a single saveAnswer call
- * crosses the bar immediately, mirroring the old one-shot test shape as closely as
- * possible while exercising the real autosave/transition code path.
+ * readiness "unlock" bar (see lib/pollUnlock.ts's hasReachedBucketSpread), not at a
+ * one-shot submit anymore. These tests exercise the gate, DB-level idempotency, the
+ * privacy invariants, the cutover, and the "reference write never fails the poll"
+ * guarantee against an in-memory Prisma fake (same posture as folders.test.ts).
+ * `@/lib/pollConfig` is mocked at the module boundary (rather than simulating its own
+ * several Prisma calls) to resolve 3 fake Core questions in a single group -- the
+ * readiness bar's floor of 3 total answered-or-N/A means a single served group needs
+ * all 3 answered, so `openAndCrossReadinessBar` answers all three before asserting on
+ * the transition, exercising the real autosave/transition code path.
  */
 vi.mock("@/lib/pollConfig", () => ({
   getQuestionsForProgram: vi.fn(async () => ({
-    core: [{ id: "q_core_1" }],
+    core: [{ id: "q_core_1" }, { id: "q_core_2" }, { id: "q_core_3" }],
     extras: [],
   })),
 }));
@@ -264,14 +265,15 @@ const {
 const { openAnonymousResponse, saveAnswer, addDetailAnswersAndReviews } = await import("./pollResponses");
 const { POLL_REFERENCE_CONSENT_LABEL, POLL_REFERENCE_CONSENT_VERSION } = await import("./pollShared");
 
-/** Opens a fresh anonymous response, then autosaves the (mocked) single Core question's
- * answer -- majority of 1 is 1, so this one saveAnswer call is exactly the moment the
- * response would cross the bar and transition, mirroring the old one-shot submit test
- * shape as closely as possible while exercising the real autosave path. Reference-related
- * fields (referenceEmail/ageAttested) are autosaved first via addDetailAnswersAndReviews
- * (the details/contact-field autosave path), same order the real form saves them in --
- * whenever they're typed, always before the rating that actually crosses the bar. */
-async function openAndCrossMajority(overrides: {
+/** Opens a fresh anonymous response, then autosaves all 3 (mocked) Core questions --
+ * the readiness bar's floor of 3 means this is exactly the minimum needed to cross,
+ * mirroring the old one-shot submit test shape as closely as possible while exercising
+ * the real autosave path. Reference-related fields (referenceEmail/ageAttested) are
+ * autosaved first via addDetailAnswersAndReviews (the details/contact-field autosave
+ * path), same order the real form saves them in -- whenever they're typed, always
+ * before the rating that actually crosses the bar. Only the final saveAnswer call's
+ * result is returned, since that's the one where the transition actually fires. */
+async function openAndCrossReadinessBar(overrides: {
   referenceEmail?: string | null;
   ageAttested?: boolean;
   hasBrowserMarker?: boolean;
@@ -280,7 +282,7 @@ async function openAndCrossMajority(overrides: {
     programId: "prog_1",
     referrerTokenId: "tok_1",
     ipHash: "hash",
-    presentedQuestionIds: ["q_core_1"],
+    presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
   });
   if (overrides.referenceEmail !== undefined || overrides.ageAttested !== undefined) {
     await addDetailAnswersAndReviews(
@@ -292,9 +294,25 @@ async function openAndCrossMajority(overrides: {
       { referenceEmail: overrides.referenceEmail ?? undefined, ageAttested: overrides.ageAttested ?? undefined }
     );
   }
-  const result = await saveAnswer({
+  await saveAnswer({
     responseId: response.id,
     questionId: "q_core_1",
+    questionVersion: 1,
+    value: 5,
+    na: false,
+    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
+  });
+  await saveAnswer({
+    responseId: response.id,
+    questionId: "q_core_2",
+    questionVersion: 1,
+    value: 5,
+    na: false,
+    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
+  });
+  const result = await saveAnswer({
+    responseId: response.id,
+    questionId: "q_core_3",
     questionVersion: 1,
     value: 5,
     na: false,
@@ -394,9 +412,9 @@ describe("upsertReferenceFromPoll (the gate)", () => {
   });
 });
 
-describe("autosave/majority-transition ↔ reference integration", () => {
+describe("autosave/readiness-transition ↔ reference integration", () => {
   it("valid email + 18+ → poll transitions COUNTED AND 1 reference", async () => {
-    const { responseId, status } = await openAndCrossMajority({
+    const { responseId, status } = await openAndCrossReadinessBar({
       referenceEmail: "alum@example.com",
       ageAttested: true,
     });
@@ -407,7 +425,7 @@ describe("autosave/majority-transition ↔ reference integration", () => {
   });
 
   it("no email → poll transitions COUNTED, 0 references (legacy PollResponse.email is never consulted)", async () => {
-    await openAndCrossMajority({ ageAttested: true });
+    await openAndCrossReadinessBar({ ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(1);
     // the created PollResponse row carries no legacy email at all under the new path
     expect(snapshot().pollResponses[0].email).toBeNull();
@@ -416,27 +434,27 @@ describe("autosave/majority-transition ↔ reference integration", () => {
   });
 
   it("malformed email → poll transitions COUNTED, 0 references", async () => {
-    await openAndCrossMajority({ referenceEmail: "notanemail", ageAttested: true });
+    await openAndCrossReadinessBar({ referenceEmail: "notanemail", ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(1);
     expect(snapshot().references).toHaveLength(0);
   });
 
   it("email autosaved without 18+ attested → 0 references", async () => {
-    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: false });
+    await openAndCrossReadinessBar({ referenceEmail: "alum@example.com", ageAttested: false });
     expect(snapshot().references).toHaveLength(0);
     expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
   });
 
   it("resubmitting the same email through two separate responses stays exactly 1 reference", async () => {
-    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: true });
-    await openAndCrossMajority({ referenceEmail: "alum@example.com", ageAttested: true });
+    await openAndCrossReadinessBar({ referenceEmail: "alum@example.com", ageAttested: true });
+    await openAndCrossReadinessBar({ referenceEmail: "alum@example.com", ageAttested: true });
     expect(snapshot().pollResponses).toHaveLength(2); // two responses
     expect(snapshot().references).toHaveLength(1); // but one reference
   });
 
   it("reference write throwing never fails the transition", async () => {
     setUpsertError(new Error("db down"));
-    const { responseId, status } = await openAndCrossMajority({
+    const { responseId, status } = await openAndCrossReadinessBar({
       referenceEmail: "alum@example.com",
       ageAttested: true,
     });
@@ -449,7 +467,7 @@ describe("autosave/majority-transition ↔ reference integration", () => {
   it("FLAGGED transition (repeat browser) + valid email + 18+ → 0 references", async () => {
     // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED. A valid email + 18+ still
     // creates NO reference; only a COUNTED transition does.
-    const { status } = await openAndCrossMajority({
+    const { status } = await openAndCrossReadinessBar({
       referenceEmail: "alum@example.com",
       ageAttested: true,
       hasBrowserMarker: true,
@@ -460,8 +478,8 @@ describe("autosave/majority-transition ↔ reference integration", () => {
     expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
   });
 
-  it("an abandoned INCOMPLETE response (never crossing majority) never triggers a reference", async () => {
-    // Open only -- no saveAnswer at all, so it never crosses the majority-of-1 bar and
+  it("an abandoned INCOMPLETE response (never crossing the readiness bar) never triggers a reference", async () => {
+    // Open only -- no saveAnswer at all, so it never crosses the readiness bar and
     // stays INCOMPLETE forever, exactly like a real abandoned poll.
     await openAnonymousResponse({
       programId: "prog_1",

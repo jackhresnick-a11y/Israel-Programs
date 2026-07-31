@@ -6,6 +6,7 @@ import { saveAnswer } from "@/lib/pollResponses";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { trackPollQuestionAnswered, trackPollFullyCompletedIfNew } from "@/lib/pollAnalytics";
 
 /** Same cookie this program's answer-save moves the browser-marker check to (see
  * lib/pollResponses.ts's maybeTransition) -- only ever set on a clean COUNTED
@@ -21,9 +22,10 @@ const BROWSER_MARKER_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
  * limited by IP, questionId re-derived and allowlisted against the program's live
  * resolved set (never trust the client), and lib/pollResponses.ts's saveAnswer itself
  * refuses to touch a VOIDED response. If this save is the one that crosses the
- * majority-of-Core bar, the response transitions to COUNTED/FLAGGED right here (see
- * saveAnswer -> maybeTransition) -- a clean anonymous COUNTED transition sets the
- * browser-marker cookie, same condition and shape as the old one-shot submit used to.
+ * readiness bar (lib/pollUnlock.ts's hasReachedBucketSpread), the response transitions
+ * to COUNTED/FLAGGED right here (see saveAnswer -> maybeTransition) -- a clean
+ * anonymous COUNTED transition sets the browser-marker cookie, same condition and shape
+ * as the old one-shot submit used to.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -45,8 +47,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const resolved = await getQuestionsForProgram(response.programId);
-    const allowedIds = new Set(flattenResolvedQuestionIds(resolved));
-    if (!allowedIds.has(body.questionId)) {
+    const orderedIds = flattenResolvedQuestionIds(resolved);
+    const questionPosition = orderedIds.indexOf(body.questionId);
+    if (questionPosition === -1) {
       return NextResponse.json({ error: "This question isn’t part of this program’s rating form" }, { status: 400 });
     }
 
@@ -67,6 +70,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       na: body.na,
       hasBrowserMarker,
     });
+
+    trackPollQuestionAnswered({
+      programId: response.programId,
+      responseId: id,
+      questionId: body.questionId,
+      position: questionPosition,
+    });
+    trackPollFullyCompletedIfNew(response.programId, id);
 
     // Same condition as the old one-shot submit: only a clean, COUNTED transition sets
     // the marker, so a respondent whose completion got FLAGGED isn't additionally

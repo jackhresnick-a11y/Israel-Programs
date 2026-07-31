@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
 import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
 import { computeBestForPhrases, computeVarianceNote, type BestForQuestionInput } from "@/lib/pollBestFor";
-import { responseMeetsHistoricalMajority } from "@/lib/pollUnlock";
+import { responseMeetsHistoricalSpread, type HistoricalQuestion } from "@/lib/pollUnlock";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
 import {
   flattenResolvedQuestionIds,
@@ -360,10 +360,10 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       organization: p.organization,
       location: p.location,
       tags: p.tags,
-      // countResponsesMeetingHistoricalMajority -- was a raw COUNTED-row count, now the
+      // countResponsesMeetingReadinessBar -- was a raw COUNTED-row count, now the
       // same shared "genuine engagement" definition listRatingCoverage uses, so this
       // admin list and the coverage list can never disagree with each other again.
-      responseCount: await countResponsesMeetingHistoricalMajority(p.id),
+      responseCount: await countResponsesMeetingReadinessBar(p.id),
       bestForPhrases: computeBestForPhrases(candidates),
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
       contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
@@ -406,37 +406,42 @@ export async function getProgramQuestionStats(programId: string): Promise<Progra
 }
 
 /**
- * How many of a program's COUNTED responses meet the historical majority-of-Core bar --
- * "genuine engagement," judged against the Core question set as it existed when EACH
- * response was created (see lib/pollUnlock.ts's responseMeetsHistoricalMajority), not
- * today's Core set. This is the single shared definition behind both the admin coverage
- * list (listRatingCoverage) and the admin programs list (listProgramsBestFor) -- they
- * used to disagree (one counted "answered the vestigial `overall` question," the other
- * counted raw COUNTED rows with no majority check at all), which is exactly the bug this
- * replaces both with one number.
+ * How many of a program's COUNTED responses meet the historical readiness bar --
+ * "genuine engagement," judged against the bucket groups EACH response was actually
+ * served (via its own `presentedQuestionIds` snapshot -- see
+ * lib/pollUnlock.ts's responseMeetsHistoricalSpread), not today's live buckets. This is
+ * the single shared definition behind both the admin coverage list (listRatingCoverage)
+ * and the admin programs list (listProgramsBestFor) -- they used to disagree (one
+ * counted "answered the vestigial `overall` question," the other counted raw COUNTED
+ * rows with no bar at all), which is exactly the bug this replaces both with one number.
  *
  * Reuses getQuestionsForProgram's already-correct, per-program resolution (respecting
  * that program's own addedQuestionIds/removedQuestionIds, and already ACTIVE-only) for
- * *which* questions are Core, then layers the createdAt-based historical filter on top
- * -- rather than re-deriving core membership from the raw bucket array, which would miss
- * a program's own customizations.
+ * today's bucket groups, then layers each response's own presentedQuestionIds snapshot
+ * on top -- rather than re-deriving group membership from the raw bucket array, which
+ * would miss a program's own customizations. A response predating the
+ * presentedQuestionIds column (an empty snapshot) falls back to today's full resolved
+ * set rather than looking like it was served nothing.
  */
-export async function countResponsesMeetingHistoricalMajority(programId: string): Promise<number> {
+export async function countResponsesMeetingReadinessBar(programId: string): Promise<number> {
   const resolved = await getQuestionsForProgram(programId);
-  const coreIds = resolved.core.map((q) => q.id);
-  if (coreIds.length === 0) return 0;
+  const bucketGroups = [resolved.core.map((q) => q.id), ...resolved.extras.map((e) => e.questions.map((q) => q.id))];
+  const allIds = [...new Set(bucketGroups.flat())];
+  if (allIds.length === 0) return 0;
 
-  const [coreQuestions, responses] = await Promise.all([
+  const [questions, responses] = await Promise.all([
     prisma.pollQuestion.findMany({
-      where: { id: { in: coreIds } },
-      select: { id: true, createdAt: true, status: true },
+      where: { id: { in: allIds } },
+      select: { id: true, status: true },
     }),
     prisma.pollResponse.findMany({
       where: { programId, status: "COUNTED" },
-      select: { id: true, createdAt: true, naQuestionIds: true },
+      select: { id: true, naQuestionIds: true, presentedQuestionIds: true },
     }),
   ]);
   if (responses.length === 0) return 0;
+
+  const questionsById = new Map<string, HistoricalQuestion>(questions.map((q) => [q.id, q]));
 
   const answers = await prisma.pollAnswer.groupBy({
     by: ["responseId", "questionId"],
@@ -452,26 +457,26 @@ export async function countResponsesMeetingHistoricalMajority(programId: string)
   for (const r of responses) {
     const answeredIds = answeredByResponse.get(r.id) ?? new Set<string>();
     const naIds = new Set(r.naQuestionIds);
-    if (responseMeetsHistoricalMajority(coreQuestions, r.createdAt, answeredIds, naIds)) count++;
+    const presented = r.presentedQuestionIds.length > 0 ? r.presentedQuestionIds : allIds;
+    if (responseMeetsHistoricalSpread(bucketGroups, presented, questionsById, answeredIds, naIds)) count++;
   }
   return count;
 }
 
 /**
  * Every published program with its rating-response count, for the admin coverage
- * overview (/admin/polls/coverage). `count` is countResponsesMeetingHistoricalMajority
- * -- COUNTED responses that met the majority-of-Core bar as it stood when each was
- * created -- replacing the old "answered the `overall` question" proxy, which had
- * drifted far from what actually gates a program's real, visible results (the `overall`
- * question is vestigial and easy to skip; a program could have many genuinely engaged
- * responses that happen to have skipped that one specific question).
+ * overview (/admin/polls/coverage). `count` is countResponsesMeetingReadinessBar --
+ * COUNTED responses that met the readiness bar as it stood when each was created --
+ * replacing the old "answered the `overall` question" proxy, which had drifted far from
+ * what actually gates a program's real, visible results (the `overall` question is
+ * vestigial and easy to skip; a program could have many genuinely engaged responses
+ * that happen to have skipped that one specific question).
  *
- * One per-program loop (not a single set query) since each program's Core set can be
- * individually customized (addedQuestionIds/removedQuestionIds) -- see
- * countResponsesMeetingHistoricalMajority's own doc comment. Bounded by the published-
- * program count (tens, not thousands), on an admin-only page, so this is an acceptable
- * cost. Sorted ascending by count so the programs most in need of responses sort to the
- * top.
+ * One per-program loop (not a single set query) since each program's bucket groups can
+ * be individually customized (addedQuestionIds/removedQuestionIds) -- see
+ * countResponsesMeetingReadinessBar's own doc comment. Bounded by the published-program
+ * count (tens, not thousands), on an admin-only page, so this is an acceptable cost.
+ * Sorted ascending by count so the programs most in need of responses sort to the top.
  */
 export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
   const programs = await prisma.program.findMany({
@@ -484,7 +489,7 @@ export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
       id: p.id,
       name: p.name,
       slug: p.slug,
-      count: await countResponsesMeetingHistoricalMajority(p.id),
+      count: await countResponsesMeetingReadinessBar(p.id),
     }))
   );
 

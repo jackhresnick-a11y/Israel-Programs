@@ -3,7 +3,8 @@ import { buildContactOptInFields, type ContactOptInInput } from "@/lib/contactOp
 import { upsertReferenceFromPoll } from "@/lib/references";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { getTokenFlagsById } from "@/lib/pollTokens";
-import { hasReachedCoreMajority, decideAnonymousStatus } from "@/lib/pollUnlock";
+import { hasReachedBucketSpread, decideAnonymousStatus } from "@/lib/pollUnlock";
+import { trackPollCounted } from "@/lib/pollAnalytics";
 import type { PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
@@ -106,7 +107,7 @@ export async function openSignedInResponse(input: {
  * ignored in favor of minting a fresh response. There is still no identity to dedupe an
  * anonymous respondent by, so a mismatched/expired/missing resumeId always gets a
  * brand-new INCOMPLETE row -- the anti-abuse flags, evaluated later at the moment this
- * response would cross the majority bar, are still the only repeat-detection mechanism.
+ * response would cross the readiness bar, are still the only repeat-detection mechanism.
  */
 export async function openAnonymousResponse(input: {
   programId: string;
@@ -140,7 +141,7 @@ export type SaveAnswerResult = { status: PollResponseStatus };
 /**
  * Debounced per-question autosave -- upserts (or clears, on `value: null`/`na: true`)
  * exactly one PollAnswer row keyed on the existing (responseId, questionId) primary key,
- * updates `naQuestionIds`, then checks for the majority-bar transition if the response
+ * updates `naQuestionIds`, then checks for the readiness-bar transition if the response
  * is still INCOMPLETE (a no-op call once it's already COUNTED/FLAGGED -- editing an
  * already-real response's answers afterward doesn't re-run anti-abuse checks). Refuses
  * to touch a VOIDED response, same guard `addDetailAnswersAndReviews` already used.
@@ -193,13 +194,17 @@ export async function saveAnswer(input: {
 }
 
 /**
- * Checks whether an INCOMPLETE response has crossed the majority-of-Core bar and, if so,
+ * Checks whether an INCOMPLETE response has crossed the readiness bar and, if so,
  * transitions it to COUNTED/FLAGGED exactly once. The `updateMany` with `status:
  * "INCOMPLETE"` in its own where-clause is the concurrency guard: if two answer-saves
- * for the same response race each other past the majority check, only the first
+ * for the same response race each other past the readiness check, only the first
  * `updateMany` actually matches a row (count: 1); the loser's `count: 0` short-circuits
  * to re-reading whatever status won, so the transition (and its anti-abuse side effects
  * below) can never run twice for the same response.
+ *
+ * The readiness bar itself is `hasReachedBucketSpread` (lib/pollUnlock.ts): at least one
+ * answered-or-N/A question from every bucket served to this respondent, floor of 3
+ * total -- spread across buckets, not depth within one.
  *
  * Runs the *exact* anti-abuse decision the old one-shot submit used to run at
  * final-submit time -- see lib/pollUnlock.ts's decideAnonymousStatus -- just moved to
@@ -237,10 +242,10 @@ async function maybeTransition(
     return { status: response?.status ?? "INCOMPLETE" };
   }
 
-  const coreIds = resolved.core.map((q) => q.id);
+  const bucketGroups = [resolved.core.map((q) => q.id), ...resolved.extras.map((e) => e.questions.map((q) => q.id))];
   const answeredIds = new Set(answers.map((a) => a.questionId));
   const naIds = new Set(response.naQuestionIds);
-  if (!hasReachedCoreMajority(coreIds, answeredIds, naIds)) {
+  if (!hasReachedBucketSpread(bucketGroups, answeredIds, naIds)) {
     return { status: "INCOMPLETE" };
   }
 
@@ -255,6 +260,7 @@ async function maybeTransition(
       const fresh = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
       return { status: fresh?.status ?? "COUNTED" };
     }
+    trackPollCounted(programId, responseId, "COUNTED");
     return { status: "COUNTED" };
   }
 
@@ -274,6 +280,7 @@ async function maybeTransition(
     const fresh = await prisma.pollResponse.findUnique({ where: { id: responseId }, select: { status: true } });
     return { status: fresh?.status ?? status };
   }
+  trackPollCounted(programId, responseId, status);
 
   // Best-effort: turn the 18+-gated contact email (already autosaved via the details
   // endpoint) into a PENDING alumni Reference. Wrapped so a failure can NEVER fail the
@@ -308,9 +315,9 @@ async function maybeTransition(
  * retried/double-fired autosave harmless rather than a 500 (the composite PollAnswer PK
  * would otherwise reject it); reviews go through the same per-row insertReviews as
  * always. `presentedQuestionIds` is union-merged (never overwritten) so moderation's
- * skip diff keeps reflecting everything ever shown. If an N/A mark landed on a Core
- * question and the response is still INCOMPLETE, this can cross the majority bar just
- * like an answer would -- so the same transition check runs here too.
+ * skip diff keeps reflecting everything ever shown. If an N/A mark landed and the
+ * response is still INCOMPLETE, this can cross the readiness bar just like an answer
+ * would -- so the same transition check runs here too.
  */
 export async function addDetailAnswersAndReviews(
   responseId: string,

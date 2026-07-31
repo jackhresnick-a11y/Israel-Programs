@@ -115,7 +115,7 @@ type TokenCapRow = { id: string; revoked: boolean; expiresAt: Date | null; maxRe
 
 /** Shared by validateReferrerToken (by raw token string, at poll-open time) and
  * getTokenFlagsById (by DB id, re-evaluated fresh at the moment a response crosses the
- * majority bar -- a token could be revoked or go over cap in the time between a
+ * readiness bar -- a token could be revoked or go over cap in the time between a
  * respondent opening the poll and actually finishing it, so this is deliberately
  * recomputed then, not carried over from open time). The cap check only counts
  * COUNTED/FLAGGED responses -- never INCOMPLETE -- so an abandoned draft can never
@@ -147,7 +147,7 @@ export async function validateReferrerToken(token: string): Promise<TokenValidat
 }
 
 /** Same flag computation as validateReferrerToken, but by the token's DB id -- used at
- * the moment a response crosses the majority bar, when only the id (stored on
+ * the moment a response crosses the readiness bar, when only the id (stored on
  * PollResponse.referrerTokenId at poll-open) is available, not the raw token string. */
 export async function getTokenFlagsById(referrerTokenId: string): Promise<PollFlag[]> {
   const row = await prisma.referrerToken.findUnique({ where: { id: referrerTokenId } });
