@@ -195,8 +195,9 @@ row is the single most generic control in the app. Replace with a numbered 1–5
 segmented scale:
 
 - 44px tall, equal segments, stone border, mono numerals.
-- Selected segment: brass fill, `#1A1A17` text (brass on dark text clears contrast
-  comfortably).
+- Selected segment: ink-navy fill, text-inverse — same selected state as the choice-chip
+  control below, so one color means "selected" everywhere on the poll page, regardless
+  of question type or bucket.
 - Anchor labels beneath at small, text-muted, left and right only.
 - Unanswered state shows nothing extra. Delete the "Not answered" label — an
   unselected control is self-evidently unanswered, and the label reads as an

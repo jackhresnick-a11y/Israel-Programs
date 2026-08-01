@@ -26,9 +26,10 @@ import type { PollQuestionDTO } from "@/lib/pollShared";
  *
  * The answer control itself is chosen by resolveOptionKind, never by question.type
  * directly: "numeric" (STARS) and "ordinal" (RADIO with an ordered spectrum) both go
- * through SegmentedScale's numerals-only control, differing only in selected-fill
- * colour; "categorical" (RADIO with unordered alternatives, e.g. unit_assignments) goes
- * through StackedChoice's full-width rows instead.
+ * through SegmentedScale's numerals-only control; "categorical" (RADIO with unordered
+ * alternatives, e.g. unit_assignments) goes through StackedChoice's full-width rows
+ * instead. Both controls share one selected-state color (ink-navy) -- the split only
+ * ever changes layout, never color.
  */
 export default function QuestionInput({
   question,
@@ -62,13 +63,7 @@ export default function QuestionInput({
       {kind === "categorical" ? (
         <StackedChoice labels={question.labels} value={value} onChange={select} ariaLabelPrefix={question.text} />
       ) : (
-        <SegmentedScale
-          variant={kind}
-          labels={question.labels}
-          value={value}
-          onChange={select}
-          ariaLabelPrefix={question.text}
-        />
+        <SegmentedScale labels={question.labels} value={value} onChange={select} ariaLabelPrefix={question.text} />
       )}
       <NaOptOut na={na} onToggle={toggleNa} ariaLabelPrefix={question.text} />
     </div>

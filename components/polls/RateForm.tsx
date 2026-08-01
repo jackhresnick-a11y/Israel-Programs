@@ -243,9 +243,9 @@ function ReviewConsentCheckbox({
  * *or* an explicit N/A, matching exactly what counts toward the readiness unlock bar
  * server-side, so this number and "did that last tap just unlock the response" never
  * disagree. Sticky below the entry header so it stays visible while scrolling a long
- * question list. Ink-navy, not brass -- the header hairline and the selected rating
- * segment already spend this page's brass budget (style guide §1's "no more than ~5% of
- * a screen is brass").
+ * question list. Ink-navy, not brass -- the header hairline already spends this page's
+ * brass budget (style guide §1's "no more than ~5% of a screen is brass"); every rating
+ * control's selected state is ink-navy too, never brass (see SegmentedScale/StackedChoice).
  */
 function ProgressIndicator({ answered, total }: { answered: number; total: number }) {
   const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
