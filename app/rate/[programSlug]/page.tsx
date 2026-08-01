@@ -14,7 +14,7 @@ import EntryHeader from "@/components/ui/EntryHeader";
 import { buttonVariants } from "@/components/ui/Button";
 
 function questionCountCopy(total: number) {
-  return `${total} question${total === 1 ? "" : "s"} — you can skip any of them. Your answers save as you go.`;
+  return `${total} question${total === 1 ? "" : "s"} — mark any of them N/A if they don't apply. Your answers save as you go.`;
 }
 
 export async function generateMetadata({
@@ -121,7 +121,7 @@ export default async function RateProgramPage({
           core.length === 0
             ? undefined
             : existing
-              ? "Update your rating below. You can skip any question."
+              ? "Update your rating below. You can mark any question N/A."
               : questionCountCopy(totalQuestions)
         }
       />

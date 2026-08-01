@@ -240,7 +240,7 @@ function ReviewConsentCheckbox({
 
 /**
  * How far through the poll the respondent is (item 10) -- answered counts a real value
- * *or* an explicit Skip, matching exactly what counts toward the readiness unlock bar
+ * *or* an explicit N/A, matching exactly what counts toward the readiness unlock bar
  * server-side, so this number and "did that last tap just unlock the response" never
  * disagree. Sticky below the entry header so it stays visible while scrolling a long
  * question list. Ink-navy, not brass -- the header hairline and the selected rating
@@ -337,7 +337,7 @@ function ContactOptInBlock({
       )}
       {hint && (
         <p className="pl-6 text-xs text-muted">
-          Confirm you&rsquo;re 18 or older and fill in a contact method and name to save this — or uncheck the box above to skip it.
+          Confirm you&rsquo;re 18 or older and fill in a contact method and name to save this — or uncheck the box above to leave it out.
         </p>
       )}
     </div>
