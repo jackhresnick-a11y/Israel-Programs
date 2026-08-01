@@ -1,0 +1,497 @@
+[
+  {
+    "id": "cmrsu8ijm000004juaa1zzqip",
+    "key": "academic_filler",
+    "text": "Was the internship/academic work real, or mostly filler?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0z5mc000a04kyl6b77dhq",
+    "key": "adult_vs_student",
+    "text": "How much were you treated as an adult vs. managed like a student?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrxurji000004lbl0sqq50n",
+    "key": "advertising",
+    "text": "Was the program what you expected, or different?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "EXCLUDED",
+    "optionKind": null
+  },
+  {
+    "id": "cmrox1mwn00045imz4yzq84n9",
+    "key": "again",
+    "text": "Would you do it again?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrzwz28000004kyv5bfp2qj",
+    "key": "army_conversations",
+    "text": "How much of the time is spent talking about the army versus other things?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs9yo9y000104jpiyp2fw1n",
+    "key": "army_meaningful",
+    "text": "How meaningful was that Army preparation to you personally?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs7axbf000504jxhdzp3uo4",
+    "key": "army_mentorship",
+    "text": "How much were you accompanied and mentored through the service?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs75xdb000404jx4otzv81n",
+    "key": "army_prep",
+    "text": "How well did the program prepare you for the army?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrzzikt000104ky59of2wjn",
+    "key": "army_training",
+    "text": "To what extent is physical training offered?",
+    "type": "STARS",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0blnp000704kywmelbmzv",
+    "key": "broken_fixing",
+    "text": "How responsive was staff when something practical broke or went wrong?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrsuefp4000204l4n8vw7p9j",
+    "key": "career_connected",
+    "text": "How connected was the work to a real career path?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs7l5ww000704jx473x8zeh",
+    "key": "close_friends",
+    "text": "How much do you feel you gained close friendships that lasted?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5t4zbx000304kyb63uujpu",
+    "key": "cohort_social",
+    "text": "How much did the social scene depend on your particular cohort?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs10vq7000b04kynm130rxc",
+    "key": "comfort_zone",
+    "text": "How much did the program push you out of your comfort zone?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs6rl20000004jxrbmaw0u1",
+    "key": "connection_israel",
+    "text": "How much did your connection to israel grow",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5s8feq000004l1u08bhtqt",
+    "key": "desire_learn",
+    "text": "How much did the program contribute to your desire to learn?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1pa73000n04kyn0hcjcwu",
+    "key": "diverse_background",
+    "text": "How wide was the range of people, or did everyone come from the same background?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrzdm2u000204i8qzqw56kd",
+    "key": "drafting_support",
+    "text": "How much did the program guide and support you through actually signing up and drafting?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0dskb000804ky7pn6b57z",
+    "key": "experience_vs_conditions",
+    "text": "How much did conditions affect your experience?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0947p000504ky7lv0pdyw",
+    "key": "food_quality",
+    "text": "How was the food, realistically, day to day?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs13aqr000c04ky2ets474m",
+    "key": "free_time",
+    "text": "How much free time do you have outside of a learning schedule?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0xekw000904kyp404m7op",
+    "key": "freedom_time_choices",
+    "text": "How much freedom did you have over your own time and choices?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs17ip7000e04kyj776w7w4",
+    "key": "hebrew_feeling_lost",
+    "text": "How much prior Hebrew did you need to not feel lost?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs14t77000d04kyuufhmyts",
+    "key": "hebrew_improvement",
+    "text": "How much did your Hebrew actually improve, honestly, by the end?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1dlu5000h04ky23ad584e",
+    "key": "hebrew_sticking",
+    "text": "How much did the hebrew that you learned in the program stick or fade?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1c649000g04kyxdcpkq8r",
+    "key": "hebrew_ulpan",
+    "text": "How available are resources for learning hebrew, (ie ulpan)?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs19xkg000f04kyhgy7wtup",
+    "key": "hebrew_vs_english",
+    "text": "How much of the day did you need to use Hebrew vs. able to fall back on English?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrz3b7g000004i8zd1ik36e",
+    "key": "intellectual_emotional",
+    "text": "How much was the learning intellectual vs. emotional/spiritual?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5shx8m000004kyh8o01i7q",
+    "key": "learn_after",
+    "text": "How much are you still learning now, after the program?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs6zy9y000204jxs6rnpzqj",
+    "key": "learning_connection",
+    "text": "How much do you feel connected to learning after the program?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs6v3pu000104jxalrpwe93",
+    "key": "learning_devolop",
+    "text": "How much are you still connected to learning now, after the program?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs724vh000304jxygx3g0rw",
+    "key": "learning_leading",
+    "text": "How much do you feel that something is leading you in life?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrsubhen000104l47j36lvv8",
+    "key": "mentorship_academic",
+    "text": "How good was the mentorship from your supervisor or professors?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1r4op000o04ky66p4sg81",
+    "key": "niche_background",
+    "text": "How niche was the program's hashkafa/vibe?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5s1ggm000004jovos2v7v7",
+    "key": "niche_social",
+    "text": "How niche are the people that go to this program?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "SIGNIFICANT",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1mmtr000l04kyz04opyc5",
+    "key": "numbers_staying",
+    "text": "How many people from your cohort actually stayed, made aliyah, or drafted?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrox1km300005imzrt1hs28x",
+    "key": "overall",
+    "text": "Overall, how was the program?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "EXCLUDED",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs0aibl000604ky8t8vurlg",
+    "key": "personal_space",
+    "text": "How much privacy/personal space did you have?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrrz7u71000104i89oa1xtdx",
+    "key": "post_learning",
+    "text": "Did the learning translate into something you kept doing after the program?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs08ara000404kyt4r5hjbc",
+    "key": "quality_living",
+    "text": "How would you rate the living conditions?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5ssflm000104kyglrylqxw",
+    "key": "realistic_army",
+    "text": "How realistic a picture did the program give you of army service?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrox1l6x00015imz1cvcvu83",
+    "key": "recommend",
+    "text": "Would you recommend it to a friend?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "EXCLUDED",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs2hknc000w04kyxozbjhq6",
+    "key": "social_circle",
+    "text": "Did the program give you a real social circle of Israelis to lean on?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs7ejdj000604jxc8t3s1b8",
+    "key": "social_diverse",
+    "text": "How easily did you find people you clicked with?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms0rkct6000004l7koio1spm",
+    "key": "social_nights",
+    "text": "How did you typically spend your free evenings during the program?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrox1mbt00035imzmq32frng",
+    "key": "staff",
+    "text": "How were the staff and leadership?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrry07vr000104lb7bcb05um",
+    "key": "staff_dependent",
+    "text": "How much did your experience depend on which specific staff/rabbis/madrichim you got?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "EXCLUDED",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1ffz5000i04kyc6031il6",
+    "key": "staying_israel",
+    "text": "How much did the program actually make you want to stay in Israel?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrsa7sxp000204jpzmzmo2cy",
+    "key": "strengthen_build",
+    "text": "How much did the program strengthen your intention to build a life in Israel?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cms5szvm7000204kys63yiwa0",
+    "key": "strong_army",
+    "text": "Did the preparation help you stay strong throughout your whole service?",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs1i6y9000j04ky1wcrw4x7",
+    "key": "tools_aliyah",
+    "text": "Did the program teach practical tools for staying in Israel? (aliyah steps, army, visas, work, housing)",
+    "type": "STARS",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrry9ucd000004la23bro6wt",
+    "key": "torah_knowledge",
+    "text": "How much prior Torah learning background did you need to keep up?",
+    "type": "STARS",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs04l0u000304ky5x0hxk6x",
+    "key": "unit_assignments",
+    "text": "If you know, what type of units did the top third of people from your cohort actually go to?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "DEFINING",
+    "optionKind": null
+  },
+  {
+    "id": "cmrs026yf000204kyiqiubfq0",
+    "key": "workout_culture",
+    "text": "Is the workout culture more institutional, where the program organizes and runs training, or is it individual, where it's what you do yourself?",
+    "type": "RADIO",
+    "scaleType": "DESCRIPTIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  },
+  {
+    "id": "cmrox1lrh00025imzh9enqo3m",
+    "key": "worth_cost",
+    "text": "Was it worth the cost?",
+    "type": "RADIO",
+    "scaleType": "EVALUATIVE",
+    "tier": "CONTEXTUAL",
+    "optionKind": null
+  }
+]
