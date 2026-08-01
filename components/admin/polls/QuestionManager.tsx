@@ -9,6 +9,7 @@ import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 
 export type QuestionTier = "DEFINING" | "SIGNIFICANT" | "CONTEXTUAL" | "EXCLUDED";
+export type QuestionOptionKind = "ORDINAL" | "CATEGORICAL";
 
 export type QuestionRow = {
   id: string;
@@ -23,6 +24,7 @@ export type QuestionRow = {
   highPhrase: string | null;
   version: number;
   answerCount: number;
+  optionKind: QuestionOptionKind | null;
 };
 
 const TIER_LABELS: Record<QuestionTier, string> = {
@@ -30,6 +32,15 @@ const TIER_LABELS: Record<QuestionTier, string> = {
   SIGNIFICANT: "Significant",
   CONTEXTUAL: "Contextual",
   EXCLUDED: "Excluded",
+};
+
+// Null (unset) is the safe default -- it renders and aggregates exactly like ORDINAL
+// (see lib/pollShared.ts's resolveOptionKind) until an admin deliberately reclassifies a
+// question as an unordered choice set.
+const OPTION_KIND_LABELS: Record<"unset" | QuestionOptionKind, string> = {
+  unset: "Ordinal (default — unset)",
+  ORDINAL: "Ordinal",
+  CATEGORICAL: "Categorical (unordered — renders as stacked rows, not a scale)",
 };
 
 async function api(url: string, method: string, body?: object) {
@@ -63,6 +74,7 @@ function QuestionForm({
     tier: QuestionTier;
     lowPhrase: string | null;
     highPhrase: string | null;
+    optionKind: QuestionOptionKind | null;
   }) => void;
   submitLabel: string;
   busy: boolean;
@@ -77,6 +89,7 @@ function QuestionForm({
   const [tier, setTier] = useState<QuestionTier>(initial?.tier ?? "CONTEXTUAL");
   const [lowPhrase, setLowPhrase] = useState(initial?.lowPhrase ?? "");
   const [highPhrase, setHighPhrase] = useState(initial?.highPhrase ?? "");
+  const [optionKind, setOptionKind] = useState<"unset" | QuestionOptionKind>(initial?.optionKind ?? "unset");
 
   const valid = text.trim().length > 0 && labels.every((l) => l.trim().length > 0) && (initial || key.trim().length > 0);
 
@@ -134,6 +147,21 @@ function QuestionForm({
           ))}
         </Select>
       </label>
+      <label className="flex flex-col gap-1 text-xs text-muted">
+        Option kind (rating-form layout — ignored for Stars, which always renders as
+        numerals)
+        <Select
+          value={optionKind}
+          onChange={(e) => setOptionKind(e.target.value as "unset" | QuestionOptionKind)}
+          className="w-72"
+        >
+          {(Object.keys(OPTION_KIND_LABELS) as ("unset" | QuestionOptionKind)[]).map((k) => (
+            <option key={k} value={k}>
+              {OPTION_KIND_LABELS[k]}
+            </option>
+          ))}
+        </Select>
+      </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-xs text-muted">
           Strip phrase, low end (mean &lt; 3 — leave blank to never surface a low-end phrase)
@@ -167,6 +195,7 @@ function QuestionForm({
             tier,
             lowPhrase: lowPhrase.trim() || null,
             highPhrase: highPhrase.trim() || null,
+            optionKind: optionKind === "unset" ? null : optionKind,
           })
         }
       >
@@ -206,6 +235,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
       tier: QuestionTier;
       lowPhrase: string | null;
       highPhrase: string | null;
+      optionKind: QuestionOptionKind | null;
     }
   ) {
     const textChanged = input.text !== question.text;
@@ -242,6 +272,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
     tier: QuestionTier;
     lowPhrase: string | null;
     highPhrase: string | null;
+    optionKind: QuestionOptionKind | null;
   }) {
     setCreating(true);
     setError(null);
@@ -267,6 +298,7 @@ export default function QuestionManager({ questions }: { questions: QuestionRow[
               <span className="text-sm font-medium text-foreground">{question.text}</span>
               <Badge tone="neutral">{question.type}</Badge>
               {question.scaleType === "DESCRIPTIVE" && <Badge tone="tag">Descriptive</Badge>}
+              {question.optionKind === "CATEGORICAL" && <Badge tone="tag">Categorical</Badge>}
               {question.tier === "DEFINING" && <Badge tone="success">Defining</Badge>}
               {question.tier === "SIGNIFICANT" && <Badge tone="info">Significant</Badge>}
               {question.tier === "EXCLUDED" && <Badge tone="danger">Excluded</Badge>}

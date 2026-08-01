@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { questionLabelsSchema, scaleTypeSchema, questionTierSchema } from "@/lib/pollShared";
+import {
+  questionLabelsSchema,
+  scaleTypeSchema,
+  questionTierSchema,
+  optionKindSchema,
+} from "@/lib/pollShared";
 
 /** dropdownOptions is a nullable Json column; Prisma requires the Prisma.JsonNull
  * sentinel (not plain `null`) to explicitly clear it, so a bare `null` from the zod
@@ -46,6 +51,11 @@ export const questionInputSchema = z.object({
   tier: questionTierSchema.default("CONTEXTUAL"),
   lowPhrase: phraseSchema,
   highPhrase: phraseSchema,
+  /** See PollOptionKind's doc comment in schema.prisma. Left unset (null) by default --
+   * ordinal is the safe assumption for a newly created question, same as every
+   * pre-existing row, and an admin classifies it as categorical only when it's genuinely
+   * an unordered choice set. */
+  optionKind: optionKindSchema.nullable().optional(),
 });
 
 export const questionUpdateSchema = z.object({
@@ -58,6 +68,7 @@ export const questionUpdateSchema = z.object({
   tier: questionTierSchema.optional(),
   lowPhrase: phraseSchema,
   highPhrase: phraseSchema,
+  optionKind: optionKindSchema.nullable().optional(),
 });
 
 /**
@@ -105,6 +116,7 @@ export async function createQuestion(input: z.infer<typeof questionInputSchema>)
       tier: input.tier,
       lowPhrase: input.lowPhrase ?? null,
       highPhrase: input.highPhrase ?? null,
+      optionKind: input.optionKind ?? null,
     },
   });
 }

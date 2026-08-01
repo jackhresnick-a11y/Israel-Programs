@@ -11,6 +11,7 @@ import {
   detailsSubmitSchema,
   reviewInputSchema,
   summarizeRatingCoverage,
+  resolveOptionKind,
   MIN_RESPONSES_FOR_RATING,
   type PollBucketDTO,
   type PollQuestionDTO,
@@ -31,6 +32,7 @@ function question(id: string, overrides: Partial<PollQuestionDTO> = {}): PollQue
     lowPhrase: null,
     highPhrase: null,
     tier: "CONTEXTUAL",
+    optionKind: null,
     ...overrides,
   };
 }
@@ -651,5 +653,30 @@ describe("summarizeRatingCoverage", () => {
 
   it("handles an empty list", () => {
     expect(summarizeRatingCoverage([])).toEqual({ total: 0, meeting: 0, below: 0 });
+  });
+});
+
+describe("resolveOptionKind", () => {
+  it("returns numeric for STARS regardless of optionKind", () => {
+    expect(resolveOptionKind({ type: "STARS", optionKind: null })).toBe("numeric");
+    expect(resolveOptionKind({ type: "STARS", optionKind: "CATEGORICAL" })).toBe("numeric");
+    expect(resolveOptionKind({ type: "STARS", optionKind: "ORDINAL" })).toBe("numeric");
+  });
+
+  it("returns categorical for a RADIO question explicitly classified as such", () => {
+    expect(resolveOptionKind({ type: "RADIO", optionKind: "CATEGORICAL" })).toBe("categorical");
+  });
+
+  it("returns ordinal for a RADIO question with a null optionKind (the derive default)", () => {
+    expect(resolveOptionKind({ type: "RADIO", optionKind: null })).toBe("ordinal");
+  });
+
+  it("returns ordinal for a RADIO question explicitly marked ORDINAL", () => {
+    expect(resolveOptionKind({ type: "RADIO", optionKind: "ORDINAL" })).toBe("ordinal");
+  });
+
+  it("treats DROPDOWN the same as RADIO (categorical wins, otherwise derives to ordinal)", () => {
+    expect(resolveOptionKind({ type: "DROPDOWN", optionKind: "CATEGORICAL" })).toBe("categorical");
+    expect(resolveOptionKind({ type: "DROPDOWN", optionKind: null })).toBe("ordinal");
   });
 });

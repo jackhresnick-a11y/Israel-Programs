@@ -138,6 +138,20 @@ enum PollQuestionTier {
   EXCLUDED
 }
 
+/// Whether a question's five `labels` form an ordered spectrum (ORDINAL -- 1..5 means
+/// "less -> more" of one thing, e.g. free_time) or an unordered set of alternatives
+/// (CATEGORICAL -- e.g. unit_assignments, where "Jobnik/intelligence" and "Elite units"
+/// are different kinds, not different amounts). NULL is the deliberate default and means
+/// "derive" -- lib/pollShared.ts treats a null as ORDINAL, so every pre-existing question
+/// keeps exactly today's rendering and math until an admin classifies it. Independent of
+/// scaleType and tier: a DESCRIPTIVE question can be either kind, and a CATEGORICAL
+/// question is still stored as a 1-5 index into `labels` (the PollAnswer CHECK is
+/// unchanged) -- the kind governs presentation only, never the storage format.
+enum PollOptionKind {
+  ORDINAL
+  CATEGORICAL
+}
+
 enum PollResponseStatus {
   /// Vestigial -- no new response is ever written PENDING since the after-submit email
   /// verification step was removed (see FLAGGED below). Kept because Postgres can't
@@ -769,6 +783,9 @@ model PollQuestion {
   dropdownOptions Json?
   status          PollLifecycleStatus @default(ACTIVE)
   scaleType       PollScaleType       @default(EVALUATIVE)
+  /// See PollOptionKind. Nullable on purpose -- NULL means "derive" (= ordinal), so no
+  /// backfill is required and no existing row's behaviour changes when this lands.
+  optionKind      PollOptionKind?
   /// When this question started being served to respondents -- the historical-majority
   /// "was this question live when response R was created" check (lib/pollUnlock.ts)
   /// compares this against PollResponse.createdAt, so a question added later can never

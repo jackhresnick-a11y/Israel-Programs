@@ -11,11 +11,14 @@ import type {
   PollLifecycleStatus,
   PollScaleType,
   PollQuestionTier,
+  PollOptionKind,
 } from "@/app/generated/prisma/enums";
 
 export const scaleTypeSchema = z.enum(["EVALUATIVE", "DESCRIPTIVE"]);
 
 export const questionTierSchema = z.enum(["DEFINING", "SIGNIFICANT", "CONTEXTUAL", "EXCLUDED"]);
+
+export const optionKindSchema = z.enum(["ORDINAL", "CATEGORICAL"]);
 
 export const durationTypeSchema = z.enum([
   DurationType.TEN_DAY,
@@ -105,7 +108,27 @@ export type PollQuestionDTO = {
   /** Strip ranking weight -- see PollQuestionTier's doc comment in schema.prisma and
    * lib/pollBestFor.ts's TIER_MULTIPLIER. */
   tier: PollQuestionTier;
+  /** See PollOptionKind's doc comment in schema.prisma -- null means "derive," which
+   * resolveOptionKind treats as ordinal. */
+  optionKind: PollOptionKind | null;
 };
+
+/** How a question's five `labels` should be presented -- "numeric" (STARS: bare
+ * numerals 1-5) and "ordinal" (RADIO with an ordered spectrum: numerals 1-5, only the
+ * end labels shown as anchors) differ only in the segmented control's selected-fill
+ * colour, never in layout; "categorical" (RADIO with unordered alternatives, e.g.
+ * unit_assignments) renders as full-width stacked rows instead. STARS always wins
+ * regardless of optionKind -- it's already a plain 1-5 scale and was never a candidate
+ * for stacking. A null optionKind derives to "ordinal", matching every question's
+ * current behavior until it's explicitly classified otherwise. */
+export type OptionRenderKind = "numeric" | "ordinal" | "categorical";
+
+export function resolveOptionKind(
+  question: Pick<PollQuestionDTO, "type" | "optionKind">
+): OptionRenderKind {
+  if (question.type === "STARS") return "numeric";
+  return question.optionKind === "CATEGORICAL" ? "categorical" : "ordinal";
+}
 
 export type PollBucketDTO = {
   id: string;
