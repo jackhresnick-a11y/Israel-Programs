@@ -3,27 +3,27 @@
 import { cn } from "@/lib/cn";
 
 /**
- * The style guide's segmented control (§6) -- five numbered segments, 1-5, always. Used
- * for both the numeric rating scale (STARS -- brass-filled numerals) and ordinal choice
- * questions (RADIO with an ordered spectrum -- ink-navy-filled numerals). Only the two
- * end labels (`labels[0]`/`labels[4]`) are ever displayed, as anchors beneath the bar --
- * middle labels stay in the data (still reachable via each segment's aria-label) but are
- * never rendered, so a long middle label can never wrap or overflow a segment. A
- * genuinely unordered (categorical) question does not use this control at all -- see
- * StackedChoice. The opt-out is a separate control (NaOptOut) rendered outside this one,
- * not a segment here.
+ * The style guide's segmented control (§6) -- five numbered segments, 1-5, always, for
+ * every question this control renders (STARS "numeric" and RADIO "ordinal" alike).
+ * Selected segment is always ink-navy with text-inverse -- one selected color across
+ * every rating control, every question, every bucket, so the color reliably means
+ * "selected" rather than varying by question type with no legend to explain why. Only
+ * the two end labels (`labels[0]`/`labels[4]`) are ever displayed, as anchors beneath
+ * the bar -- middle labels stay in the data (still reachable via each segment's
+ * aria-label) but are never rendered, so a long middle label can never wrap or overflow
+ * a segment. A genuinely unordered (categorical) question does not use this control at
+ * all -- see StackedChoice, which uses the same navy selected state. The opt-out is a
+ * separate control (NaOptOut) rendered outside this one, not a segment here.
  */
 export default function SegmentedScale({
   labels,
   value,
   onChange,
-  variant,
   ariaLabelPrefix,
 }: {
   labels: string[];
   value: number | null;
   onChange: (value: number | null) => void;
-  variant: "numeric" | "ordinal";
   ariaLabelPrefix: string;
 }) {
   function selectValue(n: number) {
@@ -51,11 +51,7 @@ export default function SegmentedScale({
               onClick={() => selectValue(n)}
               className={cn(
                 segmentClass,
-                selected
-                  ? variant === "numeric"
-                    ? "bg-accent text-accent-foreground"
-                    : "bg-primary text-primary-foreground"
-                  : "bg-surface text-foreground hover:bg-surface-muted"
+                selected ? "bg-primary text-primary-foreground" : "bg-surface text-foreground hover:bg-surface-muted"
               )}
             >
               {n}
