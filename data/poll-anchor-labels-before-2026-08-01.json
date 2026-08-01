@@ -1,0 +1,35 @@
+[
+  {
+    "id": "cmrs7axbf000504jxhdzp3uo4",
+    "key": "army_mentorship",
+    "labels": [
+      "Not at all I was on my own ",
+      "2",
+      "3",
+      "4",
+      "I feel completely accompanied and mentored "
+    ]
+  },
+  {
+    "id": "cms5s1ggm000004jovos2v7v7",
+    "key": "niche_social",
+    "labels": [
+      "Extremely diverse everyone is different ",
+      "2",
+      "3",
+      "4",
+      "There is a specific type and vibe of person that goes here"
+    ]
+  },
+  {
+    "id": "cms0rkct6000004l7koio1spm",
+    "key": "social_nights",
+    "labels": [
+      "Almost always stayed in (studying, resting, low-key)",
+      "Mostly stayed in, occasionally went out",
+      "Roughly even mix",
+      "Mostly went out, occasionally stayed in",
+      "Almost always went out (nightlife, socializing off-campus)"
+    ]
+  }
+]
