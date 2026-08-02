@@ -11,6 +11,31 @@ import {
   summarizeRatingCoverage,
   type RatingCoverageRow,
 } from "@/lib/pollShared";
+import { isClustered, type ClusterSignal } from "@/lib/pollClustering";
+import { Info } from "lucide-react";
+
+/** Human-readable label + title (the numbers) for an advisory clustering signal.
+ * "Advisory only" is repeated in every title deliberately -- this badge sits directly
+ * beside the "Needs N more" warning badge on the same row, and without the repetition it
+ * would read as a second blocker rather than the informational note it is. */
+function clusterLabel(cluster: ClusterSignal): { text: string; title: string } {
+  const parts: string[] = [];
+  const details: string[] = [];
+  if (cluster.burst) {
+    parts.push("same-day cluster");
+    details.push(`${cluster.maxInWindow} of ${cluster.total} responses arrived within 24 hours.`);
+  }
+  if (cluster.cohort) {
+    parts.push("one cohort year");
+    details.push(
+      `${cluster.dominantYearCount} of ${cluster.knownYearCount} responses with a known year share the same one.`
+    );
+  }
+  return {
+    text: `Advisory: ${parts.join(" + ")}`,
+    title: `${details.join(" ")} Advisory only — this does not delay or block anything.`,
+  };
+}
 
 type SortKey = "count" | "name";
 type SortDir = "asc" | "desc";
@@ -64,6 +89,11 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
           <span className="text-warning">{summary.below} below</span> (need ≥{" "}
           {MIN_RESPONSES_FOR_RATING})
         </p>
+        <p className="text-sm text-muted">
+          Advisory flags are informational only — they never delay or block a program. The
+          thank-you screen&rsquo;s WhatsApp share button only appears for programs whose public
+          poll link is on (/admin/polls/links).
+        </p>
       </div>
 
       <Card className="overflow-hidden">
@@ -82,12 +112,13 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
           >
             Responses{arrow("count")}
           </button>
-          <span className="w-32 text-right">Status</span>
+          <span className="w-44 text-right">Status</span>
         </div>
 
         <div className="flex flex-col divide-y divide-border">
           {sorted.map((row) => {
             const below = row.count < MIN_RESPONSES_FOR_RATING;
+            const cluster = row.cluster && isClustered(row.cluster) ? clusterLabel(row.cluster) : null;
             return (
               <div
                 key={row.id}
@@ -108,13 +139,19 @@ export default function RatingCoverageTable({ rows }: { rows: RatingCoverageRow[
                 >
                   {row.count}
                 </span>
-                <span className="flex w-32 justify-end">
+                <span className="flex w-44 flex-col items-end gap-1">
                   {below ? (
                     <Badge tone="warning">
                       Needs {MIN_RESPONSES_FOR_RATING - row.count} more
                     </Badge>
                   ) : (
                     <Badge tone="success">Ready</Badge>
+                  )}
+                  {cluster && (
+                    <Badge tone="info" title={cluster.title} className="items-center gap-1">
+                      <Info className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                      {cluster.text}
+                    </Badge>
                   )}
                 </span>
               </div>

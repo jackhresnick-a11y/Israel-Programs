@@ -25,6 +25,7 @@ function StatTile({ label, value }: { label: string; value: string }) {
  */
 export default function PollFunnelSummary({ summary }: { summary: FunnelSummary }) {
   const maxStopped = Math.max(1, ...summary.dropOffByPosition.map((b) => b.stoppedCount));
+  const maxUnlocked = Math.max(1, ...summary.unlocksPerWeek.map((w) => w.programsUnlocked));
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,6 +35,50 @@ export default function PollFunnelSummary({ summary }: { summary: FunnelSummary 
         <StatTile label="Fully completed" value={String(summary.totalFullyCompleted)} />
         <StatTile label="Completion rate" value={formatRate(summary.completionRate)} />
       </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="Share shown" value={String(summary.share.shown)} />
+        <StatTile label="Share clicked" value={String(summary.share.clicked)} />
+        <StatTile label="Share click rate" value={formatRate(summary.share.rate)} />
+      </div>
+
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+            Programs reaching {" "}
+            <span className="font-mono tabular-nums">{summary.unlocksPerWeek[0]?.programsUnlocked ?? 0}</span>
+            {" "}responses per week
+          </h2>
+          <p className="text-sm text-muted">
+            Recomputed against today&rsquo;s threshold and today&rsquo;s response statuses, so approving a
+            previously-flagged response can move which week a program&rsquo;s crossing falls into. Weeks are
+            UTC, Monday-start. Not the same thing as a program going public — that&rsquo;s a separate admin
+            toggle, not a response-count gate.
+          </p>
+        </div>
+        <Card className="p-4">
+          {summary.unlocksPerWeek.length === 0 ? (
+            <p className="text-sm text-muted">No programs have crossed the threshold yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {summary.unlocksPerWeek.map((week) => (
+                <div key={week.week} className="flex items-center gap-3">
+                  <span className="w-24 shrink-0 font-mono text-xs text-muted">{week.week}</span>
+                  <div className="h-3 flex-1 bg-border">
+                    <div
+                      className="h-full bg-primary"
+                      style={{ width: `${(week.programsUnlocked / maxUnlocked) * 100}%` }}
+                    />
+                  </div>
+                  <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-foreground">
+                    {week.programsUnlocked}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </section>
 
       <section className="flex flex-col gap-3">
         <div>
@@ -77,6 +122,7 @@ export default function PollFunnelSummary({ summary }: { summary: FunnelSummary 
             <span className="w-20 text-right">Counted</span>
             <span className="w-24 text-right">Completed</span>
             <span className="w-24 text-right">Rate</span>
+            <span className="w-20 text-right">Shares</span>
           </div>
           <div className="flex flex-col divide-y divide-border">
             {summary.programs.map((row) => (
@@ -93,6 +139,9 @@ export default function PollFunnelSummary({ summary }: { summary: FunnelSummary 
                 <span className="w-24 text-right tabular-nums text-foreground">{row.fullyCompleted}</span>
                 <span className="w-24 text-right font-mono text-xs tabular-nums text-muted">
                   {formatRate(row.completionRate)}
+                </span>
+                <span className="w-20 text-right font-mono text-xs tabular-nums text-muted" title="Share button clicked / shown">
+                  {row.shareClicked}/{row.shareShown}
                 </span>
               </div>
             ))}

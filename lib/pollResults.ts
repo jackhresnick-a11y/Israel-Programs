@@ -7,12 +7,14 @@ import { responseMeetsHistoricalSpread, type HistoricalQuestion } from "@/lib/po
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
 import {
   flattenResolvedQuestionIds,
+  MIN_RESPONSES_FOR_RATING,
   type PollSummaryDTO,
   type PollSummaryQuestionDTO,
   type PollSummaryBucketDTO,
   type PollReviewGroupDTO,
   type RatingCoverageRow,
 } from "@/lib/pollShared";
+import { computeClusterSignal, type ClusterResponseInput } from "@/lib/pollClustering";
 
 /** The one question every program's poll always carries (see the Core bucket seed) whose
  * answers we deliberately never surface -- no aggregate/overall scored number appears
@@ -35,10 +37,9 @@ export async function isPollKillSwitchOn(): Promise<boolean> {
   return value === "true";
 }
 
-/** Everything but `responseCount`/`minResponsesToPublish`, which vary per program even
- * in the empty-visibility path (see getProgramPollSummary) and so can't be baked into a
- * shared constant. */
-const EMPTY_SUMMARY_BASE: Omit<PollSummaryDTO, "responseCount" | "minResponsesToPublish"> = {
+/** Everything but `responseCount`, which varies per program even in the empty-visibility
+ * path (see getProgramPollSummary) and so can't be baked into a shared constant. */
+const EMPTY_SUMMARY_BASE: Omit<PollSummaryDTO, "responseCount"> = {
   visible: false,
   questions: [],
   buckets: [],
@@ -91,7 +92,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   ]);
 
   const visible = config.resultsVisible && !killSwitchOn;
-  if (!visible) return { ...EMPTY_SUMMARY_BASE, responseCount, minResponsesToPublish: config.minResponsesToPublish };
+  if (!visible) return { ...EMPTY_SUMMARY_BASE, responseCount };
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
@@ -226,7 +227,6 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
     editorialBestFor: config.editorialBestFor ?? null,
     varianceNote,
     responseCount,
-    minResponsesToPublish: config.minResponsesToPublish,
   };
 });
 
@@ -484,16 +484,49 @@ export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
     select: { id: true, name: true, slug: true },
   });
 
-  const rows = await Promise.all(
-    programs.map(async (p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      count: await countResponsesMeetingReadinessBar(p.id),
-    }))
-  );
+  const [rows, clusterInputsByProgram] = await Promise.all([
+    Promise.all(
+      programs.map(async (p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        count: await countResponsesMeetingReadinessBar(p.id),
+      }))
+    ),
+    loadClusterInputsByProgram(programs.map((p) => p.id)),
+  ]);
 
-  return rows.sort((a, b) => a.count - b.count || a.name.localeCompare(b.name));
+  const withCluster = rows.map((row) => ({
+    ...row,
+    // Advisory only, and only worth surfacing for a program still below threshold --
+    // once a program has enough responses there's nothing left to advise about, and
+    // computing/rendering the signal there would just be noise. See
+    // lib/pollClustering.ts's module doc comment for the "advisory only, never a gate"
+    // contract this must uphold.
+    cluster: row.count >= MIN_RESPONSES_FOR_RATING ? null : computeClusterSignal(clusterInputsByProgram.get(row.id) ?? []),
+  }));
+
+  return withCluster.sort((a, b) => a.count - b.count || a.name.localeCompare(b.name));
+}
+
+/** One bulk query for every published program's COUNTED responses (createdAt +
+ * yearAttended only), grouped in JS -- avoids an N+1 on top of the existing per-program
+ * countResponsesMeetingReadinessBar loop above. Bounded by total COUNTED responses across
+ * published programs (hundreds, not thousands), same acceptable-cost posture
+ * countResponsesMeetingReadinessBar's own doc comment already takes for this admin-only
+ * page. Covered by the existing @@index([programId, status, verified]). */
+async function loadClusterInputsByProgram(programIds: string[]): Promise<Map<string, ClusterResponseInput[]>> {
+  const responses = await prisma.pollResponse.findMany({
+    where: { programId: { in: programIds }, status: "COUNTED" },
+    select: { programId: true, createdAt: true, yearAttended: true },
+  });
+  const byProgram = new Map<string, ClusterResponseInput[]>();
+  for (const r of responses) {
+    const list = byProgram.get(r.programId) ?? [];
+    list.push({ createdAt: r.createdAt, yearAttended: r.yearAttended });
+    byProgram.set(r.programId, list);
+  }
+  return byProgram;
 }
 
 /**

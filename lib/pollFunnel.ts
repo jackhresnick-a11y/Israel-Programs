@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { POLL_ANALYTICS_EVENTS } from "@/lib/pollAnalytics";
+import { MIN_RESPONSES_FOR_RATING } from "@/lib/pollShared";
 
 /**
  * Aggregation over the poll funnel events lib/pollAnalytics.ts writes to AnalyticsEvent.
@@ -36,9 +37,27 @@ export type ProgramFunnelRow = {
    * from `counted` (which only needs the lighter readiness bar in lib/pollUnlock.ts).
    * Null when there are zero opens (nothing to divide by). */
   completionRate: number | null;
+  shareShown: number;
+  shareClicked: number;
 };
 
 export type DropOffBucket = { position: number; stoppedCount: number };
+
+/** One calendar week's count of programs whose Nth (MIN_RESPONSES_FOR_RATING) COUNTED
+ * response landed in that week -- see getUnlocksPerWeek's doc comment for why this is a
+ * derived approximation, not a true "unlocked" event. `week` is an ISO date string (the
+ * Monday that starts the week, UTC). */
+export type WeeklyUnlocksRow = { week: string; programsUnlocked: number };
+
+export type ShareTotals = {
+  shown: number;
+  clicked: number;
+  /** clicked / shown, clamped to [0, 1]. record() (lib/pollAnalytics.ts) swallows write
+   * failures, so a dropped `shown` write alongside a delivered `clicked` could otherwise
+   * push this over 100% -- the clamp keeps the number sane to display, at the cost of
+   * slightly underselling a rare edge case rather than showing something nonsensical. */
+  rate: number | null;
+};
 
 export type FunnelSummary = {
   totalOpens: number;
@@ -55,6 +74,10 @@ export type FunnelSummary = {
    * Sorted by stoppedCount descending so the biggest drop-off points sort first.
    */
   dropOffByPosition: DropOffBucket[];
+  share: ShareTotals;
+  /** See getUnlocksPerWeek's doc comment for the revisionist/UTC-week caveats -- these
+   * belong in any UI that renders this. */
+  unlocksPerWeek: WeeklyUnlocksRow[];
 };
 
 type MaxPositionRow = { responseId: string; maxPosition: number };
@@ -110,16 +133,80 @@ async function getDropOffByPosition(programId?: string): Promise<DropOffBucket[]
     .sort((a, b) => b.stoppedCount - a.stoppedCount || a.position - b.position);
 }
 
+type WeeklyUnlocksRawRow = { week: Date; programsUnlocked: bigint };
+
+/**
+ * Derived "programs reaching MIN_RESPONSES_FOR_RATING responses per week" -- deliberately
+ * NOT called "unlocked" in code or copy. There is no program-level unlock event or gate
+ * in this codebase (see lib/pollResults.ts's getProgramPollSummary doc comment: visibility
+ * is an admin toggle, `resultsVisible`, and publishing is per-question via
+ * minResponsesToPublish -- there's no single "this program just unlocked" moment to log).
+ * This instead finds, per program, the COUNTED response whose arrival brought that
+ * program's running total to MIN_RESPONSES_FOR_RATING, and buckets those moments by week.
+ *
+ * Two caveats that must travel with this number wherever it's shown:
+ * - Revisionist: computed against TODAY's MIN_RESPONSES_FOR_RATING and TODAY's response
+ *   statuses. Approving a previously-FLAGGED response, or changing the threshold, moves
+ *   which week a program's crossing falls into, after the fact.
+ * - UTC, Monday-start weeks (Postgres date_trunc('week', ...) default).
+ *
+ * Window function over PollResponse.createdAt, served by the existing
+ * @@index([programId, status, verified]) (programId, status prefix) plus an in-memory
+ * sort on createdAt within each partition -- no new index needed at current volumes.
+ */
+export async function getUnlocksPerWeek(): Promise<WeeklyUnlocksRow[]> {
+  const rows = await prisma.$queryRaw<WeeklyUnlocksRawRow[]>`
+    WITH ranked AS (
+      SELECT "programId", "createdAt",
+             ROW_NUMBER() OVER (PARTITION BY "programId" ORDER BY "createdAt" ASC) AS rn
+      FROM "PollResponse"
+      WHERE status = 'COUNTED'
+    )
+    SELECT date_trunc('week', "createdAt") AS week, COUNT(*)::int AS "programsUnlocked"
+    FROM ranked
+    WHERE rn = ${MIN_RESPONSES_FOR_RATING}
+    GROUP BY 1
+    ORDER BY 1 DESC
+    LIMIT 26
+  `;
+  return rows.map((r) => ({ week: r.week.toISOString().slice(0, 10), programsUnlocked: Number(r.programsUnlocked) }));
+}
+
+/** Sitewide totals for the two post-poll share events (share_button_shown /
+ * share_button_clicked -- see components/polls/WhatsAppShareButton.tsx). Reuses
+ * countDistinctResponsesByProgram's per-program maps rather than a separate query, since
+ * both the sitewide total and the per-program breakdown need the same underlying rows. */
+function summarizeShareTotals(
+  shownByProgram: Map<string, number>,
+  clickedByProgram: Map<string, number>
+): ShareTotals {
+  const shown = [...shownByProgram.values()].reduce((sum, n) => sum + n, 0);
+  const clicked = [...clickedByProgram.values()].reduce((sum, n) => sum + n, 0);
+  return { shown, clicked, rate: shown > 0 ? Math.min(1, clicked / shown) : null };
+}
+
 /** Every published program's funnel numbers, plus the sitewide aggregate and drop-off
  * histogram, for /admin/polls/funnel. Bounded by the published-program count (tens, not
  * thousands) on an admin-only page, same acceptable-cost posture as
  * lib/pollResults.ts's listRatingCoverage. */
 export async function getFunnelSummary(): Promise<FunnelSummary> {
-  const [opensByProgram, countedByProgram, fullyCompletedByProgram, dropOffByPosition, programs] = await Promise.all([
+  const [
+    opensByProgram,
+    countedByProgram,
+    fullyCompletedByProgram,
+    shareShownByProgram,
+    shareClickedByProgram,
+    dropOffByPosition,
+    unlocksPerWeek,
+    programs,
+  ] = await Promise.all([
     countDistinctResponsesByProgram(POLL_ANALYTICS_EVENTS.OPENED),
     countDistinctResponsesByProgram(POLL_ANALYTICS_EVENTS.COUNTED),
     countDistinctResponsesByProgram(POLL_ANALYTICS_EVENTS.FULLY_COMPLETED),
+    countDistinctResponsesByProgram(POLL_ANALYTICS_EVENTS.SHARE_SHOWN),
+    countDistinctResponsesByProgram(POLL_ANALYTICS_EVENTS.SHARE_CLICKED),
     getDropOffByPosition(),
+    getUnlocksPerWeek(),
     prisma.program.findMany({ where: { status: "PUBLISHED" }, select: { id: true, name: true, slug: true } }),
   ]);
 
@@ -136,6 +223,8 @@ export async function getFunnelSummary(): Promise<FunnelSummary> {
         counted,
         fullyCompleted,
         completionRate: opens > 0 ? fullyCompleted / opens : null,
+        shareShown: shareShownByProgram.get(p.id) ?? 0,
+        shareClicked: shareClickedByProgram.get(p.id) ?? 0,
       };
     })
     .filter((row) => row.opens > 0) // programs with zero poll traffic just clutter the list
@@ -152,5 +241,7 @@ export async function getFunnelSummary(): Promise<FunnelSummary> {
     completionRate: totalOpens > 0 ? totalFullyCompleted / totalOpens : null,
     programs: programRows,
     dropOffByPosition,
+    share: summarizeShareTotals(shareShownByProgram, shareClickedByProgram),
+    unlocksPerWeek,
   };
 }
