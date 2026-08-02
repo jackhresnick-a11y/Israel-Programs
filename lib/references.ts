@@ -59,30 +59,43 @@ export function isValidReferenceEmail(email: string): boolean {
 }
 
 /**
- * Creates a PENDING alumni Reference from an anonymous poll submission's single,
- * 18+-gated contact-email field. Entering the email under POLL_REFERENCE_CONSENT_LABEL is
- * itself the consent -- there is no separate contact-consent checkbox -- so the entire
- * gate is: `ageAttested === true` AND the email parses as valid. Anything else is a no-op.
+ * Creates a PENDING alumni Reference from a poll submission's single, 18+-gated
+ * contact-email field. Entering the email under POLL_REFERENCE_CONSENT_LABEL is itself the
+ * consent -- there is no separate contact-consent checkbox -- so the entire gate is:
+ * `ageAttested === true` AND the email parses as valid. Anything else is a no-op.
  *
- * Idempotency is enforced at the DB via @@unique([programId, pollEmailKey]) on the
- * normalized (trim+lowercase) email: the guarded upsert makes a re-submit with the same
- * email a deliberate no-op update, never a second row. `userId` is an opaque synthetic
- * (`poll:<responseId>`) because there is no Clerk user here -- it keeps the email out of
- * userId (only contactEmail/pollEmailKey hold it, both admin-gated) and never collides on
- * @@unique([programId, userId]).
+ * Idempotency is enforced at the DB, but against DIFFERENT uniques depending on whether we
+ * know who the respondent is:
  *
- * Cutover: this is only ever called with the email from the CURRENT submission's payload,
- * at submit time. It never reads PollResponse.email, and no backfill exists -- so
- * historical poll responses (whose emails predate this consent language) can never produce
- * a reference. The exact consent label + version are snapshotted onto the row as a
- * permanent record of what was agreed to.
+ * - **Anonymous** (`userId: null`): keyed on @@unique([programId, pollEmailKey]) over the
+ *   normalized (trim+lowercase) email -- the only identity available. `userId` gets an
+ *   opaque synthetic (`poll:<responseId>`) so it can never collide on
+ *   @@unique([programId, userId]) and so the email stays out of userId (only
+ *   contactEmail/pollEmailKey hold it, both admin-gated).
+ * - **Signed in**: keyed on @@unique([programId, userId]) over the real Clerk id. This
+ *   matters because components/ReferenceForm.tsx already creates references keyed that way:
+ *   without this branch, the same person offering to be a reference through both surfaces
+ *   would produce TWO rows for one program (differing on both uniques -- real userId +
+ *   null pollEmailKey vs. synthetic userId + set pollEmailKey), both landing in the pending
+ *   queue where an admin could publish each of them.
  *
- * The caller (submitAnonymousResponse) wraps this in try/catch so a failure here can never
- * fail the poll submission.
+ * Either way the update branch is a deliberate no-op: a re-submit must never create a
+ * second row nor disturb the original consent record.
+ *
+ * Cutover: this is only ever called with the email staged by the CURRENT response, at
+ * submit time. It never reads PollResponse.email, and no backfill exists -- so historical
+ * poll responses (whose emails predate this consent language) can never produce a
+ * reference. The exact consent label + version are snapshotted onto the row as a permanent
+ * record of what was agreed to.
+ *
+ * The caller (lib/pollResponses.ts's finalizeReferenceFromPoll) wraps this in try/catch so
+ * a failure here can never fail the poll submission.
  */
 export async function upsertReferenceFromPoll(input: {
   programId: string;
   pollResponseId: string;
+  /** The real Clerk id when the respondent was signed in; null on the anonymous path. */
+  userId?: string | null;
   email: string;
   ageAttested: boolean;
   yearAttended: number | null;
@@ -95,24 +108,26 @@ export async function upsertReferenceFromPoll(input: {
   const attendedText = input.yearAttended != null ? String(input.yearAttended) : "Not specified";
   const now = new Date();
 
+  const create = {
+    programId: input.programId,
+    userId: input.userId ?? `poll:${input.pollResponseId}`,
+    displayName: POLL_REFERENCE_DISPLAY_NAME,
+    contactEmail: email,
+    pollEmailKey,
+    pollResponseId: input.pollResponseId,
+    attendedText,
+    status: "PENDING" as const,
+    consentGiven: true,
+    consentAt: now,
+    consentLabel: POLL_REFERENCE_CONSENT_LABEL,
+    consentVersion: POLL_REFERENCE_CONSENT_VERSION,
+  };
+
   await prisma.reference.upsert({
-    where: { programId_pollEmailKey: { programId: input.programId, pollEmailKey } },
-    create: {
-      programId: input.programId,
-      userId: `poll:${input.pollResponseId}`,
-      displayName: POLL_REFERENCE_DISPLAY_NAME,
-      contactEmail: email,
-      pollEmailKey,
-      pollResponseId: input.pollResponseId,
-      attendedText,
-      status: "PENDING",
-      consentGiven: true,
-      consentAt: now,
-      consentLabel: POLL_REFERENCE_CONSENT_LABEL,
-      consentVersion: POLL_REFERENCE_CONSENT_VERSION,
-    },
-    // A resubmit with the same email must not create a second row and must not disturb the
-    // original consent record -- so the update branch is a deliberate no-op.
+    where: input.userId
+      ? { programId_userId: { programId: input.programId, userId: input.userId } }
+      : { programId_pollEmailKey: { programId: input.programId, pollEmailKey } },
+    create,
     update: {},
   });
 }

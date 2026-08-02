@@ -24,6 +24,10 @@ export type PollResponseRow = {
   status: "PENDING" | "INCOMPLETE" | "COUNTED" | "FLAGGED" | "VOIDED";
   flags: string[];
   ipHash: string;
+  /** When the respondent pressed "Submit ratings". Null means they never did -- a COUNTED
+   * response with a null submittedAt crossed the readiness bar via autosave and then walked
+   * away, which is a normal (not suspicious) state worth being able to see here. */
+  submittedAt: Date | null;
   createdAt: Date;
   answers: {
     questionId: string;
@@ -204,6 +208,7 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
           </Badge>
         ))}
         {response.referrerToken && <Badge tone="tag">via: {response.referrerToken.label}</Badge>}
+        {response.submittedAt === null && <Badge tone="neutral">Not submitted</Badge>}
         <span className="ml-auto text-xs text-muted">{new Date(response.createdAt).toLocaleString()}</span>
       </div>
       <div className="flex flex-wrap gap-3 text-xs text-muted">
@@ -213,6 +218,7 @@ function ResponseRow({ response }: { response: PollResponseRow }) {
           <span>attended: {response.yearAttended === 0 ? "Earlier" : response.yearAttended}</span>
         )}
         <span>ip hash: {response.ipHash.slice(0, 12)}…</span>
+        {response.submittedAt && <span>submitted: {new Date(response.submittedAt).toLocaleString()}</span>}
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
       <div className="flex flex-wrap gap-2">

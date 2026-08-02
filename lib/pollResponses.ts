@@ -100,14 +100,27 @@ export async function openSignedInResponse(input: {
 }
 
 /**
- * Poll-open for an anonymous respondent: resumes the client-supplied `resumeId` if it's
- * a real, still-INCOMPLETE response belonging to this program -- the client sources this
- * from localStorage (the same mechanism the old form-value draft used, now storing just
- * an id) -- never trusted beyond that one check; anything else about the supplied id is
- * ignored in favor of minting a fresh response. There is still no identity to dedupe an
- * anonymous respondent by, so a mismatched/expired/missing resumeId always gets a
- * brand-new INCOMPLETE row -- the anti-abuse flags, evaluated later at the moment this
- * response would cross the readiness bar, are still the only repeat-detection mechanism.
+ * Poll-open for an anonymous respondent: resumes the client-supplied `resumeId` if it's a
+ * real, non-VOIDED response belonging to this program -- the client sources this from
+ * localStorage (the same mechanism the old form-value draft used, now storing just an id)
+ * -- never trusted beyond those two checks; anything else about the supplied id is ignored
+ * in favor of minting a fresh response. There is still no identity to dedupe an anonymous
+ * respondent by, so a mismatched/missing resumeId always gets a brand-new INCOMPLETE row --
+ * the anti-abuse flags, evaluated later at the moment this response would cross the
+ * readiness bar, are still the only repeat-detection mechanism.
+ *
+ * The status filter was deliberately relaxed from `status: "INCOMPLETE"` when the explicit
+ * submit button shipped. A response crosses the readiness bar (INCOMPLETE -> COUNTED) via
+ * autosave partway through the form, but is no longer "finished" until the respondent
+ * presses Submit -- so the window in which a reload must resume rather than start over is
+ * now the entire rest of the poll, not the few milliseconds the old auto-thank-you left.
+ * Resuming COUNTED/FLAGGED here is what stops an ordinary mid-poll reload from minting a
+ * SECOND response for the same person (which also arrived pre-flagged REPEAT_IP +
+ * REPEAT_BROWSER, polluting moderation with a self-inflicted abuse signal).
+ *
+ * `submittedAt` is deliberately NOT part of this filter: an already-submitted response must
+ * still be resumable, because that's what lets the client see `submittedAt` in the open
+ * payload and re-render the thank-you screen instead of a blank duplicate form.
  */
 export async function openAnonymousResponse(input: {
   programId: string;
@@ -118,7 +131,7 @@ export async function openAnonymousResponse(input: {
 }) {
   if (input.resumeId) {
     const existing = await prisma.pollResponse.findFirst({
-      where: { id: input.resumeId, programId: input.programId, status: "INCOMPLETE" },
+      where: { id: input.resumeId, programId: input.programId, status: { not: "VOIDED" } },
       include: { answers: true },
     });
     if (existing) return existing;
@@ -282,26 +295,98 @@ async function maybeTransition(
   }
   trackPollCounted(programId, responseId, status);
 
-  // Best-effort: turn the 18+-gated contact email (already autosaved via the details
-  // endpoint) into a PENDING alumni Reference. Wrapped so a failure can NEVER fail the
-  // transition -- the response's new status is already persisted regardless. COUNTED
-  // only: a FLAGGED transition never spawns a reference, even with a valid email and
-  // 18+ attested.
-  if (response.referenceEmail && status === "COUNTED") {
-    try {
-      await upsertReferenceFromPoll({
-        programId,
-        pollResponseId: responseId,
-        email: response.referenceEmail,
-        ageAttested: response.ageAttested,
-        yearAttended: response.yearAttended,
-      });
-    } catch (err) {
-      console.error("upsertReferenceFromPoll failed for poll response", responseId, err);
-    }
-  }
-
+  // NOTE: reference creation deliberately does NOT happen here anymore -- see
+  // finalizeReferenceFromPoll below. Crossing the readiness bar happens partway through
+  // the form, before the respondent has reached (let alone filled in) the contact-email
+  // field that sits at the very bottom, so reading `referenceEmail` at this moment found
+  // it null for essentially every real respondent and the reference was never created.
   return { status };
+}
+
+/**
+ * Records that the respondent pressed the explicit "Submit ratings" button.
+ *
+ * Deliberately writes NOTHING but `submittedAt`. It must never touch `status`, `flags`,
+ * `verified`, `naQuestionIds`, or any PollAnswer row -- that invariant is the entire reason
+ * submitting can't change what counts toward unlock. Whether a response counts is decided
+ * solely by the readiness bar in maybeTransition above, reached through ordinary autosave,
+ * and is completely unaffected by this call. Submitting is therefore legal (and a no-op for
+ * public math) on a response that never crossed the bar.
+ *
+ * The `submittedAt: null` in the where-clause makes the first stamp win: a re-submit
+ * (the signed-in "update your rating" path can legitimately submit twice) leaves the
+ * original timestamp alone. `count === 0` therefore means "already submitted, or VOIDED" --
+ * NOT an error, and deliberately not an early return in the caller, which still needs to
+ * finalize the reference and report the current status.
+ */
+export async function markSubmitted(responseId: string): Promise<{ status: PollResponseStatus; submittedAt: Date } | null> {
+  await prisma.pollResponse.updateMany({
+    where: { id: responseId, submittedAt: null, status: { not: "VOIDED" } },
+    data: { submittedAt: new Date() },
+  });
+  const fresh = await prisma.pollResponse.findUnique({
+    where: { id: responseId },
+    select: { status: true, submittedAt: true },
+  });
+  if (!fresh) return null;
+  return { status: fresh.status, submittedAt: fresh.submittedAt ?? new Date() };
+}
+
+/**
+ * Turns the 18+-gated contact email (already autosaved to PollResponse.referenceEmail via
+ * the details endpoint) into a PENDING alumni Reference. Called at submit, which is the
+ * only moment the email is guaranteed to be both present and final -- the field is the last
+ * block on the form, and the client flushes every pending debounced save before POSTing
+ * submit.
+ *
+ * This replaces the old call site inside maybeTransition, which fired at readiness-bar
+ * crossing -- i.e. before the respondent had reached the email field at all -- and so
+ * silently created nothing. Deliberately NOT also called from addDetailAnswersAndReviews:
+ * that runs on every debounced keystroke, so a half-typed address that happens to parse
+ * (`a@b.co` en route to `a@b.com`) would create a Reference keyed on the wrong pollEmailKey
+ * that the upsert's `update: {}` no-op would then never correct.
+ *
+ * **The gate is the email plus the 18+ attestation -- deliberately NOT `status === COUNTED`.**
+ * Entering the address under POLL_REFERENCE_CONSENT_LABEL *is* the consent to be listed as
+ * an alumnus of this program (the Jul 28 decision); how much of the ratings poll the person
+ * went on to answer is an unrelated question about ratings data quality. Gating on COUNTED
+ * discarded willing references for a reason that has nothing to do with what they consented
+ * to -- and the poll has produced 8 references in its entire history, so there was nothing
+ * to spare. A reference lands PENDING and an admin still vets it before anything is
+ * published, which is where quality is actually enforced.
+ *
+ * VOIDED is the one status still excluded: voiding a response is an explicit "erase this",
+ * and honouring it costs nothing since a voided response can't be submitted anyway.
+ *
+ * Idempotent by DB constraint, so re-submitting can't produce a duplicate. Wrapped so a
+ * failure can never fail the submit -- the submission itself is already persisted.
+ */
+export async function finalizeReferenceFromPoll(responseId: string): Promise<void> {
+  const response = await prisma.pollResponse.findUnique({
+    where: { id: responseId },
+    select: {
+      programId: true,
+      userId: true,
+      status: true,
+      referenceEmail: true,
+      ageAttested: true,
+      yearAttended: true,
+    },
+  });
+  if (!response || response.status === "VOIDED" || !response.referenceEmail) return;
+
+  try {
+    await upsertReferenceFromPoll({
+      programId: response.programId,
+      pollResponseId: responseId,
+      userId: response.userId,
+      email: response.referenceEmail,
+      ageAttested: response.ageAttested,
+      yearAttended: response.yearAttended,
+    });
+  } catch (err) {
+    console.error("upsertReferenceFromPoll failed for poll response", responseId, err);
+  }
 }
 
 /**

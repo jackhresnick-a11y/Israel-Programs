@@ -14,10 +14,17 @@ export default function Footer() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
+  // /rate is hidden for the same reason AssistantWidgetMount hides there: this footer's
+  // "Ask us" block is an email input plus a submit button, and on the poll page it lands
+  // directly beneath the poll's own contact-email field and its Submit button. Two email
+  // inputs and two submit buttons within a thumb's reach of each other all but guarantees
+  // respondents type their address into the wrong one -- and that address would become a
+  // Lead (a sales enquiry) instead of the alumni reference they meant to offer.
   const hidden =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/sign-in") ||
-    pathname.startsWith("/sign-up");
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/rate");
   if (hidden) return null;
 
   async function handleSubmit(e: React.FormEvent) {

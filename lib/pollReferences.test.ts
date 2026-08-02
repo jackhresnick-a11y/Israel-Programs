@@ -52,6 +52,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       referenceEmail: string | null;
       ageAttested: boolean;
       yearAttended: number | null;
+      submittedAt: Date | null;
     };
     type PollAnswerRow = { responseId: string; questionId: string; value: number };
 
@@ -73,15 +74,24 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       reference: {
         upsert: vi.fn(
           async (args: {
-            where: { programId_pollEmailKey: { programId: string; pollEmailKey: string } };
+            where: {
+              programId_pollEmailKey?: { programId: string; pollEmailKey: string };
+              programId_userId?: { programId: string; userId: string };
+            };
             create: Record<string, unknown>;
             update?: Record<string, unknown>;
           }) => {
           if (db.upsertError) throw db.upsertError;
-          const { programId, pollEmailKey } = args.where.programId_pollEmailKey;
-          const existing = db.references.find(
-            (r) => r.programId === programId && r.pollEmailKey === pollEmailKey
-          );
+          // Two uniques, matching lib/references.ts: signed-in poll references key on the
+          // real Clerk id, anonymous ones on the normalized email.
+          const byUser = args.where.programId_userId;
+          const existing = byUser
+            ? db.references.find((r) => r.programId === byUser.programId && r.userId === byUser.userId)
+            : db.references.find(
+                (r) =>
+                  r.programId === args.where.programId_pollEmailKey!.programId &&
+                  r.pollEmailKey === args.where.programId_pollEmailKey!.pollEmailKey
+              );
           if (existing) {
             Object.assign(existing, args.update ?? {});
             return existing;
@@ -145,6 +155,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
             referenceEmail: args.data.referenceEmail ?? null,
             ageAttested: args.data.ageAttested ?? false,
             yearAttended: args.data.yearAttended ?? null,
+            submittedAt: args.data.submittedAt ?? null,
           };
           db.pollResponses.push(row);
           return row;
@@ -158,8 +169,11 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
         findFirst: vi.fn(async (args: { where: Record<string, unknown> }) => {
           return db.pollResponses.find((r) =>
             Object.entries(args.where).every(([k, v]) => {
-              if (k === "status" && v && typeof v === "object" && "in" in (v as object)) {
-                return (v as { in: string[] }).in.includes(r.status);
+              if (v && typeof v === "object" && "in" in (v as object)) {
+                return (v as { in: string[] }).in.includes(String((r as Record<string, unknown>)[k]));
+              }
+              if (v && typeof v === "object" && "not" in (v as object)) {
+                return (r as Record<string, unknown>)[k] !== (v as { not: unknown }).not;
               }
               return (r as Record<string, unknown>)[k] === v;
             })
@@ -171,14 +185,24 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
           Object.assign(row, args.data);
           return row;
         }),
-        updateMany: vi.fn(async (args: { where: { id: string; status?: string }; data: Partial<PollResponseRow> }) => {
-          const row = db.pollResponses.find(
-            (r) => r.id === args.where.id && (args.where.status === undefined || r.status === args.where.status)
-          );
-          if (!row) return { count: 0 };
-          Object.assign(row, args.data);
-          return { count: 1 };
-        }),
+        updateMany: vi.fn(
+          async (args: {
+            where: { id: string; status?: string | { not?: string }; submittedAt?: Date | null };
+            data: Partial<PollResponseRow>;
+          }) => {
+            const row = db.pollResponses.find((r) => {
+              if (r.id !== args.where.id) return false;
+              const st = args.where.status;
+              if (typeof st === "string" && r.status !== st) return false;
+              if (st && typeof st === "object" && "not" in st && r.status === st.not) return false;
+              if (args.where.submittedAt === null && r.submittedAt !== null) return false;
+              return true;
+            });
+            if (!row) return { count: 0 };
+            Object.assign(row, args.data);
+            return { count: 1 };
+          }
+        ),
       },
       pollAnswer: {
         createMany: vi.fn(async () => ({ count: 0 })),
@@ -262,7 +286,8 @@ const {
   countRecentPendingReferences,
   POLL_REFERENCE_DISPLAY_NAME,
 } = await import("./references");
-const { openAnonymousResponse, saveAnswer, addDetailAnswersAndReviews } = await import("./pollResponses");
+const { openAnonymousResponse, saveAnswer, addDetailAnswersAndReviews, markSubmitted, finalizeReferenceFromPoll } =
+  await import("./pollResponses");
 const { POLL_REFERENCE_CONSENT_LABEL, POLL_REFERENCE_CONSENT_VERSION } = await import("./pollShared");
 
 /** Opens a fresh anonymous response, then autosaves all 3 (mocked) Core questions --
@@ -277,6 +302,9 @@ async function openAndCrossReadinessBar(overrides: {
   referenceEmail?: string | null;
   ageAttested?: boolean;
   hasBrowserMarker?: boolean;
+  /** Set false to model a respondent who filled the form but walked away without pressing
+   *  Submit -- their response still counts, but no reference is created. */
+  submit?: boolean;
 } = {}) {
   const response = await openAnonymousResponse({
     programId: "prog_1",
@@ -284,6 +312,22 @@ async function openAndCrossReadinessBar(overrides: {
     ipHash: "hash",
     presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
   });
+  // Answers FIRST, contact email SECOND -- the real UI order. The email field is the last
+  // block on the form, so a respondent working top-to-bottom crosses the readiness bar
+  // (which fires on the third answer here) before the email exists at all. The previous
+  // version of this fixture staged the email first, which is the inverse of what any real
+  // respondent does, and is why the reference bug this ordering now guards against went
+  // unnoticed for so long.
+  for (const questionId of ["q_core_1", "q_core_2", "q_core_3"]) {
+    await saveAnswer({
+      responseId: response.id,
+      questionId,
+      questionVersion: 1,
+      value: 5,
+      na: false,
+      hasBrowserMarker: overrides.hasBrowserMarker ?? false,
+    });
+  }
   if (overrides.referenceEmail !== undefined || overrides.ageAttested !== undefined) {
     await addDetailAnswersAndReviews(
       response.id,
@@ -294,31 +338,12 @@ async function openAndCrossReadinessBar(overrides: {
       { referenceEmail: overrides.referenceEmail ?? undefined, ageAttested: overrides.ageAttested ?? undefined }
     );
   }
-  await saveAnswer({
-    responseId: response.id,
-    questionId: "q_core_1",
-    questionVersion: 1,
-    value: 5,
-    na: false,
-    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
-  });
-  await saveAnswer({
-    responseId: response.id,
-    questionId: "q_core_2",
-    questionVersion: 1,
-    value: 5,
-    na: false,
-    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
-  });
-  const result = await saveAnswer({
-    responseId: response.id,
-    questionId: "q_core_3",
-    questionVersion: 1,
-    value: 5,
-    na: false,
-    hasBrowserMarker: overrides.hasBrowserMarker ?? false,
-  });
-  return { responseId: response.id, status: result.status };
+  if (overrides.submit !== false) {
+    await markSubmitted(response.id);
+    await finalizeReferenceFromPoll(response.id);
+  }
+  const fresh = await fakePrisma.pollResponse.findUnique({ where: { id: response.id }, select: { status: true } });
+  return { responseId: response.id, status: (fresh as { status: string }).status };
 }
 
 beforeEach(() => resetDb());
@@ -452,6 +477,119 @@ describe("autosave/readiness-transition ↔ reference integration", () => {
     expect(snapshot().references).toHaveLength(1); // but one reference
   });
 
+  /**
+   * Regression: the email is typed AFTER the readiness bar has already been crossed --
+   * which is what every real respondent does, since the field is the last block on the
+   * form. Reference creation used to hang off the bar-crossing transition, so at that
+   * moment referenceEmail was still null and nothing was ever created; the later detail
+   * autosave wrote the email but never re-ran the transition (the response was no longer
+   * INCOMPLETE). Creating the reference at submit instead is what makes this pass.
+   */
+  it("email typed after the bar is already crossed still produces a reference (submit is the trigger)", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    for (const questionId of ["q_core_1", "q_core_2", "q_core_3"]) {
+      await saveAnswer({ responseId: response.id, questionId, questionVersion: 1, value: 5, na: false, hasBrowserMarker: false });
+    }
+    // Bar already crossed, and nothing exists yet -- this is the state the old code left
+    // permanently.
+    expect(snapshot().pollResponses[0].status).toBe("COUNTED");
+    expect(snapshot().references).toHaveLength(0);
+
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "late@example.com",
+      ageAttested: true,
+    });
+    expect(snapshot().references).toHaveLength(0); // still nothing -- autosave must not create it
+
+    await markSubmitted(response.id);
+    await finalizeReferenceFromPoll(response.id);
+    expect(snapshot().references).toHaveLength(1);
+    expect(snapshot().references[0].contactEmail).toBe("late@example.com");
+  });
+
+  it("crossing the bar but never submitting counts the response and creates no reference", async () => {
+    await openAndCrossReadinessBar({ referenceEmail: "alum@example.com", ageAttested: true, submit: false });
+    expect(snapshot().pollResponses[0].status).toBe("COUNTED");
+    expect(snapshot().pollResponses[0].submittedAt).toBeNull();
+    expect(snapshot().references).toHaveLength(0);
+  });
+
+  it("submitting twice stays exactly 1 reference and keeps the first submittedAt", async () => {
+    const { responseId } = await openAndCrossReadinessBar({ referenceEmail: "alum@example.com", ageAttested: true });
+    const firstStamp = snapshot().pollResponses[0].submittedAt;
+    expect(firstStamp).not.toBeNull();
+
+    await markSubmitted(responseId);
+    await finalizeReferenceFromPoll(responseId);
+    expect(snapshot().references).toHaveLength(1);
+    expect(snapshot().pollResponses[0].submittedAt).toEqual(firstStamp);
+  });
+
+  it("submit never changes status -- a sub-bar response stays INCOMPLETE and uncounted", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    // One answer only -- nowhere near the floor of 3.
+    await saveAnswer({ responseId: response.id, questionId: "q_core_1", questionVersion: 1, value: 5, na: false, hasBrowserMarker: false });
+
+    const result = await markSubmitted(response.id);
+
+    expect(result?.status).toBe("INCOMPLETE");
+    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE");
+    expect(snapshot().pollResponses[0].submittedAt).not.toBeNull();
+  });
+
+  /**
+   * The consent gate is the email + the 18+ attestation, NOT the readiness bar. Someone who
+   * typed a real address under POLL_REFERENCE_CONSENT_LABEL consented to be listed as an
+   * alumnus of this program; how many rating questions they went on to answer is a separate
+   * question about ratings data. A reference still lands PENDING for admin review.
+   */
+  it("uncounted (INCOMPLETE) submit with email + 18+ still creates a reference", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await saveAnswer({ responseId: response.id, questionId: "q_core_1", questionVersion: 1, value: 5, na: false, hasBrowserMarker: false });
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+    });
+
+    await markSubmitted(response.id);
+    await finalizeReferenceFromPoll(response.id);
+
+    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE"); // still doesn't count
+    expect(snapshot().references).toHaveLength(1); // but the consent is honoured
+    expect(snapshot().references[0].status).toBe("PENDING");
+  });
+
+  it("submit without 18+ attested still creates no reference, whatever the status", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "alum@example.com",
+      ageAttested: false,
+    });
+    await markSubmitted(response.id);
+    await finalizeReferenceFromPoll(response.id);
+    expect(snapshot().references).toHaveLength(0);
+  });
+
   it("reference write throwing never fails the transition", async () => {
     setUpsertError(new Error("db down"));
     const { responseId, status } = await openAndCrossReadinessBar({
@@ -464,18 +602,35 @@ describe("autosave/readiness-transition ↔ reference integration", () => {
     expect(snapshot().references).toHaveLength(0);
   });
 
-  it("FLAGGED transition (repeat browser) + valid email + 18+ → 0 references", async () => {
-    // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED. A valid email + 18+ still
-    // creates NO reference; only a COUNTED transition does.
+  it("FLAGGED transition (repeat browser) + valid email + 18+ → reference still created", async () => {
+    // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED, which holds the RATING back
+    // from public aggregates. The consent to be listed as a reference is a separate claim
+    // and is still honoured; the row lands PENDING, so an admin reviews it either way.
     const { status } = await openAndCrossReadinessBar({
       referenceEmail: "alum@example.com",
       ageAttested: true,
       hasBrowserMarker: true,
     });
     expect(status).toBe("FLAGGED");
-    expect(snapshot().pollResponses).toHaveLength(1); // poll response still saved
-    expect(snapshot().references).toHaveLength(0); // but no reference
-    expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
+    expect(snapshot().pollResponses).toHaveLength(1);
+    expect(snapshot().references).toHaveLength(1);
+    expect(snapshot().references[0].status).toBe("PENDING");
+  });
+
+  it("a VOIDED response never creates a reference", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+    });
+    await fakePrisma.pollResponse.update({ where: { id: response.id }, data: { status: "VOIDED" } });
+    await finalizeReferenceFromPoll(response.id);
+    expect(snapshot().references).toHaveLength(0);
   });
 
   it("an abandoned INCOMPLETE response (never crossing the readiness bar) never triggers a reference", async () => {

@@ -38,7 +38,8 @@ export default function ProgramProgressLine({ programId }: { programId: string }
   return (
     <p data-poll-progress role="status" aria-live="polite" className="text-center text-sm text-muted">
       <span className="font-mono tabular-nums text-foreground">{count}</span>{" "}
-      {count === 1 ? "response so far" : "responses so far"} — help this program&rsquo;s page go live.
+      {count === 1 ? "response so far" : "responses so far"}
+      {" — help this program’s page go live."}
     </p>
   );
 }

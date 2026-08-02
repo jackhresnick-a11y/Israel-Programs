@@ -22,6 +22,7 @@ export const POLL_ANALYTICS_EVENTS = {
   PAGE_COMPLETED: "poll_page_completed",
   COUNTED: "poll_counted",
   FULLY_COMPLETED: "poll_fully_completed",
+  SUBMITTED: "poll_submitted",
   // Spread from lib/pollShared.ts's POLL_SHARE_EVENTS (the client-safe boundary, no
   // Prisma import) rather than redefined here, so there is exactly one source of event
   // type strings even though these two are emitted via a client-triggered route
@@ -91,6 +92,18 @@ export function trackPollCounted(programId: string, responseId: string, status: 
  * response is actually, fully done, and it never throws into the caller (including if
  * `after()` itself is unavailable outside a request scope -- see record()'s doc comment).
  */
+/** Fires when the respondent presses the explicit "Submit ratings" button. Deliberately
+ * distinct from `poll_counted` (which fires when autosave crosses the readiness bar,
+ * usually partway through the form): the gap between the two is the "crossed the bar but
+ * walked away without submitting" cohort, which is the only way to tell whether adding the
+ * submit button cost the referral loop its reach -- the thank-you screen, and therefore the
+ * WhatsApp share CTA, is now reachable ONLY through submit. `status` records what the
+ * response actually was at submit time, so a submit that never crossed the bar
+ * (INCOMPLETE -- submit is never gated on completeness) is distinguishable. */
+export function trackPollSubmitted(programId: string, responseId: string, status: string): void {
+  record(POLL_ANALYTICS_EVENTS.SUBMITTED, { programId, responseId, status });
+}
+
 /** The two post-poll share events (share_button_shown / share_button_clicked), fired from
  * app/api/polls/events/route.ts after it resolves programId from the given responseId
  * server-side. Reuses record() -- same after() + swallow-everything posture as every

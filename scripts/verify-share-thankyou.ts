@@ -167,9 +167,65 @@ async function answerToReadinessBar(page: Page, targetKeys: string[]) {
     await optionButtons.nth(Math.min(2, count - 1)).click();
   }
   // Each answer is its own debounced (600ms) autosave timer -- wait for the last one
-  // to fire and the resulting maybeTransition to land before checking for the thank-you
-  // panel.
+  // to fire and the resulting readiness transition to land before submitting. (The submit
+  // handler flushes pending saves itself, so this wait is belt-and-braces rather than
+  // load-bearing.)
   await page.waitForTimeout(1200);
+}
+
+/** The thank-you panel is reachable ONLY through the explicit submit button now -- crossing
+ * the readiness bar no longer routes anywhere by itself. Checks the button's own style-guide
+ * compliance on the way past, since it's the poll's primary control. */
+async function submitPoll(page: Page, pageLabel: string) {
+  const submit = page.locator("[data-poll-submit]");
+  await submit.scrollIntoViewIfNeeded();
+
+  const box = await submit.boundingBox();
+  if (!box || box.height < 44) {
+    record(pageLabel, "touch-target", `submit button height ${box?.height} < 44px`);
+  }
+  const style = await submit.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { boxShadow: cs.boxShadow, borderRadius: cs.borderRadius, backgroundImage: cs.backgroundImage };
+  });
+  if (style.boxShadow !== "none") record(pageLabel, "style-guide", `submit boxShadow is "${style.boxShadow}", expected "none"`);
+  if (style.borderRadius !== "4px") record(pageLabel, "style-guide", `submit borderRadius is "${style.borderRadius}", expected "4px"`);
+  if (style.backgroundImage !== "none") record(pageLabel, "style-guide", `submit backgroundImage is "${style.backgroundImage}", expected "none"`);
+
+  // Never two "Submit ratings" buttons visible at once (style guide §7) -- the sticky bar
+  // reveals its own copy only while the inline one is off screen.
+  const visibleSubmits = await page.evaluate(() =>
+    [...document.querySelectorAll("button")].filter(
+      (b) => /submit ratings/i.test(b.textContent ?? "") && b.getBoundingClientRect().height > 0
+    ).length
+  );
+  if (visibleSubmits > 1) {
+    record(pageLabel, "duplicate-submit", `${visibleSubmits} "Submit ratings" buttons rendered at once`);
+  }
+
+  // A blocked or failed submit must never be a silent no-op: if the form is in a broken
+  // state (e.g. poll-open 500'd because a migration hadn't been applied), the respondent
+  // has to be told rather than left tapping a dead button.
+  const preExistingError = await page.locator("[data-poll-error]").count();
+  if (preExistingError > 0) {
+    const text = await page.locator("[data-poll-error]").first().innerText();
+    record(pageLabel, "form-error", `form reported an error before submit: "${text}"`);
+  }
+
+  await submit.click();
+
+  // Either we navigate to the confirmation, or an error is on screen. Never neither.
+  const outcome = await Promise.race([
+    page.waitForSelector("[data-poll-thankyou]", { timeout: 15000 }).then(() => "thankyou" as const),
+    page.waitForSelector("[data-poll-error]", { timeout: 15000 }).then(() => "error" as const),
+  ]).catch(() => "silent" as const);
+
+  if (outcome === "silent") {
+    record(pageLabel, "silent-submit", "submit produced neither the thank-you panel nor a visible error");
+  } else if (outcome === "error") {
+    const text = await page.locator("[data-poll-error]").first().innerText();
+    record(pageLabel, "submit-failed", `submit surfaced an error: "${text}"`);
+  }
 }
 
 async function main() {
@@ -232,6 +288,7 @@ async function main() {
     await page.waitForSelector("[data-poll-mode]", { timeout: 15000 });
 
     await answerToReadinessBar(page, target.targetKeys);
+    await submitPoll(page, `${target.label}@${target.viewport.label}`);
     await checkThankYouPanel(page, `${target.label}@${target.viewport.label}`, target.expectedRef);
     await checkOverflow(page, `${target.label}@${target.viewport.label}`, target.viewport.width);
 
