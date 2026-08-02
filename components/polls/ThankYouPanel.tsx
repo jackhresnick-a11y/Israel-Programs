@@ -21,6 +21,7 @@ export default function ThankYouPanel({
   programName,
   responseId,
   sharePollLink,
+  counted,
   headline,
   postPollCta,
 }: {
@@ -33,16 +34,32 @@ export default function ThankYouPanel({
   programName: string;
   responseId: string | null;
   sharePollLink: string | null;
+  /** Whether this response actually crossed the readiness bar. False when the respondent
+   *  pressed Submit having answered too little to count -- which is allowed, since submit
+   *  is deliberately never gated on completeness. */
+  counted: boolean;
   headline: string;
   postPollCta: PartnerLinkSlot | null;
 }) {
   return (
     <div data-poll-mode={mode} data-poll-thankyou className="flex flex-col gap-6">
-      <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
+      <div
+        className={
+          counted
+            ? "rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success"
+            : "rounded border border-border bg-surface-muted p-6 text-center text-sm font-medium text-foreground"
+        }
+      >
         {headline}
       </div>
-      <ProgramProgressLine programId={programId} />
-      <WhatsAppShareButton programName={programName} sharePollLink={sharePollLink} responseId={responseId} />
+      {/* Both suppressed for an uncounted response: the progress line would be talking
+          about a program this response didn't contribute to, and asking someone who
+          answered two questions to recruit their whole program group is both off-brand and
+          a way to pollute share_button_shown with respondents who have nothing to share. */}
+      {counted && <ProgramProgressLine programId={programId} />}
+      {counted && (
+        <WhatsAppShareButton programName={programName} sharePollLink={sharePollLink} responseId={responseId} />
+      )}
       <PartnerCta slot={postPollCta} />
     </div>
   );

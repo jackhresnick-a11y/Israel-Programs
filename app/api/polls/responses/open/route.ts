@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         status: response.status,
         answers: Object.fromEntries(response.answers.map((a: { questionId: string; value: number }) => [a.questionId, a.value])),
         naQuestionIds: response.naQuestionIds,
+        submittedAt: response.submittedAt?.toISOString() ?? null,
       });
     }
 
@@ -79,6 +80,9 @@ export async function POST(request: Request) {
       status: response.status,
       answers: Object.fromEntries(response.answers.map((a: { questionId: string; value: number }) => [a.questionId, a.value])),
       naQuestionIds: response.naQuestionIds,
+      // Non-null means this respondent already pressed Submit -- the anonymous client uses
+      // it to re-render the thank-you screen on reload instead of a blank duplicate form.
+      submittedAt: response.submittedAt?.toISOString() ?? null,
     });
   } catch (err) {
     if (err instanceof ZodError) {

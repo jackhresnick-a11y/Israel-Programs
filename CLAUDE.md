@@ -81,7 +81,7 @@ platforms — no mocks needed, since that module has no DB or network dependency
 `lib/pollShared.test.ts`/`lib/pollBestFor.test.ts`/`lib/contactOptIn.test.ts` (the
 alumni-ratings question resolver and skip/consent submission rules, the "Best for" strip's
 tier-weighted ranking, and the CTA/contact-opt-in gating — see "Alumni ratings" below),
-`lib/pollUnlock.test.ts` (majority-of-Core computation plus the historical, createdAt-aware
+`lib/pollUnlock.test.ts` (the bucket-spread readiness bar plus the historical, createdAt-aware
 readiness definition), `lib/pollUnlock.decideStatus.test.ts`/`lib/pollTokens.test.ts` (the
 repeat-ip and token-cap anti-abuse checks, proving an abandoned `INCOMPLETE` response can
 never flag or cap out its own later, real completion), `lib/pollReferences.test.ts` (the
@@ -748,13 +748,19 @@ latter is now dormant, see below); `20260717145712_add_poll_reviews_and_skip_sna
 constraints or partial indexes — **never run `prisma db push` against this schema**, it
 silently drops all of them.
 
-The rating form is a single continuous page with no submit button — every answer, review,
-and contact field autosaves independently the moment it changes (debounced client-side).
-A `PollResponse` is created the instant the poll page opens, starting life inert
-(`status: INCOMPLETE`) and only becoming real (`COUNTED`/`FLAGGED`) once the respondent
-crosses a majority-of-Core-questions "unlock" bar — see "Autosave and the unlock
-transition" below, which replaced an earlier one-shot "answer everything, click submit"
-design entirely (there is no `POST /api/polls/responses` route anymore).
+The rating form is a single continuous page where **every answer, review, and contact field
+autosaves independently the moment it changes** (debounced client-side). A `PollResponse` is
+created the instant the poll page opens, starting life inert (`status: INCOMPLETE`) and only
+becoming real (`COUNTED`/`FLAGGED`) once the respondent crosses the readiness bar — see
+"Autosave and the unlock transition" below. That replaced an earlier one-shot "answer
+everything, click submit" design entirely: there is still no route that accepts a whole
+form's worth of answers at once.
+
+There **is** an explicit submit button (`POST /api/polls/responses/[id]/submit`), but it is
+navigation plus a completion flag, not a save — see "The explicit submit action" below. It
+writes only `PollResponse.submittedAt` and never `status`/`flags`/`verified`/answers, so
+whether a response counts is decided solely by autosave crossing the readiness bar and is
+completely unaffected by pressing (or never pressing) submit.
 
 **Public math counts every response where `status = COUNTED` — `verified` is
 deliberately NOT part of the gate, and neither is `INCOMPLETE`.** `PollResponseStatus` is
@@ -775,6 +781,15 @@ kept because Postgres can't drop an enum value) — don't confuse it with `INCOM
 a different, actively-used concept (see below); a *new* response is never written
 `PENDING` by any live code path.
 
+⚠️ **Never add `submittedAt: { not: null }` to the COUNTED gate either.** `submittedAt`
+(the explicit submit button, below) is deliberately orthogonal to `status`, and every
+response predating that column is `null` — requiring it would silently drop the entire
+existing corpus out of every published score, exactly like the `verified` trap above. The
+two states are genuinely independent in both directions: a response can be COUNTED with
+`submittedAt` null (crossed the bar via autosave, then closed the tab) or INCOMPLETE with
+`submittedAt` set (pressed submit having answered too little to count — allowed, since
+submit is never gated on completeness).
+
 **Every question is skippable, and a skip is the *absence* of a row — never a stored
 null or sentinel.** Inputs start unanswered (no pre-fill): tapping a value selects it,
 tapping the same value again clears it. An **N/A checkbox** beside every question
@@ -786,10 +801,9 @@ writing a `PollAnswer` row, same as an ordinary skip. The two are tracked as gen
 different states, not just different labels for the same `value === null`: an N/A'd
 question is a positive, recorded signal ("doesn't apply to me"), while a merely-untouched
 question carries no signal at all — `naQuestionIds` is what lets `/admin/polls/moderation`
-tell them apart (see below). N/A counts the *same as an answer* toward the majority-of-Core
-unlock bar (see below) — marking N/A on a Core question can cross the threshold and
-transition a response to `COUNTED` just like answering it would, since it's a deliberate
-signal, not silence. `PollResponse.presentedQuestionIds` snapshots exactly which question
+tell them apart (see below). N/A counts the *same as an answer* toward the bucket-spread
+readiness bar (see below) — marking N/A can cover a bucket and cross the threshold just like
+answering would, since it's a deliberate signal, not silence. `PollResponse.presentedQuestionIds` snapshots exactly which question
 ids the form displayed at the moment the response was opened (stamped server-side from the
 resolved config, never client input, and unioned onto — never overwritten by — later
 "add more detail" autosaves) — `/admin/polls/moderation` diffs this against `answers` and
@@ -812,16 +826,28 @@ Two independent open/resume paths, both funneling into the same per-question
   existing rating) or a still-`INCOMPLETE` draft before ever creating a new row.
   Anonymous respondents resume via a client-supplied `resumeId` (sourced from
   `localStorage`, the same `pollDraftKey` the old form-value draft used, now just
-  holding a bare id) honored only if it's real, still `INCOMPLETE`, and belongs to this
-  exact program — anything else mints a fresh row (there's still no identity to dedupe
-  an anonymous respondent by).
+  holding a bare id) honored if it's real, **non-`VOIDED`**, and belongs to this exact
+  program — anything else mints a fresh row (there's still no identity to dedupe an
+  anonymous respondent by). That filter was `status: "INCOMPLETE"` until the explicit
+  submit button shipped; it had to be relaxed because a response now crosses the bar
+  partway through the form but isn't *finished* until Submit, so the window in which a
+  reload must resume rather than start over is the whole rest of the poll. Resuming a
+  `COUNTED`/`FLAGGED` row is what stops an ordinary mid-poll reload from minting a second
+  response — which also used to arrive pre-flagged `REPEAT_IP` + `REPEAT_BROWSER`, i.e. the
+  duplicate polluted moderation with a self-inflicted abuse signal. `submittedAt` is
+  deliberately *not* in that filter: an already-submitted response must stay resumable so
+  the client can see `submittedAt` in the open payload and re-render the confirmation
+  instead of a blank duplicate form.
 - **Per-question autosave** (`PATCH /api/polls/responses/[id]/answer`, debounced
   client-side in `components/polls/RateForm.tsx`): upserts one `PollAnswer` row keyed on
   the existing `@@id([responseId, questionId])`, updates `naQuestionIds`, and — only if
-  still `INCOMPLETE` — checks `lib/pollUnlock.ts`'s majority-of-Core bar
-  (`hasReachedCoreMajority`, `floor(coreCount/2)+1`, computed fresh from
-  `getQuestionsForProgram(programId).core.length` every time, never cached or
-  hardcoded, so an admin's Core-bucket edit is picked up on the very next save).
+  still `INCOMPLETE` — checks `lib/pollUnlock.ts`'s readiness bar
+  (`hasReachedBucketSpread`: at least one answered-or-N/A question from **every** bucket
+  actually served to this respondent, with a floor of 3 answered-or-N/A total — computed
+  fresh from `getQuestionsForProgram(programId)` every time, never cached or hardcoded, so
+  an admin's bucket edit is picked up on the very next save). This replaced an earlier
+  majority-of-Core rule (`computeMajority`/`hasReachedCoreMajority`, both removed) that
+  rewarded depth over spread.
   Reviews, `yearAttended`, and the response-level contact fields (the anonymous 18+-gated
   reference email, the signed-in contact opt-in) autosave the same debounced way through
   `POST /api/polls/responses/[id]/details` (originally built only for post-submit "add
@@ -865,6 +891,55 @@ explicitly filtered for, reachable for support/debugging without cluttering the 
 Abandoned drafts are never deleted — a respondent who opens, answers a few questions,
 and closes the tab keeps their partial answers forever, resumable later via the same
 `resumeId`/`(userId, programId)` lookup above.
+
+### The explicit submit action
+`POST /api/polls/responses/[id]/submit` → `lib/pollResponses.ts`'s `markSubmitted`. **It
+saves no answer data.** Everything is already persisted by autosave before it's called (the
+client flushes any pending debounced save first — see below), so submitting is exactly two
+things: stamp `PollResponse.submittedAt`, and turn the already-staged contact email into a
+PENDING `Reference`. It never writes `status`, `flags`, `verified`, `naQuestionIds`, or any
+`PollAnswer` row, which is the invariant that makes "pressing submit cannot change what
+counts toward unlock" true by construction rather than by care.
+
+Idempotent in both halves: `markSubmitted`'s `where` carries `submittedAt: null` so the
+first stamp wins and a re-submit leaves it alone (`count === 0` means "already submitted or
+VOIDED" — **not** an error, and deliberately not an early return, since the signed-in
+"update your rating" path legitimately submits twice and still needs its reference finalized
+and its status reported). `upsertReferenceFromPoll` is guarded by a DB unique. So
+re-submitting produces no duplicate response row and no duplicate pending reference.
+
+**Submit is never gated on completeness** — a respondent who answered two questions may
+still press it. That response gets a `submittedAt` and stays `INCOMPLETE`, contributing
+nothing to any score, and the confirmation says so in plain language rather than claiming a
+rating was recorded. The confirmation's headline branches on the status the *server* returns
+from this route, never on client state, so a still-settling autosave can't make it lie.
+
+Client side (`components/polls/RateForm.tsx`): `useKeyedDebounce` returns
+`[schedule, flushAll]`, and the submit handler **awaits `flushAll()` before POSTing**. That
+is load-bearing, not hygiene: the contact-email field sits immediately above the submit
+button, so typing an address and pressing submit inside the 600ms debounce window is the
+normal interaction — without the flush the server would read a still-null `referenceEmail`
+and silently skip creating the reference, reproducing the exact bug described below. There
+are two submit affordances (a large inline one at the end of the form and one in the
+bottom-docked sticky progress bar), but never both visible at once: an `IntersectionObserver`
+reveals the sticky bar's copy only while the inline button is off screen, per the style
+guide's "never repeat the same string twice on one screen."
+
+Crossing the readiness bar no longer routes anywhere by itself. It used to set
+`justCompleted`, which replaced the entire form with the thank-you panel the instant the bar
+was crossed — mid-poll, taking every remaining question with it. The resume key is likewise
+no longer cleared at crossing; keeping it is what makes a reload (before *or* after submit)
+resume the same response instead of minting a duplicate.
+
+⚠️ **The poll → pending-reference path was dead in production before this shipped.**
+`upsertReferenceFromPoll` used to be called from inside `maybeTransition`, i.e. at
+bar-crossing — which happens partway through the form, before the respondent has reached the
+contact-email field that sits at the very bottom. `referenceEmail` was therefore null at
+that moment, and the later detail autosave that wrote it never re-ran the transition (the
+response was no longer `INCOMPLETE`), so no `Reference` was ever created. `lib/pollReferences.test.ts`
+passed anyway because its fixture staged the email *before* answering — the inverse of what
+any real respondent does. The fixture now follows the real order and carries an explicit
+regression test; don't "simplify" it back.
 
 **Reviews are optional per-question free text, gated on one consent checkbox.** Each
 question carries its own review textarea (placeholder text states the comment may be
@@ -950,10 +1025,10 @@ programs' polls in one save.
 
 Thirteen `lib/*.ts` modules split by responsibility: `pollShared.ts` (client-safe
 types/zod/resolver/rule-matching — no Prisma import, same split-for-client-components
-precedent as `lib/tagTints.ts` above), `pollUnlock.ts` (pure majority-of-Core math —
-`computeMajority`/`hasReachedCoreMajority` for the live autosave transition,
-`resolveHistoricalCoreQuestionIds`/`responseMeetsHistoricalMajority` for judging an
-already-existing response against the Core set as it stood back then — plus the one
+precedent as `lib/tagTints.ts` above), `pollUnlock.ts` (pure bucket-spread math —
+`hasReachedBucketSpread` for the live autosave transition,
+`resolveHistoricalBucketGroups`/`responseMeetsHistoricalSpread` for judging an
+already-existing response against the bucket set as it stood back then — plus the one
 DB-touching piece, `decideAnonymousStatus`, the anti-abuse decision reused at transition
 time), `pollIntegrity.ts` (`hashIp`), `pollConfig.ts` (per-program config + question
 resolution, now including rule composition), `pollQuestions.ts` (question/bucket admin
@@ -981,9 +1056,9 @@ the contact opt-in's field-builder and the CTA-region/hint gating, see below), a
 screens below). `lib/pollFormat.ts` (`meanToPercent`/`formatStarsMean`) was deleted
 outright once the aggregate score it formatted was removed — see next.
 
-### Readiness/coverage counts use a historical majority, not today's Core set
-`hasReachedCoreMajority` (above) is a *live* check — it always compares a still-`INCOMPLETE`
-response against the Core set as it exists right now, which is correct for deciding whether
+### Readiness/coverage counts use a historical bucket set, not today's
+`hasReachedBucketSpread` (above) is a *live* check — it always compares a still-`INCOMPLETE`
+response against the bucket set as it exists right now, which is correct for deciding whether
 *this instant's* answer just crossed the unlock bar. But counting *existing* `COUNTED`
 responses for admin-facing "is this program ready" numbers needs a different, historical
 question: did each response meet the majority bar **as the Core set stood when that response
@@ -1000,8 +1075,8 @@ toward any current-day computation, regardless of when it existed — same postu
 exclusion from the live form). Excluding later-created questions is what makes "adding a
 Core question can never reduce an existing response's count" hold *by construction*, with
 no special-casing: an older response's historical denominator simply never grows.
-`responseMeetsHistoricalMajority` then runs that filtered set through the same
-`hasReachedCoreMajority` the live path uses. `lib/pollResults.ts`'s
+`responseMeetsHistoricalSpread` then runs that filtered set through the same
+`hasReachedBucketSpread` the live path uses. `lib/pollResults.ts`'s
 `countResponsesMeetingHistoricalMajority(programId)` is the one function both
 `listRatingCoverage` (`/admin/polls/coverage`) and `listProgramsBestFor`'s `responseCount`
 (`/admin/programs`) now call — a program's readiness number is identical wherever it's shown.
@@ -1100,29 +1175,24 @@ how thin it is. `PollSummaryDTO.responseCount` (COUNTED `PollResponse` rows) is 
 **before** the `visible` short-circuit in `getProgramPollSummary` specifically so this
 line can still show when results are hidden.
 
-On the **signed-in** `RateForm.tsx` path, a `ContactOptInBlock` opt-in lets a respondent
-offer to be reachable by prospective participants — six additive `PollResponse` columns
+**`ContactOptInBlock` is gone from both forms.** It was a separate "I'm open to being
+contacted" consent checkbox plus an 18+ checkbox, a free-text `contactMethod` and a
+`contactName`, writing six additive `PollResponse` columns
 (`contactOptIn`/`contactOptInAt`, `contactAgeAttested`/`contactAgeAttestedAt`,
-`contactMethod`, `contactName`), never publicly rendered (admin-only, on
-`/admin/programs`'s per-program detail view). Two **separate** checkboxes, not one
-combined control — consent ("I'm open to being contacted") and an "I'm 18 or older"
-self-attestation are distinct claims needing distinct affirmative acts, since no
-age/birthdate is collected anywhere in this system and this attestation is the only
-minor-protection signal the feature has. `lib/contactOptIn.ts`'s
-`buildContactOptInFields(input, now)` is the one place the write is built: `input: null`
-(opt-in unchecked, or a signed-in resubmit that un-checks a prior opt-in) clears every
-column — **a resubmit is a full retraction, not a merge** — while a present input stamps
-both the consent and age-attestation timestamps from the same `now`, mirroring
-`PollReview.consentGiven`/`consentAt`'s precedent. `contactMethod` is deliberately loose
-free text ("email or WhatsApp"), never `.email()`-validated — WhatsApp is the default
-contact channel for this population.
+`contactMethod`, `contactName`). It was removed from the anonymous form first (it overlapped
+the reference email — "asks to be contacted twice"), and from the signed-in form when the
+explicit submit button shipped, extending the same principle: **one contact-email field
+whose consent label IS the consent**, on both paths. Both forms now render
+`ReferenceOptInBlock` (see "Poll → pending alumni reference" below).
 
-**The anonymous form no longer carries `ContactOptInBlock` or the old standalone "Email…"
-field** — both were removed and replaced by the single 18+-gated contact-email field that
-creates a pending Reference (see "Poll → pending alumni reference" below), which resolved
-the former "asks to be contacted twice" overlap. So `buildContactOptInFields` /
-`contactOptIn` columns are now written on the **signed-in path only**; anonymous responses
-never populate them.
+Everything server-side for the old opt-in was deliberately **left in place**:
+`contactOptInSchema`, `lib/contactOptIn.ts`'s `buildContactOptInFields`, the six columns,
+`countOpenContactOptIns`, and `/admin/programs`'s "Open to contact" panel. Historical rows
+still need to render, and deleting the read path would retroactively hide alumni who really
+did opt in. The live consequence: with no writer, `countOpenContactOptIns` is frozen at its
+historical value, so the public contact hint below decays toward depending entirely on
+approved references. That's accepted, not overlooked. `deriveCtaLayout` in the same file is
+untouched by any of this — it only ever read `summary.visible`/`responseCount`.
 
 The Alumni References section (below) shows one aggregate hint — "Some past participants
 have offered to answer questions" — when `lib/contactOptIn.ts`'s `shouldShowContactHint`
@@ -1141,23 +1211,31 @@ salt when `NODE_ENV !== "production"`, but **throws** if it's unset and `NODE_EN
 "production"` — an unset salt in prod 500s every anonymous submission outright, it
 doesn't just weaken the hash.
 
-### Poll → pending alumni reference: the anonymous form's 18+-gated contact email
-The anonymous rating form (`/rate/[slug]?ref=TOKEN`, `components/polls/RateForm.tsx`'s
-`AnonymousRateForm`) has **one** contact-email field, gated by an "I'm 18 or older"
-checkbox, under a fixed consent label (`POLL_REFERENCE_CONSENT_LABEL` in `lib/pollShared.ts`
-— "…Enter your email to be listed as a reference. Students may contact you directly…").
-**Entering the email under that label *is* the consent** — there is no separate
-contact-consent checkbox. Since there is no submit button (see "Autosave and the unlock
-transition" above), both fields autosave to two additive `PollResponse` columns
-(`referenceEmail`, `ageAttested`) via the same `/details` route the reviews/contact fields
-use, well before the response necessarily crosses the unlock bar — they're staged, not
-acted on, until the moment `maybeTransition` actually fires. Only *then* does
-`lib/pollResponses.ts` call `lib/references.ts`'s `upsertReferenceFromPoll` (best-effort,
-wrapped in try/catch so a failure can **never** block the transition) which creates a
+### Poll → pending alumni reference: the 18+-gated contact email
+Both rating forms (`components/polls/RateForm.tsx`'s `AnonymousRateForm` and
+`SignedInRateForm`) render `ReferenceOptInBlock`: **one** contact-email field, gated by an
+"I'm 18 or older" checkbox, under a fixed consent label (`POLL_REFERENCE_CONSENT_LABEL` in
+`lib/pollShared.ts` — "…Enter your email to be listed as a reference. Students may contact
+you directly…"). **Entering the email under that label *is* the consent** — there is no
+separate contact-consent checkbox on either path anymore.
+
+Both fields autosave to two additive `PollResponse` columns (`referenceEmail`,
+`ageAttested`) via the same `/details` route the reviews use — staged, not acted on. They're
+consumed at **submit** (`lib/pollResponses.ts`'s `finalizeReferenceFromPoll`, called from
+the submit route), which calls `lib/references.ts`'s `upsertReferenceFromPoll` best-effort,
+wrapped in try/catch so a failure can **never** fail the submission, creating a
 `status: PENDING` `Reference`. Gate: **`ageAttested === true` AND the staged email parses
-valid AND the transition lands on `COUNTED`** (a `FLAGGED` anti-abuse transition creates no
-reference). There is no longer a separate `submitAnonymousResponse` call — this is one
-branch inside the single transition path both signed-in and anonymous responses go through.
+valid AND the response's status is `COUNTED`** (a `FLAGGED` anti-abuse transition creates no
+reference; nor does submitting a response that never crossed the readiness bar).
+
+⚠️ This used to hang off `maybeTransition` instead, and was therefore dead — see the
+explicit-submit section above for the full trace. Submit is the only correct trigger,
+because it's the only moment the email is guaranteed both present and final. Deliberately
+**not** also wired into `addDetailAnswersAndReviews`: that runs on every debounced keystroke,
+so a half-typed address that happens to parse (`a@b.co` en route to `a@b.com`) would create
+a `Reference` on the wrong `pollEmailKey` that the upsert's no-op `update: {}` would then
+never correct.
+
 The reference-comments consent checkbox is unrelated — it still gates only published review
 text.
 
@@ -1165,13 +1243,21 @@ text.
   intentionally **not** `.email()`-validated (format is checked downstream in
   `isValidReferenceEmail`), so a bad address saves the poll response and silently skips the
   reference.
-- **Idempotency is a DB constraint, not an app check**: four additive nullable `Reference`
-  columns (`pollResponseId`, `consentLabel`, `consentVersion`, `pollEmailKey`) plus
-  `@@unique([programId, pollEmailKey])` (migration `20260728000000_add_reference_poll_fields`;
-  Postgres treats NULLs as distinct, so the signed-in reference-form path — `pollEmailKey`
-  NULL — is unaffected). A guarded `upsert` keyed on that unique makes a resubmit with the
-  same email a no-op, never a second row. `userId` for poll rows is the opaque synthetic
-  `poll:<responseId>` (no Clerk user here; keeps the email out of `userId`).
+- **Idempotency is a DB constraint, not an app check** — but against *two different* uniques
+  depending on whether we know who the respondent is. Anonymous: keyed on
+  `@@unique([programId, pollEmailKey])` over the normalized (trim+lowercase) email, the only
+  identity available, with `userId` set to the opaque synthetic `poll:<responseId>` (keeps
+  the email out of `userId`, can never collide). Signed-in: keyed on
+  `@@unique([programId, userId])` over the **real Clerk id**. That branch exists because
+  `components/ReferenceForm.tsx` already creates references keyed that way — without it, the
+  same person offering through both surfaces would produce **two** rows for one program
+  (differing on both uniques: real userId + null `pollEmailKey` vs. synthetic userId + set
+  `pollEmailKey`), both landing in the pending queue where an admin could publish each.
+  Either way the `update: {}` branch is a deliberate no-op, so a re-submit never creates a
+  second row nor disturbs the original consent record. Supporting columns
+  (`pollResponseId`, `consentLabel`, `consentVersion`, `pollEmailKey`) came from migration
+  `20260728000000_add_reference_poll_fields`; Postgres treats NULLs as distinct, so a
+  reference-form row with `pollEmailKey` NULL never collides on the email unique.
 - **displayName is the constant `"Past participant"`** (`POLL_REFERENCE_DISPLAY_NAME`),
   **never a real name** — the poll collects no name, and only an admin sets a real one
   before publishing. `contactEmail`/`pollEmailKey` both hold the email and are gated exactly
@@ -1186,7 +1272,12 @@ text.
   (`countRecentPendingReferences`, existing columns only) — a `0` while submissions are
   happening means creation quietly broke (e.g. the migration didn't land).
 - Tests: `lib/pollReferences.test.ts` (mocked prisma) covers the gate, FLAGGED→0,
-  idempotency, cutover, and the public-select leak assertion.
+  idempotency, cutover, and the public-select leak assertion. Its
+  `openAndCrossReadinessBar` fixture answers **first** and stages the email **second**,
+  matching the real UI order (the field is the last block on the form) — the earlier
+  inverted fixture is what let the dead-reference bug pass unnoticed. There is an explicit
+  regression test for "email typed after the bar is already crossed still produces a
+  reference", plus one asserting submit never mutates `status`.
 
 ### Partner Links: admin-configurable CTAs, all OFF by default, fail-closed
 An optional partner-referral CTA button rendered in five fixed places, stored as **one**

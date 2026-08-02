@@ -992,6 +992,17 @@ model PollResponse {
   referenceEmail       String?
   /// The "I'm 18 or older" self-attestation for the field above, autosaved the same way.
   ageAttested          Boolean            @default(false)
+  /// When the respondent pressed the explicit "Submit ratings" button (null = never did).
+  /// Deliberately ORTHOGONAL to `status`: submitting NEVER touches status/flags/verified/
+  /// answers, so it cannot change what counts toward unlock. A response can be COUNTED
+  /// with submittedAt null (crossed the readiness bar via autosave, then walked away) or
+  /// INCOMPLETE with submittedAt set (pressed submit having answered too little to cross
+  /// the bar -- submit is never gated on completeness). ⚠️ Never add
+  /// `submittedAt: { not: null }` to any public-math gate: every response predating this
+  /// column is null and would silently vanish from every score, the same class of bug the
+  /// `verified` comment above warns about. Set once, by lib/pollResponses.ts's
+  /// markSubmitted; a re-submit leaves the original stamp in place.
+  submittedAt          DateTime?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
 import QuestionInput from "@/components/polls/QuestionInput";
 import ThankYouPanel from "@/components/polls/ThankYouPanel";
+import Button from "@/components/ui/Button";
 import { pollDraftKey, yearAttendedOptions, POLL_REFERENCE_CONSENT_LABEL, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
 import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
 
@@ -52,26 +53,51 @@ const DEBOUNCE_MS = 600;
 /** One debounced save per key (a questionId, or the fixed "details" key for
  * reviews/contact fields) -- a fresh change to the same key cancels and restarts its own
  * timer, never affecting any other key's pending save. Timers are cleared on unmount so
- * a component going away can't fire a save into a stale closure. */
+ * a component going away can't fire a save into a stale closure.
+ *
+ * Returns `[schedule, flushAll]`. `flushAll` runs every pending save NOW and awaits them
+ * all; the submit handler must call it before POSTing. That matters most for the contact
+ * email, which sits immediately above the submit button: typing an address and pressing
+ * submit inside the 600ms window is the normal interaction, and without a flush the server
+ * would read a still-null referenceEmail and silently skip creating the pending reference.
+ * The stored closures already carry their own override values, so flushing can't write a
+ * stale one. */
 function useKeyedDebounce(delayMs: number) {
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const pending = useRef(new Map<string, () => void | Promise<void>>());
   useEffect(
     () => () => {
       for (const t of timers.current.values()) clearTimeout(t);
     },
     []
   );
-  return function schedule(key: string, fn: () => void) {
-    const existing = timers.current.get(key);
-    if (existing) clearTimeout(existing);
-    timers.current.set(
-      key,
-      setTimeout(() => {
-        timers.current.delete(key);
-        fn();
-      }, delayMs)
-    );
-  };
+
+  const schedule = useCallback(
+    (key: string, fn: () => void | Promise<void>) => {
+      const existing = timers.current.get(key);
+      if (existing) clearTimeout(existing);
+      pending.current.set(key, fn);
+      timers.current.set(
+        key,
+        setTimeout(() => {
+          timers.current.delete(key);
+          pending.current.delete(key);
+          void fn();
+        }, delayMs)
+      );
+    },
+    [delayMs]
+  );
+
+  const flushAll = useCallback(async () => {
+    const fns = [...pending.current.values()];
+    for (const t of timers.current.values()) clearTimeout(t);
+    timers.current.clear();
+    pending.current.clear();
+    await Promise.all(fns.map((fn) => Promise.resolve().then(fn)));
+  }, []);
+
+  return [schedule, flushAll] as const;
 }
 
 /** Above the first review field, per the build spec -- plain context, not a legal
@@ -246,109 +272,104 @@ function ReviewConsentCheckbox({
 }
 
 /**
- * How far through the poll the respondent is (item 10) -- answered counts a real value
- * *or* an explicit N/A, matching exactly what counts toward the readiness unlock bar
+ * How far through the poll the respondent is, plus the submit action -- answered counts a
+ * real value *or* an explicit N/A, matching exactly what counts toward the readiness bar
  * server-side, so this number and "did that last tap just unlock the response" never
- * disagree. Sticky below the entry header so it stays visible while scrolling a long
- * question list. Ink-navy, not brass -- the header hairline already spends this page's
- * brass budget (style guide §1's "no more than ~5% of a screen is brass"); every rating
- * control's selected state is ink-navy too, never brass (see SegmentedScale/StackedChoice).
+ * disagree. Ink-navy, not brass -- the header hairline already spends this page's brass
+ * budget (style guide §1's "no more than ~5% of a screen is brass"); every rating control's
+ * selected state is ink-navy too, never brass (see SegmentedScale/StackedChoice).
+ *
+ * Docked to the BOTTOM (`sticky`, never `fixed` -- iOS Safari's collapsing toolbar occludes
+ * fixed elements) so the end state is reachable without hunting for it, and thumb-reachable
+ * on the phones that are most of this poll's traffic. It duplicates the inline submit at the
+ * end of the form, so it renders its own button ONLY while that one is off screen
+ * (`showSubmit`) -- style guide §7 forbids the same string appearing twice on one screen.
+ *
+ * `aria-live` is scoped to the caption alone, not the wrapper: with the button inside the
+ * live region, every rating tap would re-announce the button label to a screen reader.
  */
-function ProgressIndicator({ answered, total }: { answered: number; total: number }) {
+function StickySubmitBar({
+  answered,
+  total,
+  showSubmit,
+  submitting,
+  onSubmit,
+}: {
+  answered: number;
+  total: number;
+  showSubmit: boolean;
+  submitting: boolean;
+  onSubmit: () => void;
+}) {
   const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
   return (
-    <div className="sticky top-[60px] z-30 border-b border-border bg-background py-2" role="status" aria-live="polite">
+    <div className="sticky bottom-0 z-30 -mx-6 border-t border-border bg-background px-6 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
       <div className="h-0.5 w-full bg-border">
         <div className="h-full bg-primary transition-[width] duration-[120ms] ease-out" style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-1 font-mono text-xs uppercase tracking-wide text-muted">
+      <p className="mt-1 font-mono text-xs uppercase tracking-wide text-muted" role="status" aria-live="polite">
         {answered} of {total} answered
+      </p>
+      {showSubmit && (
+        <Button type="button" className="mt-3 min-h-11 w-full" disabled={submitting} onClick={onSubmit}>
+          {submitting ? "Submitting…" : "Submit ratings"}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The primary submit affordance at the end of the poll. Never gated on completeness -- a
+ * respondent who answered two questions may still submit, and the server records that
+ * without counting it (see lib/pollResponses.ts's markSubmitted). `disabled` only ever
+ * reflects an in-flight request, so a double-tap can't submit twice.
+ *
+ * `min-h-11` is the 44px touch target from style guide §6; Button's own `md` size is ~36px.
+ * `data-poll-submit` is the stable hook scripts/verify-share-thankyou.ts clicks, matching
+ * the data-poll-question / data-poll-option / data-poll-share convention.
+ */
+function InlineSubmit({
+  submitting,
+  onSubmit,
+  innerRef,
+}: {
+  submitting: boolean;
+  onSubmit: () => void;
+  innerRef: React.Ref<HTMLDivElement>;
+}) {
+  return (
+    <div ref={innerRef} className="flex flex-col gap-2">
+      <Button
+        type="button"
+        data-poll-submit
+        className="min-h-11 w-full"
+        disabled={submitting}
+        onClick={onSubmit}
+      >
+        {submitting ? "Submitting…" : "Submit ratings"}
+      </Button>
+      <p className="text-xs text-muted">
+        Your answers are already saved as you go — this finishes up and shows your program&rsquo;s progress.
       </p>
     </div>
   );
 }
 
-/** One respondent's in-progress contact opt-in state -- autosaved (debounced) whenever
- * it's complete; held back client-side otherwise. */
-type ContactOptInState = {
-  consent: boolean;
-  ageAttested: boolean;
-  contactMethod: string;
-  contactName: string;
-};
-
-const EMPTY_CONTACT_OPT_IN: ContactOptInState = {
-  consent: false,
-  ageAttested: false,
-  contactMethod: "",
-  contactName: "",
-};
-
-/** True only when every required field for a complete opt-in is present -- the single
- * predicate deciding whether this autosaves at all. */
-function isContactOptInComplete(state: ContactOptInState): boolean {
-  return state.consent && state.ageAttested && state.contactMethod.trim().length > 0 && state.contactName.trim().length > 0;
-}
-
-/**
- * An opt-in to being contacted by prospective participants, deliberately separate from
- * the heavier Reference/ContactRequest system elsewhere on the program page (never
- * publicly rendered; admin-visible only, see /admin/programs). Two SEPARATE checkboxes,
- * not one combined control: consent and an 18+ self-attestation are two distinct claims
- * requiring two distinct affirmative acts. Autosaves (debounced) once complete; a
- * partially-filled opt-in just isn't sent yet, with a non-blocking hint below.
- */
-function ContactOptInBlock({
-  state,
-  onChange,
-  hint,
-}: {
-  state: ContactOptInState;
-  onChange: (next: ContactOptInState) => void;
-  hint: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-2 rounded border border-border p-3">
-      <label className="flex items-start gap-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          checked={state.consent}
-          onChange={(e) => onChange({ ...state, consent: e.target.checked })}
-          className="mt-1 accent-accent"
-        />
-        <span>I&rsquo;m open to being contacted by prospective participants about this program.</span>
-      </label>
-      {state.consent && (
-        <div className="flex flex-col gap-2 pl-6">
-          <label className="flex items-start gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              checked={state.ageAttested}
-              onChange={(e) => onChange({ ...state, ageAttested: e.target.checked })}
-              className="mt-1 accent-accent"
-            />
-            <span>I&rsquo;m 18 or older.</span>
-          </label>
-          <Input
-            placeholder="Email or WhatsApp number"
-            value={state.contactMethod}
-            onChange={(e) => onChange({ ...state, contactMethod: e.target.value })}
-          />
-          <Input
-            placeholder="Display name or initial, e.g. Yaakov B."
-            value={state.contactName}
-            onChange={(e) => onChange({ ...state, contactName: e.target.value })}
-          />
-          <p className="text-xs text-muted">Never shown publicly — program admins only.</p>
-        </div>
-      )}
-      {hint && (
-        <p className="pl-6 text-xs text-muted">
-          Confirm you&rsquo;re 18 or older and fill in a contact method and name to save this — or uncheck the box above to leave it out.
-        </p>
-      )}
-    </div>
-  );
+/** Watches the inline submit button and reports whether it's off screen, so the sticky bar
+ * can show its own button only when the inline one isn't visible (never both -- §7). */
+function useIsOffScreen(ref: React.RefObject<HTMLDivElement | null>): boolean {
+  const [offScreen, setOffScreen] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setOffScreen(!entry.isIntersecting), {
+      threshold: 0,
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return offScreen;
 }
 
 /**
@@ -411,16 +432,19 @@ function saveResumeId(programSlug: string, responseId: string) {
     // never a hard requirement, so a failure here is swallowed rather than surfaced.
   }
 }
-function clearResumeId(programSlug: string) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(pollDraftKey(programSlug));
-  } catch {
-    // See saveResumeId.
-  }
-}
+// NOTE: there is deliberately no clearResumeId anymore. The key used to be wiped the
+// instant a response crossed the readiness bar; keeping it is what lets a reload -- before
+// OR after submit -- resume the same response rather than mint a duplicate one (the server
+// side of that is openAnonymousResponse's relaxed status filter).
 
-type OpenResult = { responseId: string; status: string; answers: Record<string, number>; naQuestionIds: string[] };
+type OpenResult = {
+  responseId: string;
+  status: string;
+  answers: Record<string, number>;
+  naQuestionIds: string[];
+  /** ISO string, or null when this respondent hasn't pressed Submit yet. */
+  submittedAt: string | null;
+};
 
 function SignedInRateForm({
   programId,
@@ -443,11 +467,16 @@ function SignedInRateForm({
   );
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
   const [consentGiven, setConsentGiven] = useState(false);
-  const [contactOptIn, setContactOptIn] = useState<ContactOptInState>(EMPTY_CONTACT_OPT_IN);
+  const [referenceEmail, setReferenceEmail] = useState("");
+  const [ageAttested, setAgeAttested] = useState(false);
   const [responseId, setResponseId] = useState<string | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
-  const schedule = useKeyedDebounce(DEBOUNCE_MS);
+  const inlineSubmitRef = useRef<HTMLDivElement>(null);
+  const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
+  const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
     let cancelled = false;
@@ -482,10 +511,11 @@ function SignedInRateForm({
     };
   }, [programId]);
 
+  /** Tracks the server's view of this response's status. It no longer routes anywhere:
+   * crossing the readiness bar used to replace the whole form with the thank-you screen
+   * mid-poll (losing every remaining question), and the explicit Submit button is now the
+   * only thing that ends the form. */
   function applyStatus(nextStatus: string) {
-    if (statusRef.current === "INCOMPLETE" && nextStatus !== "INCOMPLETE") {
-      setJustCompleted(true);
-    }
     statusRef.current = nextStatus;
   }
 
@@ -507,11 +537,19 @@ function SignedInRateForm({
     }
   }
 
-  async function saveDetailsToServer(overrides: { reviewTexts?: Record<string, string>; consentGiven?: boolean; contactOptIn?: ContactOptInState } = {}) {
+  async function saveDetailsToServer(
+    overrides: {
+      reviewTexts?: Record<string, string>;
+      consentGiven?: boolean;
+      referenceEmail?: string;
+      ageAttested?: boolean;
+    } = {}
+  ) {
     if (!responseId) return;
     const effectiveReviewTexts = overrides.reviewTexts ?? reviewTexts;
     const effectiveConsent = overrides.consentGiven ?? consentGiven;
-    const effectiveContactOptIn = overrides.contactOptIn ?? contactOptIn;
+    const effectiveReferenceEmail = overrides.referenceEmail ?? referenceEmail;
+    const effectiveAgeAttested = overrides.ageAttested ?? ageAttested;
     const reviews = effectiveConsent
       ? allQuestions
           .filter((q) => effectiveReviewTexts[q.id]?.trim())
@@ -525,14 +563,8 @@ function SignedInRateForm({
           answers: [],
           reviews,
           naQuestionIds: [],
-          contactOptIn: isContactOptInComplete(effectiveContactOptIn)
-            ? {
-                consent: true,
-                ageAttested: true,
-                contactMethod: effectiveContactOptIn.contactMethod.trim(),
-                contactName: effectiveContactOptIn.contactName.trim(),
-              }
-            : undefined,
+          referenceEmail: effectiveReferenceEmail.trim() || undefined,
+          ageAttested: effectiveAgeAttested || undefined,
         }),
       });
       if (!res.ok) return;
@@ -541,6 +573,34 @@ function SignedInRateForm({
       router.refresh();
     } catch {
       // Best-effort, same posture as saveAnswerToServer.
+    }
+  }
+
+  /**
+   * Explicit submit. Saves nothing itself -- it flushes whatever autosave still has in
+   * flight (critically the contact email, which sits right above the button, so typing it
+   * and pressing submit inside the 600ms debounce is the normal case), then stamps
+   * submittedAt server-side and routes to the thank-you screen. The headline is driven by
+   * the status the SERVER reports back, never by statusRef, so a still-settling save can't
+   * make it claim a rating was recorded when it wasn't.
+   */
+  async function handleSubmit() {
+    if (!responseId || submitting) return;
+    setSubmitting(true);
+    try {
+      await flushAll();
+      const res = await fetch(`/api/polls/responses/${responseId}/submit`, { method: "POST" });
+      if (!res.ok) {
+        setSubmitting(false);
+        return;
+      }
+      const body = await res.json();
+      applyStatus(body.status);
+      setSubmittedStatus(body.status);
+      setJustCompleted(true);
+      router.refresh();
+    } catch {
+      setSubmitting(false);
     }
   }
 
@@ -562,12 +622,21 @@ function SignedInRateForm({
     setConsentGiven(checked);
     schedule("details", () => saveDetailsToServer({ consentGiven: checked }));
   }
-  function handleContactOptInChange(next: ContactOptInState) {
-    setContactOptIn(next);
-    schedule("details", () => saveDetailsToServer({ contactOptIn: next }));
+  function handleEmailChange(email: string) {
+    setReferenceEmail(email);
+    schedule("details", () => saveDetailsToServer({ referenceEmail: email }));
+  }
+  function handleAgeAttestedChange(next: boolean) {
+    setAgeAttested(next);
+    // Un-attesting age disables and clears the email -- an email must never be sent
+    // without the 18+ affirmation that gates it.
+    const nextEmail = next ? referenceEmail : "";
+    if (!next) setReferenceEmail("");
+    schedule("details", () => saveDetailsToServer({ ageAttested: next, referenceEmail: nextEmail }));
   }
 
   if (justCompleted) {
+    const counted = submittedStatus !== null && submittedStatus !== "INCOMPLETE";
     return (
       <ThankYouPanel
         mode="signed-in"
@@ -575,7 +644,14 @@ function SignedInRateForm({
         programName={programName}
         responseId={responseId}
         sharePollLink={sharePollLink}
-        headline={isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+        counted={counted}
+        headline={
+          counted
+            ? isUpdate
+              ? "Your rating has been updated."
+              : "Thanks for rating this program."
+            : `Thanks — your answers are saved. This one won't appear in ${programName}'s published ratings, since only part of the poll was answered.`
+        }
         postPollCta={postPollCta}
       />
     );
@@ -584,8 +660,7 @@ function SignedInRateForm({
   const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
 
   return (
-    <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
+    <div data-poll-mode="signed-in" className="flex flex-col gap-6 pb-16">
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -602,10 +677,19 @@ function SignedInRateForm({
         onChange={handleConsentChange}
         hint={!consentGiven && Object.values(reviewTexts).some((t) => t.trim().length > 0)}
       />
-      <ContactOptInBlock
-        state={contactOptIn}
-        onChange={handleContactOptInChange}
-        hint={contactOptIn.consent && !isContactOptInComplete(contactOptIn)}
+      <ReferenceOptInBlock
+        email={referenceEmail}
+        onEmailChange={handleEmailChange}
+        ageAttested={ageAttested}
+        onAgeAttestedChange={handleAgeAttestedChange}
+      />
+      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
+      <StickySubmitBar
+        answered={answeredCount}
+        total={allQuestions.length}
+        showSubmit={inlineSubmitOffScreen}
+        submitting={submitting}
+        onSubmit={handleSubmit}
       />
     </div>
   );
@@ -634,8 +718,12 @@ function AnonymousRateForm({
   const [ageAttested, setAgeAttested] = useState(false);
   const [responseId, setResponseId] = useState<string | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
-  const schedule = useKeyedDebounce(DEBOUNCE_MS);
+  const inlineSubmitRef = useRef<HTMLDivElement>(null);
+  const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
+  const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
     let cancelled = false;
@@ -651,6 +739,15 @@ function AnonymousRateForm({
         setResponseId(body.responseId);
         statusRef.current = body.status;
         saveResumeId(programSlug, body.responseId);
+        // Already submitted (a reload, or a shared device coming back to the same link):
+        // go straight back to the confirmation rather than handing them a blank form that
+        // would look like their submission vanished. The resume key is deliberately kept,
+        // not cleared, which is what makes this idempotent across reloads.
+        if (body.submittedAt) {
+          setSubmittedStatus(body.status);
+          setJustCompleted(true);
+          return;
+        }
         if (Object.keys(body.answers).length > 0) {
           setValues((prev) => ({ ...prev, ...body.answers }));
         }
@@ -671,11 +768,10 @@ function AnonymousRateForm({
     };
   }, [programId, programSlug, referrerToken]);
 
+  /** See SignedInRateForm's identical note: crossing the readiness bar no longer routes
+   * anywhere. Nor does it clear the resume key -- keeping the key is exactly what lets a
+   * mid-poll reload resume the same response instead of minting a duplicate. */
   function applyStatus(nextStatus: string) {
-    if (statusRef.current === "INCOMPLETE" && nextStatus !== "INCOMPLETE") {
-      setJustCompleted(true);
-      clearResumeId(programSlug);
-    }
     statusRef.current = nextStatus;
   }
 
@@ -738,6 +834,27 @@ function AnonymousRateForm({
     }
   }
 
+  /** See SignedInRateForm's handleSubmit -- identical contract. */
+  async function handleSubmit() {
+    if (!responseId || submitting) return;
+    setSubmitting(true);
+    try {
+      await flushAll();
+      const res = await fetch(`/api/polls/responses/${responseId}/submit`, { method: "POST" });
+      if (!res.ok) {
+        setSubmitting(false);
+        return;
+      }
+      const body = await res.json();
+      applyStatus(body.status);
+      setSubmittedStatus(body.status);
+      setJustCompleted(true);
+      router.refresh();
+    } catch {
+      setSubmitting(false);
+    }
+  }
+
   function handleValueChange(id: string, v: number | null) {
     setValues((prev) => ({ ...prev, [id]: v }));
     schedule(`answer:${id}`, () => saveAnswerToServer(id, v, false));
@@ -774,6 +891,7 @@ function AnonymousRateForm({
   }
 
   if (justCompleted) {
+    const counted = submittedStatus !== null && submittedStatus !== "INCOMPLETE";
     return (
       <ThankYouPanel
         mode="anonymous"
@@ -781,7 +899,12 @@ function AnonymousRateForm({
         programName={programName}
         responseId={responseId}
         sharePollLink={sharePollLink}
-        headline={`Thanks — your rating of ${programName} has been recorded!`}
+        counted={counted}
+        headline={
+          counted
+            ? `Thanks — your rating of ${programName} has been recorded.`
+            : `Thanks — your answers are saved. This one won't appear in ${programName}'s published ratings, since only part of the poll was answered.`
+        }
         postPollCta={postPollCta}
       />
     );
@@ -790,8 +913,7 @@ function AnonymousRateForm({
   const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
 
   return (
-    <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
+    <div data-poll-mode="anonymous" className="flex flex-col gap-6 pb-16">
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -824,6 +946,14 @@ function AnonymousRateForm({
         onEmailChange={handleEmailChange}
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
+      />
+      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
+      <StickySubmitBar
+        answered={answeredCount}
+        total={allQuestions.length}
+        showSubmit={inlineSubmitOffScreen}
+        submitting={submitting}
+        onSubmit={handleSubmit}
       />
     </div>
   );
