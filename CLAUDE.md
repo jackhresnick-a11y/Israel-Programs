@@ -87,8 +87,11 @@ repeat-ip and token-cap anti-abuse checks, proving an abandoned `INCOMPLETE` res
 never flag or cap out its own later, real completion), `lib/pollReferences.test.ts` (the
 poll → pending-reference gate, exercised through the real open → autosave → transition
 path against a hand-rolled in-memory Prisma fake), `lib/programFaqShared.test.ts` (the FAQ "Ask a question" schema's consent-literal/length/
-honeypot cases — see "Program FAQs and the public poll link" below), and
-`lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
+honeypot cases — see "Program FAQs and the public poll link" below),
+`lib/pollClustering.test.ts` (the advisory burst/cohort thresholds and their boundaries —
+see "The post-poll referral loop" below), `lib/pollShare.test.ts` (the WhatsApp share
+message/href builders, including URL round-tripping for Hebrew text and special
+characters), and `lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
 `youtubePosterFromEmbedUrl` — see "Homepage hero video" below). This covers pure-logic `lib/*.ts`
 functions behind `vi.mock`-able boundaries (or with no external dependency at all), not
 routes, pages, or anything that needs a real Postgres connection — most verification in
@@ -1291,6 +1294,91 @@ Both additions shipped in one migration
 (`20260718183503_add_program_faq_and_public_poll_link`) alongside the `ProgramFAQ` table
 — same "never `prisma db push` against this schema" warning as the two alumni-polls
 migrations before it, for the same hand-written-CHECK-constraint reason.
+
+### The post-poll referral loop: progress line, WhatsApp share, advisory clustering
+Riding Alumni ratings' thank-you-screen moment (the `justCompleted` transition above) to
+turn each respondent into a recruiter for their own program's next respondents. Zero
+migration — every field this reads already existed. Code-only, no schema change; see
+`docs/ROLLBACK-poll-referral-loop-2026-08-02.md`.
+
+**`ThankYouPanel`** (`components/polls/ThankYouPanel.tsx`) replaces the old separate
+inline signed-in block and anonymous `ThankYouScreen` function in `RateForm.tsx` with one
+shared component, so the two thank-you states can't drift apart (same reasoning as
+`QuestionWithReview` being shared between modes) — carries `data-poll-mode`/
+`data-poll-thankyou` on its single wrapper, same attributes and selector the pre-existing
+`scripts/verify-choice-layout.ts`/`verify-unified-color.ts` already wait on.
+
+**`ProgramProgressLine`** shows "N responses so far" via a new public GET
+`/api/polls/programs/[programId]/response-count`, which returns the SAME flat
+`COUNTED`-count definition `PollSummaryStrip`'s "N people have rated this program." already
+exposes publicly (`lib/pollResults.ts`'s `responseCount`) — deliberately NOT the stricter
+readiness-bar count (`countResponsesMeetingReadinessBar`) the admin coverage page uses, so
+a program never shows two different public response counts on two surfaces. Renders
+nothing below a count of 1, since the thank-you screen also fires for a `FLAGGED`
+respondent (not just `COUNTED`) — that respondent's own row never enters the count, so a
+program's first flagged respondent would otherwise see "0 responses so far." **The route's
+response body is contractually just `{ ok, count }`** — no `needed`/`remaining`/percentage
+field may ever be added, since the exact unlock threshold
+(`ProgramPollConfig.minResponsesToPublish`) must never be public. That threshold was also
+quietly present (unused, unrendered) in `PollSummaryDTO`'s public RSC payload before this
+change — `getProgramPollSummary` no longer returns it at all; callers that need the
+threshold read `ProgramPollConfig` directly (as `ProgramPollConfigManager.tsx` already
+did).
+
+**`WhatsAppShareButton`** (`lib/pollShare.ts` for the pure message/href builders) always
+renders — it does not hide when a program lacks a public poll link, unlike the pattern
+`PublicPollLink.tsx` uses elsewhere. It shares the program's public poll link
+(`lib/pollConfig.ts`'s `getPublicPollLink`), **never the respondent's own referrer
+token** — resharing a capped/campaign token into a WhatsApp group risks tripping
+`TOKEN_OVER_CAP` (`lib/pollUnlock.ts`'s `decideAnonymousStatus`) and FLAGGING the very
+responses this loop exists to generate. When a program has no public link on, it falls
+back to the site's `/rate` picker rather than hiding (a deliberate choice, since a hidden
+button is a silent dead end for the referral loop). In practice this fallback is currently
+moot: `pollLinkPublic` is on for all 460/460 published programs today (the
+`prisma/enable-public-poll-links.ts` bulk-enable from "Program FAQs and the public poll
+link" above already covers every program), so the share button always resolves to the
+direct per-program link right now — the fallback exists for whatever gets published next
+without it explicitly toggled on. Fires `share_button_shown`/`share_button_clicked`
+(`lib/pollClientEvents.ts`, `POST /api/polls/events`) via a `useRef`-guarded effect that
+survives `router.refresh()` re-renders and React 19 StrictMode's dev double-invoke; the
+click handler never `preventDefault`s so the `wa.me` navigation isn't blocked on the
+beacon (`keepalive: true` is what lets it survive the navigation instead).
+
+**`lib/pollClustering.ts`** is an advisory-only signal on `/admin/polls/coverage` for a
+below-threshold program whose responses look like they landed from one WhatsApp-group
+blast (`burst`: ≥4 responses, ≥70% inside a 24h window) or one alumni cohort (`cohort`:
+≥4 responses with a known `yearAttended`, ≥50% of the total known, ≥70% of the known
+sharing one year). **Contract: never imported by, or referenced from, any write,
+status-transition, or visibility-gating path** — its only real caller is
+`lib/pollResults.ts`'s `listRatingCoverage`, which computes it in one bulk query
+(no N+1) and sets it to `null` once a program is at/above threshold (nothing left to
+advise about). Rendered as a second, `tone="info"` badge on `RatingCoverageTable.tsx`
+(never `tone="warning"`, which already means "below threshold" on that same row) with
+"Advisory only — this does not delay or block anything" in its title. `yearAttended` is
+the SAME field already public on individual reviews (`ReviewsSection.tsx`'s "Attended
+YYYY" line) — this module's use of it is a separate, aggregate, admin-only read of the
+same column, not a new public exposure.
+
+**Admin funnel additions** (`lib/pollFunnel.ts`, `PollFunnelSummary.tsx`): sitewide share
+shown/clicked/rate (clamped to ≤100%, since `record()` swallows write failures and a
+dropped `shown` alongside a delivered `clicked` could otherwise exceed it) and
+"programs reaching `MIN_RESPONSES_FOR_RATING` responses per week." The latter is
+deliberately never called "unlocked" in code or copy — there is no program-level unlock
+event or gate anywhere in this codebase (visibility is `resultsVisible`, an admin toggle;
+publishing is per-question via `minResponsesToPublish` — see `getProgramPollSummary`'s
+"There is no aggregate score" framing). It's derived with a `ROW_NUMBER() OVER (PARTITION
+BY "programId" ORDER BY "createdAt")` window function finding each program's Nth `COUNTED`
+response, bucketed by UTC Monday-start week (`getUnlocksPerWeek`, `lib/pollFunnel.ts`).
+**Revisionist**: computed against today's threshold and today's statuses, so approving a
+previously-`FLAGGED` response moves which week a program's crossing falls into, after the
+fact — this caveat is repeated in both the doc comment and the admin UI copy, not just one
+place.
+
+Verified with `scripts/verify-share-thankyou.ts`, following `verify-choice-layout.ts`'s
+plain-library Playwright pattern (`refuseIfProd()` guard, screenshots into
+`docs/screenshots/`) — it deliberately drives a real response to `COUNTED` (not just
+`INCOMPLETE`, unlike the two pre-existing scripts), so it must only ever run against a Neon
+branch, never production.
 
 ### Homepage hero video: an optional, site-wide YouTube/Vimeo feature (not per-program)
 `/admin/settings`' "Homepage Video" section (`components/HomeVideoForm.tsx` →

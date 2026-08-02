@@ -6,7 +6,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
 import QuestionInput from "@/components/polls/QuestionInput";
-import PartnerCta from "@/components/PartnerCta";
+import ThankYouPanel from "@/components/polls/ThankYouPanel";
 import { pollDraftKey, yearAttendedOptions, POLL_REFERENCE_CONSENT_LABEL, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
 import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
 
@@ -14,6 +14,7 @@ type RateFormProps =
   | {
       mode: "signed-in";
       programId: string;
+      programName: string;
       questions: PollQuestionDTO[];
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
       existingAnswers?: Record<string, number>;
@@ -21,6 +22,10 @@ type RateFormProps =
       /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
        * post-transition confirmation state -- never before. */
       postPollCta: PartnerLinkSlot | null;
+      /** The program's public poll link (lib/pollConfig.ts's getPublicPollLink),
+       *  threaded down to ThankYouPanel's WhatsAppShareButton -- null falls back to the
+       *  site's /rate picker rather than the respondent's own referrer token. */
+      sharePollLink: string | null;
     }
   | {
       mode: "anonymous";
@@ -31,8 +36,10 @@ type RateFormProps =
       questions: PollQuestionDTO[];
       extras: { bucket: PollBucketDTO; questions: PollQuestionDTO[] }[];
       /** Slot 3, resolved server-side (fail-closed to null). Rendered ONLY in the
-       * post-transition ThankYouScreen -- never before. */
+       * post-transition ThankYouPanel -- never before. */
       postPollCta: PartnerLinkSlot | null;
+      /** See the signed-in variant's doc comment above. */
+      sharePollLink: string | null;
     };
 
 export default function RateForm(props: RateFormProps) {
@@ -417,11 +424,13 @@ type OpenResult = { responseId: string; status: string; answers: Record<string, 
 
 function SignedInRateForm({
   programId,
+  programName,
   questions,
   extras,
   existingAnswers,
   existingNaQuestionIds,
   postPollCta,
+  sharePollLink,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
@@ -560,12 +569,15 @@ function SignedInRateForm({
 
   if (justCompleted) {
     return (
-      <div data-poll-mode="signed-in" className="flex flex-col gap-6">
-        <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
-          {isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
-        </div>
-        <PartnerCta slot={postPollCta} />
-      </div>
+      <ThankYouPanel
+        mode="signed-in"
+        programId={programId}
+        programName={programName}
+        responseId={responseId}
+        sharePollLink={sharePollLink}
+        headline={isUpdate ? "Your rating has been updated." : "Thanks for rating this program!"}
+        postPollCta={postPollCta}
+      />
     );
   }
 
@@ -607,6 +619,7 @@ function AnonymousRateForm({
   questions,
   extras,
   postPollCta,
+  sharePollLink,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
   const router = useRouter();
   const allQuestions = [...questions, ...extras.flatMap((e) => e.questions)];
@@ -761,7 +774,17 @@ function AnonymousRateForm({
   }
 
   if (justCompleted) {
-    return <ThankYouScreen programName={programName} postPollCta={postPollCta} />;
+    return (
+      <ThankYouPanel
+        mode="anonymous"
+        programId={programId}
+        programName={programName}
+        responseId={responseId}
+        sharePollLink={sharePollLink}
+        headline={`Thanks — your rating of ${programName} has been recorded!`}
+        postPollCta={postPollCta}
+      />
+    );
   }
 
   const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
@@ -806,18 +829,3 @@ function AnonymousRateForm({
   );
 }
 
-/**
- * The anonymous form presents the full resolved question set (core + extras) upfront,
- * same as the signed-in form -- there's no post-completion "add more detail" step here,
- * just the confirmation, reached only once autosave crosses the readiness bar.
- */
-function ThankYouScreen({ programName, postPollCta }: { programName: string; postPollCta: PartnerLinkSlot | null }) {
-  return (
-    <div data-poll-mode="anonymous" className="flex flex-col gap-6">
-      <div className="rounded border border-success/30 bg-success-bg p-6 text-center text-sm font-medium text-success">
-        Thanks — your rating of {programName} has been recorded!
-      </div>
-      <PartnerCta slot={postPollCta} />
-    </div>
-  );
-}

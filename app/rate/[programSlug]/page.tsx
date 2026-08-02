@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getProgramForRating } from "@/lib/programs";
-import { getQuestionsForProgram } from "@/lib/pollConfig";
+import { getQuestionsForProgram, getPublicPollLink } from "@/lib/pollConfig";
 import { getExistingSignedInResponse } from "@/lib/pollResponses";
 import { validateReferrerToken } from "@/lib/pollTokens";
 import RateForm from "@/components/polls/RateForm";
@@ -49,7 +49,15 @@ export default async function RateProgramPage({
   // Slot 3, resolved once for both the anonymous and signed-in forms. `all`-scope only --
   // the confirmation surface never resolves scope across a program. Fail-closed to null.
   // The RateForm renders it ONLY inside its post-submission confirmation state.
-  const postPollCta = await resolveAllScopePartnerCta("POST_POLL");
+  //
+  // sharePollLink is resolved alongside it, same "compute once, thread to both forms"
+  // posture -- the post-poll WhatsApp share button (ThankYouPanel) needs the program's
+  // public poll link, never the respondent's own referrer token (see
+  // WhatsAppShareButton.tsx's doc comment for why).
+  const [postPollCta, sharePollLink] = await Promise.all([
+    resolveAllScopePartnerCta("POST_POLL"),
+    getPublicPollLink(program.id),
+  ]);
 
   if (!userId) {
     // Signed out + a referrer token that resolves to this program (even a
@@ -80,6 +88,7 @@ export default async function RateProgramPage({
               questions={core}
               extras={extras}
               postPollCta={postPollCta}
+              sharePollLink={sharePollLink}
             />
           )}
         </PageContainer>
@@ -131,11 +140,13 @@ export default async function RateProgramPage({
         <RateForm
           mode="signed-in"
           programId={program.id}
+          programName={program.name}
           questions={core}
           extras={extras}
           existingAnswers={existingAnswers}
           existingNaQuestionIds={existing?.naQuestionIds}
           postPollCta={postPollCta}
+          sharePollLink={sharePollLink}
         />
       )}
     </PageContainer>

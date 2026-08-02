@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
-import { flattenResolvedQuestionIds } from "@/lib/pollShared";
+import { flattenResolvedQuestionIds, POLL_SHARE_EVENTS, type PollShareEventType } from "@/lib/pollShared";
 import type { Prisma } from "@/app/generated/prisma/client";
 
 /**
@@ -22,6 +22,12 @@ export const POLL_ANALYTICS_EVENTS = {
   PAGE_COMPLETED: "poll_page_completed",
   COUNTED: "poll_counted",
   FULLY_COMPLETED: "poll_fully_completed",
+  // Spread from lib/pollShared.ts's POLL_SHARE_EVENTS (the client-safe boundary, no
+  // Prisma import) rather than redefined here, so there is exactly one source of event
+  // type strings even though these two are emitted via a client-triggered route
+  // (app/api/polls/events/route.ts) instead of directly from a server action like the
+  // rest of this registry.
+  ...POLL_SHARE_EVENTS,
 } as const;
 
 export type PollAnalyticsEventType = (typeof POLL_ANALYTICS_EVENTS)[keyof typeof POLL_ANALYTICS_EVENTS];
@@ -85,6 +91,14 @@ export function trackPollCounted(programId: string, responseId: string, status: 
  * response is actually, fully done, and it never throws into the caller (including if
  * `after()` itself is unavailable outside a request scope -- see record()'s doc comment).
  */
+/** The two post-poll share events (share_button_shown / share_button_clicked), fired from
+ * app/api/polls/events/route.ts after it resolves programId from the given responseId
+ * server-side. Reuses record() -- same after() + swallow-everything posture as every
+ * other event here, no new writer. */
+export function trackPollShare(type: PollShareEventType, programId: string, responseId: string): void {
+  record(type, { programId, responseId });
+}
+
 export function trackPollFullyCompletedIfNew(programId: string, responseId: string): void {
   try {
     after(async () => {

@@ -13,6 +13,7 @@ import type {
   PollQuestionTier,
   PollOptionKind,
 } from "@/app/generated/prisma/enums";
+import type { ClusterSignal } from "@/lib/pollClustering";
 
 export const scaleTypeSchema = z.enum(["EVALUATIVE", "DESCRIPTIVE"]);
 
@@ -72,8 +73,40 @@ export const MIN_RESPONSES_FOR_RATING = 7;
 
 /** One program's rating-response tally for the coverage overview. `count` is the number
  * of COUNTED responses that answered the `overall` question -- the same measure that
- * unlocks a public score -- not raw response rows. */
-export type RatingCoverageRow = { id: string; name: string; slug: string; count: number };
+ * unlocks a public score -- not raw response rows.
+ *
+ * `cluster` is the advisory-only clustering signal from lib/pollClustering.ts. Additive
+ * and optional so no existing consumer breaks; `null` for a program at/above
+ * MIN_RESPONSES_FOR_RATING (nothing left to advise about) or with too few responses to
+ * judge. Never consulted by any unlock, visibility, or transition path. */
+export type RatingCoverageRow = {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+  cluster?: ClusterSignal | null;
+};
+
+/** The two client-triggered share events on the post-poll thank-you screen (see
+ * components/polls/WhatsAppShareButton.tsx and app/api/polls/events/route.ts). Kept
+ * separate from lib/pollAnalytics.ts's POLL_ANALYTICS_EVENTS (which is server-only,
+ * importing Prisma) because this file is the client-safe boundary -- pollAnalytics.ts
+ * re-exports these into its own registry so there is still exactly one source of event
+ * type strings. */
+export const POLL_SHARE_EVENTS = {
+  SHARE_SHOWN: "share_button_shown",
+  SHARE_CLICKED: "share_button_clicked",
+} as const;
+
+export type PollShareEventType = (typeof POLL_SHARE_EVENTS)[keyof typeof POLL_SHARE_EVENTS];
+
+/** Body for `POST /api/polls/events`. `responseId` is the only identifier -- the server
+ * looks up `programId` from the response itself rather than trusting a client-supplied
+ * one, so a crafted request can't attribute a share to a program it didn't happen on. */
+export const pollShareEventSchema = z.object({
+  type: z.enum([POLL_SHARE_EVENTS.SHARE_SHOWN, POLL_SHARE_EVENTS.SHARE_CLICKED]),
+  responseId: z.string().min(1).max(64),
+});
 
 /** Pure roll-up over the coverage rows: total programs, how many meet the threshold, and
  * how many fall below it. Split out (no Prisma) so it's unit-testable and reusable by the
@@ -204,7 +237,15 @@ export type PollSummaryBucketDTO = {
  * `visible` -- see lib/pollResults.ts's getProgramPollSummary -- because the CTA region's
  * social-proof line ("N people have rated this program") must be able to show even when
  * results are hidden/still collecting; lib/contactOptIn.ts's deriveCtaLayout is what
- * actually decides whether to render it (gated at MIN_RESPONSES_PER_QUESTION). */
+ * actually decides whether to render it (gated at MIN_RESPONSES_PER_QUESTION).
+ *
+ * Deliberately does NOT carry the per-program publish bar (ProgramPollConfig's
+ * minResponsesToPublish) -- that number must never reach a public page's RSC payload (see
+ * app/api/polls/programs/[programId]/response-count/route.ts's doc comment for the same
+ * rule applied to the response-count endpoint). Each question's own `published` boolean
+ * (PollSummaryQuestionDTO, computed server-side against that bar) is what the client
+ * actually needs; the threshold itself stays server-only, resolved from
+ * ProgramPollConfig directly wherever admin UI needs to show or edit it. */
 export type PollSummaryDTO = {
   visible: boolean;
   questions: PollSummaryQuestionDTO[];
@@ -213,13 +254,6 @@ export type PollSummaryDTO = {
   editorialBestFor: string | null;
   varianceNote: boolean;
   responseCount: number;
-  /** Per-program publish bar for an individual question's result (reactivated
-   * ProgramPollConfig.minResponsesToPublish, admin-editable, default 7) -- a question's
-   * own `count` must clear this before the results grid renders it instead of "Not
-   * enough responses yet." Deliberately separate from lib/pollBestFor.ts's own
-   * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility and the
-   * variance note -- two different features with two different bars. */
-  minResponsesToPublish: number;
 };
 
 /** One approved review as rendered on the public program page -- never carries
