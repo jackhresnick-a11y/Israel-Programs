@@ -203,7 +203,29 @@ async function submitPoll(page: Page, pageLabel: string) {
     record(pageLabel, "duplicate-submit", `${visibleSubmits} "Submit ratings" buttons rendered at once`);
   }
 
+  // A blocked or failed submit must never be a silent no-op: if the form is in a broken
+  // state (e.g. poll-open 500'd because a migration hadn't been applied), the respondent
+  // has to be told rather than left tapping a dead button.
+  const preExistingError = await page.locator("[data-poll-error]").count();
+  if (preExistingError > 0) {
+    const text = await page.locator("[data-poll-error]").first().innerText();
+    record(pageLabel, "form-error", `form reported an error before submit: "${text}"`);
+  }
+
   await submit.click();
+
+  // Either we navigate to the confirmation, or an error is on screen. Never neither.
+  const outcome = await Promise.race([
+    page.waitForSelector("[data-poll-thankyou]", { timeout: 15000 }).then(() => "thankyou" as const),
+    page.waitForSelector("[data-poll-error]", { timeout: 15000 }).then(() => "error" as const),
+  ]).catch(() => "silent" as const);
+
+  if (outcome === "silent") {
+    record(pageLabel, "silent-submit", "submit produced neither the thank-you panel nor a visible error");
+  } else if (outcome === "error") {
+    const text = await page.locator("[data-poll-error]").first().innerText();
+    record(pageLabel, "submit-failed", `submit surfaced an error: "${text}"`);
+  }
 }
 
 async function main() {

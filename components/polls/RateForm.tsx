@@ -272,49 +272,63 @@ function ReviewConsentCheckbox({
 }
 
 /**
- * How far through the poll the respondent is, plus the submit action -- answered counts a
- * real value *or* an explicit N/A, matching exactly what counts toward the readiness bar
+ * How far through the poll the respondent is (item 10) -- answered counts a real value
+ * *or* an explicit N/A, matching exactly what counts toward the readiness unlock bar
  * server-side, so this number and "did that last tap just unlock the response" never
- * disagree. Ink-navy, not brass -- the header hairline already spends this page's brass
- * budget (style guide §1's "no more than ~5% of a screen is brass"); every rating control's
- * selected state is ink-navy too, never brass (see SegmentedScale/StackedChoice).
- *
- * Docked to the BOTTOM (`sticky`, never `fixed` -- iOS Safari's collapsing toolbar occludes
- * fixed elements) so the end state is reachable without hunting for it, and thumb-reachable
- * on the phones that are most of this poll's traffic. It duplicates the inline submit at the
- * end of the form, so it renders its own button ONLY while that one is off screen
- * (`showSubmit`) -- style guide §7 forbids the same string appearing twice on one screen.
- *
- * `aria-live` is scoped to the caption alone, not the wrapper: with the button inside the
- * live region, every rating tap would re-announce the button label to a screen reader.
+ * disagree. Sticky below the entry header so it stays visible while scrolling a long
+ * question list. Ink-navy, not brass -- the header hairline already spends this page's
+ * brass budget (style guide §1's "no more than ~5% of a screen is brass"); every rating
+ * control's selected state is ink-navy too, never brass (see SegmentedScale/StackedChoice).
  */
-function StickySubmitBar({
-  answered,
-  total,
-  showSubmit,
-  submitting,
-  onSubmit,
-}: {
-  answered: number;
-  total: number;
-  showSubmit: boolean;
-  submitting: boolean;
-  onSubmit: () => void;
-}) {
+function ProgressIndicator({ answered, total }: { answered: number; total: number }) {
   const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
   return (
-    <div className="sticky bottom-0 z-30 -mx-6 border-t border-border bg-background px-6 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <div className="sticky top-[60px] z-30 border-b border-border bg-background py-2" role="status" aria-live="polite">
       <div className="h-0.5 w-full bg-border">
         <div className="h-full bg-primary transition-[width] duration-[120ms] ease-out" style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-1 font-mono text-xs uppercase tracking-wide text-muted" role="status" aria-live="polite">
+      <p className="mt-1 font-mono text-xs uppercase tracking-wide text-muted">
         {answered} of {total} answered
       </p>
-      {showSubmit && (
-        <Button type="button" className="mt-3 min-h-11 w-full" disabled={submitting} onClick={onSubmit}>
-          {submitting ? "Submitting…" : "Submit ratings"}
-        </Button>
-      )}
+    </div>
+  );
+}
+
+/**
+ * A bottom-docked shortcut to submit, carrying NO progress readout of its own (that lives
+ * in ProgressIndicator, above, which does not overlay anything).
+ *
+ * It appears only once the respondent has scrolled past the last question (`tailReached`)
+ * AND the inline submit is not itself on screen. That first condition exists because a
+ * `position: sticky; bottom: 0` element floats over whatever is scrolled beneath it, which
+ * meant an always-on bar sat across the middle of a question for the entire poll. Rendering
+ * nothing until the questions are behind the respondent removes the overlap where it
+ * matters and keeps the shortcut where it's useful. The second condition keeps the string
+ * "Submit ratings" from ever appearing twice at once (style guide §7).
+ *
+ * `sticky`, never `fixed` -- iOS Safari's collapsing toolbar occludes fixed elements.
+ */
+function StickySubmitBar({
+  visible,
+  submitting,
+  onSubmit,
+}: {
+  visible: boolean;
+  submitting: boolean;
+  onSubmit: () => void;
+}) {
+  if (!visible) return null;
+  return (
+    <div className="sticky bottom-0 z-30 -mx-6 border-t border-border bg-background px-6 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <Button
+        type="button"
+        className="min-h-11 w-full active:bg-accent-strong-hover"
+        disabled={submitting}
+        aria-busy={submitting}
+        onClick={onSubmit}
+      >
+        {submitting ? "Submitting…" : "Submit ratings"}
+      </Button>
     </div>
   );
 }
@@ -326,6 +340,9 @@ function StickySubmitBar({
  * reflects an in-flight request, so a double-tap can't submit twice.
  *
  * `min-h-11` is the 44px touch target from style guide §6; Button's own `md` size is ~36px.
+ * `active:` gives an immediate pressed state -- the handler sets `submitting` before it
+ * validates anything, so a tap is always visibly registered even on the paths that end in
+ * an error rather than a navigation.
  * `data-poll-submit` is the stable hook scripts/verify-share-thankyou.ts clicks, matching
  * the data-poll-question / data-poll-option / data-poll-share convention.
  */
@@ -343,8 +360,9 @@ function InlineSubmit({
       <Button
         type="button"
         data-poll-submit
-        className="min-h-11 w-full"
+        className="min-h-11 w-full active:bg-accent-strong-hover"
         disabled={submitting}
+        aria-busy={submitting}
         onClick={onSubmit}
       >
         {submitting ? "Submitting…" : "Submit ratings"}
@@ -353,6 +371,20 @@ function InlineSubmit({
         Your answers are already saved as you go — this finishes up and shows your program&rsquo;s progress.
       </p>
     </div>
+  );
+}
+
+/**
+ * A blocking problem the respondent has to know about, rendered wherever it happens rather
+ * than swallowed. Clay/danger per style guide §2 (errors only). `role="alert"` so it's
+ * announced the moment it appears -- a silent failure on a form someone just spent ten
+ * minutes filling in is the worst outcome this component exists to prevent.
+ */
+function FormAlert({ message }: { message: string }) {
+  return (
+    <p data-poll-error role="alert" className="rounded border border-danger/30 bg-danger-bg px-3 py-2 text-sm text-danger">
+      {message}
+    </p>
   );
 }
 
@@ -370,6 +402,36 @@ function useIsOffScreen(ref: React.RefObject<HTMLDivElement | null>): boolean {
     return () => observer.disconnect();
   }, [ref]);
   return offScreen;
+}
+
+/** Latches true once the sentinel (placed just after the last question) has been reached,
+ * and stays true -- the sticky submit shortcut shouldn't flicker away again if the
+ * respondent scrolls back up to change an answer. */
+function useHasReached(ref: React.RefObject<HTMLDivElement | null>): boolean {
+  const [reached, setReached] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setReached(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return reached;
+}
+
+/** Copy for the two ways submit can fail, kept together so they stay consistent between
+ * the two forms. `openFailed` is the serious one: nothing has been saved at all. */
+const OPEN_FAILED_MESSAGE =
+  "This rating form couldn't start, so nothing you enter is being saved. Reload the page to try again — if it keeps happening, the poll is temporarily unavailable.";
+function submitFailedMessage(status?: number): string {
+  return status
+    ? `Submitting didn't go through (error ${status}). Your answers are saved — wait a moment and try again.`
+    : "Submitting didn't go through — check your connection and try again. Your answers are saved.";
 }
 
 /**
@@ -473,9 +535,12 @@ function SignedInRateForm({
   const [justCompleted, setJustCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
   const inlineSubmitRef = useRef<HTMLDivElement>(null);
+  const tailRef = useRef<HTMLDivElement>(null);
   const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
+  const tailReached = useHasReached(tailRef);
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
@@ -485,9 +550,16 @@ function SignedInRateForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ programId }),
     })
-      .then((res) => res.json())
-      .then((body: OpenResult) => {
+      .then(async (res) => ({ ok: res.ok, body: (await res.json()) as OpenResult }))
+      .then(({ ok, body }) => {
         if (cancelled) return;
+        // A failed open means autosave can never start -- every save handler no-ops
+        // without a responseId. Surfacing it is not optional: silently rendering a form
+        // that discards everything typed into it is the worst failure mode this page has.
+        if (!ok || !body?.responseId) {
+          setError(OPEN_FAILED_MESSAGE);
+          return;
+        }
         setResponseId(body.responseId);
         statusRef.current = body.status;
         if (Object.keys(body.answers).length > 0) {
@@ -502,9 +574,7 @@ function SignedInRateForm({
         }
       })
       .catch(() => {
-        // Poll-open failing just means autosave can't start yet -- the form still
-        // renders; the next answer change retries implicitly since responseId stays
-        // null and saveAnswer below no-ops until it's set.
+        if (!cancelled) setError(OPEN_FAILED_MESSAGE);
       });
     return () => {
       cancelled = true;
@@ -583,14 +653,27 @@ function SignedInRateForm({
    * submittedAt server-side and routes to the thank-you screen. The headline is driven by
    * the status the SERVER reports back, never by statusRef, so a still-settling save can't
    * make it claim a rating was recorded when it wasn't.
+   *
+   * `submitting` is set BEFORE any validation, so every tap produces immediate visible
+   * feedback and every path that doesn't navigate ends in a visible message. There is no
+   * branch here that returns silently -- an earlier version returned early on a missing
+   * responseId, which is exactly how a broken poll-open turned into a submit button that
+   * looked like it did nothing at all.
    */
   async function handleSubmit() {
-    if (!responseId || submitting) return;
+    if (submitting) return;
     setSubmitting(true);
+    setError(null);
+    if (!responseId) {
+      setError(OPEN_FAILED_MESSAGE);
+      setSubmitting(false);
+      return;
+    }
     try {
       await flushAll();
       const res = await fetch(`/api/polls/responses/${responseId}/submit`, { method: "POST" });
       if (!res.ok) {
+        setError(submitFailedMessage(res.status));
         setSubmitting(false);
         return;
       }
@@ -600,6 +683,7 @@ function SignedInRateForm({
       setJustCompleted(true);
       router.refresh();
     } catch {
+      setError(submitFailedMessage());
       setSubmitting(false);
     }
   }
@@ -660,7 +744,9 @@ function SignedInRateForm({
   const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
 
   return (
-    <div data-poll-mode="signed-in" className="flex flex-col gap-6 pb-16">
+    <div data-poll-mode="signed-in" className="flex flex-col gap-6">
+      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
+      {error && <FormAlert message={error} />}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -672,6 +758,9 @@ function SignedInRateForm({
         onNaChange={handleNaChange}
         onReviewTextChange={handleReviewTextChange}
       />
+      {/* Sentinel: everything below is the tail of the form, so the sticky submit shortcut
+          can start appearing here without ever floating across a question. */}
+      <div ref={tailRef} aria-hidden="true" />
       <ReviewConsentCheckbox
         checked={consentGiven}
         onChange={handleConsentChange}
@@ -683,11 +772,10 @@ function SignedInRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
+      {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
       <StickySubmitBar
-        answered={answeredCount}
-        total={allQuestions.length}
-        showSubmit={inlineSubmitOffScreen}
+        visible={tailReached && inlineSubmitOffScreen}
         submitting={submitting}
         onSubmit={handleSubmit}
       />
@@ -720,9 +808,12 @@ function AnonymousRateForm({
   const [justCompleted, setJustCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
   const inlineSubmitRef = useRef<HTMLDivElement>(null);
+  const tailRef = useRef<HTMLDivElement>(null);
   const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
+  const tailReached = useHasReached(tailRef);
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
@@ -733,9 +824,15 @@ function AnonymousRateForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ programId, ref: referrerToken, resumeId }),
     })
-      .then((res) => res.json())
-      .then((body: OpenResult) => {
+      .then(async (res) => ({ ok: res.ok, body: (await res.json()) as OpenResult }))
+      .then(({ ok, body }) => {
         if (cancelled) return;
+        // See SignedInRateForm's identical guard -- a failed open means every autosave
+        // silently discards what the respondent types, so it must be visible.
+        if (!ok || !body?.responseId) {
+          setError(OPEN_FAILED_MESSAGE);
+          return;
+        }
         setResponseId(body.responseId);
         statusRef.current = body.status;
         saveResumeId(programSlug, body.responseId);
@@ -760,8 +857,7 @@ function AnonymousRateForm({
         }
       })
       .catch(() => {
-        // See SignedInRateForm's identical catch -- the form still renders; autosave
-        // just can't start until responseId resolves.
+        if (!cancelled) setError(OPEN_FAILED_MESSAGE);
       });
     return () => {
       cancelled = true;
@@ -834,14 +930,22 @@ function AnonymousRateForm({
     }
   }
 
-  /** See SignedInRateForm's handleSubmit -- identical contract. */
+  /** See SignedInRateForm's handleSubmit -- identical contract, including that no branch
+   * here may return without either navigating or surfacing a message. */
   async function handleSubmit() {
-    if (!responseId || submitting) return;
+    if (submitting) return;
     setSubmitting(true);
+    setError(null);
+    if (!responseId) {
+      setError(OPEN_FAILED_MESSAGE);
+      setSubmitting(false);
+      return;
+    }
     try {
       await flushAll();
       const res = await fetch(`/api/polls/responses/${responseId}/submit`, { method: "POST" });
       if (!res.ok) {
+        setError(submitFailedMessage(res.status));
         setSubmitting(false);
         return;
       }
@@ -851,6 +955,7 @@ function AnonymousRateForm({
       setJustCompleted(true);
       router.refresh();
     } catch {
+      setError(submitFailedMessage());
       setSubmitting(false);
     }
   }
@@ -913,7 +1018,9 @@ function AnonymousRateForm({
   const answeredCount = allQuestions.filter((q) => values[q.id] !== null || naFlags[q.id]).length;
 
   return (
-    <div data-poll-mode="anonymous" className="flex flex-col gap-6 pb-16">
+    <div data-poll-mode="anonymous" className="flex flex-col gap-6">
+      <ProgressIndicator answered={answeredCount} total={allQuestions.length} />
+      {error && <FormAlert message={error} />}
       <ReviewConsentContext />
       <QuestionSections
         questions={questions}
@@ -925,6 +1032,9 @@ function AnonymousRateForm({
         onNaChange={handleNaChange}
         onReviewTextChange={handleReviewTextChange}
       />
+      {/* Sentinel: everything below is the tail of the form, so the sticky submit shortcut
+          can start appearing here without ever floating across a question. */}
+      <div ref={tailRef} aria-hidden="true" />
       <label className="flex max-w-xs flex-col gap-1">
         <span className="text-sm font-medium text-foreground">When did you attend? (optional)</span>
         <Select value={yearAttended ?? ""} onChange={(e) => handleYearAttendedChange(e.target.value ? Number(e.target.value) : null)}>
@@ -947,11 +1057,10 @@ function AnonymousRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
+      {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
       <StickySubmitBar
-        answered={answeredCount}
-        total={allQuestions.length}
-        showSubmit={inlineSubmitOffScreen}
+        visible={tailReached && inlineSubmitOffScreen}
         submitting={submitting}
         onSubmit={handleSubmit}
       />

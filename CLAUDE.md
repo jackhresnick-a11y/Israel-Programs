@@ -914,16 +914,40 @@ nothing to any score, and the confirmation says so in plain language rather than
 rating was recorded. The confirmation's headline branches on the status the *server* returns
 from this route, never on client state, so a still-settling autosave can't make it lie.
 
+⚠️ **This feature is the sharpest example of why migration ordering is code-last.** A
+preview deployment carrying the submit code went out before
+`20260802105354_add_poll_response_submitted_at` was applied. `openAnonymousResponse` /
+`openSignedInResponse` use `include: { answers: true }`, so Prisma selects *every* scalar
+column — including the not-yet-existing `submittedAt` — and `POST /api/polls/responses/open`
+500'd with `P2022 / 42703: column PollResponse.submittedAt does not exist`. With no
+`responseId`, every autosave silently no-op'd and the submit button did nothing at all.
+Apply the migration to production **first**, always.
+
+**No path in this form may fail silently.** A failed poll-open now surfaces a visible
+`role="alert"` message (`FormAlert`, `[data-poll-error]`) rather than rendering a form that
+quietly discards everything typed into it, and the submit handler sets its in-flight state
+*before* any validation so a tap is always visibly registered — there is no branch that
+returns without either navigating or showing a message.
+`scripts/verify-share-thankyou.ts` asserts this directly: after clicking submit it races the
+thank-you panel against `[data-poll-error]` and fails if neither appears.
+
 Client side (`components/polls/RateForm.tsx`): `useKeyedDebounce` returns
 `[schedule, flushAll]`, and the submit handler **awaits `flushAll()` before POSTing**. That
 is load-bearing, not hygiene: the contact-email field sits immediately above the submit
 button, so typing an address and pressing submit inside the 600ms debounce window is the
 normal interaction — without the flush the server would read a still-null `referenceEmail`
 and silently skip creating the reference, reproducing the exact bug described below. There
-are two submit affordances (a large inline one at the end of the form and one in the
-bottom-docked sticky progress bar), but never both visible at once: an `IntersectionObserver`
-reveals the sticky bar's copy only while the inline button is off screen, per the style
-guide's "never repeat the same string twice on one screen."
+are two submit affordances — a large inline one at the end of the form, and a bottom-docked
+sticky shortcut — but never both visible at once: an `IntersectionObserver` reveals the
+sticky one only while the inline button is off screen, per the style guide's "never repeat
+the same string twice on one screen."
+
+The sticky shortcut also stays hidden until the respondent has scrolled past the last
+question (a sentinel `div` + `useHasReached`). A `position: sticky; bottom: 0` element
+floats over whatever is scrolled beneath it, so an always-on bar sat across the middle of a
+question for the whole poll. Progress therefore stays in `ProgressIndicator` at the top
+(`sticky top-[60px]`, unchanged from before this feature) rather than moving into the bottom
+bar: one progress readout, and the bottom bar carries nothing but the button.
 
 Crossing the readiness bar no longer routes anywhere by itself. It used to set
 `justCompleted`, which replaced the entire form with the thank-you panel the instant the bar
