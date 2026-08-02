@@ -65,12 +65,26 @@ const DEBOUNCE_MS = 600;
 function useKeyedDebounce(delayMs: number) {
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const pending = useRef(new Map<string, () => void | Promise<void>>());
+  // Saves whose timer has already fired but whose request is still in flight. Tracking
+  // these is what makes flushAll actually mean "everything has landed" -- see its comment.
+  const inFlight = useRef(new Set<Promise<void>>());
   useEffect(
     () => () => {
       for (const t of timers.current.values()) clearTimeout(t);
     },
     []
   );
+
+  const run = useCallback((fn: () => void | Promise<void>) => {
+    const p = Promise.resolve()
+      .then(fn)
+      .catch(() => {})
+      .finally(() => {
+        inFlight.current.delete(p);
+      });
+    inFlight.current.add(p);
+    return p;
+  }, []);
 
   const schedule = useCallback(
     (key: string, fn: () => void | Promise<void>) => {
@@ -82,20 +96,38 @@ function useKeyedDebounce(delayMs: number) {
         setTimeout(() => {
           timers.current.delete(key);
           pending.current.delete(key);
-          void fn();
+          void run(fn);
         }, delayMs)
       );
     },
-    [delayMs]
+    [delayMs, run]
   );
 
+  /**
+   * Runs every not-yet-fired save NOW and waits until nothing is outstanding -- including
+   * saves whose debounce already elapsed and whose request is still on the wire.
+   *
+   * That second half is the part that matters. An earlier version awaited only the pending
+   * timers, so on a slow connection an answer that had already left the debounce but was
+   * still mid-request was invisible here: submit raced ahead of it, the server evaluated
+   * the readiness bar without that answer, and the respondent was told their response
+   * didn't count -- moments before it silently did. Observed live with ~4-6s saves: the
+   * last answer's PATCH completed *after* the submit POST.
+   *
+   * Loops because flushing a pending save creates new in-flight work.
+   */
   const flushAll = useCallback(async () => {
-    const fns = [...pending.current.values()];
-    for (const t of timers.current.values()) clearTimeout(t);
-    timers.current.clear();
-    pending.current.clear();
-    await Promise.all(fns.map((fn) => Promise.resolve().then(fn)));
-  }, []);
+    for (let i = 0; i < 10; i++) {
+      const fns = [...pending.current.values()];
+      for (const t of timers.current.values()) clearTimeout(t);
+      timers.current.clear();
+      pending.current.clear();
+      fns.forEach((fn) => void run(fn));
+      if (inFlight.current.size === 0) return;
+      await Promise.all([...inFlight.current]);
+      if (pending.current.size === 0 && inFlight.current.size === 0) return;
+    }
+  }, [run]);
 
   return [schedule, flushAll] as const;
 }
@@ -424,6 +456,35 @@ function useHasReached(ref: React.RefObject<HTMLDivElement | null>): boolean {
   return reached;
 }
 
+/**
+ * The confirmation headline, from the status the SERVER reported at submit. Three genuinely
+ * different outcomes, and conflating any two of them tells the respondent something untrue:
+ *
+ * - COUNTED    -- it counts; the caller supplies the wording (it differs by mode/update).
+ * - INCOMPLETE -- they submitted without covering enough of the poll. Say so plainly, since
+ *                 the fix is in their hands: keep answering.
+ * - FLAGGED    -- they answered plenty, but an anti-abuse signal (a repeat IP or browser on
+ *                 this program) held the rating for review. Saying "only part of the poll
+ *                 was answered" here would be flatly false, and detailing the heuristic
+ *                 would just teach people how to route around it -- so this states the
+ *                 outcome and nothing more.
+ */
+function thankYouHeadline({
+  status,
+  programName,
+  countedText,
+}: {
+  status: string | null;
+  programName: string;
+  countedText: string;
+}): string {
+  if (status === "COUNTED") return countedText;
+  if (status === "INCOMPLETE") {
+    return `Thanks — your answers are saved. This one won't appear in ${programName}'s published ratings, since only part of the poll was answered.`;
+  }
+  return `Thanks — your rating of ${programName} has been saved and is being reviewed before it appears.`;
+}
+
 /** Copy for the two ways submit can fail, kept together so they stay consistent between
  * the two forms. `openFailed` is the serious one: nothing has been saved at all. */
 const OPEN_FAILED_MESSAGE =
@@ -688,6 +749,15 @@ function SignedInRateForm({
     }
   }
 
+  /** Back to the form from the confirmation. Answers live in this component's state (and
+   * on the server), so nothing is lost; `submittedAt` deliberately stays set, since they
+   * did submit -- re-submitting later is idempotent and keeps the original stamp. */
+  function handleKeepAnswering() {
+    setJustCompleted(false);
+    setSubmitting(false);
+    setError(null);
+  }
+
   function handleValueChange(id: string, v: number | null) {
     setValues((prev) => ({ ...prev, [id]: v }));
     schedule(`answer:${id}`, () => saveAnswerToServer(id, v, false));
@@ -720,7 +790,7 @@ function SignedInRateForm({
   }
 
   if (justCompleted) {
-    const counted = submittedStatus !== null && submittedStatus !== "INCOMPLETE";
+    const counted = submittedStatus === "COUNTED";
     return (
       <ThankYouPanel
         mode="signed-in"
@@ -729,14 +799,14 @@ function SignedInRateForm({
         responseId={responseId}
         sharePollLink={sharePollLink}
         counted={counted}
-        headline={
-          counted
-            ? isUpdate
-              ? "Your rating has been updated."
-              : "Thanks for rating this program."
-            : `Thanks — your answers are saved. This one won't appear in ${programName}'s published ratings, since only part of the poll was answered.`
-        }
+        incomplete={submittedStatus === "INCOMPLETE"}
+        headline={thankYouHeadline({
+          status: submittedStatus,
+          programName,
+          countedText: isUpdate ? "Your rating has been updated." : "Thanks for rating this program.",
+        })}
         postPollCta={postPollCta}
+        onKeepAnswering={handleKeepAnswering}
       />
     );
   }
@@ -758,9 +828,6 @@ function SignedInRateForm({
         onNaChange={handleNaChange}
         onReviewTextChange={handleReviewTextChange}
       />
-      {/* Sentinel: everything below is the tail of the form, so the sticky submit shortcut
-          can start appearing here without ever floating across a question. */}
-      <div ref={tailRef} aria-hidden="true" />
       <ReviewConsentCheckbox
         checked={consentGiven}
         onChange={handleConsentChange}
@@ -772,6 +839,12 @@ function SignedInRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
+      {/* Sentinel sits BELOW the contact-email block on purpose. The sticky submit shortcut
+          must not become tappable while that field is still under the fold, or a respondent
+          can submit having never laid eyes on it -- which is how the reference pipeline
+          produced nothing for five weeks. Everything below here is genuinely the end of the
+          form, so the shortcut can appear without floating across content. */}
+      <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
       <StickySubmitBar
@@ -840,11 +913,10 @@ function AnonymousRateForm({
         // go straight back to the confirmation rather than handing them a blank form that
         // would look like their submission vanished. The resume key is deliberately kept,
         // not cleared, which is what makes this idempotent across reloads.
-        if (body.submittedAt) {
-          setSubmittedStatus(body.status);
-          setJustCompleted(true);
-          return;
-        }
+        // Restore saved state BEFORE deciding whether to show the confirmation. Returning
+        // early here (as this did originally) meant that pressing "Keep answering" after a
+        // reload handed back an empty form, even though every answer was safe on the
+        // server -- the exact opposite of what the button promises.
         if (Object.keys(body.answers).length > 0) {
           setValues((prev) => ({ ...prev, ...body.answers }));
         }
@@ -854,6 +926,10 @@ function AnonymousRateForm({
             for (const id of body.naQuestionIds) next[id] = true;
             return next;
           });
+        }
+        if (body.submittedAt) {
+          setSubmittedStatus(body.status);
+          setJustCompleted(true);
         }
       })
       .catch(() => {
@@ -960,6 +1036,15 @@ function AnonymousRateForm({
     }
   }
 
+  /** Back to the form from the confirmation. Answers live in this component's state (and
+   * on the server), so nothing is lost; `submittedAt` deliberately stays set, since they
+   * did submit -- re-submitting later is idempotent and keeps the original stamp. */
+  function handleKeepAnswering() {
+    setJustCompleted(false);
+    setSubmitting(false);
+    setError(null);
+  }
+
   function handleValueChange(id: string, v: number | null) {
     setValues((prev) => ({ ...prev, [id]: v }));
     schedule(`answer:${id}`, () => saveAnswerToServer(id, v, false));
@@ -996,7 +1081,7 @@ function AnonymousRateForm({
   }
 
   if (justCompleted) {
-    const counted = submittedStatus !== null && submittedStatus !== "INCOMPLETE";
+    const counted = submittedStatus === "COUNTED";
     return (
       <ThankYouPanel
         mode="anonymous"
@@ -1005,12 +1090,14 @@ function AnonymousRateForm({
         responseId={responseId}
         sharePollLink={sharePollLink}
         counted={counted}
-        headline={
-          counted
-            ? `Thanks — your rating of ${programName} has been recorded.`
-            : `Thanks — your answers are saved. This one won't appear in ${programName}'s published ratings, since only part of the poll was answered.`
-        }
+        incomplete={submittedStatus === "INCOMPLETE"}
+        headline={thankYouHeadline({
+          status: submittedStatus,
+          programName,
+          countedText: `Thanks — your rating of ${programName} has been recorded.`,
+        })}
         postPollCta={postPollCta}
+        onKeepAnswering={handleKeepAnswering}
       />
     );
   }
@@ -1032,9 +1119,6 @@ function AnonymousRateForm({
         onNaChange={handleNaChange}
         onReviewTextChange={handleReviewTextChange}
       />
-      {/* Sentinel: everything below is the tail of the form, so the sticky submit shortcut
-          can start appearing here without ever floating across a question. */}
-      <div ref={tailRef} aria-hidden="true" />
       <label className="flex max-w-xs flex-col gap-1">
         <span className="text-sm font-medium text-foreground">When did you attend? (optional)</span>
         <Select value={yearAttended ?? ""} onChange={(e) => handleYearAttendedChange(e.target.value ? Number(e.target.value) : null)}>
@@ -1057,6 +1141,9 @@ function AnonymousRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
+      {/* Sentinel sits BELOW the contact-email block on purpose -- see SignedInRateForm's
+          identical note. */}
+      <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
       <StickySubmitBar

@@ -539,18 +539,54 @@ describe("autosave/readiness-transition ↔ reference integration", () => {
     });
     // One answer only -- nowhere near the floor of 3.
     await saveAnswer({ responseId: response.id, questionId: "q_core_1", questionVersion: 1, value: 5, na: false, hasBrowserMarker: false });
+
+    const result = await markSubmitted(response.id);
+
+    expect(result?.status).toBe("INCOMPLETE");
+    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE");
+    expect(snapshot().pollResponses[0].submittedAt).not.toBeNull();
+  });
+
+  /**
+   * The consent gate is the email + the 18+ attestation, NOT the readiness bar. Someone who
+   * typed a real address under POLL_REFERENCE_CONSENT_LABEL consented to be listed as an
+   * alumnus of this program; how many rating questions they went on to answer is a separate
+   * question about ratings data. A reference still lands PENDING for admin review.
+   */
+  it("uncounted (INCOMPLETE) submit with email + 18+ still creates a reference", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await saveAnswer({ responseId: response.id, questionId: "q_core_1", questionVersion: 1, value: 5, na: false, hasBrowserMarker: false });
     await addDetailAnswersAndReviews(response.id, [], [], [], [], {
       referenceEmail: "alum@example.com",
       ageAttested: true,
     });
 
-    const result = await markSubmitted(response.id);
+    await markSubmitted(response.id);
     await finalizeReferenceFromPoll(response.id);
 
-    expect(result?.status).toBe("INCOMPLETE");
-    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE");
-    expect(snapshot().pollResponses[0].submittedAt).not.toBeNull();
-    // Not COUNTED, so no reference -- submitting can't smuggle one past the gate.
+    expect(snapshot().pollResponses[0].status).toBe("INCOMPLETE"); // still doesn't count
+    expect(snapshot().references).toHaveLength(1); // but the consent is honoured
+    expect(snapshot().references[0].status).toBe("PENDING");
+  });
+
+  it("submit without 18+ attested still creates no reference, whatever the status", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "alum@example.com",
+      ageAttested: false,
+    });
+    await markSubmitted(response.id);
+    await finalizeReferenceFromPoll(response.id);
     expect(snapshot().references).toHaveLength(0);
   });
 
@@ -566,18 +602,35 @@ describe("autosave/readiness-transition ↔ reference integration", () => {
     expect(snapshot().references).toHaveLength(0);
   });
 
-  it("FLAGGED transition (repeat browser) + valid email + 18+ → 0 references", async () => {
-    // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED. A valid email + 18+ still
-    // creates NO reference; only a COUNTED transition does.
+  it("FLAGGED transition (repeat browser) + valid email + 18+ → reference still created", async () => {
+    // hasBrowserMarker trips REPEAT_BROWSER -> status FLAGGED, which holds the RATING back
+    // from public aggregates. The consent to be listed as a reference is a separate claim
+    // and is still honoured; the row lands PENDING, so an admin reviews it either way.
     const { status } = await openAndCrossReadinessBar({
       referenceEmail: "alum@example.com",
       ageAttested: true,
       hasBrowserMarker: true,
     });
     expect(status).toBe("FLAGGED");
-    expect(snapshot().pollResponses).toHaveLength(1); // poll response still saved
-    expect(snapshot().references).toHaveLength(0); // but no reference
-    expect(fakePrisma.reference.upsert).not.toHaveBeenCalled();
+    expect(snapshot().pollResponses).toHaveLength(1);
+    expect(snapshot().references).toHaveLength(1);
+    expect(snapshot().references[0].status).toBe("PENDING");
+  });
+
+  it("a VOIDED response never creates a reference", async () => {
+    const response = await openAnonymousResponse({
+      programId: "prog_1",
+      referrerTokenId: "tok_1",
+      ipHash: "hash",
+      presentedQuestionIds: ["q_core_1", "q_core_2", "q_core_3"],
+    });
+    await addDetailAnswersAndReviews(response.id, [], [], [], [], {
+      referenceEmail: "alum@example.com",
+      ageAttested: true,
+    });
+    await fakePrisma.pollResponse.update({ where: { id: response.id }, data: { status: "VOIDED" } });
+    await finalizeReferenceFromPoll(response.id);
+    expect(snapshot().references).toHaveLength(0);
   });
 
   it("an abandoned INCOMPLETE response (never crossing the readiness bar) never triggers a reference", async () => {

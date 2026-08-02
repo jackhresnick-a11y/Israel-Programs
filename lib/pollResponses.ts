@@ -346,10 +346,20 @@ export async function markSubmitted(responseId: string): Promise<{ status: PollR
  * (`a@b.co` en route to `a@b.com`) would create a Reference keyed on the wrong pollEmailKey
  * that the upsert's `update: {}` no-op would then never correct.
  *
- * Gates are unchanged: COUNTED only (a FLAGGED response never spawns a reference), plus
- * upsertReferenceFromPoll's own `ageAttested` + valid-email checks. Idempotent by DB
- * constraint, so re-submitting can't produce a duplicate. Wrapped so a failure can never
- * fail the submit -- the submission itself is already persisted.
+ * **The gate is the email plus the 18+ attestation -- deliberately NOT `status === COUNTED`.**
+ * Entering the address under POLL_REFERENCE_CONSENT_LABEL *is* the consent to be listed as
+ * an alumnus of this program (the Jul 28 decision); how much of the ratings poll the person
+ * went on to answer is an unrelated question about ratings data quality. Gating on COUNTED
+ * discarded willing references for a reason that has nothing to do with what they consented
+ * to -- and the poll has produced 8 references in its entire history, so there was nothing
+ * to spare. A reference lands PENDING and an admin still vets it before anything is
+ * published, which is where quality is actually enforced.
+ *
+ * VOIDED is the one status still excluded: voiding a response is an explicit "erase this",
+ * and honouring it costs nothing since a voided response can't be submitted anyway.
+ *
+ * Idempotent by DB constraint, so re-submitting can't produce a duplicate. Wrapped so a
+ * failure can never fail the submit -- the submission itself is already persisted.
  */
 export async function finalizeReferenceFromPoll(responseId: string): Promise<void> {
   const response = await prisma.pollResponse.findUnique({
@@ -363,7 +373,7 @@ export async function finalizeReferenceFromPoll(responseId: string): Promise<voi
       yearAttended: true,
     },
   });
-  if (!response || response.status !== "COUNTED" || !response.referenceEmail) return;
+  if (!response || response.status === "VOIDED" || !response.referenceEmail) return;
 
   try {
     await upsertReferenceFromPoll({
