@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Israel Programs Wiki is a community-editable directory of Jewish Israel programs (gap
+years, 10-day summer trips, semester programs, internships, etc.) — browse/search,
+program submission and moderated edits, alumni ratings/reviews, and admin tooling.
+
 @AGENTS.md
 
 ## Standing rules (the contract — read every session)
@@ -47,6 +51,14 @@ check it for target-state product direction beyond what's already built. Its own
 "Current State" section (§0) is partially stale (it still says "Prisma + SQLite"; the
 live stack is Prisma + Postgres/Neon, per this file) — trust CLAUDE.md over §0 for what
 actually exists today, and the spec for where things are headed.
+
+`docs/STYLE_GUIDE.md` is the authority for visual/UI conventions (color tokens, the
+segmented-control/rating-input spec, spacing, contrast rules) — cited by section number
+(e.g. "§6") throughout component doc comments in `components/polls/` and elsewhere. A
+UI change that touches color, the rating controls, or layout should check it first and
+be reconciled with it (update the relevant bullet if the change deliberately supersedes
+what's written, the way `poll/unify-rating-selected-color` updated §6's "Rating input"
+bullet) rather than letting code and doc silently diverge.
 
 `README.md`'s "Stack"/"Project structure"/"Notes" sections are also stale on upload
 storage — they describe logos *and* videos as local-disk under `public/uploads/`, which
@@ -97,6 +109,19 @@ this project is still `npx tsc --noEmit`, `npm run lint`, exercising the feature
 `lib/roles.test.ts`'s pattern (hoisted mocks, dynamic `await import(...)` after
 `vi.mock`) if adding a DB-adjacent test to this suite rather than introducing a
 different testing style.
+
+**Playwright** (`devDependencies`, browsers already cached at `~/.cache/ms-playwright`)
+is the verification tool for poll-UI layout/visual changes that Vitest's pure-logic
+suite can't reach — `scripts/verify-choice-layout.ts` (overflow/clipping/line-wrap
+checks) and `scripts/verify-unified-color.ts` (selected-state computed-color checks) are
+the working examples to follow. Both **write data** (they open `/rate`, which creates a
+`PollResponse`, and click options, which writes `PollAnswer` rows) and both call a
+`refuseIfProd()` guard at the top of `main()` that aborts before any write if
+`DATABASE_URL` matches the value committed in `.env` — run these only against a Neon
+branch (see "Shipping a schema change" below for cutting one), never against production.
+Both resolve their target program's `?ref=` token live via `lib/pollConfig.ts`'s
+`getPublicPollLink` rather than hardcoding one, so they stay correct against whichever
+database they're actually pointed at.
 
 ### Database
 
@@ -745,6 +770,25 @@ latter is now dormant, see below); `20260717145712_add_poll_reviews_and_skip_sna
 constraints or partial indexes — **never run `prisma db push` against this schema**, it
 silently drops all of them.
 
+**Rendering a question's answer control is driven by `lib/pollShared.ts`'s
+`resolveOptionKind(question)`, never by `question.type` directly.** It returns
+`"numeric"` (STARS — always), `"ordinal"`, or `"categorical"`, the last driven by the
+additive nullable `PollQuestion.optionKind` (`PollOptionKind`: `ORDINAL` | `CATEGORICAL`)
+column — `NULL` means "derive," and derives to ordinal, so a question is only ever
+categorical (unordered alternatives, e.g. "what type of unit did you go to" — kinds, not
+amounts) by deliberate admin classification, never by default.
+`components/polls/QuestionInput.tsx` branches on this: `"categorical"` renders
+`StackedChoice` (full-width, left-aligned, entirely-tappable rows — no horizontal
+segmentation, ever, for a genuinely unordered set); anything else renders
+`SegmentedScale` (five numbered 1–5 segments; only `labels[0]`/`labels[4]` display, as
+anchors beneath the bar — middle labels stay in the data, reachable via each segment's
+`aria-label`, but are never shown, so a long middle label can't wrap/overflow a segment).
+Both controls share one selected-state color (ink-navy, per `docs/STYLE_GUIDE.md`) —
+there is deliberately no per-question-type or per-bucket color variation, since an
+unexplained color difference with no legend reads as a bug, not a signal. The opt-out
+is `NaOptOut`, a small "N/A" text link rendered *outside* the answer control (not a
+segment inside it) — see the N/A paragraph below for what it writes.
+
 The rating form is a single continuous page with no submit button — every answer, review,
 and contact field autosaves independently the moment it changes (debounced client-side).
 A `PollResponse` is created the instant the poll page opens, starting life inert
@@ -774,10 +818,10 @@ a different, actively-used concept (see below); a *new* response is never writte
 
 **Every question is skippable, and a skip is the *absence* of a row — never a stored
 null or sentinel.** Inputs start unanswered (no pre-fill): tapping a value selects it,
-tapping the same value again clears it. An **N/A checkbox** beside every question
-(`components/polls/QuestionInput.tsx`) is the *explicit, deliberate* version of that
-same absence — checking it clears any selected value, disables the inputs until
-unchecked, and adds the question's id to `PollResponse.naQuestionIds` (a second
+tapping the same value again clears it. **`NaOptOut`** (a small "N/A" text link beneath
+every question's answer control — see the rendering paragraph above) is the *explicit,
+deliberate* version of that same absence — activating it clears any selected value and
+adds the question's id to `PollResponse.naQuestionIds` (a second
 `String[]`, additive migration `20260719181645_add_poll_na_question_ids`) instead of
 writing a `PollAnswer` row, same as an ordinary skip. The two are tracked as genuinely
 different states, not just different labels for the same `value === null`: an N/A'd
