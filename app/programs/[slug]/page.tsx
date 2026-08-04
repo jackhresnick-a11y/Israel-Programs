@@ -361,6 +361,22 @@ export default async function ProgramDetailPage({
           <ReferenceForm programId={program.id} />
         </Show>
       </section>
+
+      {/* Same Program.updatedAt field app/sitemap.ts's listPublishedProgramSlugsForSitemap
+          selects for `lastmod` -- this visible date and the sitemap entry can never drift
+          apart. timeZone pinned to UTC since this renders server-side and an unpinned
+          locale date would shift with the deploy region. */}
+      <p className="text-xs text-muted">
+        Last updated:{" "}
+        <time dateTime={program.updatedAt.toISOString()}>
+          {program.updatedAt.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            timeZone: "UTC",
+          })}
+        </time>
+      </p>
     </PageContainer>
   );
 }
