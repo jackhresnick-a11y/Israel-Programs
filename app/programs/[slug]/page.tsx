@@ -208,6 +208,7 @@ export default async function ProgramDetailPage({
       <PollSummaryStrip
         summary={pollSummary}
         programSlug={program.slug}
+        programName={program.name}
         publicPollLink={publicPollLink}
         isModerator={isModerator}
       />

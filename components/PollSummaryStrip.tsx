@@ -52,7 +52,15 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * side. Deliberately a different, higher bar than lib/pollBestFor.ts's own
  * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility -- a
  * different feature, untouched here. */
-function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDTO; colorVar: string | null }) {
+function QuestionBlock({
+  question,
+  colorVar,
+  programName,
+}: {
+  question: PollSummaryQuestionDTO;
+  colorVar: string | null;
+  programName: string;
+}) {
   const { text, mean, count, labels, scaleType, published } = question;
 
   if (!published) {
@@ -68,7 +76,7 @@ function QuestionBlock({ question, colorVar }: { question: PollSummaryQuestionDT
     return <DescriptiveTrack text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
   }
 
-  return <RatingRing text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
+  return <RatingRing text={text} programName={programName} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
 }
 
 /** The primary "Rate this program" button plus its optional social-proof line -- one
@@ -121,11 +129,16 @@ function RateCta({
 export default function PollSummaryStrip({
   summary,
   programSlug,
+  programName,
   publicPollLink,
   isModerator,
 }: {
   summary: PollSummaryDTO;
   programSlug: string;
+  // Feeds the per-question extractability sentences (lib/pollSentences.ts) rendered
+  // inside RatingRing/DescriptiveTrack -- the sentence names the program by its real
+  // display name, never the slug.
+  programName: string;
   // The tokened /rate/[slug]?ref=... link (see lib/pollConfig.ts's getPublicPollLink),
   // when the program has anonymous rating enabled -- lets a signed-out visitor rate
   // without hitting the sign-in wall. A signed-in visitor is unaffected either way: the
@@ -173,7 +186,7 @@ export default function PollSummaryStrip({
             <div className="flex flex-col divide-y divide-border">
               {bucketQuestions.map((q) => (
                 <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                  <QuestionBlock question={q} colorVar={colorVar} />
+                  <QuestionBlock question={q} colorVar={colorVar} programName={programName} />
                 </div>
               ))}
             </div>
@@ -187,7 +200,7 @@ export default function PollSummaryStrip({
           <div className="flex flex-col divide-y divide-border">
             {ungroupedQuestions.map((q) => (
               <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                <QuestionBlock question={q} colorVar={null} />
+                <QuestionBlock question={q} colorVar={null} programName={programName} />
               </div>
             ))}
           </div>
