@@ -44,7 +44,7 @@ export default function DescriptiveTrack({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm font-medium text-foreground">{text}</p>
+      <h3 className="text-sm font-medium text-foreground">{text}</h3>
       <div className="relative h-2 w-full rounded-full bg-surface-muted">
         {[0, 0.25, 0.5, 0.75, 1].map((tickFrac) => (
           <span

@@ -66,7 +66,7 @@ function QuestionBlock({
   if (!published) {
     return (
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">{text}</p>
+        <h3 className="text-sm font-medium text-foreground">{text}</h3>
         <p className="text-xs text-muted">Not enough responses yet.</p>
       </div>
     );
@@ -158,6 +158,7 @@ export default function PollSummaryStrip({
 
   return (
     <div className="flex flex-col gap-4">
+      <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Poll results</h2>
       <div className="flex flex-col gap-3">
         {layout.showResults && (
           <BestForStrip

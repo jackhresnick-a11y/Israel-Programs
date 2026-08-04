@@ -74,7 +74,7 @@ export default function RatingRing({
         </text>
       </svg>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">{text}</p>
+        <h3 className="text-sm font-medium text-foreground">{text}</h3>
         <p className="text-xs text-muted">
           1 {labels[0]} · 5 {labels[4]}
         </p>

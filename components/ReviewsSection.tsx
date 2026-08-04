@@ -43,45 +43,45 @@ export default function ReviewsSection({
   programName: string;
   summary: ProgramReviewsSummaryDTO;
 }) {
-  const hasContent = summary.pollGroups.length > 0 || summary.standaloneReviews.length > 0;
-
   return (
-    <section className="flex flex-col gap-6">
-      <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Reviews</h2>
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-6">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Reviews</h2>
 
-      {hasContent && (
-        <div className="flex flex-col gap-6">
-          {summary.pollGroups.map((group) => (
-            <div key={group.questionKey} className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-foreground">{group.questionText}</h3>
-              <div className="flex flex-col gap-3">
-                {group.reviews.map((review, i) => (
-                  <article key={i} className="rounded border border-border bg-surface p-4">
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
-                    <footer className="mt-2 text-xs text-muted">{reviewAttribution(programName, review.yearAttended)}</footer>
-                  </article>
-                ))}
+        {summary.pollGroups.length > 0 && (
+          <div className="flex flex-col gap-6">
+            {summary.pollGroups.map((group) => (
+              <div key={group.questionKey} className="flex flex-col gap-3">
+                <h3 className="text-sm font-semibold text-foreground">{group.questionText}</h3>
+                <div className="flex flex-col gap-3">
+                  {group.reviews.map((review, i) => (
+                    <article key={i} className="rounded border border-border bg-surface p-4">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
+                      <footer className="mt-2 text-xs text-muted">{reviewAttribution(programName, review.yearAttended)}</footer>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+      </section>
 
-          {summary.standaloneReviews.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-foreground">General reviews</h3>
-              <div className="flex flex-col gap-3">
-                {summary.standaloneReviews.map((review) => (
-                  <article key={review.id} className="rounded border border-border bg-surface p-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <StarRating rating={review.rating} />
-                      <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
-                    </div>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+      {summary.standaloneReviews.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">General reviews</h2>
+          <div className="flex flex-col gap-3">
+            {summary.standaloneReviews.map((review) => (
+              <article key={review.id} className="rounded border border-border bg-surface p-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <StarRating rating={review.rating} />
+                  <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
       <Show
@@ -94,6 +94,6 @@ export default function ReviewsSection({
       >
         <ReviewForm programId={programId} />
       </Show>
-    </section>
+    </div>
   );
 }
