@@ -15,6 +15,7 @@ import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns
 import { getPublicPollLink } from "@/lib/pollConfig";
 import { shouldShowContactHint } from "@/lib/contactOptIn";
 import { listPublishedFaqs } from "@/lib/programFaq";
+import { programDefinitionSentence } from "@/lib/programDefinition";
 import { SITE_NAME } from "@/lib/siteUrl";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
@@ -91,6 +92,7 @@ export default async function ProgramDetailPage({
   ]);
   if (!program) notFound();
 
+  const definitionSentence = programDefinitionSentence(program);
   const isModerator = role === "moderator" || role === "admin";
   // Known-bad addresses (bounced / reached the wrong person) are suppressed
   // entirely -- showing a dead contact is worse than showing nothing. A
@@ -200,6 +202,10 @@ export default async function ProgramDetailPage({
           </Link>
         ))}
       </div>
+
+      {definitionSentence && (
+        <p className="text-sm leading-relaxed text-foreground/80">{definitionSentence}</p>
+      )}
 
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
         {program.description}
