@@ -318,7 +318,11 @@ export default async function ProgramDetailPage({
         </Show>
       </section>
 
-      <ReviewsSection programId={program.id} summary={await getProgramReviewsSummary(program.id)} />
+      <ReviewsSection
+        programId={program.id}
+        programName={program.name}
+        summary={await getProgramReviewsSummary(program.id)}
+      />
 
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
