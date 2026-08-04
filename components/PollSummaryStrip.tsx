@@ -73,7 +73,7 @@ function QuestionBlock({
   }
 
   if (scaleType === "DESCRIPTIVE") {
-    return <DescriptiveTrack text={text} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
+    return <DescriptiveTrack text={text} programName={programName} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
   }
 
   return <RatingRing text={text} programName={programName} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
