@@ -1,3 +1,5 @@
+import { ringSentence } from "@/lib/pollSentences";
+
 const RADIUS = 16;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -8,20 +10,28 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
  * + a "1 [low] · 5 [high]" scale line sit beside the ring; the ring is `shrink-0` and
  * the text column is `min-w-0` so long question text wraps instead of squeezing the
  * ring or overflowing horizontally. Server component, no state.
+ *
+ * The extractability sentence (see lib/pollSentences.ts's ringSentence) is a fixed
+ * template over the same mean/count/labels the ring already renders visually -- it can
+ * never contradict the ring, and renders nothing when ringSentence does (unanswered/
+ * not-yet-published question).
  */
 export default function RatingRing({
   text,
+  programName,
   mean,
   count,
   labels,
   colorVar,
 }: {
   text: string;
+  programName: string;
   mean: number | null;
   count: number;
   labels: string[];
   colorVar: string | null;
 }) {
+  const sentence = ringSentence({ questionText: text, programName, mean, count, labels });
   const frac = mean !== null ? Math.max(0, Math.min(1, mean / 5)) : 0;
   const offset = CIRCUMFERENCE * (1 - frac);
   const stroke = colorVar ?? "var(--accent)";
@@ -64,10 +74,11 @@ export default function RatingRing({
         </text>
       </svg>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">{text}</p>
+        <h3 className="text-sm font-medium text-foreground">{text}</h3>
         <p className="text-xs text-muted">
           1 {labels[0]} · 5 {labels[4]}
         </p>
+        {sentence && <p className="text-sm text-foreground/80">{sentence}</p>}
         <span className="text-[10px] text-muted">n={count}</span>
       </div>
     </div>

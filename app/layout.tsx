@@ -84,7 +84,7 @@ export default async function RootLayout({
         <body className="min-h-full flex flex-col bg-background text-foreground">
           <ToastProvider>
             <Nav />
-            <div className="flex flex-1 flex-col overflow-x-clip">{children}</div>
+            <main className="flex flex-1 flex-col overflow-x-clip">{children}</main>
             <Footer />
             <AssistantWidgetMount show={showAssistant} />
           </ToastProvider>

@@ -1,3 +1,5 @@
+import { trackSentence } from "@/lib/pollSentences";
+
 /** Horizontal position of a marker as a CSS length that keeps a 12px-wide marker fully
  * on the track at frac 0 and 1 (its center travels within [6px, width-6px]). */
 function markerLeft(frac: number): string {
@@ -15,26 +17,34 @@ function markerLeft(frac: number): string {
  * all 5 values across one line are what caused overlap on narrow screens. The tick
  * marks + dot are positioned, but strictly contained within the track element (the only
  * positioned context in this component). Server component, no state.
+ *
+ * The extractability sentence (see lib/pollSentences.ts's trackSentence) reuses this
+ * same closest-label index expression, so it can never name a different option than the
+ * "Closest to" line beside it -- and, like this component, it deliberately never states
+ * a numeric average.
  */
 export default function DescriptiveTrack({
   text,
+  programName,
   mean,
   count,
   labels,
   colorVar,
 }: {
   text: string;
+  programName: string;
   mean: number | null;
   count: number;
   labels: string[];
   colorVar: string | null;
 }) {
+  const sentence = trackSentence({ questionText: text, programName, mean, count, labels });
   const frac = mean !== null ? Math.max(0, Math.min(1, (mean - 1) / 4)) : null;
   const closestLabel = mean !== null ? labels[Math.min(4, Math.max(0, Math.round(mean) - 1))] : null;
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm font-medium text-foreground">{text}</p>
+      <h3 className="text-sm font-medium text-foreground">{text}</h3>
       <div className="relative h-2 w-full rounded-full bg-surface-muted">
         {[0, 0.25, 0.5, 0.75, 1].map((tickFrac) => (
           <span
@@ -63,6 +73,7 @@ export default function DescriptiveTrack({
           Closest to: <span className="text-foreground">{closestLabel}</span>
         </p>
       )}
+      {sentence && <p className="text-sm text-foreground/80">{sentence}</p>}
       <span className="text-[10px] text-muted">n={count}</span>
     </div>
   );

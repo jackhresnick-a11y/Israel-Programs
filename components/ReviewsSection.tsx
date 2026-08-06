@@ -4,11 +4,17 @@ import { buttonVariants } from "@/components/ui/Button";
 import StarRating from "@/components/ui/StarRating";
 import type { ProgramReviewsSummaryDTO } from "@/lib/pollResults";
 
-/** 0 is the "Earlier" sentinel used by RateForm's year-attended dropdown -- see
- * yearAttendedOptions in lib/pollShared.ts. */
-function yearAttendedLabel(yearAttended: number | null): string | null {
-  if (yearAttended === null) return null;
-  return yearAttended === 0 ? "Attended earlier" : `Attended ${yearAttended}`;
+/** Extractability attribution line for one poll review -- replaces the bare
+ * "Attended {year}" line that used to sit under the quote (never stacks with it) so the
+ * year appears once. Omits the "attended ..." clause entirely when yearAttended is null;
+ * 0 is the "Earlier" sentinel from RateForm's year-attended dropdown (see
+ * yearAttendedOptions in lib/pollShared.ts), rendered as "attended earlier". Built only
+ * from fields already on PollReviewItemDTO -- no new data, and the review text itself
+ * is untouched. */
+function reviewAttribution(programName: string, yearAttended: number | null): string {
+  if (yearAttended === null) return `— Alumnus of ${programName}`;
+  const yearClause = yearAttended === 0 ? "attended earlier" : `attended ${yearAttended}`;
+  return `— Alumnus of ${programName}, ${yearClause}`;
 }
 
 /**
@@ -28,53 +34,54 @@ function yearAttendedLabel(yearAttended: number | null): string | null {
  */
 export default function ReviewsSection({
   programId,
+  programName,
   summary,
 }: {
   programId: string;
+  // Feeds each poll review's extractability attribution line (see reviewAttribution
+  // above) -- the program's real display name, never the id.
+  programName: string;
   summary: ProgramReviewsSummaryDTO;
 }) {
-  const hasContent = summary.pollGroups.length > 0 || summary.standaloneReviews.length > 0;
-
   return (
-    <section className="flex flex-col gap-6">
-      <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Reviews</h2>
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-6">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Reviews</h2>
 
-      {hasContent && (
-        <div className="flex flex-col gap-6">
-          {summary.pollGroups.map((group) => (
-            <div key={group.questionKey} className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-foreground">{group.questionText}</h3>
-              <div className="flex flex-col gap-3">
-                {group.reviews.map((review, i) => {
-                  const yearLabel = yearAttendedLabel(review.yearAttended);
-                  return (
-                    <div key={i} className="rounded border border-border bg-surface p-4">
+        {summary.pollGroups.length > 0 && (
+          <div className="flex flex-col gap-6">
+            {summary.pollGroups.map((group) => (
+              <div key={group.questionKey} className="flex flex-col gap-3">
+                <h3 className="text-sm font-semibold text-foreground">{group.questionText}</h3>
+                <div className="flex flex-col gap-3">
+                  {group.reviews.map((review, i) => (
+                    <article key={i} className="rounded border border-border bg-surface p-4">
                       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
-                      {yearLabel && <p className="mt-2 text-xs text-muted">{yearLabel}</p>}
-                    </div>
-                  );
-                })}
+                      <footer className="mt-2 text-xs text-muted">{reviewAttribution(programName, review.yearAttended)}</footer>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+      </section>
 
-          {summary.standaloneReviews.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-foreground">General reviews</h3>
-              <div className="flex flex-col gap-3">
-                {summary.standaloneReviews.map((review) => (
-                  <div key={review.id} className="rounded border border-border bg-surface p-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <StarRating rating={review.rating} />
-                      <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
-                    </div>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+      {summary.standaloneReviews.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">General reviews</h2>
+          <div className="flex flex-col gap-3">
+            {summary.standaloneReviews.map((review) => (
+              <article key={review.id} className="rounded border border-border bg-surface p-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <StarRating rating={review.rating} />
+                  <span className="font-medium text-foreground">{review.reviewerName ?? "Anonymous"}</span>
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
       <Show
@@ -87,6 +94,6 @@ export default function ReviewsSection({
       >
         <ReviewForm programId={programId} />
       </Show>
-    </section>
+    </div>
   );
 }

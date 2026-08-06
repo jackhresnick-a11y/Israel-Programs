@@ -15,6 +15,7 @@ import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns
 import { getPublicPollLink } from "@/lib/pollConfig";
 import { shouldShowContactHint } from "@/lib/contactOptIn";
 import { listPublishedFaqs } from "@/lib/programFaq";
+import { programDefinitionSentence } from "@/lib/programDefinition";
 import { SITE_NAME } from "@/lib/siteUrl";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
@@ -91,6 +92,7 @@ export default async function ProgramDetailPage({
   ]);
   if (!program) notFound();
 
+  const definitionSentence = programDefinitionSentence(program);
   const isModerator = role === "moderator" || role === "admin";
   // Known-bad addresses (bounced / reached the wrong person) are suppressed
   // entirely -- showing a dead contact is worse than showing nothing. A
@@ -201,6 +203,10 @@ export default async function ProgramDetailPage({
         ))}
       </div>
 
+      {definitionSentence && (
+        <p className="text-sm leading-relaxed text-foreground/80">{definitionSentence}</p>
+      )}
+
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
         {program.description}
       </p>
@@ -208,6 +214,7 @@ export default async function ProgramDetailPage({
       <PollSummaryStrip
         summary={pollSummary}
         programSlug={program.slug}
+        programName={program.name}
         publicPollLink={publicPollLink}
         isModerator={isModerator}
       />
@@ -317,7 +324,11 @@ export default async function ProgramDetailPage({
         </Show>
       </section>
 
-      <ReviewsSection programId={program.id} summary={await getProgramReviewsSummary(program.id)} />
+      <ReviewsSection
+        programId={program.id}
+        programName={program.name}
+        summary={await getProgramReviewsSummary(program.id)}
+      />
 
       <section className="flex flex-col gap-4">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
@@ -350,6 +361,22 @@ export default async function ProgramDetailPage({
           <ReferenceForm programId={program.id} />
         </Show>
       </section>
+
+      {/* Same Program.updatedAt field app/sitemap.ts's listPublishedProgramSlugsForSitemap
+          selects for `lastmod` -- this visible date and the sitemap entry can never drift
+          apart. timeZone pinned to UTC since this renders server-side and an unpinned
+          locale date would shift with the deploy region. */}
+      <p className="text-xs text-muted">
+        Last updated:{" "}
+        <time dateTime={program.updatedAt.toISOString()}>
+          {program.updatedAt.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            timeZone: "UTC",
+          })}
+        </time>
+      </p>
     </PageContainer>
   );
 }
