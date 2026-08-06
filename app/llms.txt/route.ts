@@ -1,6 +1,10 @@
-// Static content, no request-time data -- prerenders at build time like the other
-// metadata-ish routes (sitemap.ts, robots.ts), just plain text instead of XML. Text is
-// the exact draft approved in planning -- do not reword without re-approval.
+// Genuinely static: no request-time data, no Prisma import. force-static makes this
+// prerender at build time -- without it a plain Route Handler defaults to dynamic
+// (server-rendered per request) even with fully static content, unlike the special
+// metadata-file routes (sitemap.ts, robots.ts) which get that treatment automatically.
+export const dynamic = "force-static";
+
+// Text is the exact draft approved in planning -- do not reword without re-approval.
 const BODY = `# Israel Programs Wiki
 
 > A community-driven, independent guide to Jewish and Israeli gap-year, summer,
