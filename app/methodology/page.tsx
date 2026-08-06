@@ -1,3 +1,15 @@
+// TODO(jack): This page is intentionally unlinked and noindexed until real copy
+// replaces the Lorem placeholder below. To re-link it once that copy is in, revert:
+// - components/PollSummaryStrip.tsx: re-add the "How these results are collected"
+//   Link next to the "Poll results" <h2> (was removed, along with its wrapping
+//   flex row, when this page was unpublished).
+// - app/mission/page.tsx: re-add the "Curious how program ratings..." paragraph
+//   with the methodology Link, right after the mission-blocks/legacy-body content.
+// - app/sitemap.ts: re-add the /methodology entry (same shape as the /mission one).
+// - app/llms.txt/route.ts: re-add the "- [Methodology](/methodology): ..." bullet
+//   under "## Key pages".
+// - app/methodology/page.tsx (this file): remove the `robots: { index: false,
+//   follow: false }` line below from `metadata`.
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/siteUrl";
 import PageContainer from "@/components/ui/PageContainer";
@@ -9,6 +21,9 @@ const METHODOLOGY_DESCRIPTION =
 export const metadata: Metadata = {
   title: "Methodology",
   description: METHODOLOGY_DESCRIPTION,
+  // Backstop noindex while this page is unlinked and still Lorem placeholder --
+  // see the TODO at the top of this file for the full re-link checklist.
+  robots: { index: false, follow: false },
   alternates: { canonical: "/methodology" },
   openGraph: {
     title: "Methodology",
