@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { updateProgramTags } from "@/lib/programs";
+import { revalidateProgram } from "@/lib/revalidate";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -24,6 +25,7 @@ export async function PATCH(request: Request, { params }: Params) {
   try {
     const { tags } = bodySchema.parse(await request.json());
     const updated = await updateProgramTags(id, tags);
+    await revalidateProgram(id);
     return NextResponse.json(updated);
   } catch (err) {
     if (err instanceof ZodError) {

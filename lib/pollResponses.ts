@@ -5,6 +5,7 @@ import { getQuestionsForProgram } from "@/lib/pollConfig";
 import { getTokenFlagsById } from "@/lib/pollTokens";
 import { hasReachedBucketSpread, decideAnonymousStatus } from "@/lib/pollUnlock";
 import { trackPollCounted } from "@/lib/pollAnalytics";
+import { revalidateProgram } from "@/lib/revalidate";
 import type { PollResponseStatus } from "@/app/generated/prisma/enums";
 
 function isUniqueConstraintError(err: unknown): boolean {
@@ -274,6 +275,7 @@ async function maybeTransition(
       return { status: fresh?.status ?? "COUNTED" };
     }
     trackPollCounted(programId, responseId, "COUNTED");
+    await revalidateProgram(programId);
     return { status: "COUNTED" };
   }
 
@@ -294,6 +296,10 @@ async function maybeTransition(
     return { status: fresh?.status ?? status };
   }
   trackPollCounted(programId, responseId, status);
+  // Only COUNTED moves the public response count/poll summary shown on the program
+  // page -- a FLAGGED anonymous transition is invisible there (see the response-count
+  // route's doc comment), so revalidating for it would just waste a cache purge.
+  if (status === "COUNTED") await revalidateProgram(programId);
 
   // NOTE: reference creation deliberately does NOT happen here anymore -- see
   // finalizeReferenceFromPoll below. Crossing the readiness bar happens partway through

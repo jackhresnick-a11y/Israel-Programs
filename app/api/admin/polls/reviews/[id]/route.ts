@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { approvePollReview, rejectPollReview } from "@/lib/pollReviews";
+import { prisma } from "@/lib/prisma";
+import { revalidateProgram } from "@/lib/revalidate";
 
 const bodySchema = z.object({
   action: z.enum(["approve", "reject"]),
@@ -29,6 +31,14 @@ export async function PATCH(
     if (!result.ok) {
       return NextResponse.json({ error: result.reason }, { status: 400 });
     }
+
+    // Approving/rejecting changes what ReviewsSection shows on the program page.
+    const review = await prisma.pollReview.findUnique({
+      where: { id },
+      select: { response: { select: { programId: true } } },
+    });
+    if (review) await revalidateProgram(review.response.programId);
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof ZodError) {

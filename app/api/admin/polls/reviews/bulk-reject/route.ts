@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { bulkRejectPollReviews } from "@/lib/pollReviews";
+import { prisma } from "@/lib/prisma";
+import { revalidateProgram } from "@/lib/revalidate";
 
 const bodySchema = z.object({
   ids: z.array(z.string().min(1)).min(1),
@@ -17,6 +19,16 @@ export async function POST(request: Request) {
   try {
     const { ids, note } = bodySchema.parse(await request.json());
     const result = await bulkRejectPollReviews(ids, check.userId, note);
+
+    // Revalidate every distinct program these reviews belong to -- a bulk action can
+    // span multiple programs' ReviewsSection.
+    const reviews = await prisma.pollReview.findMany({
+      where: { id: { in: ids } },
+      select: { response: { select: { programId: true } } },
+    });
+    const programIds = new Set(reviews.map((r) => r.response.programId));
+    for (const programId of programIds) await revalidateProgram(programId);
+
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof ZodError) {

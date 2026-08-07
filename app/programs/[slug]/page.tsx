@@ -36,6 +36,33 @@ import { buttonVariants } from "@/components/ui/Button";
 // one Prisma query per request.
 const getProgram = cache(getProgramBySlug);
 
+// generateStaticParams returns [] on purpose -- this site has 500+ published programs,
+// and prerendering all of them means ~8 concurrent Prisma queries (this page's data
+// calls) times 500+ pages in one build-time burst. Tried returning the full slug list:
+// it timed out and failed the build against production Neon (ETIMEDOUT partway through
+// prerendering), which is exactly the kind of DB load spike this whole change exists to
+// eliminate, not add on every deploy.
+//
+// An empty array is not a no-op, though -- it's required, not optional, for what
+// dynamicParams+revalidate do next. A [slug] page with NO generateStaticParams at all
+// is fully dynamic on every request; `export const revalidate` is silently ignored
+// (confirmed by testing: /programs/[slug] served in ~2s flat across five consecutive
+// requests to the same slug with revalidate set but no generateStaticParams, vs. ~30ms
+// for an actually-cached static page). Once generateStaticParams exists -- even
+// returning [] -- dynamicParams: true (the default) makes Next render an unlisted slug
+// dynamically on its first request and then genuinely cache that output for
+// `revalidate` seconds, the same as if it had been prerendered. That first-hit-then-
+// cached behavior is the entire point here, so the empty array is load-bearing.
+//
+// Response counts and poll results shown on this page change as ratings come in, so the
+// 1-hour timer is paired with revalidateProgram() calls (see lib/revalidate.ts) on every
+// write path that can change what this page shows -- the timer is the backstop, not the
+// primary mechanism.
+export async function generateStaticParams() {
+  return [];
+}
+export const revalidate = 3600;
+
 export async function generateMetadata({
   params,
 }: {

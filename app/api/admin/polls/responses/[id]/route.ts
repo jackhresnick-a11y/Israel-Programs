@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { voidPollResponse, restorePollResponse, approvePollResponse } from "@/lib/pollResponses";
+import { prisma } from "@/lib/prisma";
+import { revalidateProgram } from "@/lib/revalidate";
 
 const bodySchema = z.object({ action: z.enum(["void", "restore", "approve"]) });
 
@@ -19,8 +21,14 @@ export async function PATCH(
     const json = await request.json();
     const { action } = bodySchema.parse(json);
 
+    // All three actions can move a response into or out of COUNTED, which changes the
+    // response count/poll summary shown on the program page -- fetched up front so every
+    // branch below can revalidate on success without a second round-trip.
+    const existing = await prisma.pollResponse.findUnique({ where: { id }, select: { programId: true } });
+
     if (action === "void") {
       await voidPollResponse(id);
+      if (existing) await revalidateProgram(existing.programId);
       return NextResponse.json({ ok: true });
     }
 
@@ -29,6 +37,7 @@ export async function PATCH(
       if (!result.ok) {
         return NextResponse.json({ error: result.reason }, { status: 409 });
       }
+      if (existing) await revalidateProgram(existing.programId);
       return NextResponse.json({ ok: true });
     }
 
@@ -39,6 +48,7 @@ export async function PATCH(
         { status: 409 }
       );
     }
+    if (existing) await revalidateProgram(existing.programId);
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof ZodError) {

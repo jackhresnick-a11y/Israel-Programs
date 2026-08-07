@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { applyReviewDecisions } from "@/lib/programEdits";
+import { revalidateProgram } from "@/lib/revalidate";
 
 const bodySchema = z.object({
   decisions: z.array(
@@ -27,7 +28,8 @@ export async function POST(
   try {
     const body = await request.json();
     const { decisions } = bodySchema.parse(body);
-    await applyReviewDecisions(id, decisions);
+    const { programId } = await applyReviewDecisions(id, decisions);
+    await revalidateProgram(programId);
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof ZodError) {

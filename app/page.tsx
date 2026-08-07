@@ -18,6 +18,12 @@ import {
   type ResolvedRecentlyAddedItem,
 } from "@/lib/recentlyAdded";
 
+// Recently-added programs + latest reviews change a handful of times a day at most --
+// hourly is well inside that editorial cadence. No revalidatePath hook needed here: unlike
+// a program's own page, nothing the homepage shows (which programs are featured, which
+// reviews are latest) is driven by a single write path worth targeting individually.
+export const revalidate = 3600;
+
 export default async function Home() {
   const recentlyAdded = await getRecentlyAddedConfig();
 

@@ -421,6 +421,13 @@ export async function getProgramBySlug(slug: string) {
   });
 }
 
+/** Slug lookup by id -- for revalidatePath call sites (lib/revalidate.ts) that only have
+ * a programId (e.g. from a PollResponse row) and need the public program page's path. */
+export async function getProgramSlugById(id: string): Promise<string | null> {
+  const program = await prisma.program.findUnique({ where: { id }, select: { slug: true } });
+  return program?.slug ?? null;
+}
+
 export function averageRating(reviews: { rating: number }[]) {
   if (reviews.length === 0) return null;
   return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;

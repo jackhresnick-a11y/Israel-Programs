@@ -9,6 +9,12 @@ import FormattedText from "@/components/FormattedText";
 import MissionEditLink from "@/components/MissionEditLink";
 import ContactForm from "@/components/ContactForm";
 
+// Backstop only -- getMissionBlocks/getSiteContent are tagged "site-content" (see
+// lib/siteContent.ts), so upsertSiteContent's revalidateTag already invalidates this
+// page's cached HTML the moment an admin saves mission copy or the emblem. The 1-hour
+// timer here just bounds staleness if that tag-based path is ever missed.
+export const revalidate = 3600;
+
 export default async function MissionPage() {
   const [blocks, legacyBody, emblemUrl] = await Promise.all([
     getMissionBlocks(),
