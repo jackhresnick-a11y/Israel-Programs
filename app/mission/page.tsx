@@ -77,6 +77,14 @@ export default async function MissionPage() {
         <p className="text-sm text-muted">No content has been set yet.</p>
       )}
 
+      <p className="text-sm leading-relaxed text-foreground/80">
+        Curious how program ratings and reviews are collected and published? Read our{" "}
+        <Link href="/methodology" className="text-accent-hover underline">
+          methodology
+        </Link>
+        .
+      </p>
+
       <section className="flex flex-col gap-4">
         <hr className="border-t border-accent/40" />
         <h2 className="font-serif text-lg font-semibold text-foreground">Get in touch</h2>

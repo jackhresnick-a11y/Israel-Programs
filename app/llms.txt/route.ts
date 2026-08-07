@@ -26,6 +26,8 @@ aggregate score.
 ## Key pages
 
 - [Browse all programs](/programs): Filterable index of every published program.
+- [Methodology](/methodology): How the alumni survey is run, how results are
+  published, and how reviews are moderated.
 - [Background](/mission): What this project is, who runs it, and why.
 - [Sitemap](/sitemap.xml): Every published program page.
 
