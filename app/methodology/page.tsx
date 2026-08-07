@@ -1,15 +1,3 @@
-// TODO(jack): This page is intentionally unlinked and noindexed until real copy
-// replaces the Lorem placeholder below. To re-link it once that copy is in, revert:
-// - components/PollSummaryStrip.tsx: re-add the "How these results are collected"
-//   Link next to the "Poll results" <h2> (was removed, along with its wrapping
-//   flex row, when this page was unpublished).
-// - app/mission/page.tsx: re-add the "Curious how program ratings..." paragraph
-//   with the methodology Link, right after the mission-blocks/legacy-body content.
-// - app/sitemap.ts: re-add the /methodology entry (same shape as the /mission one).
-// - app/llms.txt/route.ts: re-add the "- [Methodology](/methodology): ..." bullet
-//   under "## Key pages".
-// - app/methodology/page.tsx (this file): remove the `robots: { index: false,
-//   follow: false }` line below from `metadata`.
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/siteUrl";
 import PageContainer from "@/components/ui/PageContainer";
@@ -21,9 +9,6 @@ const METHODOLOGY_DESCRIPTION =
 export const metadata: Metadata = {
   title: "Methodology",
   description: METHODOLOGY_DESCRIPTION,
-  // Backstop noindex while this page is unlinked and still Lorem placeholder --
-  // see the TODO at the top of this file for the full re-link checklist.
-  robots: { index: false, follow: false },
   alternates: { canonical: "/methodology" },
   openGraph: {
     title: "Methodology",
@@ -36,54 +21,75 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Methodology", description: METHODOLOGY_DESCRIPTION },
 };
 
-// TODO(jack): Replace every Lorem placeholder paragraph below with the real
-// methodology copy -- these sections and their headings are the approved
-// structure, only the body text is a stand-in.
+// The page body renders inside app/layout.tsx's single site-wide <main> -- no
+// page-level <main> here, since nesting a second one would be invalid.
 export default function MethodologyPage() {
   return (
     <PageContainer width="base" className="gap-8">
-      <PageHeader title="Methodology" description={METHODOLOGY_DESCRIPTION} />
+      <PageHeader title="Methodology" />
 
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          How the survey works
+          How ratings work
         </h2>
         <p className="text-sm leading-relaxed text-foreground/80">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-          nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Ratings come from alumni — people who actually attended the program. Anyone
+          can fill out a program’s poll, and the questions are chosen to fit that kind
+          of program.
         </p>
       </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          How results are published
+          Why some programs have no ratings
         </h2>
         <p className="text-sm leading-relaxed text-foreground/80">
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+          A program’s results stay hidden until enough alumni have answered. Small
+          numbers aren’t reliable in either direction, and a handful of responses —
+          good or bad — isn’t a fair picture of a program.
+        </p>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          Programs unlock in the order we find enough alumni for them. An unrated
+          program is not a program that rated badly. It means we haven’t reached
+          enough of its alumni yet. If you attended one, you can change that.
         </p>
       </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          How reviews are moderated
+          Rings and sliders
         </h2>
         <p className="text-sm leading-relaxed text-foreground/80">
-          Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-          doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-          veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+          Rings show how strongly a program delivers in a specific area — Torah
+          learning, Hebrew, preparation for the army. Higher is better.
+        </p>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          Sliders describe the character of a program rather than its quality.
+          Whether people go out at night or stay in, whether the crowd is diverse or
+          a particular type, how much freedom you have over your time. There is no
+          good or bad end. What suits one person won’t suit another, and the point is
+          to help you find where you fit.
         </p>
       </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          What we don&apos;t do
+          Reviews
         </h2>
         <p className="text-sm leading-relaxed text-foreground/80">
-          Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed
-          quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+          Written reviews are anonymous to readers. A moderator reads every review
+          before it is published.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          Independence
+        </h2>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          Israel Programs Wiki is free to use and not affiliated with any program,
+          school, or organization. No program pays to be listed, and no program can
+          pay for a better rating.
         </p>
       </section>
     </PageContainer>
