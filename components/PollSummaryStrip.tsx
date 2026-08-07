@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Card from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
@@ -5,6 +7,7 @@ import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
 import BestForStrip from "@/components/polls/BestForStrip";
 import { deriveCtaLayout } from "@/lib/contactOptIn";
+import { useIsModerator } from "@/lib/useModeratorRole";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
 
 /** Ten-slot categorical palette for question-group (bucket) identity in the results
@@ -131,7 +134,6 @@ export default function PollSummaryStrip({
   programSlug,
   programName,
   publicPollLink,
-  isModerator,
 }: {
   summary: PollSummaryDTO;
   programSlug: string;
@@ -145,11 +147,11 @@ export default function PollSummaryStrip({
   // ref token is ignored once app/rate/[programSlug]/page.tsx sees a userId. Falls back
   // to the plain /rate/[slug] link (sign-in wall for signed-out visitors) when null.
   publicPollLink?: string | null;
+}) {
   // Gates the "Editorial override" tell on BestForStrip -- a signed-out visitor sees
   // the override text with no indicator it's manual, same "does this look legit" bar as
   // every other admin-only affordance on this page.
-  isModerator: boolean;
-}) {
+  const isModerator = useIsModerator();
   const rateHref = publicPollLink ?? `/rate/${programSlug}`;
   const layout = deriveCtaLayout(summary);
 

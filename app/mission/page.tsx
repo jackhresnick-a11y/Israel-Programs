@@ -1,21 +1,19 @@
 import Link from "next/link";
 import { getSiteContent } from "@/lib/siteContent";
 import { getMissionBlocks } from "@/lib/mission";
-import { getCurrentRole } from "@/lib/roles";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import EmblemDefault from "@/components/EmblemDefault";
 import MissionIcon from "@/components/MissionIcon";
 import FormattedText from "@/components/FormattedText";
-import { buttonVariants } from "@/components/ui/Button";
+import MissionEditLink from "@/components/MissionEditLink";
 import ContactForm from "@/components/ContactForm";
 
 export default async function MissionPage() {
-  const [blocks, legacyBody, emblemUrl, role] = await Promise.all([
+  const [blocks, legacyBody, emblemUrl] = await Promise.all([
     getMissionBlocks(),
     getSiteContent("mission"),
     getSiteContent("emblemLogoUrl"),
-    getCurrentRole(),
   ]);
 
   return (
@@ -30,19 +28,7 @@ export default async function MissionPage() {
         )}
       </div>
 
-      <PageHeader
-        title="Background of Israel Programs Wiki"
-        actions={
-          role === "admin" ? (
-            <Link
-              href="/mission/edit"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
-            >
-              Edit
-            </Link>
-          ) : undefined
-        }
-      />
+      <PageHeader title="Background of Israel Programs Wiki" actions={<MissionEditLink />} />
 
       {blocks ? (
         <div className="flex flex-col gap-6">

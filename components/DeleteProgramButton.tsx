@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
+import { useIsModerator } from "@/lib/useModeratorRole";
 
 export default function DeleteProgramButton({ id }: { id: string }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const isModerator = useIsModerator();
 
   async function handleDelete() {
     if (!confirm("Delete this program? This cannot be undone.")) return;
@@ -19,6 +21,8 @@ export default function DeleteProgramButton({ id }: { id: string }) {
       setDeleting(false);
     }
   }
+
+  if (!isModerator) return null;
 
   return (
     <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>

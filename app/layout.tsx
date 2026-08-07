@@ -5,7 +5,6 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AssistantWidgetMount from "@/components/AssistantWidgetMount";
 import { ToastProvider } from "@/components/ui/Toast";
-import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { SITE_NAME, SITE_URL } from "@/lib/siteUrl";
 import "./globals.css";
@@ -66,13 +65,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Admins always see the assistant widget; everyone else only once an admin
-  // flips assistantEnabled on via /admin/settings (see AssistantSettingsForm).
-  // Read here (not per-page) so every route gets a consistent answer from one
-  // server-side check; AssistantWidgetMount only adds the client-side path hiding
-  // (admin/auth routes) on top.
-  const [role, assistantEnabled] = await Promise.all([getCurrentRole(), getSiteContent("assistantEnabled")]);
-  const showAssistant = role === "admin" || assistantEnabled === "true";
+  // Everyone sees the assistant widget once an admin flips assistantEnabled on
+  // via /admin/settings (see AssistantSettingsForm). Read here (not per-page) so
+  // every route gets a consistent answer from one check; the admin-always-sees-it
+  // override is resolved client-side inside AssistantWidgetMount (via Clerk's
+  // cached user object) instead of here, so this layout -- and every page it
+  // wraps -- doesn't need a server-side auth call just for that override.
+  const assistantEnabled = await getSiteContent("assistantEnabled");
 
   return (
     <ClerkProvider>
@@ -86,7 +85,7 @@ export default async function RootLayout({
             <Nav />
             <main className="flex flex-1 flex-col overflow-x-clip">{children}</main>
             <Footer />
-            <AssistantWidgetMount show={showAssistant} />
+            <AssistantWidgetMount enabledSiteWide={assistantEnabled === "true"} />
           </ToastProvider>
         </body>
       </html>

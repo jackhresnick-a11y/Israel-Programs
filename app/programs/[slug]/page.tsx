@@ -3,13 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { SignInButton, Show } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { getProgramBySlug, toPublicProgram, shareDescription } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import { listPublishedReferences } from "@/lib/references";
 import { getReferenceListVisibility } from "@/lib/referenceConfig";
-import { getCurrentRole } from "@/lib/roles";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns } from "@/lib/pollResults";
 import { getPublicPollLink } from "@/lib/pollConfig";
@@ -23,6 +20,7 @@ import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
 import ReferenceList from "@/components/ReferenceList";
+import SignedInGate from "@/components/SignedInGate";
 import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PartnerCta from "@/components/PartnerCta";
 import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
@@ -77,23 +75,14 @@ export async function generateMetadata({
 
 export default async function ProgramDetailPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ created?: string }>;
 }) {
   const { slug } = await params;
-  const [program, role, { userId }, query, durationLabelMap] = await Promise.all([
-    getProgram(slug),
-    getCurrentRole(),
-    auth(),
-    searchParams,
-    getDurationLabelMap(),
-  ]);
+  const [program, durationLabelMap] = await Promise.all([getProgram(slug), getDurationLabelMap()]);
   if (!program) notFound();
 
   const definitionSentence = programDefinitionSentence(program);
-  const isModerator = role === "moderator" || role === "admin";
   // Known-bad addresses (bounced / reached the wrong person) are suppressed
   // entirely -- showing a dead contact is worse than showing nothing. A
   // never-checked (or stale-verified) address is still shown, just labeled,
@@ -102,8 +91,12 @@ export default async function ProgramDetailPage({
   const emailVerifiedFresh =
     program.contactEmailStatus === "VERIFIED" && isEmailVerificationFresh(program.contactEmailVerifiedAt);
   const showContactEmail = Boolean(program.contactEmail) && !emailKnownBad;
-  const isOwner = userId === program.createdById;
-  if (program.status !== "PUBLISHED" && !isModerator && !isOwner) notFound();
+  // Unconditional: a PENDING/REJECTED program's own owner or a moderator used to be
+  // able to preview it here via a role/ownership exception, but that required a
+  // per-request auth() call that forced this whole page dynamic. They now use
+  // /programs/[slug]/edit instead (see ProgramForm.tsx's post-submit redirect and
+  // that page's own owner-or-moderator gate, which still applies).
+  if (program.status !== "PUBLISHED") notFound();
 
   const [{ show: showReferenceList, approvedCount: approvedReferenceCount }, openContactOptIns] = await Promise.all([
     getReferenceListVisibility(program.id),
@@ -125,31 +118,9 @@ export default async function ProgramDetailPage({
     pollVisible: pollSummary.visible,
   });
 
-  // Exactly one banner ever renders — a just-submitted confirmation takes
-  // priority over the program's persistent status, so the two never stack.
-  const banner =
-    query.created === "pending"
-      ? { tone: "info" as const, text: "Thanks! Your submission is awaiting moderator approval." }
-      : program.status === "PENDING"
-        ? { tone: "warning" as const, text: "This program is awaiting moderator approval and isn’t public yet." }
-        : program.status === "REJECTED"
-          ? { tone: "danger" as const, text: "This submission was rejected by a moderator and isn’t public." }
-          : null;
-
-  const bannerClass = {
-    info: "bg-info-bg text-info",
-    warning: "bg-warning-bg text-warning",
-    danger: "bg-danger-bg text-danger",
-  };
-
   return (
     <PageContainer>
       <BackButton fallbackHref="/programs" />
-      {banner && (
-        <p className={`rounded px-4 py-2 text-sm ${bannerClass[banner.tone]}`}>
-          {banner.text}
-        </p>
-      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="flex items-start gap-3 sm:gap-4">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
@@ -189,7 +160,7 @@ export default async function ProgramDetailPage({
           >
             Edit
           </Link>
-          {isModerator && <DeleteProgramButton id={program.id} />}
+          <DeleteProgramButton id={program.id} />
         </div>
       </div>
 
@@ -216,7 +187,6 @@ export default async function ProgramDetailPage({
         programSlug={program.slug}
         programName={program.name}
         publicPollLink={publicPollLink}
-        isModerator={isModerator}
       />
 
       {/* Slot 4: partner CTA in the locked / insufficient-ratings region. Renders only
@@ -309,19 +279,10 @@ export default async function ProgramDetailPage({
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Videos
         </h2>
-        <VideoList videos={program.videos} isModerator={isModerator} />
-        <Show
-          when="signed-in"
-          fallback={
-            <SignInButton mode="modal">
-              <button className={buttonVariants({ variant: "secondary" })}>
-                Sign in to add a video
-              </button>
-            </SignInButton>
-          }
-        >
+        <VideoList videos={program.videos} />
+        <SignedInGate action="add a video">
           <VideoUploader programId={program.id} />
-        </Show>
+        </SignedInGate>
       </section>
 
       <ReviewsSection
@@ -343,23 +304,14 @@ export default async function ProgramDetailPage({
             Some past participants have offered to answer questions about their experience.
           </p>
         )}
-        {showReferenceList && <ReferenceList references={references} isModerator={isModerator} />}
+        {showReferenceList && <ReferenceList references={references} />}
         {/* Slot 1: partner CTA IN PLACE OF the references list, only when the program has
             no references AND the one-per-page resolver picked PROGRAM_NO_REFERENCES (i.e.
             slot 4 did not win). Never renders alongside an actual references list. */}
         {partnerCta?.placement === "PROGRAM_NO_REFERENCES" && <PartnerCta slot={partnerCta.slot} />}
-        <Show
-          when="signed-in"
-          fallback={
-            <SignInButton mode="modal">
-              <button className={buttonVariants({ variant: "secondary" })}>
-                Sign in to volunteer as a reference
-              </button>
-            </SignInButton>
-          }
-        >
+        <SignedInGate action="volunteer as a reference">
           <ReferenceForm programId={program.id} />
-        </Show>
+        </SignedInGate>
       </section>
 
       {/* Same Program.updatedAt field app/sitemap.ts's listPublishedProgramSlugsForSitemap

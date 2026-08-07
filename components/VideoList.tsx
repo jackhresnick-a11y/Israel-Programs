@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ArrowUpRight, Play } from "lucide-react";
 import { platformForStoredUrl, watchUrlForStoredUrl, type Provider } from "@/lib/videoEmbed";
+import { useIsModerator } from "@/lib/useModeratorRole";
 
 type Video = {
   id: string;
@@ -183,15 +184,10 @@ export function VideoPlayer({ url }: { url: string }) {
   return <WatchOnLink url={url} label="original source" />;
 }
 
-export default function VideoList({
-  videos,
-  isModerator,
-}: {
-  videos: Video[];
-  isModerator: boolean;
-}) {
+export default function VideoList({ videos }: { videos: Video[] }) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const isModerator = useIsModerator();
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this video?")) return;

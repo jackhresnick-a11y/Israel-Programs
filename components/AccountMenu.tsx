@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 const ICON_PROPS = {
   xmlns: "http://www.w3.org/2000/svg",
@@ -44,8 +44,18 @@ function AdminIcon() {
  * items -- moves Saved / My Reference Requests / (admin-only) Admin off the header
  * row and into the avatar menu, so the header fits one row on mobile (see
  * components/Nav.tsx, which only mounts this for a signed-in user).
+ *
+ * isAdmin is read client-side from Clerk's cached user object (publicMetadata is
+ * exposed via the Frontend API, unlike privateMetadata) instead of a server prop,
+ * so Nav.tsx doesn't need a server-side auth check just to decide whether to show
+ * the Admin menu item -- see lib/roles.ts's normalizeRole for the server-side
+ * equivalent used by actual route protection, which this purely-cosmetic check
+ * does not replace.
  */
-export default function AccountMenu({ isAdmin }: { isAdmin: boolean }) {
+export default function AccountMenu() {
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+
   return (
     <UserButton>
       <UserButton.MenuItems>
