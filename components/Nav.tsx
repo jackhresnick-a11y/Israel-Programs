@@ -18,7 +18,14 @@ export default async function Nav() {
           className="flex shrink-0 items-center gap-2 font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
           {logoUrl && (
-            // External Blob URL — plain img avoids next/image remotePatterns config.
+            // Deliberately still a raw <img>, not next/image: this box is w-auto (width
+            // driven by whatever aspect ratio the admin-configured logo actually has,
+            // preset asset or Blob upload alike), and next/image requires a fixed
+            // width/height for a string src. Guessing a ratio risks visibly distorting
+            // the logo on every page for any future upload that doesn't match the guess;
+            // a correct fix needs the real image dimensions (probed server-side, cached
+            // per URL) and was judged disproportionate to add in this pass. Renders on
+            // every page, so still benefits from Blob's own HTTP caching even unoptimized.
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt="Israel Programs Wiki" className="h-9 w-auto sm:h-12 md:h-14" />
           )}
