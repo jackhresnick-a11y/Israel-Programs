@@ -21,7 +21,7 @@ import { buttonVariants } from "@/components/ui/Button";
 import StarRating from "@/components/ui/StarRating";
 import type { ProgramInput } from "@/lib/programs";
 
-const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger" } as const;
+const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger", ARCHIVED: "neutral" } as const;
 
 export default async function AdminPage() {
   const role = await getCurrentRole();

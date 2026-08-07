@@ -30,6 +30,11 @@ enum ProgramStatus {
   PENDING
   PUBLISHED
   REJECTED
+  /// Hidden from browse/sitemap/detail/OG/poll pages via the same status !== PUBLISHED
+  /// checks that already gate REJECTED -- preserves the row (and its poll/outreach
+  /// history) instead of a hard delete, which is blocked for ~1/3 of programs by
+  /// OutreachEmail's ON DELETE RESTRICT and would cascade-destroy poll data for the rest.
+  ARCHIVED
 }
 
 enum EditStatus {
