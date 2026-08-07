@@ -7,6 +7,7 @@ import { saveLogo, UploadError } from "@/lib/storage";
 import { isVercelBlobUrl } from "@/lib/blob";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/app/generated/prisma/client";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -130,6 +131,28 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  await prisma.program.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.program.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+      return NextResponse.json({ error: "Program not found" }, { status: 404 });
+    }
+    // OutreachEmail_programId_fkey is ON DELETE RESTRICT (deliberately -- see
+    // lib/outreach.ts's deleteDrafts) and raises Postgres 23001 (restrict_violation),
+    // not 23503. Prisma's known-error table only maps 23503 to P2003, so this arrives
+    // as a raw, unmapped DriverAdapterError with the pg code on err.cause.code rather
+    // than as a PrismaClientKnownRequestError -- check both shapes.
+    const isKnownFkError =
+      (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") ||
+      (err instanceof Error && err.name === "DriverAdapterError" && (err as { cause?: { code?: string } }).cause?.code === "23001");
+    if (isKnownFkError) {
+      return NextResponse.json(
+        { error: "Can't delete: this program has outreach email history tied to it." },
+        { status: 409 }
+      );
+    }
+    console.error(err);
+    return NextResponse.json({ error: "Failed to delete program" }, { status: 500 });
+  }
 }

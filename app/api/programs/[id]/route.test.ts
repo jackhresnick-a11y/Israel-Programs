@@ -18,7 +18,7 @@ function mockSession(userId: string | null, role?: "user" | "moderator" | "admin
 // findUnique actually touch. Tags are left unimplemented -- every test below
 // submits an empty tags field, and resolveTagsByName([]) returns early
 // without calling prisma.
-const { fakePrisma, resetDb, seedProgram } = vi.hoisted(() => {
+const { fakePrisma, resetDb, seedProgram, setDeleteError } = vi.hoisted(() => {
   const db = {
     programs: [] as Record<string, unknown>[],
     programEdits: [] as Record<string, unknown>[],
@@ -29,6 +29,11 @@ const { fakePrisma, resetDb, seedProgram } = vi.hoisted(() => {
     db.seq += 1;
     return `${prefix}_${db.seq}`;
   }
+
+  // Set by individual DELETE tests to make the next program.delete() call throw a
+  // specific error instead of actually deleting -- lets tests simulate the
+  // OutreachEmail RESTRICT violation and a missing row without a real database.
+  let deleteError: Error | null = null;
 
   const fakePrisma = {
     program: {
@@ -45,6 +50,17 @@ const { fakePrisma, resetDb, seedProgram } = vi.hoisted(() => {
         const { tags, ...rest } = data as { tags?: { connect: { id: string }[] } } & Record<string, unknown>;
         Object.assign(row, rest);
         if (tags) row.tags = tags.connect;
+        return row;
+      },
+      delete: async ({ where }: { where: { id: string } }) => {
+        if (deleteError) {
+          const err = deleteError;
+          deleteError = null;
+          throw err;
+        }
+        const index = db.programs.findIndex((p) => p.id === where.id);
+        if (index === -1) throw new Error(`No Program found for id ${where.id}`);
+        const [row] = db.programs.splice(index, 1);
         return row;
       },
     },
@@ -95,6 +111,9 @@ const { fakePrisma, resetDb, seedProgram } = vi.hoisted(() => {
       db.seq = 0;
     },
     seedProgram,
+    setDeleteError: (err: Error | null) => {
+      deleteError = err;
+    },
   };
 });
 
@@ -109,7 +128,7 @@ vi.mock("@/lib/storage", async () => {
   return { ...actual, saveLogo: (file: File) => mockSaveLogo(file) };
 });
 
-const { PATCH } = await import("./route");
+const { PATCH, DELETE } = await import("./route");
 
 function buildFormData(overrides: Record<string, string> = {}) {
   const fd = new FormData();
@@ -144,10 +163,31 @@ function callPatch(formData: FormData, id: string) {
   return PATCH(buildRequest(formData), { params: Promise.resolve({ id }) });
 }
 
+function callDelete(id: string) {
+  return DELETE(new Request(`http://localhost/api/programs/${id}`, { method: "DELETE" }), {
+    params: Promise.resolve({ id }),
+  });
+}
+
 beforeEach(() => {
   resetDb();
   mockSaveLogo.mockReset();
+  setDeleteError(null);
 });
+
+// Reproduces the exact shape @prisma/adapter-pg throws for a Postgres RESTRICT
+// violation: a plain Error named "DriverAdapterError" with the pg error code on
+// .cause.code, NOT a PrismaClientKnownRequestError (Prisma's known-error table only
+// maps 23503, not 23001). This is the real production error from
+// OutreachEmail_programId_fkey's ON DELETE RESTRICT constraint.
+function restrictViolationError() {
+  const err = new Error(
+    'update or delete on table "Program" violates RESTRICT setting of foreign key constraint "OutreachEmail_programId_fkey" on table "OutreachEmail"'
+  );
+  err.name = "DriverAdapterError";
+  (err as unknown as { cause: { code: string } }).cause = { code: "23001" };
+  return err;
+}
 
 describe("PATCH /api/programs/[id]", () => {
   it("moderator: applies the edit immediately, no logo attached", async () => {
@@ -219,5 +259,83 @@ describe("PATCH /api/programs/[id]", () => {
     const res = await callPatch(fd, program.id as string);
     expect(res.status).toBe(400);
     expect(program.description).toBe("Original description.");
+  });
+});
+
+describe("DELETE /api/programs/[id]", () => {
+  it("non-moderator: 401/403, program is untouched", async () => {
+    const program = seedProgram();
+    mockSession("user_1", "user");
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(403);
+  });
+
+  it("unauthenticated: 401", async () => {
+    const program = seedProgram();
+    mockSession(null);
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(401);
+  });
+
+  it("moderator: deletes the program", async () => {
+    const program = seedProgram();
+    mockSession("mod_1", "moderator");
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+  });
+
+  it("moderator: an OutreachEmail RESTRICT violation (Postgres 23001, surfaced as an unmapped DriverAdapterError, not a Prisma P-code) returns 409 with an actionable message, not a bare 500", async () => {
+    const program = seedProgram();
+    mockSession("mod_1", "moderator");
+    setDeleteError(restrictViolationError());
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toMatch(/outreach/i);
+  });
+
+  it("moderator: a Prisma P2003 foreign-key error also returns 409 (in case a future Prisma version maps 23001 to P2003)", async () => {
+    const program = seedProgram();
+    mockSession("mod_1", "moderator");
+    const { Prisma } = await import("@/app/generated/prisma/client");
+    setDeleteError(
+      new Prisma.PrismaClientKnownRequestError("Foreign key constraint violated", {
+        code: "P2003",
+        clientVersion: "test",
+      })
+    );
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(409);
+  });
+
+  it("moderator: deleting an already-gone program (P2025) returns 404, not a bare 500", async () => {
+    const program = seedProgram();
+    mockSession("mod_1", "moderator");
+    const { Prisma } = await import("@/app/generated/prisma/client");
+    setDeleteError(
+      new Prisma.PrismaClientKnownRequestError("An operation failed because it depends on one or more records that were required but not found.", {
+        code: "P2025",
+        clientVersion: "test",
+      })
+    );
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(404);
+  });
+
+  it("moderator: an unexpected error returns a generic 500, not an unhandled rejection", async () => {
+    const program = seedProgram();
+    mockSession("mod_1", "moderator");
+    setDeleteError(new Error("connection reset"));
+
+    const res = await callDelete(program.id as string);
+    expect(res.status).toBe(500);
   });
 });

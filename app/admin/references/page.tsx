@@ -9,7 +9,10 @@ import Badge from "@/components/ui/Badge";
 import ReferenceWhatsappEditor from "@/components/ReferenceWhatsappEditor";
 import ReferenceVisibilityControl from "@/components/ReferenceVisibilityControl";
 
-const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger" } as const;
+// Reference.status reuses the ProgramStatus enum for its own approve/reject workflow;
+// ARCHIVED is a Program-only lifecycle value no Reference row will ever hold, but the
+// shared enum type still requires an exhaustive key here.
+const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger", ARCHIVED: "neutral" } as const;
 
 export default async function AdminReferencesPage() {
   const role = await getCurrentRole();

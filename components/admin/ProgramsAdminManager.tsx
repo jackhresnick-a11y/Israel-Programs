@@ -75,6 +75,21 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
     }
   }
 
+  async function handleArchive() {
+    if (!confirm(`Archive "${program.name}"? It will disappear from browse, search, and the sitemap. Poll responses and outreach history are kept.`)) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/programs/${program.id}/archive`, "POST");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to archive");
+      setBusy(false);
+    }
+  }
+
   const strip = program.editorialBestFor ?? (program.bestForPhrases.length >= 2 ? program.bestForPhrases.join(" · ") : null);
 
   return (
@@ -96,6 +111,9 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
         </span>
         <Button type="button" variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
           {open ? "Close" : "Edit"}
+        </Button>
+        <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={handleArchive}>
+          Archive
         </Button>
       </div>
 

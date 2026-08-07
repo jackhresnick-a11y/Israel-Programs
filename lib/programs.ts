@@ -241,6 +241,15 @@ export async function rejectProgram(id: string) {
   return prisma.program.update({ where: { id }, data: { status: "REJECTED" } });
 }
 
+/** Hides a program from every public surface (all of which filter on
+ * status === "PUBLISHED") while preserving its row -- and everything that cascades
+ * from it (poll responses/answers/reviews, outreach history) -- instead of a hard
+ * delete, which is blocked for programs with outreach history and would otherwise
+ * cascade-destroy poll data for the rest. */
+export async function archiveProgram(id: string) {
+  return prisma.program.update({ where: { id }, data: { status: "ARCHIVED" } });
+}
+
 export async function rejectEdit(editId: string) {
   return prisma.programEdit.update({
     where: { id: editId },
