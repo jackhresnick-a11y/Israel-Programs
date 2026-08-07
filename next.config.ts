@@ -39,6 +39,11 @@ const nextConfig: NextConfig = {
         hostname: "*.public.blob.vercel-storage.com",
       },
     ],
+    // 31 days, up from the 4-hour default. Safe with zero staleness risk: every Blob
+    // upload gets addRandomSuffix: true (lib/storage.ts), so a changed image is always
+    // a new URL, never a URL whose content changes underneath a cached optimized copy.
+    minimumCacheTTL: 2678400,
+    qualities: [75],
   },
   async headers() {
     return [

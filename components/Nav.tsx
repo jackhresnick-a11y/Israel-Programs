@@ -1,18 +1,13 @@
 import Link from "next/link";
-import { SignInButton, SignUpButton, Show } from "@clerk/nextjs";
-import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
-import { buttonVariants } from "@/components/ui/Button";
-import AccountMenu from "@/components/AccountMenu";
+import { MobileAuthLinks, DesktopAuthControls } from "@/components/NavAuthControls";
 import MobileNavDrawer from "@/components/MobileNavDrawer";
 
 export default async function Nav() {
-  const [role, logoUrl, logoMode] = await Promise.all([
-    getCurrentRole(),
+  const [logoUrl, logoMode] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
   ]);
-  const isAdmin = role === "admin";
   const showText = !logoUrl || logoMode === "alongside";
 
   return (
@@ -23,7 +18,14 @@ export default async function Nav() {
           className="flex shrink-0 items-center gap-2 font-serif text-xl font-semibold tracking-tight text-primary-foreground"
         >
           {logoUrl && (
-            // External Blob URL — plain img avoids next/image remotePatterns config.
+            // Deliberately still a raw <img>, not next/image: this box is w-auto (width
+            // driven by whatever aspect ratio the admin-configured logo actually has,
+            // preset asset or Blob upload alike), and next/image requires a fixed
+            // width/height for a string src. Guessing a ratio risks visibly distorting
+            // the logo on every page for any future upload that doesn't match the guess;
+            // a correct fix needs the real image dimensions (probed server-side, cached
+            // per URL) and was judged disproportionate to add in this pass. Renders on
+            // every page, so still benefits from Blob's own HTTP caching even unoptimized.
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt="Israel Programs Wiki" className="h-9 w-auto sm:h-12 md:h-14" />
           )}
@@ -94,23 +96,12 @@ export default async function Nav() {
               >
                 Add Program
               </Link>
-              <Show when="signed-out">
-                {/* Sign in/up live here on mobile, not on the row -- neither auth
-                    action is what a first-time mobile visitor is there to do; the row
-                    is for search/browse, and signup belongs in context (next to Save,
-                    or after search results) rather than competing with the wordmark
-                    for header space. Desktop keeps both inline (below). */}
-                <SignInButton mode="modal">
-                  <button className="block w-full rounded px-3 py-2 text-left text-foreground hover:bg-surface-muted">
-                    Sign in
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="block w-full rounded px-3 py-2 text-left text-foreground hover:bg-surface-muted">
-                    Sign up
-                  </button>
-                </SignUpButton>
-              </Show>
+              {/* Sign in/up live here on mobile, not on the row -- neither auth
+                  action is what a first-time mobile visitor is there to do; the row
+                  is for search/browse, and signup belongs in context (next to Save,
+                  or after search results) rather than competing with the wordmark
+                  for header space. Desktop keeps both inline (below). */}
+              <MobileAuthLinks />
             </div>
           </MobileNavDrawer>
 
@@ -123,23 +114,7 @@ export default async function Nav() {
               be a same-specificity cascade fight with an unpredictable winner -- this
               is what let Sign Up render and overflow on mobile before. Hiding the
               parent instead sidesteps the conflict entirely). */}
-          <Show when="signed-out">
-            <div className="hidden items-center gap-x-3 sm:flex">
-              <SignInButton mode="modal">
-                <button className={buttonVariants({ variant: "onDark", size: "sm" })}>
-                  Sign in
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className={buttonVariants({ variant: "primary", size: "sm" })}>
-                  Sign up
-                </button>
-              </SignUpButton>
-            </div>
-          </Show>
-          <Show when="signed-in">
-            <AccountMenu isAdmin={isAdmin} />
-          </Show>
+          <DesktopAuthControls />
         </div>
       </div>
     </header>

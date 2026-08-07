@@ -20,6 +20,9 @@ vi.mock("@/lib/pollConfig", () => ({
     extras: [],
   })),
 }));
+// maybeTransition revalidates the program page on a COUNTED transition (lib/revalidate.ts);
+// unrelated to what these tests exercise, and the fake prisma below has no `program` model.
+vi.mock("@/lib/revalidate", () => ({ revalidateProgram: vi.fn(async () => {}) }));
 const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindManyArgs } =
   vi.hoisted(() => {
     type ReferenceRow = {

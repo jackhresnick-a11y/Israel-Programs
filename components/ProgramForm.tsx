@@ -199,10 +199,17 @@ export default function ProgramForm({
           toast("Your edits have been sent for review and will show up after moderator approval");
         }
         router.push(`/programs/${initial!.slug}`);
+      } else if (body.status === "PENDING") {
+        // The public program page 404s for a non-PUBLISHED program to any visitor
+        // (including its own creator) now that it's statically rendered without a
+        // per-request auth check -- send the submitter to the edit page instead,
+        // which already shows "reviewed by a moderator before they go live" for a
+        // non-moderator and carries the same owner-or-moderator access gate.
+        toast("Thanks! Your submission is awaiting moderator approval.");
+        router.push(`/programs/${body.slug}/edit`);
       } else {
         // POST returns the created program directly (status PENDING or PUBLISHED).
-        const suffix = body.status === "PENDING" ? "?created=pending" : "";
-        router.push(`/programs/${body.slug}${suffix}`);
+        router.push(`/programs/${body.slug}`);
       }
       router.refresh();
     } catch (err) {

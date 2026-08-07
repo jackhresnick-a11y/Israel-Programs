@@ -1,3 +1,5 @@
+"use client";
+
 import { SignInButton, Show } from "@clerk/nextjs";
 import ReviewForm from "@/components/ReviewForm";
 import { buttonVariants } from "@/components/ui/Button";

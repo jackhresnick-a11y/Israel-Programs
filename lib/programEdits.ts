@@ -148,4 +148,6 @@ export async function applyReviewDecisions(editId: string, decisions: ReviewDeci
     where: { id: editId },
     data: { status: "APPROVED", reviewedAt: new Date() },
   });
+
+  return { programId: edit.programId };
 }

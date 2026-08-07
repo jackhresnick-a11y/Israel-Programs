@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { listPrograms, listAllTags, getFacetData, type ProgramFilters } from "@/lib/programs";
@@ -238,27 +239,26 @@ export default async function ProgramsPage({
           // FilterDropdown popovers in SearchBar, since their position:absolute
           // menus don't contribute to a normal-flow ancestor's height.
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+            {/* One element instead of two sm:hidden/hidden-sm:block siblings sharing the
+                same src -- the browser fetches every <img> in the DOM regardless of
+                whether display:none/hidden is currently hiding it, so the old two-element
+                version downloaded this image twice on every browse-page view. The
+                mobile/desktop size and offset swap now happens in CSS, via custom
+                properties read at two different breakpoints, instead of in the DOM. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={backgroundUrl}
               alt=""
-              style={{
-                height: `${backgroundMobileHeight}px`,
-                opacity: backgroundOpacityValue,
-                transform: `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
-              }}
-              className="absolute left-1/2 top-1/2 w-auto max-w-none select-none sm:hidden"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={backgroundUrl}
-              alt=""
-              style={{
-                height: `${backgroundDesktopHeight}px`,
-                opacity: backgroundOpacityValue,
-                transform: `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
-              }}
-              className="absolute left-1/2 top-1/2 hidden w-auto max-w-none select-none sm:block"
+              style={
+                {
+                  "--bg-height-mobile": `${backgroundMobileHeight}px`,
+                  "--bg-height-desktop": `${backgroundDesktopHeight}px`,
+                  "--bg-transform-mobile": `translate(-50%, calc(-50% + ${backgroundMobileOffset}px))`,
+                  "--bg-transform-desktop": `translate(-50%, calc(-50% + ${backgroundDesktopOffset}px))`,
+                  opacity: backgroundOpacityValue,
+                } as CSSProperties
+              }
+              className="absolute left-1/2 top-1/2 h-[var(--bg-height-mobile)] w-auto max-w-none select-none [transform:var(--bg-transform-mobile)] sm:h-[var(--bg-height-desktop)] sm:[transform:var(--bg-transform-desktop)]"
             />
           </div>
         )}

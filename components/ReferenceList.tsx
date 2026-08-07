@@ -5,6 +5,7 @@ import { useState } from "react";
 import { SignInButton, Show } from "@clerk/nextjs";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { useIsModerator } from "@/lib/useModeratorRole";
 
 type Reference = {
   id: string;
@@ -153,13 +154,12 @@ function ReferenceRow({
 
 export default function ReferenceList({
   references,
-  isModerator,
 }: {
   references: Reference[];
-  isModerator: boolean;
 }) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const isModerator = useIsModerator();
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this reference listing?")) return;

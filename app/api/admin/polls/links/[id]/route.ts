@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/roles";
 import { updateReferrerToken, updateTokenInputSchema } from "@/lib/pollTokens";
 
@@ -17,6 +18,12 @@ export async function PATCH(
     const json = await request.json();
     const body = updateTokenInputSchema.parse(json);
     const token = await updateReferrerToken(id, body);
+    // This route doesn't know here whether `id` is the specific token /rate's picker
+    // is currently showing for some program (see listPublicPollLinks) -- revalidating
+    // unconditionally is cheap and correct either way; a `revoked` patch in particular
+    // is exactly the case where a stale cached link would keep pointing respondents at
+    // a token the admin just turned off.
+    revalidatePath("/rate");
     return NextResponse.json(token);
   } catch (err) {
     if (err instanceof ZodError) {

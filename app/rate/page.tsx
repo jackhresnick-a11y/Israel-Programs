@@ -10,6 +10,16 @@ export const metadata: Metadata = {
   description: "Been through a program? Help the next person by picking yours and leaving a quick, anonymous rating.",
 };
 
+// Backstop only -- program approve/reject and public-poll-link/token writes already
+// call revalidatePath('/rate') on-demand (see lib/revalidate.ts's revalidateProgram
+// and the polls/programs/[programId] and polls/links/[id] routes), so this page
+// updates immediately on the writes that matter. 1h matches the window already used
+// for "/" and "/mission" -- this page's content (which programs are published, which
+// have a public poll link) changes at the same few-times-a-day cadence as those, and
+// the timer only needs to catch a write path that's missed or added later, not carry
+// the primary freshness guarantee itself.
+export const revalidate = 3600;
+
 export default async function RateProgramIndexPage() {
   const [programs, publicLinks] = await Promise.all([
     listPublishedProgramsForPicker(),

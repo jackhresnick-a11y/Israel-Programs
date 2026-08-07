@@ -11,6 +11,13 @@ const upsertSpy = vi.hoisted(() => vi.fn(async () => ({})));
 
 vi.mock("@/lib/roles", () => ({ requireRole }));
 vi.mock("@/lib/prisma", () => ({ prisma: { siteContent: { upsert: upsertSpy } } }));
+// revalidateTag needs a real Next.js request context (the static generation store) that a
+// route handler invoked directly in a unit test doesn't have -- see lib/siteContent.ts's
+// upsertSiteContent, which now calls it after every write.
+vi.mock("next/cache", () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+  revalidateTag: vi.fn(),
+}));
 
 const { PATCH } = await import("./route");
 

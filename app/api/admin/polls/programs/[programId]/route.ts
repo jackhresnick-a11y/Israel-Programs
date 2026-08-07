@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/roles";
 import { upsertProgramPollConfig, programPollConfigPatchSchema } from "@/lib/pollConfig";
 
@@ -17,6 +18,11 @@ export async function PATCH(
     const json = await request.json();
     const body = programPollConfigPatchSchema.parse(json);
     const config = await upsertProgramPollConfig(programId, body);
+    // Unconditional, same as polls/links/[id]/route.ts's token-update revalidation --
+    // toggling pollLinkPublic (and the publicToken it mints on first enable) changes
+    // the href /rate's picker shows for this program (see listPublicPollLinks), and
+    // scoping this to only the pollLinkPublic-present case risked missing it.
+    revalidatePath("/rate");
     return NextResponse.json(config);
   } catch (err) {
     if (err instanceof ZodError) {

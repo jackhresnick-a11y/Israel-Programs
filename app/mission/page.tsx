@@ -1,48 +1,51 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSiteContent } from "@/lib/siteContent";
 import { getMissionBlocks } from "@/lib/mission";
-import { getCurrentRole } from "@/lib/roles";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import EmblemDefault from "@/components/EmblemDefault";
 import MissionIcon from "@/components/MissionIcon";
 import FormattedText from "@/components/FormattedText";
-import { buttonVariants } from "@/components/ui/Button";
+import MissionEditLink from "@/components/MissionEditLink";
 import ContactForm from "@/components/ContactForm";
 
+// Backstop only -- getMissionBlocks/getSiteContent are tagged "site-content" (see
+// lib/siteContent.ts), so upsertSiteContent's revalidateTag already invalidates this
+// page's cached HTML the moment an admin saves mission copy or the emblem. The 1-hour
+// timer here just bounds staleness if that tag-based path is ever missed.
+export const revalidate = 3600;
+
 export default async function MissionPage() {
-  const [blocks, legacyBody, emblemUrl, role] = await Promise.all([
+  const [blocks, legacyBody, emblemUrl] = await Promise.all([
     getMissionBlocks(),
     getSiteContent("mission"),
     getSiteContent("emblemLogoUrl"),
-    getCurrentRole(),
   ]);
 
   return (
     <PageContainer width="base" className="gap-8">
       <div className="flex justify-center">
         {emblemUrl ? (
-          // External Blob URL — plain img avoids next/image remotePatterns config.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={emblemUrl} alt="Israel Program Wiki emblem" className="h-40 w-40 sm:h-48 sm:w-48" />
+          // Fixed square box regardless of the source image's actual aspect ratio (same
+          // as the raw <img> this replaces -- neither applies an object-fit override, so
+          // a non-square upload renders identically either way). 192 matches the largest
+          // rendered size (sm:h-48/w-48 = 12rem = 192px at the default 4px spacing unit);
+          // next/image resizes down from there for the 160px (h-40) mobile box instead of
+          // shipping a full-resolution emblem to every visitor.
+          <Image
+            src={emblemUrl}
+            alt="Israel Program Wiki emblem"
+            width={192}
+            height={192}
+            className="h-40 w-40 sm:h-48 sm:w-48"
+          />
         ) : (
           <EmblemDefault className="h-40 w-40 sm:h-48 sm:w-48" />
         )}
       </div>
 
-      <PageHeader
-        title="Background of Israel Programs Wiki"
-        actions={
-          role === "admin" ? (
-            <Link
-              href="/mission/edit"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
-            >
-              Edit
-            </Link>
-          ) : undefined
-        }
-      />
+      <PageHeader title="Background of Israel Programs Wiki" actions={<MissionEditLink />} />
 
       {blocks ? (
         <div className="flex flex-col gap-6">
