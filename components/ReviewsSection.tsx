@@ -48,7 +48,13 @@ export default function ReviewsSection({
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-6">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Reviews</h2>
+        <h2
+          id="reviews"
+          tabIndex={-1}
+          className="jump-target-offset font-serif text-lg font-semibold tracking-tight text-foreground"
+        >
+          Reviews
+        </h2>
 
         {summary.pollGroups.length > 0 && (
           <div className="flex flex-col gap-6">

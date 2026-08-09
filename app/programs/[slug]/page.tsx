@@ -27,6 +27,7 @@ import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
 import ReviewsSection from "@/components/ReviewsSection";
 import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
+import ProgramJumpNav, { type JumpNavItem } from "@/components/ProgramJumpNav";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -145,10 +146,34 @@ export default async function ProgramDetailPage({
     pollVisible: pollSummary.visible,
   });
 
+  // Hoisted (rather than inline in <ReviewsSection>'s summary prop below) so
+  // ProgramJumpNav can gate the "Reviews" jump item on the same data the
+  // section itself renders from, with only one fetch either way (cache()-wrapped
+  // like the other program-page reads).
+  const reviewsSummary = await getProgramReviewsSummary(program.id);
+
+  // Same rateHref PollSummaryStrip's own RateCta computes (publicPollLink falls
+  // back to the sign-in-walled /rate/[slug]) -- kept in sync so the jump bar's
+  // CTA and the in-page ones never point at different links.
+  const rateHref = publicPollLink ?? `/rate/${program.slug}`;
+
+  // Rule 1: an item only qualifies when that section actually renders non-empty
+  // content on this program. `pollSummary.visible` is exactly the same gate
+  // PollSummaryStrip uses for its own results grid (deriveCtaLayout's
+  // showResults) -- every program's poll always resolves at least the core
+  // question set once visible, so this is equivalent to "the Ratings section
+  // has something to show," not just "responses exist."
+  const jumpItems: JumpNavItem[] = [];
+  if (pollSummary.visible) jumpItems.push({ id: "ratings", label: "Ratings" });
+  if (reviewsSummary.pollGroups.length > 0 || reviewsSummary.standaloneReviews.length > 0) {
+    jumpItems.push({ id: "reviews", label: "Reviews" });
+  }
+  if (hasReferences) jumpItems.push({ id: "alumni", label: "Alumni" });
+
   return (
     <PageContainer>
       <BackButton fallbackHref="/programs" />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+      <div id="top" tabIndex={-1} className="jump-top-offset flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <div className="flex items-start gap-3 sm:gap-4">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-muted">
             {program.logoUrl ? (
@@ -236,6 +261,13 @@ export default async function ProgramDetailPage({
         </div>
       )}
 
+      {/* Rule 1: only rendered once at least 2 jump items qualify -- the
+          "Rate this program" CTA still reaches every visitor either way via
+          RateCta inside PollSummaryStrip above, which is never gated on this. */}
+      {jumpItems.length >= 2 && (
+        <ProgramJumpNav programName={program.name} items={jumpItems} rateHref={rateHref} />
+      )}
+
       <Card as="dl" className="grid grid-cols-1 gap-4 p-4 text-sm sm:grid-cols-2">
         <div>
           <dt className="font-medium text-muted">Duration</dt>
@@ -312,14 +344,14 @@ export default async function ProgramDetailPage({
         </SignedInGate>
       </section>
 
-      <ReviewsSection
-        programId={program.id}
-        programName={program.name}
-        summary={await getProgramReviewsSummary(program.id)}
-      />
+      <ReviewsSection programId={program.id} programName={program.name} summary={reviewsSummary} />
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+        <h2
+          id="alumni"
+          tabIndex={-1}
+          className="jump-target-offset font-serif text-lg font-semibold tracking-tight text-foreground"
+        >
           Alumni References
         </h2>
         {/* Aggregate hint only -- covers both the published-references list below AND
