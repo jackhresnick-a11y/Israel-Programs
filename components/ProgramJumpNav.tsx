@@ -131,7 +131,13 @@ export default function ProgramJumpNav({
   return (
     <nav
       aria-label="On this page"
-      className="sticky top-[var(--header-h)] z-30 flex max-h-12 items-center gap-4 overflow-x-auto whitespace-nowrap border-b border-border bg-background px-4 py-2"
+      // overflow-y-hidden is required, not decorative: per the CSS overflow
+      // spec, setting only overflow-x leaves overflow-y computed as `auto`
+      // (not `visible`), and a stray sub-pixel height mismatch was enough to
+      // trigger a real vertical scrollbar next to the CTA. This row is
+      // single-line and height-capped (rule 5) -- it should never scroll
+      // vertically, so this is pinned explicitly rather than left implicit.
+      className="sticky top-[var(--header-h)] z-30 flex max-h-12 items-center gap-4 overflow-x-auto overflow-y-hidden whitespace-nowrap border-b border-border bg-background px-4 py-2"
     >
       <a
         href="#top"
