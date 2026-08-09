@@ -1140,3 +1140,45 @@ model ProgramFAQ {
   @@index([programId, status])
   @@index([status])
 }
+
+/// A single step in the /find narrowing flow ("narrow the directory" -- a short,
+/// skippable question sequence that redirects to /programs?tags=...&duration=..., no
+/// results UI or scoring of its own). Prompt/helpText/order/status are all
+/// admin-editable (app/admin/find) so the copy can change without a deploy -- same
+/// posture as TagCategory and Region above. Reuses PollLifecycleStatus rather than a
+/// new enum: ACTIVE/RETIRED is exactly "active/inactive" for a question or option.
+model FinderQuestion {
+  id        String              @id @default(cuid())
+  /// Stable identity for referencing a question outside its row id, same role as
+  /// PollQuestion.key -- not currently read by any consumer, but keeps the same shape
+  /// as the poll-question bank rather than inventing a one-off model shape here.
+  key       String              @unique
+  prompt    String
+  helpText  String?
+  order     Int                 @default(0)
+  status    PollLifecycleStatus @default(ACTIVE)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  options   FinderOption[]
+}
+
+/// One selectable answer on a FinderQuestion. `tagSlugs` softly references Tag.slug and
+/// `durationValues` softly references the DurationType enum (stored as String[], not
+/// DurationType[], so a future enum change can't wedge an admin write) -- same
+/// "soft ref, not a foreign key" shape as Region.memberSlugs. Both are validated
+/// against the live Tag table / enum at redirect time (lib/finder.ts's
+/// buildProgramsHref), which drops a stale slug/value rather than forwarding it to
+/// /programs.
+model FinderOption {
+  id             String              @id @default(cuid())
+  questionId     String
+  question       FinderQuestion      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label          String
+  helpText       String?
+  order          Int                 @default(0)
+  status         PollLifecycleStatus @default(ACTIVE)
+  tagSlugs       String[]            @default([])
+  durationValues String[]            @default([])
+
+  @@index([questionId])
+}

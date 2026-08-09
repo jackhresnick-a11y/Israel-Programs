@@ -83,6 +83,12 @@ export default async function AdminPage() {
               Tags & categories
             </Link>
             <Link
+              href="/admin/find"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Find flow
+            </Link>
+            <Link
               href="/admin/email"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >
