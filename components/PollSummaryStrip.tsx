@@ -161,7 +161,13 @@ export default function PollSummaryStrip({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Poll results</h2>
+        <h2
+          id="ratings"
+          tabIndex={-1}
+          className="jump-target-offset font-serif text-lg font-semibold tracking-tight text-foreground"
+        >
+          Poll results
+        </h2>
         <Link href="/methodology" className="text-xs text-accent-hover underline">
           How these results are collected →
         </Link>

@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AssistantWidgetMount from "@/components/AssistantWidgetMount";
+import HeaderHeightVar from "@/components/HeaderHeightVar";
 import { ToastProvider } from "@/components/ui/Toast";
 import { getSiteContent } from "@/lib/siteContent";
 import { SITE_NAME, SITE_URL } from "@/lib/siteUrl";
@@ -82,6 +83,7 @@ export default async function RootLayout({
       >
         <body className="min-h-full flex flex-col bg-background text-foreground">
           <ToastProvider>
+            <HeaderHeightVar />
             <Nav />
             <main className="flex flex-1 flex-col overflow-x-clip">{children}</main>
             <Footer />

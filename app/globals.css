@@ -70,6 +70,12 @@
   --poll-bucket-8: #8e3a57; /* wine */
   --poll-bucket-9: #a6335e; /* raspberry */
   --poll-bucket-10: #6b4a2e; /* bark brown */
+
+  /* Sticky site-header height, kept in sync at runtime by HeaderHeightVar
+     (measures the real <header>'s ResizeObserver box) -- this static value is
+     only the pre-hydration/no-JS fallback, and matches RateForm.tsx's own
+     hardcoded mobile approximation for the same header. */
+  --header-h: 60px;
 }
 
 @theme inline {
@@ -165,6 +171,23 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Offset for headings targeted by ProgramJumpNav's in-page anchors -- the
+   sticky bar's own height (48px, its rule 5 cap) plus one 16px spacing unit
+   (§4), stacked on top of the runtime header height so a jump never lands a
+   heading underneath either sticky element. */
+.jump-target-offset {
+  scroll-margin-top: calc(var(--header-h) + 48px + 16px);
+}
+
+/* Offset for ProgramJumpNav's own "back to top" target only -- just the site
+   header, not the bar's own height. The bar lives further down the page (it
+   renders after the "Who it's for" block); scrolling up to the very top
+   un-pins it before it would ever overlap this target, so only the
+   always-sticky header needs to be cleared here. */
+.jump-top-offset {
+  scroll-margin-top: var(--header-h);
 }
 
 /* Motion is color/border transitions only, nothing else animates (§6) -- this is the
