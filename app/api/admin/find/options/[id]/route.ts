@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
-import { updateFinderOption, deleteFinderOption } from "@/lib/finder";
+import { updateFinderOption, deleteFinderOption, UnknownTagSlugsError } from "@/lib/finder";
 
 const patchBodySchema = z
   .object({
@@ -35,6 +35,9 @@ export async function PATCH(
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+    }
+    if (err instanceof UnknownTagSlugsError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error(err);
     return NextResponse.json({ error: "Failed to update option" }, { status: 500 });

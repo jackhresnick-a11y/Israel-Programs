@@ -1,11 +1,42 @@
 import slugify from "slugify";
 import { DurationType } from "@/app/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { assembleProgramsHref } from "@/lib/finderTargets";
+
+// Re-exported for convenience so server code can `import { assembleProgramsHref } from
+// "@/lib/finder"` alongside the CRUD helpers below -- but a client component must
+// import from "@/lib/finderTargets" directly (see that file for why the split exists).
+export { assembleProgramsHref } from "@/lib/finderTargets";
 
 const DURATION_VALUES = new Set<string>(Object.values(DurationType));
 
 function slugifyValue(value: string) {
   return slugify(value, { lower: true, strict: true });
+}
+
+/** Thrown by createFinderOption/updateFinderOption when asked to save a tagSlugs entry
+ * with no matching live Tag row. The admin UI's tag picker (components/admin/
+ * FinderQuestionsManager.tsx) only ever offers real Tag.slug values, so this guards
+ * against a direct API call (or a future non-picker caller) writing an option that
+ * silently does nothing at redirect time -- buildProgramsHref drops an unknown slug
+ * rather than erroring, which is the right behavior for an option that went stale
+ * *after* being saved (e.g. its tag was later deleted), but not for a write that never
+ * pointed at a real tag in the first place. */
+export class UnknownTagSlugsError extends Error {
+  slugs: string[];
+  constructor(slugs: string[]) {
+    super(`Unknown tag slug(s): ${slugs.join(", ")}`);
+    this.name = "UnknownTagSlugsError";
+    this.slugs = slugs;
+  }
+}
+
+async function assertTagSlugsExist(slugs: string[]) {
+  if (slugs.length === 0) return;
+  const rows = await prisma.tag.findMany({ where: { slug: { in: slugs } }, select: { slug: true } });
+  const found = new Set(rows.map((r) => r.slug));
+  const missing = slugs.filter((slug) => !found.has(slug));
+  if (missing.length > 0) throw new UnknownTagSlugsError(missing);
 }
 
 export async function listFinderQuestions({ includeRetired = false }: { includeRetired?: boolean } = {}) {
@@ -52,14 +83,9 @@ export async function buildProgramsHref(optionIds: string[]): Promise<string> {
       : [];
   const liveSlugs = new Set(liveTags.map((t) => t.slug));
 
-  const params = new URLSearchParams();
   const validTags = [...tagSlugs].filter((slug) => liveSlugs.has(slug));
   const validDurations = [...durationValues].filter((value) => DURATION_VALUES.has(value));
-  if (validTags.length > 0) params.set("tags", validTags.join(","));
-  if (validDurations.length > 0) params.set("duration", validDurations.join(","));
-
-  const qs = params.toString();
-  return qs ? `/programs?${qs}` : "/programs";
+  return assembleProgramsHref(validTags, validDurations);
 }
 
 /** `key` is derived from `prompt` at creation time, same "stable identity assigned once,
@@ -111,6 +137,7 @@ export async function createFinderOption(input: {
   tagSlugs?: string[];
   durationValues?: string[];
 }) {
+  await assertTagSlugsExist(input.tagSlugs ?? []);
   const maxOrder = await prisma.finderOption.aggregate({
     where: { questionId: input.questionId },
     _max: { order: true },
@@ -138,6 +165,7 @@ export async function updateFinderOption(
     durationValues: string[];
   }>
 ) {
+  if (input.tagSlugs !== undefined) await assertTagSlugsExist(input.tagSlugs);
   return prisma.finderOption.update({
     where: { id },
     data: {

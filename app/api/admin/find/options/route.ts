@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
-import { createFinderOption } from "@/lib/finder";
+import { createFinderOption, UnknownTagSlugsError } from "@/lib/finder";
 
 const postBodySchema = z.object({
   questionId: z.string().min(1),
@@ -25,6 +25,9 @@ export async function POST(request: Request) {
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json({ error: err.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+    }
+    if (err instanceof UnknownTagSlugsError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error(err);
     return NextResponse.json({ error: "Failed to create option" }, { status: 500 });

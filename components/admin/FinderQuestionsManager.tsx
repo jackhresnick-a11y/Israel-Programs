@@ -6,6 +6,7 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import type { DurationType } from "@/app/generated/prisma/enums";
+import { assembleProgramsHref } from "@/lib/finderTargets";
 
 export type FinderOptionRow = {
   id: string;
@@ -333,6 +334,14 @@ export default function FinderQuestionsManager({
                         Delete
                       </Button>
                     </div>
+
+                    {/* Live preview, not a saved field -- recomputed from tagSlugs/durationValues
+                        on every render via the same pure assembly buildProgramsHref uses
+                        server-side (lib/finderTargets.ts), so it can never drift from what
+                        picking only this option would actually redirect to. */}
+                    <p className="font-mono text-xs text-muted">
+                      → {assembleProgramsHref(option.tagSlugs, option.durationValues)}
+                    </p>
 
                     <Input
                       defaultValue={option.helpText ?? ""}
