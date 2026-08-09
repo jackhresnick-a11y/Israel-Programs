@@ -34,11 +34,14 @@ export default async function Nav() {
 
         <div className="flex flex-nowrap items-center gap-x-3 sm:gap-x-6">
           {/* Public links: inline at sm+; tucked behind the mobile hamburger below
-              sm, since a logo + 3 links + toggle + auth can't fit a 390px row at a
+              sm, since a logo + 4 links + toggle + auth can't fit a 390px row at a
               tappable size no matter how tight the spacing gets. */}
           <nav className="hidden items-center gap-x-6 text-sm font-medium text-primary-foreground/90 sm:flex">
             <Link href="/programs" className="hover:text-accent">
               Browse
+            </Link>
+            <Link href="/find" className="hover:text-accent">
+              Narrow
             </Link>
             <Link href="/mission" className="hover:text-accent">
               Background
@@ -83,6 +86,12 @@ export default async function Nav() {
                 className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
               >
                 Browse
+              </Link>
+              <Link
+                href="/find"
+                className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
+              >
+                Narrow
               </Link>
               <Link
                 href="/mission"
