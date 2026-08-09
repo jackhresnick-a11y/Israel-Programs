@@ -91,8 +91,11 @@ honeypot cases — see "Program FAQs and the public poll link" below),
 `lib/pollClustering.test.ts` (the advisory burst/cohort thresholds and their boundaries —
 see "The post-poll referral loop" below), `lib/pollShare.test.ts` (the WhatsApp share
 message/href builders, including URL round-tripping for Hebrew text and special
-characters), and `lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
-`youtubePosterFromEmbedUrl` — see "Homepage hero video" below). This covers pure-logic `lib/*.ts`
+characters), `lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
+`youtubePosterFromEmbedUrl` — see "Homepage hero video" below), and `lib/finder.test.ts` (the
+`/find` flow's redirect assembly — dedup, stale-tag-slug and invalid-duration-value dropping,
+and that a write with an unknown tag slug is rejected rather than silently saved — see "/find"
+below). This covers pure-logic `lib/*.ts`
 functions behind `vi.mock`-able boundaries (or with no external dependency at all), not
 routes, pages, or anything that needs a real Postgres connection — most verification in
 this project is still `npx tsc --noEmit`, `npm run lint`, exercising the feature via
@@ -370,14 +373,16 @@ same `QueueActions` component the Pending Programs/References sections use, and
 `lib/prisma.ts` imports the `pg` driver, which needs Node built-ins (`tls`, etc.) that
 don't exist in a browser bundle — so any `lib/*.ts` file that (transitively) imports
 `lib/prisma.ts` cannot be imported from a `"use client"` component, even just for a type
-or a constant. Two instances of the same fix so far: `lib/tagTints.ts` was split out of
-`lib/tags.ts`, and `lib/missionBlocks.ts` was split out of `lib/mission.ts` — each split
-file holds only the pure types/constants/zod schema a client form component needs
-(`MissionBlocksForm.tsx`, tag-tint pickers), while the original file keeps the
-Prisma-backed CRUD functions and re-exports the split file's symbols for server-side
-callers. Follow this precedent — pull the client-needed pure declarations into a
-sibling `*Foo.ts` file — rather than making a "use client" component import the
-Prisma-backed module directly.
+or a constant. Three instances of the same fix so far: `lib/tagTints.ts` was split out of
+`lib/tags.ts`, `lib/missionBlocks.ts` was split out of `lib/mission.ts`, and
+`lib/finderTargets.ts` was split out of `lib/finder.ts` — each split file holds only the
+pure types/constants/zod schema (or, for `finderTargets.ts`, the pure URL-assembly
+function) a client component needs (`MissionBlocksForm.tsx`, tag-tint pickers,
+`FinderQuestionsManager.tsx`'s per-option redirect preview — see "/find" below), while
+the original file keeps the Prisma-backed CRUD functions and re-exports the split file's
+symbols for server-side callers. Follow this precedent — pull the client-needed pure
+declarations into a sibling `*Foo.ts` file — rather than making a "use client" component
+import the Prisma-backed module directly.
 
 ### Browse filters: one dropdown per category, all config admin-editable via DB tables
 `components/SearchBar.tsx` renders one dropdown per filter category via the shared
@@ -417,6 +422,41 @@ admin adds it to that Region's `memberSlugs` (via `RegionManager`) — an empty
 
 Duration is also multi-select (`DurationType[]`, Prisma `{ in: [...] }`), matching the
 other dropdowns — its URL `duration` param is comma-joined like `tags`.
+
+### `/find`: an admin-editable narrowing flow that redirects into the browse filters
+`/find` is a short, skippable, single-select question sequence (`app/find/page.tsx`,
+`components/FindStep.tsx`) whose entire output is a redirect to
+`/programs?tags=...&duration=...` — the exact same URL shape the filter bar above
+produces. It owns no results UI, ranking, or scoring of its own; `app/programs/page.tsx`
+does all the actual filtering, same as always. State lives in the URL as
+`?step=N&a=<comma-joined FinderOption ids>` rather than any client-side store, so the
+flow works with JavaScript disabled.
+
+Questions and options are DB-backed (`FinderQuestion`/`FinderOption` in `schema.prisma`,
+reusing `PollLifecycleStatus` for ACTIVE/RETIRED rather than a new enum) and managed from
+`/admin/find` (`components/admin/FinderQuestionsManager.tsx`) — prompt, help text, order,
+active state, and, critically, **each option's target**: the `tagSlugs`/`durationValues`
+it contributes to the final redirect. The tag side of that target is a checkbox picker
+over the live `Tag` table (never free text), and `lib/finder.ts`'s
+`createFinderOption`/`updateFinderOption` additionally reject (via `UnknownTagSlugsError`,
+surfaced as a 400 by the `/api/admin/find/*` routes) any write naming a tag slug with no
+matching `Tag` row — closing the gap a direct API call (bypassing the picker) or a
+duration-values typo could otherwise open. This is a stronger guarantee than
+`buildProgramsHref` itself needs at read time: that function still drops a stale tag slug
+or an out-of-`DurationType` duration value rather than erroring, since an option can
+legitimately go stale *after* being saved (e.g. its tag is later renamed/deleted from
+`app/admin/tags`), and a broken filter selection at *that* point should degrade quietly,
+not 500 the redirect.
+
+`listFinderQuestions`/`buildProgramsHref` are fully generic over whatever
+`FinderQuestion`/`FinderOption` rows exist — no question key or count is hardcoded
+anywhere, so a 5th question added purely from `/admin/find` works with zero code changes.
+The pure param-assembly logic (`assembleProgramsHref`) lives in `lib/finderTargets.ts`,
+split out of `lib/finder.ts` per the client-module-split pattern above, so
+`FinderQuestionsManager.tsx` can render a live "→ `/programs?...`" preview under every
+option — recomputed from that option's own stored `tagSlugs`/`durationValues` on every
+render — without risking drift from what `buildProgramsHref` actually produces at
+redirect time.
 
 ### Search ranking: Postgres filters, then a tokenized-match ∪ Fuse.js union, then a relevance-tier pass
 `lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR
