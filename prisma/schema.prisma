@@ -196,21 +196,30 @@ enum PollDisplayFormat {
   BOTH
 }
 
+/// ARCHIVED is a reversible "take this off the public site" state for an
+/// already-APPROVED review -- distinct from REJECTED (never was published) and from a
+/// hard delete (permanent). Every public reader already allowlists on a positive
+/// `status === "APPROVED"` check, so adding this value hides archived rows from every
+/// public surface with zero read-path changes; the admin queue is the one place that
+/// needs to explicitly opt into seeing it.
 enum PollReviewStatus {
   PENDING
   APPROVED
   REJECTED
+  ARCHIVED
 }
 
 /// Moderation status for the standalone `Review` model -- same PENDING-first,
 /// nothing-auto-approves, reject-never-deletes posture as PollReviewStatus, kept as its
 /// own enum (not a reuse of ProgramStatus) since a Review's moderation lifecycle is a
 /// separate concern from a Program's publish lifecycle even though the value sets
-/// happen to match.
+/// happen to match. ARCHIVED mirrors PollReviewStatus's ARCHIVED -- same reversible
+/// take-down-without-deleting semantics, same positive-allowlist safety property.
 enum ReviewStatus {
   PENDING
   PUBLISHED
   REJECTED
+  ARCHIVED
 }
 
 enum ProgramFaqStatus {

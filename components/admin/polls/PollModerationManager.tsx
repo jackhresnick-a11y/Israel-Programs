@@ -46,7 +46,7 @@ export type PollResponseRow = {
   reviews: {
     id: string;
     text: string;
-    status: "PENDING" | "APPROVED" | "REJECTED";
+    status: "PENDING" | "APPROVED" | "REJECTED" | "ARCHIVED";
     question: { key: string; text: string };
   }[];
 };
@@ -55,6 +55,7 @@ const REVIEW_STATUS_TONE: Record<PollResponseRow["reviews"][number]["status"], "
   PENDING: "neutral",
   APPROVED: "success",
   REJECTED: "danger",
+  ARCHIVED: "neutral",
 };
 
 async function api(url: string, method: string, body?: object) {

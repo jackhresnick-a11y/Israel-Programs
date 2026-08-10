@@ -37,8 +37,21 @@ const { fakePrisma, resetDb, seedProgram, setDeleteError } = vi.hoisted(() => {
 
   const fakePrisma = {
     program: {
-      findUnique: async ({ where }: { where: { id: string } }) =>
-        db.programs.find((p) => p.id === where.id) ?? null,
+      findUnique: async ({
+        where,
+        include,
+      }: {
+        where: { id: string; status?: string };
+        include?: { reviews?: { where: { status: string } } };
+      }) => {
+        const row = db.programs.find((p) => p.id === where.id);
+        if (!row) return null;
+        if (where.status !== undefined && row.status !== where.status) return null;
+        if (!include?.reviews) return row;
+        const allReviews = (row.reviews as Record<string, unknown>[] | undefined) ?? [];
+        const reviews = allReviews.filter((r) => r.status === include.reviews!.where.status);
+        return { ...row, reviews };
+      },
       findUniqueOrThrow: async ({ where }: { where: { id: string } }) => {
         const row = db.programs.find((p) => p.id === where.id);
         if (!row) throw new Error(`No Program found for id ${where.id}`);
@@ -97,6 +110,8 @@ const { fakePrisma, resetDb, seedProgram, setDeleteError } = vi.hoisted(() => {
       status: "PUBLISHED",
       createdById: "user_owner",
       tags: [] as unknown[],
+      videos: [] as unknown[],
+      reviews: [] as unknown[],
       ...overrides,
     };
     db.programs.push(row);
@@ -128,7 +143,7 @@ vi.mock("@/lib/storage", async () => {
   return { ...actual, saveLogo: (file: File) => mockSaveLogo(file) };
 });
 
-const { PATCH, DELETE } = await import("./route");
+const { GET, PATCH, DELETE } = await import("./route");
 
 function buildFormData(overrides: Record<string, string> = {}) {
   const fd = new FormData();
@@ -169,6 +184,10 @@ function callDelete(id: string) {
   });
 }
 
+function callGet(id: string) {
+  return GET(new Request(`http://localhost/api/programs/${id}`), { params: Promise.resolve({ id }) });
+}
+
 beforeEach(() => {
   resetDb();
   mockSaveLogo.mockReset();
@@ -188,6 +207,30 @@ function restrictViolationError() {
   (err as unknown as { cause: { code: string } }).cause = { code: "23001" };
   return err;
 }
+
+describe("GET /api/programs/[id]", () => {
+  it("only returns PUBLISHED reviews -- an archived review's include filter still reads `status: \"PUBLISHED\"`, a bare equality, so archiving hides it here too with no route change", async () => {
+    const program = seedProgram({
+      reviews: [
+        { id: "rev_pub", rating: 5, text: "Great!", reviewerName: "Alum A", isAnonymous: false, createdAt: new Date(), status: "PUBLISHED" },
+        { id: "rev_archived", rating: 4, text: "Fine.", reviewerName: "Alum B", isAnonymous: false, createdAt: new Date(), status: "ARCHIVED" },
+        { id: "rev_pending", rating: 3, text: "Meh.", reviewerName: "Alum C", isAnonymous: false, createdAt: new Date(), status: "PENDING" },
+      ],
+    });
+
+    const res = await callGet(program.id as string);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.reviews).toHaveLength(1);
+    expect(body.reviews[0].id).toBe("rev_pub");
+  });
+
+  it("a non-PUBLISHED program 404s regardless of its reviews", async () => {
+    const program = seedProgram({ status: "ARCHIVED" });
+    const res = await callGet(program.id as string);
+    expect(res.status).toBe(404);
+  });
+});
 
 describe("PATCH /api/programs/[id]", () => {
   it("moderator: applies the edit immediately, no logo attached", async () => {

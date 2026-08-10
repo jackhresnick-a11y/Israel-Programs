@@ -7,14 +7,22 @@ import type { PollReviewStatus } from "@/app/generated/prisma/enums";
 import PollReviewQueue from "@/components/admin/polls/PollReviewQueue";
 import StandaloneReviewQueue from "@/components/admin/polls/StandaloneReviewQueue";
 
-const VALID_STATUSES: PollReviewStatus[] = ["PENDING", "APPROVED", "REJECTED"];
+const VALID_STATUSES: PollReviewStatus[] = ["PENDING", "APPROVED", "REJECTED", "ARCHIVED"];
 
 // The standalone Review model calls its "live" state PUBLISHED, not APPROVED (matches
 // its own status column, see ReviewStatus in prisma/schema.prisma) -- one shared
-// PENDING/APPROVED/REJECTED filter bar drives both queues via this mapping, rather than
-// showing two separate status dropdowns for what is, from an admin's perspective, one
-// moderation page.
-const POLL_TO_STANDALONE_STATUS = { PENDING: "PENDING", APPROVED: "PUBLISHED", REJECTED: "REJECTED" } as const;
+// PENDING/APPROVED/REJECTED/ARCHIVED filter bar drives both queues via this mapping,
+// rather than showing two separate status dropdowns for what is, from an admin's
+// perspective, one moderation page. ARCHIVED is spelled the same in both enums, so that
+// one entry is trivial -- kept explicit anyway so the map stays total over
+// PollReviewStatus and a future enum value fails type-checking here instead of silently
+// falling through.
+const POLL_TO_STANDALONE_STATUS = {
+  PENDING: "PENDING",
+  APPROVED: "PUBLISHED",
+  REJECTED: "REJECTED",
+  ARCHIVED: "ARCHIVED",
+} as const;
 
 export default async function AdminPollsReviewsPage({
   searchParams,
