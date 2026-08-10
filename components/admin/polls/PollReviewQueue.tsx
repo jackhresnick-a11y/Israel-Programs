@@ -7,15 +7,19 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import { useToast } from "@/components/ui/Toast";
 
 type ProgramOption = { id: string; name: string; slug: string };
 
 export type PollReviewRow = {
   id: string;
   text: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "ARCHIVED";
   consentAt: Date;
   moderatorNote: string | null;
+  archivedAt: Date | null;
+  archivedBy: string | null;
+  archivedByName: string | null;
   createdAt: Date;
   question: { key: string; text: string };
   program: { name: string; slug: string };
@@ -70,6 +74,7 @@ function FilterBar({ programs, filters }: { programs: ProgramOption[]; filters: 
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
+          <option value="ARCHIVED">Archived</option>
         </Select>
       </label>
       <label className="flex flex-col gap-1 text-xs text-muted">
@@ -89,6 +94,7 @@ function FilterBar({ programs, filters }: { programs: ProgramOption[]; filters: 
 
 function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow; selected: boolean; onToggleSelect: () => void }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
   const [rejectNote, setRejectNote] = useState("");
   const [showRejectNote, setShowRejectNote] = useState(false);
@@ -119,6 +125,48 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reject");
     } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleArchive() {
+    if (!confirm("Archive this review? It disappears from the program page. You can restore it later.")) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/polls/reviews/${review.id}/archive`, "POST");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to archive");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRestore() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/polls/reviews/${review.id}/restore`, "POST");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to restore");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleHardDelete() {
+    if (!confirm("Permanently delete this review? This destroys its text and consent record and cannot be undone. Archive is what you want most of the time.")) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/polls/reviews/${review.id}`, "DELETE");
+      router.refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Couldn’t delete this review — try again.", "info");
       setBusy(false);
     }
   }
@@ -156,6 +204,11 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
             )}
           </p>
           {review.moderatorNote && <p className="text-xs text-danger">Note: {review.moderatorNote}</p>}
+          {review.status === "ARCHIVED" && review.archivedAt && (
+            <p className="text-xs text-muted">
+              Archived by {review.archivedByName ?? "Unknown"} on {new Date(review.archivedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
       </div>
 
@@ -174,6 +227,26 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
               Reject
             </Button>
           </>
+        )}
+        {review.status === "APPROVED" && (
+          <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={handleArchive}>
+            Archive
+          </Button>
+        )}
+        {review.status === "ARCHIVED" && (
+          <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={handleRestore}>
+            Restore
+          </Button>
+        )}
+        {(review.status === "APPROVED" || review.status === "ARCHIVED") && (
+          <button
+            type="button"
+            onClick={handleHardDelete}
+            disabled={busy}
+            className="text-xs text-muted underline underline-offset-2 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Delete permanently
+          </button>
         )}
       </div>
 

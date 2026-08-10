@@ -173,3 +173,78 @@ export async function bulkRejectPollReviews(ids: string[], moderatorId: string, 
   });
   return { count: result.count };
 }
+
+export type ModerateReviewWithProgramResult =
+  | { ok: true; programId: string }
+  | { ok: false; reason: string };
+
+/** Reversibly takes an already-approved review off the public program page. Only
+ * reachable from APPROVED -- a PENDING review has no public presence to take down (use
+ * reject), and REJECTED has never been public. Returns programId so the route can
+ * revalidate without a second query. */
+export async function archivePollReview(
+  id: string,
+  moderatorId: string,
+  note?: string
+): Promise<ModerateReviewWithProgramResult> {
+  const review = await prisma.pollReview.findUnique({ where: { id }, select: { status: true, programId: true } });
+  if (!review) return { ok: false, reason: "Review not found" };
+  if (review.status !== "APPROVED") {
+    return { ok: false, reason: "Only an approved review can be archived" };
+  }
+
+  const archivedAt = new Date();
+  await prisma.pollReview.update({
+    where: { id },
+    data: {
+      status: "ARCHIVED",
+      moderatedBy: moderatorId,
+      moderatedAt: archivedAt,
+      moderatorNote: note ?? null,
+      archivedAt,
+      archivedBy: moderatorId,
+    },
+  });
+  return { ok: true, programId: review.programId };
+}
+
+/** Restores an archived review to public view. Re-checks the same parent-response
+ * COUNTED gate approvePollReview enforces -- the response could have been voided while
+ * this review sat archived. Clears moderatorNote/archivedAt/archivedBy since the archive
+ * reason no longer applies. */
+export async function restorePollReview(id: string, moderatorId: string): Promise<ModerateReviewWithProgramResult> {
+  const review = await prisma.pollReview.findUnique({
+    where: { id },
+    select: { status: true, programId: true, response: { select: { status: true } } },
+  });
+  if (!review) return { ok: false, reason: "Review not found" };
+  if (review.status !== "ARCHIVED") {
+    return { ok: false, reason: "Only an archived review can be restored" };
+  }
+  if (review.response.status !== "COUNTED") {
+    return { ok: false, reason: "The parent response isn’t counted anymore" };
+  }
+
+  await prisma.pollReview.update({
+    where: { id },
+    data: {
+      status: "APPROVED",
+      moderatedBy: moderatorId,
+      moderatedAt: new Date(),
+      moderatorNote: null,
+      archivedAt: null,
+      archivedBy: null,
+    },
+  });
+  return { ok: true, programId: review.programId };
+}
+
+/** Permanently removes a review row. Distinct from archive/reject's retain-never-delete
+ * posture -- this is the de-emphasised, irreversible action for spam or legal removal.
+ * Returns programId first so the caller can revalidate even though the row is gone. */
+export async function hardDeletePollReview(id: string): Promise<{ programId: string } | null> {
+  const review = await prisma.pollReview.findUnique({ where: { id }, select: { programId: true } });
+  if (!review) return null;
+  await prisma.pollReview.delete({ where: { id } });
+  return { programId: review.programId };
+}

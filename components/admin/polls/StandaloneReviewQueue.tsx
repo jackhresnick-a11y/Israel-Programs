@@ -6,6 +6,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import StarRating from "@/components/ui/StarRating";
+import { useToast } from "@/components/ui/Toast";
 
 export type StandaloneReviewRow = {
   id: string;
@@ -13,8 +14,11 @@ export type StandaloneReviewRow = {
   text: string;
   reviewerName: string;
   isAnonymous: boolean;
-  status: "PENDING" | "PUBLISHED" | "REJECTED";
+  status: "PENDING" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
   moderatorNote: string | null;
+  archivedAt: Date | null;
+  archivedBy: string | null;
+  archivedByName: string | null;
   createdAt: Date;
   program: { name: string; slug: string };
 };
@@ -34,6 +38,7 @@ async function api(url: string, method: string, body?: object) {
 
 function ReviewRow({ review }: { review: StandaloneReviewRow }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [rejectNote, setRejectNote] = useState("");
   const [showRejectNote, setShowRejectNote] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -65,6 +70,48 @@ function ReviewRow({ review }: { review: StandaloneReviewRow }) {
     }
   }
 
+  async function handleArchive() {
+    if (!confirm("Archive this review? It disappears from the program page. You can restore it later.")) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/reviews/${review.id}/archive`, "POST");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to archive");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRestore() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/reviews/${review.id}/restore`, "POST");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to restore");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleHardDelete() {
+    if (!confirm("Permanently delete this review? This destroys its text and rating and cannot be undone. Archive is what you want most of the time.")) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/api/admin/reviews/${review.id}`, "DELETE");
+      router.refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Couldn’t delete this review — try again.", "info");
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-start gap-2">
@@ -78,19 +125,48 @@ function ReviewRow({ review }: { review: StandaloneReviewRow }) {
           <p className="whitespace-pre-wrap text-sm text-foreground/90">{review.text}</p>
           <p className="text-xs text-muted">{new Date(review.createdAt).toLocaleString()}</p>
           {review.moderatorNote && <p className="text-xs text-danger">Note: {review.moderatorNote}</p>}
+          {review.status === "ARCHIVED" && review.archivedAt && (
+            <p className="text-xs text-muted">
+              Archived by {review.archivedByName ?? "Unknown"} on {new Date(review.archivedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
 
-      {review.status === "PENDING" && (
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" size="sm" disabled={busy} onClick={handleApprove}>
-            Approve
-          </Button>
-          <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => setShowRejectNote((o) => !o)}>
-            Reject
-          </Button>
+      {(review.status === "PENDING" || review.status === "PUBLISHED" || review.status === "ARCHIVED") && (
+        <div className="flex flex-wrap items-center gap-2">
+          {review.status === "PENDING" && (
+            <>
+              <Button type="button" size="sm" disabled={busy} onClick={handleApprove}>
+                Approve
+              </Button>
+              <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => setShowRejectNote((o) => !o)}>
+                Reject
+              </Button>
+            </>
+          )}
+          {review.status === "PUBLISHED" && (
+            <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={handleArchive}>
+              Archive
+            </Button>
+          )}
+          {review.status === "ARCHIVED" && (
+            <Button type="button" variant="secondary" size="sm" disabled={busy} onClick={handleRestore}>
+              Restore
+            </Button>
+          )}
+          {(review.status === "PUBLISHED" || review.status === "ARCHIVED") && (
+            <button
+              type="button"
+              onClick={handleHardDelete}
+              disabled={busy}
+              className="text-xs text-muted underline underline-offset-2 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Delete permanently
+            </button>
+          )}
         </div>
       )}
 
