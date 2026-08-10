@@ -3,6 +3,7 @@ import { getCurrentRole } from "@/lib/roles";
 import { listReviewQueue } from "@/lib/pollReviews";
 import { listStandaloneReviewQueue } from "@/lib/reviews";
 import { listPublishedProgramNames } from "@/lib/programs";
+import { getUsersByIds } from "@/lib/clerkUsers";
 import type { PollReviewStatus } from "@/app/generated/prisma/enums";
 import PollReviewQueue from "@/components/admin/polls/PollReviewQueue";
 import StandaloneReviewQueue from "@/components/admin/polls/StandaloneReviewQueue";
@@ -41,14 +42,27 @@ export default async function AdminPollsReviewsPage({
     listPublishedProgramNames(),
   ]);
 
+  // Resolve archivedBy (a raw Clerk id) to a display name up front, same batch-resolve
+  // pattern as app/admin/page.tsx's `submitters` -- never pass a raw id or a Map across
+  // the client-component prop boundary, so each row gets its name pre-attached here.
+  const archiverIds = [
+    ...reviews.map((r) => r.archivedBy),
+    ...standaloneReviews.map((r) => r.archivedBy),
+  ].filter((id): id is string => Boolean(id));
+  const archivers = await getUsersByIds(archiverIds);
+  const withArchiverName = <T extends { archivedBy: string | null }>(row: T) => ({
+    ...row,
+    archivedByName: row.archivedBy ? (archivers.get(row.archivedBy)?.name ?? "Unknown") : null,
+  });
+
   return (
     <div className="flex flex-col gap-8">
       <PollReviewQueue
-        reviews={reviews}
+        reviews={reviews.map(withArchiverName)}
         programs={programs}
         filters={{ status, programId: sp.programId ?? "" }}
       />
-      <StandaloneReviewQueue reviews={standaloneReviews} />
+      <StandaloneReviewQueue reviews={standaloneReviews.map(withArchiverName)} />
     </div>
   );
 }

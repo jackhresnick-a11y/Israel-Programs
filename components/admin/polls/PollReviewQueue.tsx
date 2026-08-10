@@ -17,6 +17,9 @@ export type PollReviewRow = {
   status: "PENDING" | "APPROVED" | "REJECTED" | "ARCHIVED";
   consentAt: Date;
   moderatorNote: string | null;
+  archivedAt: Date | null;
+  archivedBy: string | null;
+  archivedByName: string | null;
   createdAt: Date;
   question: { key: string; text: string };
   program: { name: string; slug: string };
@@ -201,6 +204,11 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
             )}
           </p>
           {review.moderatorNote && <p className="text-xs text-danger">Note: {review.moderatorNote}</p>}
+          {review.status === "ARCHIVED" && review.archivedAt && (
+            <p className="text-xs text-muted">
+              Archived by {review.archivedByName ?? "Unknown"} on {new Date(review.archivedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
       </div>
 

@@ -193,17 +193,25 @@ export async function archivePollReview(
     return { ok: false, reason: "Only an approved review can be archived" };
   }
 
+  const archivedAt = new Date();
   await prisma.pollReview.update({
     where: { id },
-    data: { status: "ARCHIVED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: note ?? null },
+    data: {
+      status: "ARCHIVED",
+      moderatedBy: moderatorId,
+      moderatedAt: archivedAt,
+      moderatorNote: note ?? null,
+      archivedAt,
+      archivedBy: moderatorId,
+    },
   });
   return { ok: true, programId: review.programId };
 }
 
 /** Restores an archived review to public view. Re-checks the same parent-response
  * COUNTED gate approvePollReview enforces -- the response could have been voided while
- * this review sat archived. Clears moderatorNote since the archive reason no longer
- * applies. */
+ * this review sat archived. Clears moderatorNote/archivedAt/archivedBy since the archive
+ * reason no longer applies. */
 export async function restorePollReview(id: string, moderatorId: string): Promise<ModerateReviewWithProgramResult> {
   const review = await prisma.pollReview.findUnique({
     where: { id },
@@ -219,7 +227,14 @@ export async function restorePollReview(id: string, moderatorId: string): Promis
 
   await prisma.pollReview.update({
     where: { id },
-    data: { status: "APPROVED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: null },
+    data: {
+      status: "APPROVED",
+      moderatedBy: moderatorId,
+      moderatedAt: new Date(),
+      moderatorNote: null,
+      archivedAt: null,
+      archivedBy: null,
+    },
   });
   return { ok: true, programId: review.programId };
 }

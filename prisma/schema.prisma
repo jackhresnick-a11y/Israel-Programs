@@ -549,6 +549,12 @@ model Review {
   moderatedBy   String?
   moderatedAt   DateTime?
   moderatorNote String?
+  /// Set together on archive (alongside moderatedBy/moderatedAt/moderatorNote), both
+  /// cleared to null on restore -- a dedicated pair so "who archived this, and when" is
+  /// never overwritten by a later, unrelated moderation action the way moderatedBy/
+  /// moderatedAt would be. Never set by any other write path.
+  archivedAt    DateTime?
+  archivedBy    String?
   createdAt     DateTime     @default(now())
 
   @@index([programId, status])
@@ -1079,6 +1085,12 @@ model PollReview {
   moderatedBy     String?
   moderatedAt     DateTime?
   moderatorNote   String?
+  /// Set together on archive (alongside moderatedBy/moderatedAt/moderatorNote), both
+  /// cleared to null on restore -- a dedicated pair so "who archived this, and when" is
+  /// never overwritten by a later, unrelated moderation action the way moderatedBy/
+  /// moderatedAt would be. Never set by any other write path.
+  archivedAt      DateTime?
+  archivedBy      String?
   createdAt       DateTime         @default(now())
 
   @@unique([responseId, questionId])

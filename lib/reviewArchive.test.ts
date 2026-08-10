@@ -27,6 +27,8 @@ const { fakePrisma, resetDb, seedPollReview, seedReview, seedProgram, lastArgs }
     questionId: string;
     responseStatus: string;
     moderatorNote: string | null;
+    archivedAt: Date | null;
+    archivedBy: string | null;
   };
   type ReviewRow = {
     id: string;
@@ -38,6 +40,8 @@ const { fakePrisma, resetDb, seedPollReview, seedReview, seedProgram, lastArgs }
     isAnonymous: boolean;
     createdAt: Date;
     moderatorNote: string | null;
+    archivedAt: Date | null;
+    archivedBy: string | null;
   };
   type ProgramRow = { id: string; slug: string; status: string; name: string };
 
@@ -202,6 +206,8 @@ const { fakePrisma, resetDb, seedPollReview, seedReview, seedProgram, lastArgs }
         questionId: "q_1",
         responseStatus: "COUNTED",
         moderatorNote: null,
+        archivedAt: null,
+        archivedBy: null,
         ...row,
       };
       db.pollReviews.push(full);
@@ -217,6 +223,8 @@ const { fakePrisma, resetDb, seedPollReview, seedReview, seedProgram, lastArgs }
         isAnonymous: false,
         createdAt: new Date(),
         moderatorNote: null,
+        archivedAt: null,
+        archivedBy: null,
         ...row,
       };
       db.reviews.push(full);
@@ -264,17 +272,21 @@ describe("PollReview archive/restore gates", () => {
     expect(result).toEqual({ ok: false, reason: "The parent response isn’t counted anymore" });
   });
 
-  it("archive → restore round-trips back to APPROVED and clears moderatorNote", async () => {
+  it("archive → restore round-trips back to APPROVED, clears moderatorNote/archivedAt/archivedBy", async () => {
     const review = seedPollReview({ programId: "prog_1", status: "APPROVED" });
     const archived = await archivePollReview(review.id, "mod_1", "spam");
     expect(archived).toEqual({ ok: true, programId: "prog_1" });
     expect(review.status).toBe("ARCHIVED");
     expect(review.moderatorNote).toBe("spam");
+    expect(review.archivedBy).toBe("mod_1");
+    expect(review.archivedAt).toBeInstanceOf(Date);
 
     const restored = await restorePollReview(review.id, "mod_1");
     expect(restored).toEqual({ ok: true, programId: "prog_1" });
     expect(review.status).toBe("APPROVED");
     expect(review.moderatorNote).toBeNull();
+    expect(review.archivedAt).toBeNull();
+    expect(review.archivedBy).toBeNull();
   });
 
   it("hardDeletePollReview returns null for a missing id and does not call delete", async () => {
@@ -304,16 +316,20 @@ describe("standalone Review archive/restore gates", () => {
     expect(result).toEqual({ ok: false, reason: "Only an archived review can be restored" });
   });
 
-  it("archive → restore round-trips back to PUBLISHED and clears moderatorNote", async () => {
+  it("archive → restore round-trips back to PUBLISHED, clears moderatorNote/archivedAt/archivedBy", async () => {
     const review = seedReview({ programId: "prog_1", status: "PUBLISHED" });
     const archived = await archiveStandaloneReview(review.id, "mod_1", "spam");
     expect(archived).toEqual({ ok: true, programId: "prog_1" });
     expect(review.status).toBe("ARCHIVED");
+    expect(review.archivedBy).toBe("mod_1");
+    expect(review.archivedAt).toBeInstanceOf(Date);
 
     const restored = await restoreStandaloneReview(review.id, "mod_1");
     expect(restored).toEqual({ ok: true, programId: "prog_1" });
     expect(review.status).toBe("PUBLISHED");
     expect(review.moderatorNote).toBeNull();
+    expect(review.archivedAt).toBeNull();
+    expect(review.archivedBy).toBeNull();
   });
 
   it("hardDeleteStandaloneReview returns null for a missing id", async () => {

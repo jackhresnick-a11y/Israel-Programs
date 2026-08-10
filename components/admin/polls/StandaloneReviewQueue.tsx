@@ -16,6 +16,9 @@ export type StandaloneReviewRow = {
   isAnonymous: boolean;
   status: "PENDING" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
   moderatorNote: string | null;
+  archivedAt: Date | null;
+  archivedBy: string | null;
+  archivedByName: string | null;
   createdAt: Date;
   program: { name: string; slug: string };
 };
@@ -122,6 +125,11 @@ function ReviewRow({ review }: { review: StandaloneReviewRow }) {
           <p className="whitespace-pre-wrap text-sm text-foreground/90">{review.text}</p>
           <p className="text-xs text-muted">{new Date(review.createdAt).toLocaleString()}</p>
           {review.moderatorNote && <p className="text-xs text-danger">Note: {review.moderatorNote}</p>}
+          {review.status === "ARCHIVED" && review.archivedAt && (
+            <p className="text-xs text-muted">
+              Archived by {review.archivedByName ?? "Unknown"} on {new Date(review.archivedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
       </div>
 

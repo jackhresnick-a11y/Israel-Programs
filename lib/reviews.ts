@@ -133,15 +133,23 @@ export async function archiveStandaloneReview(
     return { ok: false, reason: "Only a published review can be archived" };
   }
 
+  const archivedAt = new Date();
   await prisma.review.update({
     where: { id },
-    data: { status: "ARCHIVED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: note ?? null },
+    data: {
+      status: "ARCHIVED",
+      moderatedBy: moderatorId,
+      moderatedAt: archivedAt,
+      moderatorNote: note ?? null,
+      archivedAt,
+      archivedBy: moderatorId,
+    },
   });
   return { ok: true, programId: review.programId };
 }
 
-/** Restores an archived review to public view. Clears moderatorNote since the archive
- * reason no longer applies. */
+/** Restores an archived review to public view. Clears moderatorNote/archivedAt/
+ * archivedBy since the archive reason no longer applies. */
 export async function restoreStandaloneReview(
   id: string,
   moderatorId: string
@@ -154,7 +162,14 @@ export async function restoreStandaloneReview(
 
   await prisma.review.update({
     where: { id },
-    data: { status: "PUBLISHED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: null },
+    data: {
+      status: "PUBLISHED",
+      moderatedBy: moderatorId,
+      moderatedAt: new Date(),
+      moderatorNote: null,
+      archivedAt: null,
+      archivedBy: null,
+    },
   });
   return { ok: true, programId: review.programId };
 }
