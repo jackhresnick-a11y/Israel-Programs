@@ -9,6 +9,7 @@ import HomeLogoForm from "@/components/HomeLogoForm";
 import EmblemLogoForm from "@/components/EmblemLogoForm";
 import RecentlyAddedForm from "@/components/RecentlyAddedForm";
 import AssistantSettingsForm from "@/components/AssistantSettingsForm";
+import FindV2SettingsForm from "@/components/FindV2SettingsForm";
 import HomeVideoForm from "@/components/HomeVideoForm";
 import { getHomeVideoSettings } from "@/lib/homeVideo";
 import PageContainer from "@/components/ui/PageContainer";
@@ -48,6 +49,7 @@ export default async function AdminSettingsPage() {
     videosBySlug,
     assistantEnabled,
     homeVideoSettings,
+    findV2Enabled,
   ] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
@@ -78,6 +80,7 @@ export default async function AdminSettingsPage() {
     listVideoOptionsByProgramSlug(),
     getSiteContent("assistantEnabled"),
     getHomeVideoSettings(),
+    getSiteContent("findV2Enabled"),
   ]);
 
   return (
@@ -189,6 +192,12 @@ export default async function AdminSettingsPage() {
           Assistant
         </h2>
         <AssistantSettingsForm initialEnabled={assistantEnabled === "true"} />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+          /find v2
+        </h2>
+        <FindV2SettingsForm initialEnabled={findV2Enabled === "true"} />
       </section>
     </PageContainer>
   );

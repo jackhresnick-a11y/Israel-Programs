@@ -89,6 +89,12 @@ export default async function AdminPage() {
               Find flow
             </Link>
             <Link
+              href="/admin/flow/questions"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Match flow (v2)
+            </Link>
+            <Link
               href="/admin/email"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >

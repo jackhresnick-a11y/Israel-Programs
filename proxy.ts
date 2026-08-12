@@ -24,6 +24,7 @@ export const config = {
     "/programs/:slug/edit",
     "/mission/edit",
     "/rate/:path*",
+    "/match/:path*",
     "/saved/:path*",
     "/references/:path*",
     "/sign-in/:path*",

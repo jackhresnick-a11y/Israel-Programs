@@ -19,7 +19,7 @@ export type FacetSelections = {
   tags: string[];
 };
 
-function groupSlugsByCategory(
+export function groupSlugsByCategory(
   tagCategoryBySlug: Map<string, string | null>,
   slugs: string[]
 ): Map<string, string[]> {
@@ -34,16 +34,31 @@ function groupSlugsByCategory(
   return byCategory;
 }
 
-function matchesDuration(program: FacetProgram, duration: string[]): boolean {
+export function matchesDuration(program: FacetProgram, duration: string[]): boolean {
   return duration.length === 0 || duration.includes(program.durationType);
 }
 
-function matchesTagGroups(program: FacetProgram, groups: Map<string, string[]>): boolean {
+/** Per-group match counts for the same OR-within-category grouping matchesTagGroups
+ * collapses to one boolean. The /match ranking engine (lib/flowRank.ts) needs to know
+ * HOW MANY groups matched, not just whether all did -- an all-or-nothing AND is
+ * exactly the failure /match exists to avoid (a program that matches 3 of 4 stated
+ * preferences must still rank, just lower, never vanish). matchesTagGroups is defined
+ * below in terms of this so the two can never drift apart. */
+export function matchedTagGroups(
+  program: FacetProgram,
+  groups: Map<string, string[]>
+): { matched: number; total: number } {
   const tagSet = new Set(program.tagSlugs);
+  let matched = 0;
   for (const slugs of groups.values()) {
-    if (!slugs.some((slug) => tagSet.has(slug))) return false;
+    if (slugs.some((slug) => tagSet.has(slug))) matched++;
   }
-  return true;
+  return { matched, total: groups.size };
+}
+
+export function matchesTagGroups(program: FacetProgram, groups: Map<string, string[]>): boolean {
+  const { matched, total } = matchedTagGroups(program, groups);
+  return matched === total;
 }
 
 /** Whether a program matches the full current selection set -- same predicate

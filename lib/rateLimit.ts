@@ -34,7 +34,11 @@ export function checkRateLimit(
   return true;
 }
 
-export function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
+export function getClientIpFromHeaders(headers: Headers): string {
+  const forwardedFor = headers.get("x-forwarded-for");
   return forwardedFor?.split(",")[0]?.trim() || "unknown";
+}
+
+export function getClientIp(request: Request): string {
+  return getClientIpFromHeaders(request.headers);
 }

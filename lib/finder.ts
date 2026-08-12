@@ -10,7 +10,11 @@ export { assembleProgramsHref } from "@/lib/finderTargets";
 
 const DURATION_VALUES = new Set<string>(Object.values(DurationType));
 
-function slugifyValue(value: string) {
+/** Exported so lib/flow.ts (the same "typed name -> slug, reject an unknown tag" shape
+ * for FlowOption.tagSlugs) shares this instead of hand-duplicating it -- CLAUDE.md
+ * documents slug-approximation drift as a real, recurring failure mode, so the two
+ * admin-facing "reject an unknown tag" write paths must stay byte-for-byte identical. */
+export function slugifyValue(value: string) {
   return slugify(value, { lower: true, strict: true });
 }
 
@@ -31,7 +35,9 @@ export class UnknownTagSlugsError extends Error {
   }
 }
 
-async function assertTagSlugsExist(slugs: string[]) {
+/** Exported for the same reason as slugifyValue above -- lib/flow.ts's option tag-slug
+ * validation reuses this instead of a second, driftable copy. */
+export async function assertTagSlugsExist(slugs: string[]) {
   if (slugs.length === 0) return;
   const rows = await prisma.tag.findMany({ where: { slug: { in: slugs } }, select: { slug: true } });
   const found = new Set(rows.map((r) => r.slug));

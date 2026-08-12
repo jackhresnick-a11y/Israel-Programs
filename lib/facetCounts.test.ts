@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
   matchesSelections,
+  matchesTagGroups,
+  matchedTagGroups,
+  groupSlugsByCategory,
   computeFacetCounts,
   computeRegionCounts,
   dropOneCounts,
@@ -144,5 +147,41 @@ describe("dropOneCounts", () => {
     const activeDimensions = [{ kind: "category" as const, category: "location", label: "Region" }];
     const results = dropOneCounts(programs, selections, tagCategoryBySlug, activeDimensions);
     expect(results[0].count).toBe(1); // just girls-only -> program 2
+  });
+});
+
+describe("matchedTagGroups / matchesTagGroups lockstep", () => {
+  it("reports partial matches instead of collapsing straight to a boolean", () => {
+    const groups = groupSlugsByCategory(tagCategoryBySlug, ["boys-only", "rz-modern-orthodox"]);
+    // program 1: boys-only + rz-modern-orthodox -> both groups match
+    expect(matchedTagGroups(programs[0], groups)).toEqual({ matched: 2, total: 2 });
+    // program 5: boys-only + flexible-religously -> gender group matches, affiliation
+    // group (rz-modern-orthodox) does not -- a genuine partial match, not a boolean
+    // collapse to false.
+    expect(matchedTagGroups(programs[4], groups)).toEqual({ matched: 1, total: 2 });
+    // program 3 (coed): neither group matches.
+    expect(matchedTagGroups(programs[2], groups)).toEqual({ matched: 0, total: 2 });
+  });
+
+  it("matchesTagGroups is exactly matched === total, mechanized across every fixture program", () => {
+    // The lockstep guarantee lib/flowRank.ts's scoring depends on: matchesTagGroups
+    // must never diverge from "every group in matchedTagGroups matched", for ANY
+    // selection, on ANY program -- not just the cases hand-picked above.
+    const selectionSets = [
+      ["boys-only"],
+      ["girls-only"],
+      ["coed"],
+      ["boys-only", "rz-modern-orthodox"],
+      ["girls-only", "rz-modern-orthodox", "jerusalem"],
+      ["flexible-religously", "haifa"],
+      [],
+    ];
+    for (const slugs of selectionSets) {
+      const groups = groupSlugsByCategory(tagCategoryBySlug, slugs);
+      for (const program of programs) {
+        const { matched, total } = matchedTagGroups(program, groups);
+        expect(matchesTagGroups(program, groups)).toBe(matched === total);
+      }
+    }
   });
 });

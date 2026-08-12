@@ -1,61 +1,36 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Play } from "lucide-react";
-import { buttonVariants } from "@/components/ui/Button";
 import { EMBED_ALLOW, EMBED_REFERRER_POLICY, EMBED_SANDBOX } from "@/components/VideoList";
-import { effectivePosterUrl, withAutoplay, type HomeVideoConfig } from "@/lib/homeVideoConfig";
-
-const PROVIDER_LABEL: Record<HomeVideoConfig["provider"], string> = {
-  youtube: "YouTube",
-  vimeo: "Vimeo",
-};
+import { withAutoplay } from "@/lib/homeVideoConfig";
+import type { FlowVideoDTO } from "@/lib/flowClips";
 
 /**
- * Admin-configured homepage hero video: a click-to-play poster facade that
- * mounts a hardened iframe on click. Deliberately not a VideoPlayer
- * extension -- VideoPlayer (components/VideoList.tsx) mounts YouTube/Vimeo
- * iframes immediately by design, and this needs poster art plus
- * heading/description/CTA chrome that VideoPlayer's callers don't. Shared
- * verbatim between the homepage and the admin settings preview so the two
- * can never drift.
+ * The inline clip on a /match question -- never blocks the options underneath it
+ * (find-v2-question-spec.md: "options are usable before it finishes"), so this is a
+ * self-contained block with no effect on the surrounding form/radio state. Same
+ * poster-facade/hardened-iframe shape as HomeVideoHero.tsx, sharing its
+ * withAutoplay/EMBED_* constants so the two can't drift.
+ *
+ * `autoplay` is what distinguishes the two firing shapes from
+ * find-v2-question-spec.md: an ON_ANSWER clip's trigger IS the respondent's own
+ * click/selection, so it mounts and plays immediately (no separate "click to play"
+ * step -- the gesture already happened); an ON_DISPLAY clip (the Q2 opener) has no
+ * such gesture yet, so it renders the click-to-play poster facade instead, same
+ * "no autoplay with sound" rule HomeVideoHero follows.
  */
-export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
-  const [playing, setPlaying] = useState(false);
+export default function FlowClip({ video, autoplay }: { video: FlowVideoDTO; autoplay: boolean }) {
+  const [playing, setPlaying] = useState(autoplay);
   const [posterFailed, setPosterFailed] = useState(false);
 
-  const poster = effectivePosterUrl(config);
-  const label = PROVIDER_LABEL[config.provider];
-  const title = config.heading ?? "Featured video";
-  const hasTextBlock = Boolean(config.heading || config.description || (config.ctaLabel && config.ctaHref));
-
   return (
-    <section aria-label={title} className="flex flex-col gap-4">
-      {hasTextBlock && (
-        <div className="flex flex-col gap-2">
-          {config.heading && (
-            <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-              {config.heading}
-            </h2>
-          )}
-          {config.description && <p className="text-sm text-foreground/70">{config.description}</p>}
-          {config.ctaLabel && config.ctaHref && (
-            <Link
-              href={config.ctaHref}
-              className={buttonVariants({ variant: "primary", size: "sm", className: "w-fit" })}
-            >
-              {config.ctaLabel}
-            </Link>
-          )}
-        </div>
-      )}
-
+    <div aria-live="polite" className="flex flex-col gap-2">
       <div className="aspect-video w-full overflow-hidden rounded border border-border bg-surface">
         {playing ? (
           <iframe
-            src={withAutoplay(config.embedUrl)}
-            title={title}
+            src={autoplay ? withAutoplay(video.embedUrl) : video.embedUrl}
+            title={video.title}
             className="h-full w-full"
             sandbox={EMBED_SANDBOX}
             allow={EMBED_ALLOW}
@@ -66,14 +41,14 @@ export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
           <button
             type="button"
             onClick={() => setPlaying(true)}
-            aria-label={`Play video: ${title}`}
+            aria-label={`Play video: ${video.title}`}
             className="group relative h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-hover focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            {poster && !posterFailed ? (
+            {video.posterUrl && !posterFailed ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={poster}
+                  src={video.posterUrl}
                   alt=""
                   loading="lazy"
                   onError={() => setPosterFailed(true)}
@@ -96,12 +71,18 @@ export default function HomeVideoHero({ config }: { config: HomeVideoConfig }) {
                   <Play width={20} height={20} strokeWidth={1.5} className="fill-current" />
                 </span>
                 <span>Play video</span>
-                <span className="text-xs underline decoration-dotted">or watch on {label}</span>
               </div>
             )}
           </button>
         )}
       </div>
-    </section>
+      {video.speaker && <p className="text-xs text-muted">{video.speaker}</p>}
+      {video.transcript && (
+        <details className="text-xs text-muted">
+          <summary className="cursor-pointer">Read transcript</summary>
+          <p className="mt-1 whitespace-pre-wrap">{video.transcript}</p>
+        </details>
+      )}
+    </div>
   );
 }

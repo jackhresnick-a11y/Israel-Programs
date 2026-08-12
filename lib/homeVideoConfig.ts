@@ -52,6 +52,21 @@ export function effectivePosterUrl(config: HomeVideoConfig): string | null {
   return config.posterOverrideUrl ?? config.derivedPosterUrl ?? null;
 }
 
+/** Autoplay only ever fires after the visitor's own click/selection, so this
+ * satisfies "no autoplay with sound" without needing a muted attribute --
+ * nothing plays or loads before that gesture. Shared between HomeVideoHero.tsx
+ * and components/find/FlowClip.tsx (the /match inline clip) rather than
+ * copied, since both follow the identical click/select-to-play facade. */
+export function withAutoplay(embedUrl: string): string {
+  try {
+    const url = new URL(embedUrl);
+    url.searchParams.set("autoplay", "1");
+    return url.toString();
+  } catch {
+    return embedUrl;
+  }
+}
+
 const YOUTUBE_EMBED_ID = /^\/embed\/([A-Za-z0-9_-]{11})/;
 
 /** "https://www.youtube-nocookie.com/embed/<id>?rel=0" -> the standard YouTube thumbnail URL, or null. */

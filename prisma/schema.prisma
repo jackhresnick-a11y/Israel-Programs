@@ -889,13 +889,13 @@ model BucketAttachmentRule {
 /// suppress an individual core (or added) question for just this program;
 /// `addedQuestionIds` are per-program one-off additions outside any bucket.
 model ProgramPollConfig {
-  programId             String            @id
-  program               Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
-  bucketIds             String[]
-  addedQuestionIds      String[]
-  removedQuestionIds    String[]
-  resultsVisible        Boolean           @default(false)
-  minResponsesToPublish Int               @default(7)
+  programId                String            @id
+  program                  Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  bucketIds                String[]
+  addedQuestionIds         String[]
+  removedQuestionIds       String[]
+  resultsVisible           Boolean           @default(false)
+  minResponsesToPublish    Int               @default(7)
   /// Questions that were already displaying (count >= 3, the old shared floor) at the
   /// moment minResponsesToPublish's 7-response bar became the real per-question publish
   /// gate -- backfilled once, at that migration, and never touched again (a question
@@ -904,15 +904,15 @@ model ProgramPollConfig {
   /// that has never yet published is subject to the 7 bar like normal -- this only
   /// prevents newly-raising-the-bar from hiding a result that was already live. Soft
   /// reference to PollQuestion.id, same non-FK posture as bucketIds/addedQuestionIds.
-  grandfatheredQuestionIds String[]       @default([])
-  displayFormat         PollDisplayFormat @default(STARS)
-  placeholderOverride   String?
+  grandfatheredQuestionIds String[]          @default([])
+  displayFormat            PollDisplayFormat @default(STARS)
+  placeholderOverride      String?
   /// When set, replaces the entire generated "Best for someone who wants..." strip on
   /// the program page verbatim -- see lib/pollBestFor.ts's computeBestForPhrases, which
   /// this overrides rather than augments. Editorial-only; never written by any
   /// import/seed/batch process. A moderator/admin viewing the page sees a subtle
   /// indicator that the strip is an override, not the generated one.
-  editorialBestFor      String?
+  editorialBestFor         String?
   /// Governs *capture*, not results -- deliberately independent of resultsVisible and
   /// the global kill switch (which gate the score/reviews). Default off. Flipping this
   /// on lazily mints one designated ReferrerToken (label "Public program page",
@@ -921,9 +921,9 @@ model ProgramPollConfig {
   /// accumulated response history in /admin/polls/links stays attached to one row.
   /// lib/pollConfig.ts's getPublicPollLink is the only reader that should build a
   /// public-facing URL from this.
-  pollLinkPublic        Boolean           @default(false)
-  publicTokenId         String?           @unique
-  publicToken           ReferrerToken?    @relation(fields: [publicTokenId], references: [id], onDelete: SetNull)
+  pollLinkPublic           Boolean           @default(false)
+  publicTokenId            String?           @unique
+  publicToken              ReferrerToken?    @relation(fields: [publicTokenId], references: [id], onDelete: SetNull)
 }
 
 /// One rating submission. A response counts toward public math when `status = COUNTED`
@@ -1202,4 +1202,345 @@ model FinderOption {
   durationValues String[]            @default([])
 
   @@index([questionId])
+}
+
+// ---------------------------------------------------------------------------
+// /find v2 ("the challenge flow" -- find-v2-question-spec.md). A weighted,
+// video-argued question flow at /match, built alongside FinderQuestion/FinderOption
+// above rather than replacing them -- /find stays live and untouched while this is
+// tested behind the findV2Enabled SiteContent flag. See CLAUDE.md's "/find v2" section
+// for the full design rationale (soft-ref posture, the show-condition rule format,
+// the two-hard-eliminator model, why FlowResponse is append-only).
+// ---------------------------------------------------------------------------
+
+/// The three question shapes from find-v2-question-spec.md's "Design rules".
+/// Presentation only -- lib/flow.ts never branches on this value; it drives the
+/// admin list grouping and an optional badge in the flow UI.
+enum FlowQuestionType {
+  FILTER
+  CHALLENGE
+  TRADEOFF
+}
+
+/// Whether a chosen FlowOption narrows the result set (REQUIRE) or only ranks it
+/// (WEIGHT, the default). Per-OPTION, not per-question, because the spec requires
+/// program gender to behave both ways on one question: "Boys only"/"Girls only" are
+/// hard filters but "Mixed" only weights. "Only two things eliminate" is therefore
+/// the literal statement "exactly two questions carry a REQUIRE option" -- auditable
+/// with one query, changeable from /admin/flow without a deploy.
+enum FlowMatchMode {
+  WEIGHT
+  REQUIRE
+}
+
+/// When a FlowVideoTrigger fires. ON_DISPLAY: the clip plays with the question
+/// itself, before any answer exists (the Q2 opener, Q6's taxonomy clip). ON_ANSWER:
+/// the clip plays after the respondent picks one of the trigger's optionKeys (Q4,
+/// Q5, Q7, Q8, Q9). The only two firing points the spec needs.
+enum FlowVideoTriggerMode {
+  ON_DISPLAY
+  ON_ANSWER
+}
+
+/// One step in the /match challenge flow. Everything a question is -- wording,
+/// position, whether it appears at all, and which of several option sets it shows --
+/// is stored here as data: the spec commits to rewording and reordering these for
+/// months, and none of that may require a deploy. Reuses PollLifecycleStatus
+/// (ACTIVE/RETIRED) rather than a new enum, same precedent as FinderQuestion.
+/// Retire, never delete -- FlowResponse.questionKey is a soft reference, so a
+/// RETIRED question stops being served while every measurement taken against it
+/// stays readable.
+model FlowQuestion {
+  id                  String              @id @default(cuid())
+  /// Stable identity every rule in the system names a question by: showWhen,
+  /// optionSetRules, and FlowVideoTrigger.when all reference OTHER questions by this
+  /// key, and FlowResponse stamps it. Hand-authored and human-legible
+  /// ("life-stage", "program-gender") because those rules are hand-written JSON and
+  /// a cuid in them would be unreadable and would break if the row were ever
+  /// recreated. lib/flow.ts refuses to change `key` once any FlowResponse carries
+  /// it -- renaming it would silently orphan every rule that names it.
+  key                 String              @unique
+  order               Int                 @default(0)
+  type                FlowQuestionType    @default(CHALLENGE)
+  prompt              String
+  /// The sub-line under the prompt ("Not what they are now -- a high school junior
+  /// shopping for next year answers wrong otherwise").
+  helpText            String?
+  /// The spec requires Skip on every question; this is here so a future required
+  /// question is an admin checkbox, not a code change. Defaults true.
+  skippable           Boolean             @default(true)
+  /// The show-condition rule (lib/flowShared.ts's flowConditionSchema). NULL =
+  /// always shown. Json, not String, so it's queryable/readable in psql; validated
+  /// at write time (400 on failure) and re-validated tolerantly at read time -- an
+  /// unparseable rule FAILS OPEN (question shown), because a silently-vanishing
+  /// question is far harder to notice than an extra one. Same tolerant-read posture
+  /// as buildProgramsHref dropping a stale tag slug rather than 500ing.
+  showWhen            Json?
+  /// The option-set selector rule (lib/flowShared.ts's flowOptionSetRulesSchema).
+  /// NULL = this question has exactly one option set. Q6 is the only user today:
+  /// three option sets keyed off the program-gender answer.
+  optionSetRules      Json?
+  /// Which option set applies when no optionSetRules entry matches -- including when
+  /// the question it keys off was skipped. Q6 sets this to "mixed", so a respondent
+  /// who skipped gender gets the shorter, safer list rather than an empty question.
+  defaultOptionSetKey String?
+  /// Bumped whenever `prompt` or an option label changes on a question that already
+  /// has FlowResponse rows -- exactly PollQuestion.version's contract. Load-bearing:
+  /// the point of FlowResponse is comparing answer distributions, and a distribution
+  /// computed across a silent rewording is a fabricated result.
+  version             Int                 @default(1)
+  status              PollLifecycleStatus @default(ACTIVE)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  options       FlowOption[]
+  videoTriggers FlowVideoTrigger[]
+
+  @@index([status, order])
+}
+
+/// One selectable answer on a FlowQuestion. `tagSlugs`/`durationValues` are soft
+/// refs, identical shape and reasoning to FinderOption above: validated against the
+/// live Tag table / DurationType enum at write time (reusing lib/finder.ts's
+/// UnknownTagSlugsError), tolerant at read time.
+model FlowOption {
+  id                      String              @id @default(cuid())
+  questionId              String
+  question                FlowQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  /// Stable identity *within the question* (not globally unique -- "unsure" can
+  /// exist on two questions without collision). This, not `id`, is what showWhen
+  /// rules, optionSetRules, FlowVideoTrigger.optionKeys and FlowResponse.optionKeys
+  /// all name, for the same legibility/stability reason as FlowQuestion.key.
+  key                     String
+  label                   String
+  /// The spec's design rule 3: "All options visible always, each with a one-line
+  /// reason it exists." Named `rationale`, not `helpText` like FinderOption,
+  /// because it argues FOR the option rather than explaining it -- the distinction
+  /// is the point of the whole flow.
+  rationale               String?
+  order                   Int                 @default(0)
+  /// Which option set(s) this option belongs to. EMPTY = every set, so Q6's four
+  /// shared options (religious mechina, regular mechina, academic, experience) are
+  /// authored once and only the four gender-specific ones carry a value. String[]
+  /// rather than a single key so one option can live in two sets without
+  /// duplicating the row and its rationale.
+  optionSetKeys           String[]            @default([])
+  tagSlugs                String[]            @default([])
+  durationValues          String[]            @default([])
+  /// See FlowMatchMode. WEIGHT for every option in the spec except the gender and
+  /// still-in-high-school eliminators.
+  matchMode               FlowMatchMode       @default(WEIGHT)
+  /// Soft-ranking contribution when this option's targets match a program. 0 = the
+  /// answer is recorded and steers nothing (the spec's "No preference" / "I don't
+  /// know yet" options). Negative is legal and meaningful: it demotes without
+  /// eliminating, the only honest way to express "school killed it for me" against
+  /// intensive-learning programs. Int, not Float, so the admin UI and the "roughly
+  /// three or more matches" line stay legible.
+  weight                  Int                 @default(1)
+  /// Only consulted when matchMode = REQUIRE. TRUE (default): a program carrying NO
+  /// tag at all in the required tag's category survives the filter -- the answer to
+  /// the ~30 published programs with no gender tag. Absence of a tag is unknown,
+  /// not disqualifying; excluding them would hide real programs from every user
+  /// forever over a data-quality gap, exactly the tail-cutting failure this project
+  /// exists to prevent. They still earn nothing on the criterion and sink naturally
+  /// in the ranking. Irrelevant to durationValues (Program.durationType is
+  /// non-null) and to uncategorized tags (no category to be absent from).
+  requireIncludesUntagged Boolean             @default(true)
+  status                  PollLifecycleStatus @default(ACTIVE)
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  @@unique([questionId, key])
+  @@index([questionId, status, order])
+}
+
+/// A clip, as an asset -- decoupled from where it fires (see FlowVideoTrigger).
+/// Re-filming a clip is an edit to this row and every trigger keeps pointing at it;
+/// re-triggering a clip is an edit to FlowVideoTrigger and the asset is untouched.
+/// Unrelated to the per-program Video model (uploaded program footage) and to the
+/// homepage hero video (a SiteContent JSON blob) -- this is a third, flow-scoped
+/// concept with its own lifecycle. Paste-a-link only: provider/embedUrl/watchUrl are
+/// always derived by lib/videoEmbed.ts's parseVideoLink, never a Blob upload -- see
+/// CLAUDE.md's "Upload storage" section on why video uploads to Blob are a standing
+/// no.
+model FlowVideo {
+  id              String              @id @default(cuid())
+  /// Stable identity, referenced by FlowResponse.videoKeysShown and
+  /// FlowSession.videoKeysShown as a soft ref, so impression history stays readable
+  /// after a clip is retired. Hand-authored: "opener-gap-year", "q6-taxonomy".
+  key             String              @unique
+  /// Admin-facing name. Never rendered publicly -- the flow shows the clip, not a
+  /// title -- but the admin list and the trigger picker are unusable without it.
+  title           String
+  /// One of lib/videoEmbed.ts's Provider union members ("youtube" | "vimeo" here --
+  /// the clip manager only offers those two), stored as String, not an enum: gaining
+  /// a third provider must not need a migration. Same posture as
+  /// lib/homeVideoConfig.ts's provider field.
+  provider        String
+  /// Canonical iframe src, always built by parseVideoLink from the extracted id --
+  /// never the pasted string. Re-verified on read with
+  /// platformForStoredUrl(embedUrl) === provider, exactly as parseHomeVideoConfig
+  /// does, so a hand-edited DB row can never put an arbitrary URL in an iframe.
+  embedUrl        String
+  /// Canonical "watch on X" link-out, also from parseVideoLink.
+  watchUrl        String
+  /// Admin-supplied poster override; null falls back to the provider-derived
+  /// thumbnail computed at render time.
+  posterUrl       String?
+  /// Full transcript. Not optional in spirit: these clips ARE the argument, and the
+  /// flow must degrade to readable text when a clip fails to load, on a slow phone,
+  /// or for a user who won't play video.
+  transcript      String?
+  /// Production notes -- who's on camera, what still needs re-filming. Admin-only.
+  notes           String?
+  /// Attribution shown under the clip ("Lone soldier, Golani" / "Rav ---"). The spec
+  /// repeatedly makes WHO is speaking the substance of the argument (the Q9 clip is
+  /// explicitly "delivered by an alumnus, not you"), so it can't live in `notes`.
+  speaker         String?
+  /// Runtime in seconds, for the "~60 seconds" affordance. Hand-entered.
+  durationSeconds Int?
+  status          PollLifecycleStatus @default(ACTIVE)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  triggers FlowVideoTrigger[]
+}
+
+/// Where one FlowVideo fires. A question may have zero, one or several triggers;
+/// one video may be reached by several triggers (the Q4 Torah-before-college clip
+/// will be reused verbatim on the sherut-leumi branch). A model rather than a
+/// column pair on FlowOption because all three of the spec's firing shapes must
+/// coexist: a clip with no answer at all (Q2's opener, Q6's taxonomy clip), one
+/// clip fired by two different answers (Q7's last two options), and a clip whose
+/// applicability depends on a DIFFERENT question's answer (Q6's taxonomy clip
+/// doesn't apply to the mixed path). Only a join carrying its own condition covers
+/// all three.
+model FlowVideoTrigger {
+  id             String               @id @default(cuid())
+  videoId        String
+  video          FlowVideo            @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       FlowQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  mode           FlowVideoTriggerMode @default(ON_ANSWER)
+  /// FlowOption.key values *within this question* that fire the clip. Required
+  /// non-empty for ON_ANSWER, required empty for ON_DISPLAY -- both enforced by a
+  /// hand-appended CHECK in the migration (Prisma has no CHECK syntax; this is why
+  /// `prisma db push` must never be run against this schema). A soft reference, not
+  /// a composite FK to (questionId, key): a real FK would block retiring an option
+  /// a trigger names, and the correct behavior for a trigger naming a retired
+  /// option is "quietly never fires", not "blocks the write".
+  optionKeys     String[]             @default([])
+  /// An additional show-condition, evaluated against answers to PRIOR questions
+  /// with the identical rule format/evaluator as FlowQuestion.showWhen. NULL = no
+  /// extra condition. This is what carves Q6's one question into a taxonomy clip
+  /// for the single-gender paths and a shorter religious-vs-regular-mechina clip
+  /// for the mixed path, with no second question and no code.
+  when           Json?
+  /// Percentage of sessions the trigger fires for, chosen by a stable hash of
+  /// (sessionId + trigger id) so Back/refresh never flips it. 100 = everyone. This
+  /// is the spec's own "cheapest test before building any of this" as a data edit:
+  /// set a trigger to 50 and FlowResponse rows split into a clip-shown and a
+  /// clip-not-shown arm within the same time window, no code, no deploy. Range
+  /// enforced by a hand-appended CHECK (0..100).
+  rolloutPercent Int                  @default(100)
+  /// Order among several clips firing on the same question in the same mode.
+  order          Int                  @default(0)
+  status         PollLifecycleStatus  @default(ACTIVE)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([questionId, status, order])
+  @@index([videoId])
+}
+
+/// One anonymous run through the flow. Minted server-side on the first step's
+/// render and carried in the URL (?s=<cuid>) rather than a cookie or localStorage --
+/// the URL is already where the flow keeps all its state, it keeps /match working
+/// with JavaScript disabled, and it stays inside the site's no-cookie,
+/// never-identify-the-user posture (lib/analytics.ts). A client-supplied `s` that
+/// doesn't resolve to a live row is ignored and a fresh session minted, never
+/// trusted -- exactly pollShared's openPollSchema/resumeId rule. Retained
+/// indefinitely; there is no delete path.
+model FlowSession {
+  id             String    @id @default(cuid())
+  /// Best-effort dedupe/abuse signal only, never displayed -- same role and
+  /// treatment as PollResponse.ipHash. A session id lives in a shareable URL, so a
+  /// forwarded link can pollute one session; this is how analysis spots it.
+  ipHash         String?
+  /// dev and prod share ONE Neon database. Set true whenever
+  /// process.env.NODE_ENV !== "production" so local browsing never contaminates the
+  /// answer distributions this whole model exists to measure -- NOT VERCEL_ENV: this
+  /// repo's .env.local carries a stale VERCEL_ENV="production" (leftover from a
+  /// prior `vercel env pull`), which would silently defeat a VERCEL_ENV-based check
+  /// in local dev (caught live against a Neon branch while building /match). Every
+  /// analytics query filters isTest: false; nothing else reads it.
+  isTest         Boolean   @default(false)
+  /// Every FlowVideo.key actually rendered to this session, across all steps,
+  /// unioned as it goes. Soft ref, never a relation. Needed because the Q2 opener
+  /// is a question with NO answer: without this there is no impression denominator
+  /// for it at all, and a session that watches the opener and bounces leaves no
+  /// trace.
+  videoKeysShown String[]  @default([])
+  /// When the explicit Submit was pressed (the spec forbids auto-advancing off the
+  /// last answer). Null = walked away. Orthogonal to whether responses exist, the
+  /// same deliberate independence as PollResponse.submittedAt.
+  submittedAt    DateTime?
+  /// The results URL this session was actually sent to, stamped at submit. The one
+  /// record of what the flow concluded, useful for reproducing a complaint months
+  /// later after the rules have been edited underneath it.
+  resultHref     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  responses FlowResponse[]
+
+  @@index([createdAt])
+  @@index([submittedAt])
+}
+
+/// APPEND-ONLY. One row per answer EVENT, not per question: changing an answer
+/// writes a second row at revision+1 rather than updating the first. That is the
+/// entire mechanism behind "did the clip shift the answer" -- for an ON_ANSWER
+/// clip, revision 0 is the pre-clip answer with an empty videoKeysShown and
+/// revision 1 is the answer the respondent gave after watching, with the clip's key
+/// in it. An update-in-place design destroys exactly the datum the project is
+/// trying to measure.
+model FlowResponse {
+  id              String      @id @default(cuid())
+  sessionId       String
+  session         FlowSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /// Soft reference to FlowQuestion.key -- deliberately NOT a foreign key, so
+  /// deleting or retiring a question can neither block nor cascade away the
+  /// measurements taken under it. The tradeoff (a key can go stale) is correct
+  /// here: this table is a historical log, not live config. Same posture as
+  /// QuestionBucket.questionIds and Region.memberSlugs.
+  questionKey     String
+  /// FlowQuestion.version at the moment the question was displayed. A distribution
+  /// computed across a silent rewording is a fabricated result; this is what lets
+  /// analysis exclude pre-rewording rows instead of quietly averaging them in.
+  questionVersion Int
+  /// FlowOption.key values selected. An array although every spec question is
+  /// single-select, so a future multi-select question is a UI change and not a
+  /// migration.
+  optionKeys      String[]    @default([])
+  /// Which attempt at answering this question, within this session, this row is.
+  /// Revision 0 is the first answer; revising bumps it. See the model doc above.
+  revision        Int         @default(0)
+  /// TRUE when the respondent pressed Skip. Distinct from an empty optionKeys with
+  /// skipped=false, which is how a video-only question (the Q2 opener) records
+  /// "the interstitial was shown and acknowledged". Same explicit-absence-vs-
+  /// silence distinction as PollResponse.naQuestionIds vs. a merely-untouched
+  /// question.
+  skipped         Boolean     @default(false)
+  /// Every FlowVideo.key already rendered for THIS question at the moment this
+  /// answer was recorded. Empty on revision 0 of an ON_ANSWER-clip question,
+  /// populated on revision 1 -- the within-subject shift. Populated on revision 0
+  /// for an ON_DISPLAY clip -- the between-subject arm, paired with
+  /// FlowVideoTrigger.rolloutPercent.
+  videoKeysShown  String[]    @default([])
+  createdAt       DateTime    @default(now())
+
+  @@unique([sessionId, questionKey, revision])
+  @@index([questionKey, createdAt])
+  @@index([sessionId, createdAt])
 }
