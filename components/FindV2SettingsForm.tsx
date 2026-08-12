@@ -3,9 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
+/** The one place the findV2Enabled toggle lives -- rendered on both /admin/settings
+ * and (pinned at the top) /admin/flow/preview, so the two pages read and write the
+ * exact same SiteContent key through the exact same component and can never disagree
+ * about /match's current visibility. */
 export default function FindV2SettingsForm({ initialEnabled }: { initialEnabled: boolean }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [enabled, setEnabled] = useState(initialEnabled);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +28,7 @@ export default function FindV2SettingsForm({ initialEnabled }: { initialEnabled:
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error ?? "Failed to update");
       setEnabled(next);
+      toast(next ? "/match is now visible to everyone" : "/match is now admin-only");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update /match settings");
