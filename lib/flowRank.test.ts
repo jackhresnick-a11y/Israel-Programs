@@ -174,6 +174,55 @@ describe("passesRequireTarget / passesAllRequireTargets -- the two hard eliminat
     expect(passesRequireTarget(programs[0], stillInHs, tagCategoryBySlug)).toBe(false); // GAP_YEAR
   });
 
+  it("a mixed tag+duration target ANDs both halves -- untagged still passes the tag half, but never the duration half", () => {
+    // Regression coverage for the live Q1 "still in high school" option once it carries
+    // BOTH durationValues (SUMMER/SHORT/TEN_DAY) and tagSlugs (age-high-school): the two
+    // halves are ANDed by passesRequireTargetWithCategories, and requireIncludesUntagged
+    // only ever grants an exemption on the tag half (see lib/flowRank.ts:113-129) -- an
+    // untagged program with the WRONG duration must still be eliminated.
+    const ageCategoryBySlug = new Map<string, string | null>([
+      ...tagCategoryBySlug,
+      ["age-high-school", "age"],
+      ["age-gap-year", "age"],
+    ]);
+    const mixedTarget: FlowRequireTarget = {
+      questionKey: "life-stage",
+      label: "Still in high school",
+      tagSlugs: ["age-high-school"],
+      durationValues: ["SUMMER", "SHORT", "TEN_DAY"],
+      requireIncludesUntagged: true,
+    };
+    const rightDurationRightTag: RankableProgram = {
+      id: "hs-1",
+      name: "Teen Trip",
+      durationType: "SHORT",
+      tagSlugs: ["age-high-school"],
+    };
+    const rightDurationConflictingTag: RankableProgram = {
+      id: "hs-2",
+      name: "Gap Year Trip",
+      durationType: "SHORT",
+      tagSlugs: ["age-gap-year"],
+    };
+    const rightDurationNoAgeTag: RankableProgram = {
+      id: "hs-3",
+      name: "Untagged Trip",
+      durationType: "TEN_DAY",
+      tagSlugs: [],
+    };
+    const wrongDurationRightTag: RankableProgram = {
+      id: "hs-4",
+      name: "Long Program",
+      durationType: "GAP_YEAR",
+      tagSlugs: ["age-high-school"],
+    };
+
+    expect(passesRequireTarget(rightDurationRightTag, mixedTarget, ageCategoryBySlug)).toBe(true);
+    expect(passesRequireTarget(rightDurationConflictingTag, mixedTarget, ageCategoryBySlug)).toBe(false);
+    expect(passesRequireTarget(rightDurationNoAgeTag, mixedTarget, ageCategoryBySlug)).toBe(true);
+    expect(passesRequireTarget(wrongDurationRightTag, mixedTarget, ageCategoryBySlug)).toBe(false);
+  });
+
   it("AND across multiple targets: two disjoint duration restrictions intersect to zero survivors", () => {
     const summerOnly: FlowRequireTarget = {
       questionKey: "q-a",

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cmsp1axnx0001edmz3oruthlc",
+    "key": "still-in-high-school-going-during-high-school",
+    "label": "Still in high school (going during high school)",
+    "matchMode": "REQUIRE",
+    "tagSlugs": [],
+    "durationValues": [
+      "SUMMER",
+      "SHORT",
+      "TEN_DAY"
+    ],
+    "weight": 0,
+    "requireIncludesUntagged": true
+  }
+]
