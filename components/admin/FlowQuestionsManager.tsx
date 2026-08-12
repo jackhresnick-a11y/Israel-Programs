@@ -8,6 +8,7 @@ import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { useToast } from "@/components/ui/Toast";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type FlowOptionRow = {
@@ -47,6 +48,18 @@ export type DurationOptionRow = { value: DurationType; label: string };
 const QUESTION_TYPES = ["FILTER", "CHALLENGE", "TRADEOFF"] as const;
 const MATCH_MODES = ["WEIGHT", "REQUIRE"] as const;
 
+/** Carries the response status alongside the message so a caller can tell "the server
+ * rejected this input" (400, actionable) apart from "the session is no longer valid"
+ * (401/403, not about the input at all -- see errorMessage below). */
+class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+  }
+}
+
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
     method,
@@ -55,9 +68,24 @@ async function api(url: string, method: string, body?: object) {
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
-    throw new Error(errBody.error ?? "Request failed");
+    throw new ApiError(errBody.error ?? "Request failed", res.status);
   }
   return res.json().catch(() => ({}));
+}
+
+/** Every admin route in this app answers a 401/403 with the same generic
+ * `{ error: "Unauthorized" }` body (lib/roles.ts's requireRole can't say more --
+ * it has no way to know whether the caller's session merely expired or their
+ * role changed). Echoing that string next to a form field reads as if the
+ * field's *value* was rejected, when the real cause is the admin session going
+ * stale mid-edit -- so rephrase 401/403 here, and only here, into something
+ * actionable. Any other status (400 from a zod/business-rule rejection, 500)
+ * keeps the server's own message, which is the useful one. */
+function errorMessage(err: unknown, fallback: string): string {
+  if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+    return "Your admin session expired -- reload the page and sign in again.";
+  }
+  return err instanceof Error ? err.message : fallback;
 }
 
 /** Parses a JSON-rule textarea's current text into the value a PATCH body should
@@ -148,7 +176,11 @@ function MatchModeControl({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentKey, dirty]);
 
-  const canSave = dirty && preview !== null && previewKey === currentKey && !previewLoading;
+  // Written to textually match the preview-text visibility condition below rather than
+  // relying on the (currently true, but easy to accidentally break in a future edit)
+  // invariant that previewError is only ever set alongside preview=null -- explicit
+  // here so the two conditions can't silently drift apart.
+  const canSave = dirty && preview !== null && previewKey === currentKey && !previewLoading && !previewError;
 
   async function handleSave() {
     setSaving(true);
@@ -157,7 +189,7 @@ function MatchModeControl({
       await api(`/api/admin/flow/options/${option.id}`, "PATCH", { matchMode: pending });
       onSaved();
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(errorMessage(err, "Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -200,6 +232,81 @@ function MatchModeControl({
           )}
           <Button type="button" size="sm" disabled={!canSave || saving} className="ml-auto" onClick={handleSave}>
             {saving ? "Saving..." : "Save eliminator change"}
+          </Button>
+          <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      )}
+      {saveError && <p className="text-xs text-danger">{saveError}</p>}
+    </div>
+  );
+}
+
+/**
+ * The show-condition (showWhen) editor, staged with an explicit Save/Cancel rather than
+ * saving on blur like every other text field in this manager -- same reasoning and same
+ * shape as MatchModeControl above, minus the preview step (a show-condition doesn't have
+ * an equivalent "how many programs would this affect" check). A silent on-blur save here
+ * previously gave zero feedback on success (the field was an uncontrolled defaultValue
+ * textarea, so router.refresh() never visibly updated it) and, on failure, surfaced a
+ * bare "Unauthorized" or validation string in a banner at the top of the whole page,
+ * disconnected from the field that caused it.
+ */
+function ShowWhenEditor({ question, onSaved }: { question: FlowQuestionRow; onSaved: () => void }) {
+  const { toast } = useToast();
+  const [text, setText] = useState(jsonText(question.showWhen));
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const parsed = parseRuleText(text);
+  // Same "compare to the prop, not a stashed baseline" trick as MatchModeControl's
+  // `dirty` -- once a save lands, router.refresh() delivers a question.showWhen that
+  // matches what was just saved, so this naturally goes false and the staging UI
+  // self-dismisses with no extra bookkeeping.
+  const dirty = !parsed.ok || JSON.stringify(parsed.value) !== JSON.stringify(question.showWhen ?? null);
+  const canSave = dirty && parsed.ok && !saving;
+
+  async function handleSave() {
+    if (!parsed.ok) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await api(`/api/admin/flow/questions/${question.id}`, "PATCH", { showWhen: parsed.value });
+      toast("Show-condition saved");
+      onSaved();
+    } catch (err) {
+      setSaveError(errorMessage(err, "Failed to save"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleCancel() {
+    setText(jsonText(question.showWhen));
+    setSaveError(null);
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted">
+          Show-condition (JSON, empty = always shown) -- see find-v2-question-spec.md for the rule shape
+        </span>
+        {dirty && <Badge tone="info">Unsaved</Badge>}
+      </div>
+      <Textarea
+        value={text}
+        placeholder='{"v":1,"when":{"type":"answerIn","questionKey":"life-stage","optionKeys":["working"]}}'
+        className="min-h-16 font-mono text-xs"
+        disabled={saving}
+        onChange={(e) => setText(e.target.value)}
+      />
+      {!parsed.ok && <p className="text-xs text-danger">{parsed.error}</p>}
+      {dirty && (
+        <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border px-2 py-1">
+          <Button type="button" size="sm" disabled={!canSave} className="ml-auto" onClick={handleSave}>
+            {saving ? "Saving..." : "Save show-condition"}
           </Button>
           <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={handleCancel}>
             Cancel
@@ -281,7 +388,7 @@ export default function FlowQuestionsManager({
       await fn();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(errorMessage(err, "Something went wrong"));
     } finally {
       setBusyId(null);
     }
@@ -323,20 +430,6 @@ export default function FlowQuestionsManager({
     if (next === question.defaultOptionSetKey) return;
     withBusy(question.id, () =>
       api(`/api/admin/flow/questions/${question.id}`, "PATCH", { defaultOptionSetKey: next })
-    );
-  }
-
-  function handleShowWhenChange(question: FlowQuestionRow, text: string) {
-    const fieldId = `showWhen:${question.id}`;
-    const parsed = parseRuleText(text);
-    if (!parsed.ok) {
-      setRuleError(fieldId, parsed.error);
-      return;
-    }
-    setRuleError(fieldId, null);
-    if (JSON.stringify(parsed.value) === JSON.stringify(question.showWhen ?? null)) return;
-    withBusy(question.id, () =>
-      api(`/api/admin/flow/questions/${question.id}`, "PATCH", { showWhen: parsed.value })
     );
   }
 
@@ -384,7 +477,7 @@ export default function FlowQuestionsManager({
       setNewPrompt("");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create question");
+      setError(errorMessage(err, "Failed to create question"));
     } finally {
       setCreatingQuestion(false);
     }
@@ -470,7 +563,7 @@ export default function FlowQuestionsManager({
       setNewOptionLabel((prev) => ({ ...prev, [question.id]: "" }));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create option");
+      setError(errorMessage(err, "Failed to create option"));
     } finally {
       setCreatingOptionFor(null);
     }
@@ -503,7 +596,6 @@ export default function FlowQuestionsManager({
       <div className="flex flex-col gap-4">
         {sortedQuestions.map((question, index) => {
           const sortedOptions = [...question.options].sort((a, b) => a.order - b.order);
-          const showWhenError = ruleErrors[`showWhen:${question.id}`];
           const optionSetRulesError = ruleErrors[`optionSetRules:${question.id}`];
           return (
             <div key={question.id} className="flex flex-col gap-3 rounded border border-border p-4">
@@ -591,19 +683,7 @@ export default function FlowQuestionsManager({
                 Skippable
               </label>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted">
-                  Show-condition (JSON, empty = always shown) -- see find-v2-question-spec.md for the rule shape
-                </span>
-                <Textarea
-                  defaultValue={jsonText(question.showWhen)}
-                  placeholder='{"v":1,"when":{"type":"answerIn","questionKey":"life-stage","optionKeys":["working"]}}'
-                  className="min-h-16 font-mono text-xs"
-                  disabled={busyId === question.id}
-                  onBlur={(e) => handleShowWhenChange(question, e.target.value)}
-                />
-                {showWhenError && <p className="text-xs text-danger">{showWhenError}</p>}
-              </div>
+              <ShowWhenEditor question={question} onSaved={() => router.refresh()} />
 
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-muted">
