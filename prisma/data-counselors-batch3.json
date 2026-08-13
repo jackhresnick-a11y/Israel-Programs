@@ -1,0 +1,42 @@
+[
+  {
+    "schoolName": "SAR High School",
+    "country": "United States",
+    "cityRegion": "Riverdale, NY (Bronx)",
+    "contactName": "Rabbi Tully Harcsztark",
+    "email": "th@sarhighschool.org",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.sar50celebration.org/contact",
+    "notes": "Principal (email verified). Michael Courtney is Director of College Counseling per SAR's own 50th-anniversary site and alumni association posts, but no email could be found for him directly -- this is the Principal's verified address, the best available named contact. Phone: 718.548.2727 (school main line)."
+  },
+  {
+    "schoolName": "YULA Boys High School",
+    "country": "United States",
+    "cityRegion": "Los Angeles, CA",
+    "contactName": null,
+    "email": "boysadmissions@yula.org",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://yula.org/admissions/boys-division/admissions-process/",
+    "notes": "Mark Herrera is named as Boys Division College Guidance counselor (yula.org/guidance/guidance-staff/) but no email was found for him; using the Boys Division admissions inbox as the best verified generic contact. Phone: 310-203-3180."
+  },
+  {
+    "schoolName": "YULA Girls High School",
+    "country": "United States",
+    "cityRegion": "Los Angeles, CA",
+    "contactName": null,
+    "email": "smiller@yula.org",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://yula.org/admissions/girls-division/application-process/",
+    "notes": "Rachel Shandalov is named as Director of College Guidance for both Girls & Boys Divisions (yula.org/guidance/guidance-staff/) but no email was found for her; using the Girls Division admissions inbox (Samira Miller) as the best verified generic contact. Phone: 310-203-0755."
+  },
+  {
+    "schoolName": "Shalhevet High School",
+    "country": "United States",
+    "cityRegion": "Los Angeles, CA",
+    "contactName": "Jordan Moss",
+    "email": "j.moss@shalhevet.org",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.shalhevet.org/apps/pages/index.jsp?uREC_ID=4031167&type=d&pREC_ID=1472740",
+    "notes": "Director of College Counseling and Academic Guidance. Phone: (323) 988-2144. Also Camille Bradshaw, Associate Director of Counseling (c.bradshaw@shalhevet.org, (323) 571-0873). Email decoded from the school's own Cloudflare email-protection markup on this official page -- not guessed or pattern-matched."
+  }
+]

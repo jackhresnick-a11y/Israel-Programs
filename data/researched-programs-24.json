@@ -1,0 +1,21 @@
+{
+  "_note": "2026-07-23 batch (batch 4 of the seminaries/midrashot-only pass). Yield was very low this round: Bnos Binah Seminary (bnosbinahseminary.com) has an expired SSL certificate (effectively a dead site despite domain still resolving); Rav Wolf Seminary (Bnei Brak) and Sha'arei Bina (Tzfat) have no independent official website, only Facebook/directory/aggregator listings (Sha'arei Bina's own-looking domain, shaareibina.org, actually belongs to an unrelated Florida day school of a similar name); HaMidrasha at Oranim's gap-year page returns a genuine 404. Only one new program cleared the bar.",
+  "seminaries_midrashot": [
+    {
+      "name": "YU Israel Women's Campus",
+      "organization": "Yeshiva University",
+      "location": "Nefesh B'Nefesh Residence, Jerusalem",
+      "description": "A three-year undergraduate program combining flexible online BBA coursework (Global Business & Innovation) with in-person Torah learning in Jerusalem, for women who have already completed a year of study at a YU-approved seminary or yeshiva.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "6 semesters, following 2 semesters at an affiliated Israel seminary/yeshiva",
+      "cost": "Tuition TBD; needs-based scholarships available",
+      "signupInstructions": "Submit transcripts for evaluation via the online form or by emailing yuiprogram@yu.edu.",
+      "signupUrl": "https://go.yu.edu/israel-female-campus",
+      "contactPhone": "212-960-5400",
+      "contactWebsite": "https://go.yu.edu/israel-female-campus",
+      "contactEmail": "yuiprogram@yu.edu",
+      "tags": ["Girls only", "jerusalem", "Academic/Internship", "Spiritual growth", "Religious Zionism/Modern Orthodox"],
+      "adminNote": "STRUCTURALLY a post-seminary/continuation program, not a standalone first-year seminary: explicitly requires two semesters already completed at another YU-approved seminary or yeshiva before a student can join. Administrative HQ is YU's New York campus, but the program itself operates in Jerusalem (Nefesh B'Nefesh Residence) with in-person Torah learning there -- included on that basis, same reasoning applied to the already-added 'Midrasha at Bar-Ilan University' and 'Maalot Yerushalayim' (both also require prior/concurrent enrollment elsewhere). Tags mirror that pairing (Academic/Internship + Spiritual growth + Girls only + jerusalem), plus Religious Zionism/Modern Orthodox matching YU's institutional character."
+    }
+  ]
+}

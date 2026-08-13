@@ -70,5 +70,21 @@
     "category": "seminaries_midrashot",
     "signupUrl": "https://seminar.orchaya.co.il/en/",
     "contactWebsite": "https://orchaya.org.il/"
+  },
+  {
+    "slug": "yu-israel-womens-campus",
+    "name": "YU Israel Women's Campus",
+    "contactEmail": "yuiprogram@yu.edu",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://go.yu.edu/israel-female-campus",
+    "contactWebsite": "https://go.yu.edu/israel-female-campus"
+  },
+  {
+    "slug": "lapidot-advanced-beit-midrash-for-women",
+    "name": "Lapidot Advanced Beit Midrash for Women",
+    "contactEmail": "RabbanitShani@mizrachi.org",
+    "category": "seminaries_midrashot",
+    "signupUrl": "https://mizrachi.org/lapidot/",
+    "contactWebsite": "https://mizrachi.org/lapidot/"
   }
 ]

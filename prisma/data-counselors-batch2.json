@@ -1,0 +1,202 @@
+[
+  {
+    "schoolName": "Yeshivat Or Chaim (Bnei Akiva Schools of Toronto)",
+    "country": "Canada",
+    "cityRegion": "Toronto, Ontario",
+    "contactName": "Gerald Lazar",
+    "email": "glazar@bastoronto.org",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://bastoronto.org/facultyandstaff/",
+    "notes": "Assistant Principal, leads academic guidance incl. post-secondary applications. Phone: (416) 630-6772 ext. 237. Boys' high school campus of Bnei Akiva Schools of Toronto network -- distinct from Ulpanat Orot (girls' campus, already in system)."
+  },
+  {
+    "schoolName": "Torah Academy Boys High School",
+    "country": "South Africa",
+    "cityRegion": "Orchards, Johannesburg",
+    "contactName": null,
+    "email": "boyshigh@torahacademy.co.za",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://torahacademy.co.za/contact-us/",
+    "notes": "No individually named guidance counselor found; boys' high school office inbox."
+  },
+  {
+    "schoolName": "Torah Academy Girls High School",
+    "country": "South Africa",
+    "cityRegion": "Rouxville, Johannesburg",
+    "contactName": null,
+    "email": "girlshigh@torahacademy.co.za",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://torahacademy.co.za/contact-us/",
+    "notes": "No individually named guidance counselor found; girls' high school office inbox."
+  },
+  {
+    "schoolName": "Cape Town Torah High School (Jewish International School of Cape Town)",
+    "country": "South Africa",
+    "cityRegion": "Gardens, Cape Town",
+    "contactName": null,
+    "email": "admin@cttorahhigh.com",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://www.jict.org.za/",
+    "notes": "No individually named guidance counselor found; general admin inbox. Phone: +27 21 461 2524."
+  },
+  {
+    "schoolName": "Leibler Yavneh College",
+    "country": "Australia",
+    "cityRegion": "Elsternwick, Melbourne, Victoria",
+    "contactName": "Fiona Hall",
+    "email": "F.Hall@yavneh.vic.edu.au",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://yavneh.vic.edu.au/leadership-key-staff/",
+    "notes": "Careers Counsellor. Also on staff: Eliza Wade, School Counsellor (E.Wade@yavneh.vic.edu.au) -- a pastoral role rather than college/careers guidance."
+  },
+  {
+    "schoolName": "Bialik College",
+    "country": "Australia",
+    "cityRegion": "Hawthorn, Melbourne, Victoria",
+    "contactName": null,
+    "email": "shalom@bialik.vic.edu.au",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://www.bialik.vic.edu.au/contact",
+    "notes": "Career Counsellor role confirmed (site references bialikcareers.com) but no individual name published; email read directly from the school's own page markup. Phone: (03) 9822 7981."
+  },
+  {
+    "schoolName": "Kesser Torah College",
+    "country": "Australia",
+    "cityRegion": "Dover Heights, Sydney, NSW",
+    "contactName": null,
+    "email": "reception@ktc.nsw.edu.au",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://kessertorah.nsw.edu.au/meet-the-senior-management-team/",
+    "notes": "No dedicated careers counsellor named; closest pastoral roles are Rabbi Berel Light (Head of Boys' HS Student Welfare) and Megan Rosettenstein (Head of Girls' HS Student Welfare) -- their individual emails are unverified. Phone: +61 2 9301 1111."
+  },
+  {
+    "schoolName": "JCoSS (The Jewish Community Secondary School)",
+    "country": "United Kingdom",
+    "cityRegion": "Barnet, London",
+    "contactName": "Michael Sawyer",
+    "email": "msawyer@jcoss.barnet.sch.uk",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://jcoss.org/curriculum/careers",
+    "notes": "Head of Careers. Phone: 020 8344 2220 (switchboard)."
+  },
+  {
+    "schoolName": "Menorah High School for Girls",
+    "country": "United Kingdom",
+    "cityRegion": "Edgware, London",
+    "contactName": "Jo Marchant",
+    "email": "jmarchant@menorahhigh.com",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.menorahhigh.com/Information/Careers/",
+    "notes": "Careers' Leader. Phone: 020 8208 0500."
+  },
+  {
+    "schoolName": "Yesodey Hatorah Senior Girls School",
+    "country": "United Kingdom",
+    "cityRegion": "Stamford Hill, London",
+    "contactName": "Mrs Lebhar",
+    "email": "YHcareers@gmail.com",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://www.yesodeyhatorah.org/careers",
+    "notes": "School Careers Leader. Role-based shared inbox rather than a personal school-domain address."
+  },
+  {
+    "schoolName": "American International School Vienna",
+    "country": "Austria",
+    "cityRegion": "Vienna",
+    "contactName": "Justin Walker",
+    "email": "J.Walker@ais.at",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://cdnc.heyzine.com/flip-book/pdf/e8661445c9785b51d65659172be9de685b9050b6-3.pdf",
+    "notes": "High School Counselor (Gr. 11-12, surnames A-L); also Anna Stewart (M-Z) and Emilee Tollefson (Gr 9-10). Phone: +43 1 401 32 2511 (Counseling Office). School profile (2025-26) lists a 2026 matriculation to Reichman University, Israel -- an active Israel pipeline."
+  },
+  {
+    "schoolName": "Zurich International School",
+    "country": "Switzerland",
+    "cityRegion": "Wädenswil/Adliswil, Zurich",
+    "contactName": "Marisa Jackson",
+    "email": "mjackson@zis.ch",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://resources.finalsite.net/images/v1758710566/zurich/obktyrb229jyu3uf8tkf/ZIS_Profile_2025-26.pdf",
+    "notes": "University and Career Counselor, M.Ed. Also Lindsay Tosun, Bryn Will. Phone: +41 58 750 24 00. School profile lists a 2025 matriculation to Reichman University, Israel."
+  },
+  {
+    "schoolName": "International School of Brussels",
+    "country": "Belgium",
+    "cityRegion": "Brussels",
+    "contactName": "Catherine Irvine",
+    "email": "irvinec@isb.be",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://resources.finalsite.net/images/v1667407527/isb/m82qfriftjzlnbfgbemt/HSProfile2022.pdf",
+    "notes": "High School Counsellor / Head of Department (surnames S-Z); also Karen Sagall, Amy Durrant, Jenni Franklin cover other surname ranges. Phone: +32 2 661 42 00. University acceptance list includes Reichman University/IDC Herzliya and Tel Aviv University."
+  },
+  {
+    "schoolName": "International School of Luxembourg",
+    "country": "Luxembourg",
+    "cityRegion": "Luxembourg City",
+    "contactName": "Maribeth Byrne",
+    "email": "mbyrne@islux.lu",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://resources.finalsite.net/images/v1728911948/luxembourg/dvccnhyccxgkec6mwdte/ISL_School_Profile.pdf",
+    "notes": "Higher Education Counsellor. Also Martin Peel, Monika Pasiak. Department address: HigherEd@islux.lu. Phone: (+352) 26 04 40."
+  },
+  {
+    "schoolName": "International School of Geneva - Ecolint, Campus des Nations",
+    "country": "Switzerland",
+    "cityRegion": "Grand-Saconnex, Geneva",
+    "contactName": "Nicholas O'Connell",
+    "email": "nicholas.oconnell@ecolint.ch",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.ecolint.ch/sites/main/files/resources/nat-high-school-profile.pdf",
+    "notes": "University Counsellor. Also Farzana Kanji."
+  },
+  {
+    "schoolName": "American School of Madrid",
+    "country": "Spain",
+    "cityRegion": "Pozuelo de Alarcón, Madrid",
+    "contactName": "John McCracking",
+    "email": "johnmccracking@asmadrid.es",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://resources.finalsite.net/images/v1733818883/asmadridorg/itvk6y6ozpj1bi5vynqx/USProfile202425V7.pdf",
+    "notes": "College Counselor. Also Djiara Meehan. Phone: (+34) 91 740 1911. School profile lists IDC Herzliya/Reichman University acceptances."
+  },
+  {
+    "schoolName": "Jack M. Barrack Hebrew Academy",
+    "country": "United States",
+    "cityRegion": "Bryn Mawr, Pennsylvania",
+    "contactName": "Joe Maybloom",
+    "email": "jmaybloom@jbha.org",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.jbha.org/academics/college-counseling",
+    "notes": "Director of College Counseling."
+  },
+  {
+    "schoolName": "Carmel School (Elsa High School Campus)",
+    "country": "Hong Kong",
+    "cityRegion": "Shau Kei Wan, Hong Kong Island",
+    "contactName": null,
+    "email": "elsahighadmin@carmel.edu.hk",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://www.carmel.edu.hk/about-us/contact-us",
+    "notes": "No individually named college counselor found; career guidance handled by a Career & Life Planning Committee chaired by Ms. Koo Kho Rebecca. Phone: +852 3665 5388. Grade 6-12 with IB Diploma in 11-12; graduates have matriculated to Technion - Israel Institute of Technology, confirming an Israel pipeline."
+  },
+  {
+    "schoolName": "American School Foundation",
+    "country": "Mexico",
+    "cityRegion": "Mexico City",
+    "contactName": "Rachel Dillon",
+    "email": "dillonr@asf.edu.mx",
+    "emailIsGeneric": false,
+    "sourceUrl": "https://www.asf.edu.mx/programs/us/representatives",
+    "notes": "Dean of College Guidance."
+  },
+  {
+    "schoolName": "Hillel Academy",
+    "country": "Jamaica",
+    "cityRegion": "Kingston",
+    "contactName": "Donna Preston",
+    "email": "hsprincipal@gohillel.com",
+    "emailIsGeneric": true,
+    "sourceUrl": "https://hillelacademyjm.com/high-school-staff/",
+    "notes": "Donna Preston listed as College Counsellor; no counseling-specific email published, so using the High School Principal's office inbox as the best verified generic contact. Phone: High School (876) 905-3352."
+  }
+]

@@ -92,9 +92,13 @@ honeypot cases — see "Program FAQs and the public poll link" below),
 see "The post-poll referral loop" below), `lib/pollShare.test.ts` (the WhatsApp share
 message/href builders, including URL round-tripping for Hebrew text and special
 characters), `lib/homeVideoConfig.test.ts` (the homepage hero video's config schema/parser and
-`youtubePosterFromEmbedUrl` — see "Homepage hero video" below), and `lib/finder.test.ts` (the
+`youtubePosterFromEmbedUrl` — see "Homepage hero video" below), `lib/finder.test.ts` (the
 `/find` flow's redirect assembly — dedup, stale-tag-slug and invalid-duration-value dropping,
 and that a write with an unknown tag slug is rejected rather than silently saved — see "/find"
+below), and `lib/flowShared.test.ts`/`lib/flowRank.test.ts`/`lib/flowClips.test.ts`/
+`lib/flow.test.ts` (the `/match` v2 flow's condition/option-set resolution including the
+stale-cross-option-set-answer regression, the no-hard-cut ranking + eliminator math, video
+trigger selection, and the admin CRUD's reorder/retire/unknown-tag-slug guards — see "/match"
 below). This covers pure-logic `lib/*.ts`
 functions behind `vi.mock`-able boundaries (or with no external dependency at all), not
 routes, pages, or anything that needs a real Postgres connection — most verification in
@@ -102,7 +106,10 @@ this project is still `npx tsc --noEmit`, `npm run lint`, exercising the feature
 `curl`/the running dev server, and (for data changes) querying Neon directly. Follow
 `lib/roles.test.ts`'s pattern (hoisted mocks, dynamic `await import(...)` after
 `vi.mock`) if adding a DB-adjacent test to this suite rather than introducing a
-different testing style.
+different testing style. `components/find/FlowStep.render.test.tsx` and
+`components/admin/FlowQuestionsManager.repro.test.tsx` are the two component-level
+exceptions — see "/match" below for what each covers and why they use different
+rendering strategies (`renderToStaticMarkup` vs. real `jsdom`/React Testing Library).
 
 ### Database
 
@@ -457,6 +464,131 @@ split out of `lib/finder.ts` per the client-module-split pattern above, so
 option — recomputed from that option's own stored `tagSlugs`/`durationValues` on every
 render — without risking drift from what `buildProgramsHref` actually produces at
 redirect time.
+
+### `/match`: v2 of `/find` — a weighted, video-argued flow with no hard cut on results
+`/match` + `/match/results` are a from-scratch rebuild of the narrowing-flow idea above,
+living alongside `/find` (v1, untouched) rather than replacing it. The governing
+difference: v1 does hard AND-filtering with no ranking; `/match` **never hard-cuts** the
+program list (except two deliberate eliminators, below) — it produces a weighted,
+banded ranking instead, and each answer can trigger a short video clip that argues
+against the choice just made. Gated behind `findV2Enabled` (`SiteContent`, absent ⇒
+off) with an admin bypass in `app/match/page.tsx` — **the code is live in production,
+Q1–Q7 content is seeded `ACTIVE` there (Q8–Q10 seeded `RETIRED`), but the flag is off**,
+so a normal visitor still only ever sees `/find`. `proxy.ts`'s matcher must include
+`/match/:path*` or `getCurrentRole()` throws (`clerkMiddleware` never runs on the route
+otherwise) — this bit once already.
+
+**Six new models, three new enums**, additive migration
+`20260811000000_add_flow_v2` (hand-appended CHECK constraints on `FlowVideoTrigger` —
+same "never `prisma db push`" warning as the alumni-polls migrations). `FlowQuestion`
+(`key` hand-authored/immutable, `showWhen`/`optionSetRules` Json, `version` bumped on a
+reword so `FlowResponse` distributions never span a silent rewording) owns
+`FlowOption` (`matchMode: WEIGHT | REQUIRE`, `weight` — negative is legal, meaning
+"demote, don't eliminate" — `tagSlugs`/`durationValues` soft refs,
+`requireIncludesUntagged`, `optionSetKeys`). `FlowVideo` (the clip asset) and
+`FlowVideoTrigger` (join: `mode: ON_DISPLAY | ON_ANSWER`, `optionKeys` soft ref,
+`rolloutPercent`) are independent so re-filming a clip never touches where it fires.
+`FlowSession`/`FlowResponse` are the measurement layer — `FlowResponse` is
+**append-only** (`revision` per answer *event*, never updated in place), which is the
+entire mechanism behind "did the clip shift the answer": revision 0 is pre-clip,
+revision 1 is post-clip, `videoKeysShown` recorded on each.
+
+**Pure/impure split, same precedent as `lib/finderTargets.ts`/`lib/pollShared.ts`:**
+`lib/flowShared.ts` (conditions, option-set resolution, `resolveFlow` — the one
+navigation function Back/Skip/hidden-questions/the admin preview all run through,
+answer-state URL parse/serialize, `applyOptionOverrides`/`answerStateToRecord` for the
+admin preview below) and `lib/flowRank.ts` (eliminators + scoring) and
+`lib/flowClips.ts` (trigger selection) have **no `lib/prisma` import** — client-safe by
+construction. `lib/flow.ts` (Prisma CRUD, re-exports the pure symbols) and
+`lib/flowRun.ts` (session lifecycle, `runMatchResults` — the results pipeline) are the
+server-only siblings.
+
+**Show-conditions and option-sets are one shared rule format**
+(`FlowConditionNode`: `answerIn` / `answered` / `all` / `any` / `not`, wrapped
+`{v:1, when:...}`), zod-validated, unparseable ⇒ **fails open** (question stays
+visible) so a bad rule can never silently vanish a question. `optionSetRules` (same
+node type) is how Q6 ("What kind of program?") shows a different option subset for
+boys/girls/mixed without three separate questions — an option with empty
+`optionSetKeys` belongs to every set. `resolveFlow` re-derives visibility AND
+option-set membership on every call from live `showWhen`/`optionSetRules`; a stored
+answer whose option no longer belongs to the currently-resolved set (e.g. Q6 answered
+under "boys", then the gender answer changes) is treated as stale and dropped rather
+than silently scored — `pruneAnswerState`/`evaluateVisibility`'s `staleKeys`, a real bug
+fixed once already (`lib/flowShared.test.ts`'s "drops a stale cross-option-set answer"
+suite is the regression coverage).
+
+**Exactly two hard eliminators, both expressed as data, never as a question key the
+code recognizes**: `FlowOption.matchMode = REQUIRE` on Q1's "still in high school"
+option and Q3's "boys only"/"girls only" options — auditable as "how many REQUIRE rows
+exist," changeable from `/admin/flow/questions` with no deploy.
+`requireIncludesUntagged` (default `true`) means a program carrying **no tag at all**
+in the required category passes rather than being eliminated — absence of a gender tag
+is treated as unknown, not disqualifying (this is why 30 gender-untagged programs
+survive the Q3 filter alongside the matching gender). The admin questions screen warns
+if more than two ACTIVE questions carry a REQUIRE option (counts distinct
+*questions*, not raw REQUIRE rows — Q3 legitimately has two mutually-exclusive REQUIRE
+options for one eliminating dimension). Everything else is `WEIGHT`-scored
+(`lib/flowRank.ts`'s `rankPrograms`): normalized by sum-of-weight-magnitudes, banded
+into strong/partial/weak/unranked (`STRONG_MIN_CRITERIA` clamped to the answered
+count), and **`rankPrograms` never filters or slices** — it returns every program it
+was given, asserted by test, not just documented.
+
+**Video clips** fire three shapes off `FlowVideoTrigger`: `ON_DISPLAY` with no
+`optionKeys` (an interstitial — a `FlowQuestion` with **zero options**, e.g. Q2's
+opener; the absence of option rows *is* the "this is an interstitial" signal, no
+separate boolean), `ON_ANSWER` with `optionKeys` (fires on selecting one of them,
+beats a same-question `ON_DISPLAY` trigger), and a `when` condition on an `ON_DISPLAY`
+trigger for splitting a clip by an *earlier* question's answer (Q6's taxonomy clip
+only for the gender-asked path). `rolloutPercent` is a stable hash of
+`(sessionId, triggerId)` so Back/refresh never flip which arm a session is in.
+`components/find/FlowStep.tsx` mounts the clip **above** the options without ever
+disabling them (`FlowStep.render.test.tsx` asserts this on real rendered markup, not
+just as a design promise).
+
+**Admin UI**: `/admin/flow/{questions,clips,preview}` (`FlowTabs.tsx`).
+`FlowQuestionsManager.tsx` — every field saves on blur/change immediately **except**
+`FlowOption.matchMode`, which is staged: picking a new mode fetches
+`POST /api/admin/flow/preview` (a synthetic single-answer state plus this one option's
+matchMode overridden, reusing the exact `runMatchResults` pipeline `/match/results`
+itself calls) and Save stays disabled until a preview matching the *current* pending
+selection has loaded — same `previewKey`-staleness gate as `BucketRuleManager`'s rule
+preview. This is deliberate friction on the one edit that "silently changes every
+future user's results" per the build spec, not applied to any other field; Cancel
+reverts with zero writes, so it's never a dead end. `/admin/flow/preview`
+(`FlowPreviewPanel.tsx`) is the other half — walks the **real** `FlowStep`/`FlowClip`
+components against a client-held answer map (via `resolveFlow`, zero server round
+trips, so it can't drift from what a live respondent sees) with a live survivor/band
+count refetched from the same preview endpoint on every answer change. `FlowStep`
+takes an optional `onPreviewAction` prop for this — absent on every real `/match`
+render, so production behavior is untouched; present only inside the preview panel to
+intercept Back/Skip/Continue instead of navigating away from the admin page.
+
+**Anonymous writes are rate-limited** (`lib/rateLimit.ts`, per-IP, mint-path only —
+resuming an existing session is a read) since `app/match/page.tsx` mints a
+`FlowSession` inline in a Server Component render with no other gate; `submit`
+(`markFlowSessionSubmitted`) uses `updateMany` rather than `update` so a forged/stale
+session id 303-redirects cleanly instead of 500ing (there's no auth concept for an
+anonymous flow session to check a bare id against).
+
+**`program-type`** is a new `TagCategory` (8 tags: israeli/american yeshiva, israeli
+midrasha, american seminary, religious/regular mechina, academic, experience-travel)
+seeded for Q6 but **not yet backfilled onto the catalog** — Q6 contributes nothing to
+ranking until that separate pass runs; `/admin/flow/questions` shows a standing
+"N programs have no program-type tag" count so the gap stays visible rather than
+silently hidden.
+
+`lib/flowShared.test.ts`/`lib/flowRank.test.ts`/`lib/flowClips.test.ts`/`lib/flow.test.ts`
+follow the same pure-function/in-memory-Prisma-fake conventions as the rest of the
+Vitest suite above. `components/admin/FlowQuestionsManager.repro.test.tsx` is the
+**one exception** to that suite's "no DOM, no mocks beyond Prisma" posture — it's the
+first interactive (not `renderToStaticMarkup`) component test in the repo, using
+`jsdom`/`@testing-library/react`/`@testing-library/user-event`/`@testing-library/jest-dom`
+(devDependencies added specifically for it, tagged per-file via a
+`// @vitest-environment jsdom` comment rather than a global config change, so every
+other test file keeps running in the faster default Node environment) to drive real
+`onChange`/`onClick` sequences and assert on live `useEffect`-driven state — reach for
+this pattern only when a bug genuinely requires exercising real render+event+effect
+timing that a pure-function test or an SSR snapshot can't reach.
 
 ### Search ranking: Postgres filters, then a tokenized-match ∪ Fuse.js union, then a relevance-tier pass
 `lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR

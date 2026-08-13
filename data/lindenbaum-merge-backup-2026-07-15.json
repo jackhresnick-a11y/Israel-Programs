@@ -1,0 +1,188 @@
+{
+  "programs": [
+    {
+      "id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Midreshet Lindenbaum",
+      "slug": "midreshet-lindenbaum",
+      "description": "A large, academically rigorous Bet Midrash for women in Jerusalem offering intensive Tanach and Torah She'be'al Peh study alongside internships and social action, with dedicated tracks (Hadas, Shana Bet, Midrashit) for overseas post-high-school students.",
+      "logoUrl": null,
+      "organization": "Midreshet Lindenbaum (OU Israel / Ohr Torah Stone network)",
+      "location": "Leib Yaffe 51, Jerusalem",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year (options for 6-month or 2.5-month tracks)",
+      "cost": null,
+      "signupInstructions": "Apply online via the joint seminary application portal or through the Midreshet Lindenbaum website's Apply Now link",
+      "signupUrl": "https://www.applytosem.org/",
+      "contactEmail": "ml@ots.org.il",
+      "contactPhone": "+972-2-6710043",
+      "contactWebsite": "https://www.midreshet-lindenbaum.org.il/",
+      "status": "PUBLISHED",
+      "createdById": "researched-import",
+      "createdAt": "2026-07-05T18:47:45.962Z",
+      "updatedAt": "2026-07-12T07:33:24.537Z",
+      "goodFor": "For academically driven women who want intensive Torah study with tracks tailored to overseas post-high-school students, plus internships and social action.",
+      "hasCollegeCredit": null,
+      "hasScholarship": null,
+      "travelType": "SINGLE_LOCATION",
+      "contactEmailSource": "https://www.midreshet-lindenbaum.org.il/",
+      "contactEmailVerifiedAt": null,
+      "organizationId": null,
+      "contactEmailStatus": null,
+      "adminNote": null,
+      "websiteLanguage": "ENGLISH",
+      "outreachCategory": null
+    },
+    {
+      "id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Midreshet Lindenbaum",
+      "slug": "midreshet-lindenbaum-hadas-chul-midrashit-chul",
+      "description": "Midreshet Lindenbaum provides the combination of a rigorous, challenging learning program and a supportive religious environment that encourages students to develop and to delve, to discuss and to debate, and ultimately to decide on a more mature and profound commitment to Torah and Mitzvot.",
+      "logoUrl": null,
+      "organization": "Midreshet Lindenbaum (Ohr Torah Stone)",
+      "location": "Jerusalem",
+      "durationType": "GAP_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "Through the website.",
+      "signupUrl": "https://www.midreshet-lindenbaum.org.il/",
+      "contactEmail": "ml@ots.org.il",
+      "contactPhone": "",
+      "contactWebsite": "https://www.midreshet-lindenbaum.org.il/",
+      "status": "PUBLISHED",
+      "createdById": "researched-import",
+      "createdAt": "2026-07-08T06:26:43.215Z",
+      "updatedAt": "2026-07-12T07:33:24.685Z",
+      "goodFor": "",
+      "hasCollegeCredit": false,
+      "hasScholarship": false,
+      "travelType": null,
+      "contactEmailSource": "https://www.midreshet-lindenbaum.org.il/",
+      "contactEmailVerifiedAt": null,
+      "organizationId": null,
+      "contactEmailStatus": null,
+      "adminNote": null,
+      "websiteLanguage": "ENGLISH",
+      "outreachCategory": null
+    }
+  ],
+  "tags": [
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Gap year (post-high school)",
+      "slug": "age-gap-year"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Girls only",
+      "slug": "girls-only"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Medium integration",
+      "slug": "integration-medium"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Religious Zionism/Modern Orthodox",
+      "slug": "rz-modern-orthodox"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Spiritual growth",
+      "slug": "essence-spiritual-growth"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "jerusalem",
+      "slug": "jerusalem"
+    },
+    {
+      "program_id": "cmr8bo6220002hdmzdwhympdk",
+      "name": "overseas-program",
+      "slug": "overseas-program"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Gap year (post-high school)",
+      "slug": "age-gap-year"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Girls only",
+      "slug": "girls-only"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "High integration",
+      "slug": "integration-high"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Medium integration",
+      "slug": "integration-medium"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Religious Zionism/Modern Orthodox",
+      "slug": "rz-modern-orthodox"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Spiritual growth",
+      "slug": "essence-spiritual-growth"
+    },
+    {
+      "program_id": "cmrbviqdr00022gmzciodqtvu",
+      "name": "jerusalem",
+      "slug": "jerusalem"
+    }
+  ],
+  "references": [
+    {
+      "id": "cmrl0ofte000004jpj81k4e6r",
+      "programId": "cmrbviqdr00022gmzciodqtvu",
+      "userId": "user_3GVTBUfvenKOeErMItgNVgLFtQa",
+      "displayName": "Anonymous",
+      "attendedText": "2021-2022",
+      "note": "I made Aliyah from the USA after high school and went to the Israeli side of Lindenbaum. Happy to talk to anyone interested!",
+      "contactEmail": "shoshanabwhite@gmail.com",
+      "status": "PUBLISHED",
+      "createdAt": "2026-07-14T16:01:03.122Z",
+      "whatsappNumber": null,
+      "whatsappNumberSource": null
+    }
+  ],
+  "outreach": [
+    {
+      "id": "cmrj95zdk000604jvzzvbskmj",
+      "programId": "cmrbviqdr00022gmzciodqtvu",
+      "status": "SENT",
+      "toEmail": "ml@ots.org.il",
+      "subject": "A New Resource for Gap Year Students — Your Program Is Included",
+      "body": "Hi Midreshet Lindenbaum,\n\nMy name is Jack Resnick, I am currently a lone soldier in Sayeret Givati, I am in the process of developing and launching a website that will allow overseas students to choose a gap year program that's right for them. \n\nI know you are recruiting top students from the largest Orthodox high schools. through your visits to those schools. However there are many amazing students at smaller schools that may not get a visit from you — here's an opportunity for you to recruit strong students that you may not otherwise have been reaching before.\n\nI built Israel Programs Wiki (israelprogramswiki.com) to close that gap — a single, searchable directory where students can find and compare the full range of learning programs in Israel, no matter where they're from or how small their school's Israel guidance office is.\n\nYour listing: https://israelprogramswiki.com/programs/midreshet-lindenbaum-hadas-chul-midrashit-chul\n\nYour program is already listed. Two quick asks:\n1. Could you review the listing for accuracy and flag anything that's out of date?\n2. Would you be willing to invite a few alumni to add a review or offer themselves as a reference on the page?\n\nThe more complete your listing, the better it represents you to students who are trying to find the best-fit program. \n\nThank you in advance for your cooperation on this important project. If you have any questions please feel free to reach out to me \n\nJack Resnick\njackhresnick@gmail.com\n+972 50-700-5461",
+      "edited": false,
+      "approvedById": "user_3G5HFObnMeJ5cLseTdFE5FPYdAm",
+      "approvedAt": "2026-07-13T10:30:52.362Z",
+      "sentAt": "2026-07-13T10:32:06.757Z",
+      "resendId": "99f23d88-3618-4a95-9d52-ca7bfac4707e",
+      "note": null,
+      "createdAt": "2026-07-13T10:23:06.200Z",
+      "updatedAt": "2026-07-13T10:32:06.757Z",
+      "toEmailOverridden": false
+    }
+  ],
+  "exportRows": [
+    {
+      "id": "cmr90zcc0001klcmz4puretzj",
+      "programId": "cmr8bo6220002hdmzdwhympdk",
+      "name": "Midreshet Lindenbaum",
+      "createdAt": "2026-07-06T06:36:17.713Z"
+    },
+    {
+      "id": "cmrbviqyo00032gmzegbhddbq",
+      "programId": "cmrbviqdr00022gmzciodqtvu",
+      "name": "Midreshet Lindenbaum - Hadas Chu\"l / Midrashit Chu\"l",
+      "createdAt": "2026-07-08T06:26:43.968Z"
+    }
+  ]
+}

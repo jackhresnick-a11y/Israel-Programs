@@ -1,0 +1,36 @@
+{
+  "_note": "2026-07-23 batch (batch 5 of the seminaries/midrashot-only pass). Productive thread this round: exploring Ohr Torah Stone's and World Mizrachi's full program rosters beyond the specific institutions already covered. Rejected: Ma'aminot BeMadim/'Believers in Uniform' (OTS) -- a halakhic support hotline/research institute for women already serving in the IDF, not a seminary a woman enrolls in; the Maria and Joel Finkle Overseas Program (likely just a donor-named branding of the overseas track already described in the existing 'Midreshet Lindenbaum' entry); WIHL/IHSP (previously researched and rejected in an earlier task as primarily remote); the Mizrachi Bnot Sherut Program (likely the same NBN-partnered national-service support already captured by the existing 'Bnot Sherut Bodedot Program'); Na'aleh Seminary (Great Neck, NY -- not Israel-based, despite the Israel-evoking name).",
+  "seminaries_midrashot": [
+    {
+      "name": "Amlat Program (Midreshet Lindenbaum)",
+      "organization": "Ohr Torah Stone / Midreshet Lindenbaum",
+      "location": "Chana and Yaacov Tilles Campus, Talpiot, Jerusalem",
+      "description": "A full-time Torah study program for young Spanish-speaking women from Latin America, running for 18 years, combining Judaism, Hebrew, Halacha, Jewish thought, Tanach, and Mishna study with educational tours, alongside Israeli and Diaspora peers at Midreshet Lindenbaum.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 semester or 1 year",
+      "cost": "",
+      "signupInstructions": "Contact the program via Ohr Torah Stone's website.",
+      "signupUrl": "https://ots.org.il/amlat/",
+      "contactPhone": "",
+      "contactWebsite": "https://ots.org.il/program/amlat-program/",
+      "tags": ["Gap year (post-high school)", "jerusalem", "Girls only", "Religious Zionism/Modern Orthodox", "Spiritual growth", "spanish-speaking"],
+      "adminNote": "A division of the already-listed 'Midreshet Lindenbaum' specifically for Spanish-speaking Latin American women (450+ alumnae over 18 years, ~30% aliyah rate) -- same related-but-distinct relationship as 'Midreshet Dorit (Lindenbaum Lod)' added in an earlier batch. Signup/contact pages are on ots.org.il, which returns HTTP 403 to bare curl/WebFetch without a browser user-agent but was confirmed live (HTTP 200) with one."
+    },
+    {
+      "name": "Lapidot Advanced Beit Midrash for Women",
+      "organization": "World Mizrachi",
+      "location": "Israel",
+      "description": "Described by its own program page as the only advanced full-time women's Beit Midrash for Torah studies in English in Israel, for women pursuing intensive Talmud or Tanach study alongside Halacha, philosophy, and pedagogy training to become Torah educators.",
+      "durationType": "ONGOING",
+      "durationText": "Academic year, Elul through Sivan (~9 months)",
+      "cost": "No tuition; scholarships plus a monthly stipend (up to 4,000 NIS full-time, 2,000 NIS part-time)",
+      "signupInstructions": "Complete the online application form; selected applicants are contacted for an interview.",
+      "signupUrl": "https://mizrachi.org/lapidot/",
+      "contactPhone": "",
+      "contactWebsite": "https://mizrachi.org/lapidot/",
+      "contactEmail": "RabbanitShani@mizrachi.org",
+      "tags": ["adult-learners", "After college", "Girls only", "Religious Zionism/Modern Orthodox", "Spiritual growth"],
+      "adminNote": "An advanced, post-graduate-level program, not a first-year seminary: requires applicants to be 21+, hold a bachelor's degree, and have completed at least three prior years of Beit Midrash study -- same category as the already-listed 'Matan' (whose tag set this otherwise mirrors) rather than the typical shana-aleph model most of this batch's other entries follow. Specific city within Israel was not confirmed on the program's own page, so no location tag was added rather than guessing one (World Mizrachi's other Israel operations are Jerusalem-based, which would be a reasonable place to check directly)."
+    }
+  ]
+}
