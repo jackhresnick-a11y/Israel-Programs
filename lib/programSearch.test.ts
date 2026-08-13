@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { rankBySearchTerm, type Searchable } from "./programSearch";
+import { rankBySearchTerm, rankBySearchTermScored, type Searchable } from "./programSearch";
 
 type TestProgram = Searchable & { id: string };
 
@@ -96,5 +96,78 @@ describe("rankBySearchTerm", () => {
     const result = rankBySearchTerm(PROGRAMS, "Midreshet Lindenbaum");
     expect(result[0]?.id).toBe("p4");
     expect(result[0]?.nameHe).toBeNull();
+  });
+});
+
+describe("tokenize (trailing punctuation)", () => {
+  // A trailing "?" (or other punctuation) used to stay glued to the last word
+  // ("israel?"), so that token could never substring-match the field text
+  // "israel" anywhere in the catalog -- a live bug on both /programs and the
+  // assistant. Only a leading "#" was ever stripped before this fix.
+  it("strips a trailing question mark so the word still matches", () => {
+    const result = rankBySearchTerm(PROGRAMS, "aardvark israel?");
+    expect(result[0]?.id).toBe("p2");
+  });
+
+  it("strips trailing punctuation from a tag-slug token", () => {
+    // p2's tag slug is "gap-year" -- the internal hyphen must survive (it's not a
+    // boundary), only the trailing "?" should be stripped.
+    const result = rankBySearchTerm(PROGRAMS, "gap-year?");
+    expect(result.map((p) => p.id)).toContain("p2");
+  });
+
+  it("still matches a bare Hebrew query with no punctuation to strip (no regression)", () => {
+    const result = rankBySearchTerm(PROGRAMS, "ישיבת הכותל?");
+    expect(result[0]?.id).toBe("p1");
+  });
+});
+
+describe("rankBySearchTermScored (weighted coverage, no hard cut)", () => {
+  it("a query with unmatched filler words still returns the program that matches the rest", () => {
+    // "program" and "nonsense" match nothing on p2; "aardvark"/"israel" do. Under the
+    // old strict tokens.every() gate this returned [] entirely -- exactly the bug
+    // reported against the assistant ("gap year programs post 12th grade that are...").
+    const result = rankBySearchTermScored(PROGRAMS, "aardvark israel program nonsense");
+    const p2 = result.find((r) => r.item.id === "p2");
+    expect(p2).toBeDefined();
+    expect(p2?.full).toBe(false);
+    expect(p2?.matchedTokens).toBe(2);
+    expect(p2?.totalTokens).toBe(4);
+  });
+
+  it("never hard-cuts to empty when at least one token matches something", () => {
+    const result = rankBySearchTerm(PROGRAMS, "aardvark israel program nonsense");
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it("still returns [] when nothing matches any token and Fuse finds nothing close", () => {
+    // Unchanged invariant: a program matching ZERO tokens is unrelated, not partial.
+    expect(rankBySearchTerm(PROGRAMS, "zzzzzzz qqqqqqq")).toEqual([]);
+  });
+
+  it("ranks full-coverage matches above partial-coverage matches", () => {
+    // p2 fully matches "aardvark israel"; appending an unrelated word demotes it to
+    // partial but must not push it above/equal to a genuinely full match of the same
+    // query prefix. Compare against a query that's pure full-coverage for p2.
+    const fullOnly = rankBySearchTermScored(PROGRAMS, "aardvark israel");
+    const withFiller = rankBySearchTermScored(PROGRAMS, "aardvark israel program nonsense");
+    expect(fullOnly.find((r) => r.item.id === "p2")?.full).toBe(true);
+    expect(withFiller.find((r) => r.item.id === "p2")?.full).toBe(false);
+  });
+
+  it("does not perturb ordering among already-full-coverage results (exact match still first)", () => {
+    // Same assertion as the tier-0 exact-match test above, re-run through the scored
+    // API to confirm the new coverage-first sort key doesn't reshuffle same-coverage
+    // (here: both full) results relative to the pre-existing tier/score/name order.
+    const result = rankBySearchTermScored(PROGRAMS, "Yeshivat Hakotel");
+    expect(result[0]?.item.id).toBe("p1");
+    expect(result[0]?.full).toBe(true);
+  });
+
+  it("a single-token query with nothing to partially cover is treated as full coverage", () => {
+    const result = rankBySearchTermScored(PROGRAMS, "otzem");
+    const p3 = result.find((r) => r.item.id === "p3");
+    expect(p3?.full).toBe(true);
+    expect(p3?.totalTokens).toBe(1);
   });
 });

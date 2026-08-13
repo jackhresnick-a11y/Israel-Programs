@@ -48,11 +48,19 @@ export type Searchable = {
 // somewhere on the program. Tokenizing the query and requiring each token to
 // match *some* field (not all in the same field) fixes that without giving up
 // Fuse's typo tolerance, which still runs in parallel for fuzzy recall.
+//
+// Strips leading/trailing punctuation from every token (not just a leading
+// "#"), Unicode-aware via \p{L}/\p{N} so Hebrew letters are never treated as
+// punctuation -- a conversational query like "exploring Israel experience?"
+// used to leave the trailing "?" glued onto "experience", so that token could
+// never substring-match the field text "experience" anywhere in the catalog.
+// Internal punctuation (gap-year, co-ed) is left alone since it's part of the
+// token, not a boundary.
 function tokenize(term: string): string[] {
   return term
     .toLowerCase()
     .split(/\s+/)
-    .map((t) => t.replace(/^#/, ""))
+    .map((t) => t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
     .filter((t) => t.length >= 2);
 }
 
@@ -68,10 +76,22 @@ function haystacks(program: Searchable): string[] {
   ].map((s) => s.toLowerCase());
 }
 
-/** Every token substring-matches at least one field (not necessarily the same field). */
-function matchesAllTokens(program: Searchable, tokens: string[]): boolean {
+/** How many tokens substring-match at least one field (not necessarily the same
+ * field) -- a count, not a pass/fail, so a query with one unmatched filler word
+ * (e.g. "that", "programs") demotes a program instead of eliminating it. See
+ * rankBySearchTermScored, which is the only place a coverage count of less than
+ * the full token set is allowed to still surface a result. */
+function matchedTokenCount(program: Searchable, tokens: string[]): number {
   const hay = haystacks(program);
-  return tokens.every((tok) => hay.some((h) => h.includes(tok)));
+  return tokens.filter((tok) => hay.some((h) => h.includes(tok))).length;
+}
+
+/** Every token substring-matches at least one field. Used only for relevanceTier's
+ * tier-3 signal ("closest match" ordering), which must stay strict/full-coverage --
+ * partial coverage's own weaker-but-still-relevant treatment lives in
+ * rankBySearchTermScored's candidate gate + sort, not here. */
+function matchesAllTokens(program: Searchable, tokens: string[]): boolean {
+  return matchedTokenCount(program, tokens) === tokens.length;
 }
 
 // Fuse's weighted multi-key blend can let a program that matches several
@@ -149,16 +169,37 @@ function relevanceTier(
   return 4; // fuzzy-only match (location/goodFor/description or typo-distance)
 }
 
-// The candidate set is the UNION of Fuse's fuzzy matches (typo tolerance) and a
-// deterministic per-token substring match (so a program whose tags collectively cover
-// every query word is never dropped just because no single field contains the whole
-// phrase -- see matchesAllTokens above). relevanceTier then ranks the union so the
-// closest match always surfaces first, with Fuse's own score breaking ties within a
-// tier. Shared by the directory search (listPrograms/getFacetData in lib/programs.ts)
-// and the /rate program picker so both rank identically over whatever fields each feeds
-// in. Callers whose items lack a field (e.g. the picker leaves description/goodFor empty)
+export type ScoredSearchResult<T> = {
+  item: T;
+  /** How many query tokens this program matched (see matchedTokenCount). 0 when the
+   * query has no tokens (e.g. a single short/typo'd word) -- there's nothing to
+   * partially cover, so coverage plays no role and `full` is vacuously true. */
+  matchedTokens: number;
+  totalTokens: number;
+  /** matchedTokens === totalTokens (or totalTokens === 0) -- the browse page's
+   * full-vs-"weaker matches" band boundary, and the assistant's signal that a
+   * candidate satisfies every parsed constraint. */
+  full: boolean;
+};
+
+// The candidate set is the UNION of Fuse's fuzzy matches (typo tolerance) and ANY
+// program matching at least one token -- not every token. Requiring every token
+// (the old behavior) meant a single filler/typo'd word in a long conversational query
+// zeroed the entire result set instead of just demoting the affected programs; see
+// matchedTokenCount above. Coverage (how many tokens matched) is the primary sort key
+// -- a full-coverage program always ranks above a partial one -- with relevanceTier
+// then ordering same-coverage results and Fuse's own score breaking ties within a tier.
+// This is strictly additive over the old candidate set: every program that used to
+// qualify (Fuse hit, or all-tokens-matched) still qualifies and sorts identically
+// relative to other full-coverage results; partial matches are newly appended below.
+// Shared by the directory search (listPrograms/getFacetData in lib/programs.ts) and the
+// /rate program picker so both rank identically over whatever fields each feeds in.
+// Callers whose items lack a field (e.g. the picker leaves description/goodFor empty)
 // simply get no matches from it -- the ranking on the populated fields is unchanged.
-export function rankBySearchTerm<T extends Searchable & { id: string }>(programs: T[], term: string): T[] {
+export function rankBySearchTermScored<T extends Searchable & { id: string }>(
+  programs: T[],
+  term: string
+): ScoredSearchResult<T>[] {
   const fuse = new Fuse(programs, {
     keys: SEARCH_KEYS,
     threshold: 0.35,
@@ -171,16 +212,32 @@ export function rankBySearchTerm<T extends Searchable & { id: string }>(programs
   const tokens = tokenize(term);
   const fuseScores = new Map(fuse.search(term).map((r) => [r.item.id, r.score ?? 1]));
 
-  const candidates = programs.filter(
-    (p) => fuseScores.has(p.id) || (tokens.length > 0 && matchesAllTokens(p, tokens))
-  );
+  const withCoverage = programs.map((program) => ({
+    program,
+    matched: tokens.length > 0 ? matchedTokenCount(program, tokens) : 0,
+  }));
+
+  const candidates = withCoverage.filter(({ program, matched }) => fuseScores.has(program.id) || matched > 0);
 
   return candidates
-    .map((item) => ({
-      item,
-      tier: relevanceTier(item, termLower, tokens),
-      score: fuseScores.get(item.id) ?? 1,
+    .map(({ program, matched }) => ({
+      item: program,
+      tier: relevanceTier(program, termLower, tokens),
+      score: fuseScores.get(program.id) ?? 1,
+      matchedTokens: matched,
+      totalTokens: tokens.length,
+      full: tokens.length === 0 || matched === tokens.length,
     }))
-    .sort((a, b) => a.tier - b.tier || a.score - b.score || a.item.name.localeCompare(b.item.name))
-    .map((result) => result.item);
+    .sort(
+      (a, b) =>
+        b.matchedTokens - a.matchedTokens ||
+        a.tier - b.tier ||
+        a.score - b.score ||
+        a.item.name.localeCompare(b.item.name)
+    )
+    .map(({ item, matchedTokens, totalTokens, full }) => ({ item, matchedTokens, totalTokens, full }));
+}
+
+export function rankBySearchTerm<T extends Searchable & { id: string }>(programs: T[], term: string): T[] {
+  return rankBySearchTermScored(programs, term).map((r) => r.item);
 }
