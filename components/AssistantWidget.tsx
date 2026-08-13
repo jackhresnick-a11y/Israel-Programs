@@ -20,6 +20,9 @@ type RecommendedProgram = {
   durationType: string;
   tags: string[];
   descriptionExcerpt: string;
+  why: string;
+  role: "pick" | "alternative";
+  unmetLabels: string[];
 };
 
 const GREETING: Message = {
@@ -27,6 +30,33 @@ const GREETING: Message = {
   content:
     "Hi! Tell me what you’re looking for — e.g. “something religious, 3 months, focused on volunteering” — and I’ll suggest programs from the directory.",
 };
+
+/** One recommended program's card -- `why` (the model's per-candidate explanation) and
+ * `unmetLabels` (which parsed constraints this program doesn't meet, stated plainly
+ * rather than glossed over) are both structured fields from the API response, not
+ * parsed out of prose. */
+function ProgramResultCard({ program: p }: { program: RecommendedProgram }) {
+  return (
+    <Link
+      href={`/programs/${p.slug}`}
+      className="rounded border border-border p-3 text-xs transition-colors duration-[120ms] ease-out hover:border-accent-hover"
+    >
+      <p className="font-semibold text-foreground">{p.name}</p>
+      {p.location && <p className="text-muted">{p.location}</p>}
+      {p.why && <p className="mt-1 text-foreground">{p.why}</p>}
+      {p.unmetLabels.length > 0 && (
+        <p className="mt-1 text-muted">Doesn’t match: {p.unmetLabels.join(", ")}</p>
+      )}
+      <div className="mt-1 flex flex-wrap gap-1">
+        {p.tags.slice(0, 4).map((tag) => (
+          <Badge key={tag} tone="tag">
+            {tag}
+          </Badge>
+        ))}
+      </div>
+    </Link>
+  );
+}
 
 export default function AssistantWidget() {
   const [open, setOpen] = useState(false);
@@ -107,27 +137,25 @@ export default function AssistantWidget() {
               >
                 {m.content}
               </div>
-              {m.programs && m.programs.length > 0 && (
-                <div className="mt-2 flex flex-col gap-2">
-                  {m.programs.map((p) => (
-                    <Link
-                      key={p.slug}
-                      href={`/programs/${p.slug}`}
-                      className="rounded border border-border p-3 text-xs transition-colors duration-[120ms] ease-out hover:border-accent-hover"
-                    >
-                      <p className="font-semibold text-foreground">{p.name}</p>
-                      {p.location && <p className="text-muted">{p.location}</p>}
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {p.tags.slice(0, 4).map((tag) => (
-                          <Badge key={tag} tone="tag">
-                            {tag}
-                          </Badge>
+              {m.programs && m.programs.length > 0 && (() => {
+                const picks = m.programs.filter((p) => p.role === "pick");
+                const alternatives = m.programs.filter((p) => p.role === "alternative");
+                return (
+                  <div className="mt-2 flex flex-col gap-2">
+                    {picks.map((p) => (
+                      <ProgramResultCard key={p.slug} program={p} />
+                    ))}
+                    {alternatives.length > 0 && (
+                      <>
+                        <p className="mt-1 text-xs font-medium text-muted">Also worth a look</p>
+                        {alternatives.map((p) => (
+                          <ProgramResultCard key={p.slug} program={p} />
                         ))}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           ))}
           {sending && <div className="self-start rounded bg-surface-muted px-3 py-2 text-sm text-muted">Thinking...</div>}
