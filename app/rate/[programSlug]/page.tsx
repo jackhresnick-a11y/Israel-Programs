@@ -8,6 +8,7 @@ import { getExistingSignedInResponse } from "@/lib/pollResponses";
 import { validateReferrerToken } from "@/lib/pollTokens";
 import RateForm from "@/components/polls/RateForm";
 import { resolveAllScopePartnerCta } from "@/lib/partnerLinks";
+import { getElaborationPromptsConfig, enabledPrompts } from "@/lib/pollElaborationPrompts";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
 import EntryHeader from "@/components/ui/EntryHeader";
@@ -54,10 +55,15 @@ export default async function RateProgramPage({
   // posture -- the post-poll WhatsApp share button (ThankYouPanel) needs the program's
   // public poll link, never the respondent's own referrer token (see
   // WhatsAppShareButton.tsx's doc comment for why).
-  const [postPollCta, sharePollLink] = await Promise.all([
+  // The live, enabled elaboration prompts (lib/pollElaborationPrompts.ts) -- resolved
+  // once here, same "compute once, thread to both forms" posture as postPollCta/
+  // sharePollLink, and passed to ElaborationBlock, the poll's last item.
+  const [postPollCta, sharePollLink, elaborationPromptsConfig] = await Promise.all([
     resolveAllScopePartnerCta("POST_POLL"),
     getPublicPollLink(program.id),
+    getElaborationPromptsConfig(),
   ]);
+  const elaborationPrompts = enabledPrompts(elaborationPromptsConfig);
 
   if (!userId) {
     // Signed out + a referrer token that resolves to this program (even a
@@ -89,6 +95,7 @@ export default async function RateProgramPage({
               extras={extras}
               postPollCta={postPollCta}
               sharePollLink={sharePollLink}
+              elaborationPrompts={elaborationPrompts}
             />
           )}
         </PageContainer>
@@ -147,6 +154,7 @@ export default async function RateProgramPage({
           existingNaQuestionIds={existing?.naQuestionIds}
           postPollCta={postPollCta}
           sharePollLink={sharePollLink}
+          elaborationPrompts={elaborationPrompts}
         />
       )}
     </PageContainer>

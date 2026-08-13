@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
-import QuestionInput from "@/components/polls/QuestionInput";
+import QuestionWithReview from "@/components/polls/QuestionWithReview";
+import ElaborationBlock from "@/components/polls/ElaborationBlock";
 import ThankYouPanel from "@/components/polls/ThankYouPanel";
 import Button from "@/components/ui/Button";
 import { pollDraftKey, yearAttendedOptions, POLL_REFERENCE_CONSENT_LABEL, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
 import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
+import type { ElaborationPrompt } from "@/lib/pollElaborationPromptsConfig";
 
 type RateFormProps =
   | {
@@ -27,6 +28,9 @@ type RateFormProps =
        *  threaded down to ThankYouPanel's WhatsAppShareButton -- null falls back to the
        *  site's /rate picker rather than the respondent's own referrer token. */
       sharePollLink: string | null;
+      /** The live, enabled elaboration prompts (lib/pollElaborationPrompts.ts) -- rendered
+       * as the last item in the question list via ElaborationBlock. */
+      elaborationPrompts: ElaborationPrompt[];
     }
   | {
       mode: "anonymous";
@@ -41,6 +45,8 @@ type RateFormProps =
       postPollCta: PartnerLinkSlot | null;
       /** See the signed-in variant's doc comment above. */
       sharePollLink: string | null;
+      /** See the signed-in variant's doc comment above. */
+      elaborationPrompts: ElaborationPrompt[];
     };
 
 export default function RateForm(props: RateFormProps) {
@@ -139,79 +145,6 @@ function ReviewConsentContext() {
     <p className="text-xs text-muted">
       Reviews are published anonymously, reviewed by a moderator first, and may not be published at all.
     </p>
-  );
-}
-
-/**
- * One question's rating control plus its optional, collapsed-by-default review comment --
- * shared by the signed-in and anonymous forms so review UX never drifts between them.
- * Consent for written comments is collected once, at the bottom of the form -- see the
- * single consent checkbox rendered above the questions -- not per question. The
- * moderation notice itself is likewise stated once, in ReviewConsentContext above the
- * whole question list, not repeated as placeholder text under every question.
- *
- * `isFirst` (poll restructure item 4) governs the collapsed trigger's verbosity, not the
- * moderation notice (already handled once, above): the poll's very first comment box
- * carries a short explanatory caption alongside "Add a comment" so a respondent
- * encounters the "may be published after moderation" framing exactly once, at the point
- * they'd actually need it; every later box is the bare label -- repeating the caption on
- * every question was the single biggest source of wasted scroll on the old page.
- *
- * Single flow container per question (style guide §8.3/§4): 32px bottom margin, nothing
- * absolutely positioned inside it.
- */
-function QuestionWithReview({
-  question,
-  value,
-  onValueChange,
-  na,
-  onNaChange,
-  reviewText,
-  onReviewTextChange,
-  isFirst = false,
-}: {
-  question: PollQuestionDTO;
-  value: number | null;
-  onValueChange: (value: number | null) => void;
-  na: boolean;
-  onNaChange: (na: boolean) => void;
-  reviewText: string;
-  onReviewTextChange: (text: string) => void;
-  isFirst?: boolean;
-}) {
-  // Initialized once from whatever reviewText this question already carries at mount --
-  // stays open if there's existing text, otherwise starts collapsed (style guide §8's
-  // "collapse the optional comment box" -- default state is collapsed).
-  const [commentOpen, setCommentOpen] = useState(() => reviewText.trim().length > 0);
-
-  return (
-    <div className="mb-8 flex flex-col gap-2 last:mb-0">
-      <QuestionInput question={question} value={value} onChange={onValueChange} na={na} onNaChange={onNaChange} />
-      <div className="pl-1">
-        {commentOpen ? (
-          <AutoGrowTextarea
-            placeholder="Optional — add a sentence or two."
-            value={reviewText}
-            onChange={(e) => onReviewTextChange(e.target.value)}
-            maxLength={1000}
-            className="text-sm"
-          />
-        ) : (
-          <div className="flex flex-col gap-1">
-            <button
-              type="button"
-              onClick={() => setCommentOpen(true)}
-              className="w-fit text-sm font-medium text-primary hover:underline"
-            >
-              Add a comment
-            </button>
-            {isFirst && (
-              <p className="text-xs text-muted">Optional. May be published on this program&rsquo;s page after moderation.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -578,6 +511,7 @@ function SignedInRateForm({
   existingNaQuestionIds,
   postPollCta,
   sharePollLink,
+  elaborationPrompts,
 }: Extract<RateFormProps, { mode: "signed-in" }>) {
   const router = useRouter();
   const isUpdate = existingAnswers !== undefined;
@@ -839,11 +773,13 @@ function SignedInRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
-      {/* Sentinel sits BELOW the contact-email block on purpose. The sticky submit shortcut
-          must not become tappable while that field is still under the fold, or a respondent
-          can submit having never laid eyes on it -- which is how the reference pipeline
-          produced nothing for five weeks. Everything below here is genuinely the end of the
-          form, so the shortcut can appear without floating across content. */}
+      <ElaborationBlock responseId={responseId} prompts={elaborationPrompts} />
+      {/* Sentinel sits BELOW the contact-email block AND the elaboration block on purpose.
+          The sticky submit shortcut must not become tappable while either is still under
+          the fold, or a respondent can submit having never laid eyes on them -- which is
+          how the reference pipeline produced nothing for five weeks. Everything below here
+          is genuinely the end of the form, so the shortcut can appear without floating
+          across content. */}
       <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
@@ -865,6 +801,7 @@ function AnonymousRateForm({
   extras,
   postPollCta,
   sharePollLink,
+  elaborationPrompts,
 }: Extract<RateFormProps, { mode: "anonymous" }>) {
   const router = useRouter();
   const allQuestions = [...questions, ...extras.flatMap((e) => e.questions)];
@@ -1141,8 +1078,9 @@ function AnonymousRateForm({
         ageAttested={ageAttested}
         onAgeAttestedChange={handleAgeAttestedChange}
       />
-      {/* Sentinel sits BELOW the contact-email block on purpose -- see SignedInRateForm's
-          identical note. */}
+      <ElaborationBlock responseId={responseId} prompts={elaborationPrompts} />
+      {/* Sentinel sits BELOW the contact-email block AND the elaboration block on purpose
+          -- see SignedInRateForm's identical note. */}
       <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
       <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />

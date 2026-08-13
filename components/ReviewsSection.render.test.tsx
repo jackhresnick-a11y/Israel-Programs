@@ -92,6 +92,12 @@ const { fakePrisma, resetDb, seedPollReview, seedStandaloneReview } = vi.hoisted
           }))
       ),
     },
+    // No elaboration-answer fixtures needed for this file's poll-review/standalone-review
+    // scope -- an always-empty result exercises getProgramReviewsSummary's real code path
+    // (listPublicElaborations) without adding an unrelated mock surface.
+    pollElaborationAnswer: {
+      findMany: vi.fn(async () => []),
+    },
   };
 
   return {

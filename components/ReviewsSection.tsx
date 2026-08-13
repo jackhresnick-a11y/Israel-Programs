@@ -21,18 +21,19 @@ function reviewAttribution(programName: string, yearAttended: number | null): st
 
 /**
  * The program page's one unified Reviews section -- approved poll reviews (grouped by
- * question, from the /rate flow) and approved standalone written reviews (the "just
- * write a review" box, no poll required) rendered together, both individually
- * moderated. `summary` is the pre-gated, pre-fetched ProgramReviewsSummaryDTO from
- * lib/pollResults.ts's getProgramReviewsSummary -- empty for both when the kill switch
- * is on or this program's resultsVisible is off, in which case this renders just the
- * heading and the submit box (capture stays open even when display is gated, same
+ * question, from the /rate flow), approved end-of-poll elaboration answers (grouped by
+ * prompt, from ElaborationBlock), and approved standalone written reviews (the "just
+ * write a review" box, no poll required) rendered together, all individually moderated.
+ * `summary` is the pre-gated, pre-fetched ProgramReviewsSummaryDTO from
+ * lib/pollResults.ts's getProgramReviewsSummary -- empty for all three when the kill
+ * switch is on or this program's resultsVisible is off, in which case this renders just
+ * the heading and the submit box (capture stays open even when display is gated, same
  * `pollLinkPublic` vs `resultsVisible` split as the poll link). Each standalone review
  * shows its star rating, text, and reviewer name -- or "Anonymous" when the writer
- * chose to post anonymously. Poll reviews show only text + year attended (if given),
- * same anonymous-by-design posture as always. No moderator delete control here --
- * moderation happens exclusively through /admin/polls/reviews now, one queue for both
- * review types.
+ * chose to post anonymously. Poll reviews and elaboration answers show only text + year
+ * attended (if given), same anonymous-by-design posture as always. No moderator delete
+ * control here -- moderation happens exclusively through /admin/polls/reviews now, one
+ * queue for all three content types.
  */
 export default function ReviewsSection({
   programId,
@@ -66,6 +67,24 @@ export default function ReviewsSection({
                     <article key={i} className="rounded border border-border bg-surface p-4">
                       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{review.text}</p>
                       <footer className="mt-2 text-xs text-muted">{reviewAttribution(programName, review.yearAttended)}</footer>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {summary.promptGroups.length > 0 && (
+          <div className="flex flex-col gap-6">
+            {summary.promptGroups.map((group) => (
+              <div key={group.promptKey} className="flex flex-col gap-3">
+                <h3 className="text-sm font-semibold text-foreground">{group.promptText}</h3>
+                <div className="flex flex-col gap-3">
+                  {group.answers.map((answer, i) => (
+                    <article key={i} className="rounded border border-border bg-surface p-4">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{answer.text}</p>
+                      <footer className="mt-2 text-xs text-muted">{reviewAttribution(programName, answer.yearAttended)}</footer>
                     </article>
                   ))}
                 </div>
