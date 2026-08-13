@@ -11,8 +11,15 @@ import { useToast } from "@/components/ui/Toast";
 
 type ProgramOption = { id: string; name: string; slug: string };
 
+/** "question" rows come from PollReview (per-question comments); "prompt" rows come from
+ * PollElaborationAnswer (the end-of-poll elaboration block) -- merged into one queue by
+ * app/admin/polls/reviews/page.tsx. `question` holds the prompt's key/text for a "prompt"
+ * row too (promptKey/promptText), so the shared rendering below needs no branching to
+ * show a label -- only the approval-readiness rule and the API base path differ by kind,
+ * both handled explicitly where they matter. */
 export type PollReviewRow = {
   id: string;
+  kind: "question" | "prompt";
   text: string;
   status: "PENDING" | "APPROVED" | "REJECTED" | "ARCHIVED";
   consentAt: Date;
@@ -35,6 +42,29 @@ export type PollReviewRow = {
   };
   attentionFlags: string[];
 };
+
+const API_BASE: Record<PollReviewRow["kind"], string> = {
+  question: "/api/admin/polls/reviews",
+  prompt: "/api/admin/polls/elaborations",
+};
+
+const BULK_REJECT_URL: Record<PollReviewRow["kind"], string> = {
+  question: "/api/admin/polls/reviews/bulk-reject",
+  prompt: "/api/admin/polls/elaborations/bulk-reject",
+};
+
+/** Whether the parent response's current status lets this row be approved right now --
+ * a UI hint only, the server is the actual gate. PollReview requires the parent response
+ * to be COUNTED (approvePollReview); PollElaborationAnswer only refuses VOIDED/FLAGGED
+ * (approveElaborationAnswer -- see its doc comment for why the bar is looser). Using the
+ * question rule for a prompt row would incorrectly grey out Approve for an INCOMPLETE
+ * response's elaboration answer, which the server would actually accept. */
+function canApproveRow(review: PollReviewRow): boolean {
+  if (review.kind === "prompt") {
+    return review.response.status !== "VOIDED" && review.response.status !== "FLAGGED";
+  }
+  return review.response.status === "COUNTED";
+}
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
@@ -101,13 +131,15 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const parentReady = review.response.status === "COUNTED";
+  const parentReady = canApproveRow(review);
+  const apiBase = API_BASE[review.kind];
+  const itemNoun = review.kind === "prompt" ? "answer" : "review";
 
   async function handleApprove() {
     setBusy(true);
     setError(null);
     try {
-      await api(`/api/admin/polls/reviews/${review.id}`, "PATCH", { action: "approve" });
+      await api(`${apiBase}/${review.id}`, "PATCH", { action: "approve" });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to approve");
@@ -120,7 +152,7 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
     setBusy(true);
     setError(null);
     try {
-      await api(`/api/admin/polls/reviews/${review.id}`, "PATCH", { action: "reject", note: rejectNote.trim() || undefined });
+      await api(`${apiBase}/${review.id}`, "PATCH", { action: "reject", note: rejectNote.trim() || undefined });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reject");
@@ -130,11 +162,11 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
   }
 
   async function handleArchive() {
-    if (!confirm("Archive this review? It disappears from the program page. You can restore it later.")) return;
+    if (!confirm(`Archive this ${itemNoun}? It disappears from the program page. You can restore it later.`)) return;
     setBusy(true);
     setError(null);
     try {
-      await api(`/api/admin/polls/reviews/${review.id}/archive`, "POST");
+      await api(`${apiBase}/${review.id}/archive`, "POST");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to archive");
@@ -147,7 +179,7 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
     setBusy(true);
     setError(null);
     try {
-      await api(`/api/admin/polls/reviews/${review.id}/restore`, "POST");
+      await api(`${apiBase}/${review.id}/restore`, "POST");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to restore");
@@ -157,16 +189,20 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
   }
 
   async function handleHardDelete() {
-    if (!confirm("Permanently delete this review? This destroys its text and consent record and cannot be undone. Archive is what you want most of the time.")) {
+    if (
+      !confirm(
+        `Permanently delete this ${itemNoun}? This destroys its text and consent record and cannot be undone. Archive is what you want most of the time.`
+      )
+    ) {
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      await api(`/api/admin/polls/reviews/${review.id}`, "DELETE");
+      await api(`${apiBase}/${review.id}`, "DELETE");
       router.refresh();
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Couldn’t delete this review — try again.", "info");
+      toast(err instanceof Error ? err.message : `Couldn’t delete this ${itemNoun} — try again.`, "info");
       setBusy(false);
     }
   }
@@ -186,8 +222,13 @@ function ReviewRow({ review, selected, onToggleSelect }: { review: PollReviewRow
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="tag">{review.program.name}</Badge>
+            {review.kind === "prompt" && <Badge tone="neutral">Prompt</Badge>}
             <span className="text-xs font-medium text-foreground">{review.question.text}</span>
-            <Badge tone={parentReady ? "success" : "warning"}>{parentReady ? "Counted" : "Not yet counted"}</Badge>
+            {review.kind === "prompt" ? (
+              <Badge tone={parentReady ? "success" : "warning"}>{parentReady ? "Ready to publish" : "Held (response voided/flagged)"}</Badge>
+            ) : (
+              <Badge tone={parentReady ? "success" : "warning"}>{parentReady ? "Counted" : "Not yet counted"}</Badge>
+            )}
             {review.response.referrerToken && <Badge tone="neutral">via: {review.response.referrerToken.label}</Badge>}
             {review.attentionFlags.map((f) => (
               <Badge key={f} tone="danger">
@@ -310,10 +351,21 @@ export default function PollReviewQueue({
     setBulkBusy(true);
     setBulkError(null);
     try {
-      await api("/api/admin/polls/reviews/bulk-reject", "POST", {
-        ids: Array.from(selected),
-        note: bulkNote.trim() || undefined,
-      });
+      // A bulk selection can span both row kinds -- split by kind and hit each row's own
+      // endpoint, since PollReview and PollElaborationAnswer are separate tables with
+      // separate bulk-reject routes.
+      const kindById = new Map(reviews.map((r) => [r.id, r.kind]));
+      const idsByKind: Record<PollReviewRow["kind"], string[]> = { question: [], prompt: [] };
+      for (const id of selected) {
+        const kind = kindById.get(id);
+        if (kind) idsByKind[kind].push(id);
+      }
+      const note = bulkNote.trim() || undefined;
+      await Promise.all(
+        (Object.entries(idsByKind) as [PollReviewRow["kind"], string[]][])
+          .filter(([, ids]) => ids.length > 0)
+          .map(([kind, ids]) => api(BULK_REJECT_URL[kind], "POST", { ids, note }))
+      );
       setSelected(new Set());
       setBulkNote("");
       router.refresh();
@@ -355,8 +407,8 @@ export default function PollReviewQueue({
         ))}
         {reviews.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted">No reviews match these filters.</p>}
       </div>
-      {reviews.length === 200 && (
-        <p className="text-xs text-muted">Showing the 200 oldest matches — narrow the filters to see more.</p>
+      {reviews.length >= 200 && (
+        <p className="text-xs text-muted">Showing the oldest matches — narrow the filters to see more.</p>
       )}
     </div>
   );

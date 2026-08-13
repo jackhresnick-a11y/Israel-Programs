@@ -63,6 +63,27 @@ export const POLL_REFERENCE_CONSENT_LABEL =
   "Want to help future students? Enter your email to be listed as a reference. Students may contact you directly. Your email is never shown publicly — we pass it on only to students who ask.";
 export const POLL_REFERENCE_CONSENT_VERSION = "poll-reference-consent-v1";
 
+/** Shown above the poll's very first comment box only (RateForm.tsx's QuestionWithReview,
+ * `isFirst`) -- the moderation notice itself already lives once, above the whole question
+ * list, in ReviewConsentContext; this is purely about *why a longer answer is worth
+ * writing*, stated at the one point a respondent is actually looking at an open textarea. */
+export const POLL_FIRST_COMMENT_EXPLAINER =
+  "Write a few sentences. Someone deciding whether to come here will read this — ‘it was great’ tells them nothing. Anonymous, reviewed before it's published.";
+
+/** Placeholder text for every comment box after the first one -- the explainer above is
+ * stated once, so later boxes carry only a short nudge toward the same "actual detail,
+ * not a one-liner" framing. */
+export const POLL_COMMENT_PLACEHOLDER = "A few sentences — what it was actually like.";
+
+/** Fixed consent line for the end-of-poll elaboration block (components/polls/
+ * ElaborationBlock.tsx) -- pressing "Add this" under this label IS the consent, same
+ * "entering data under a fixed label is the consent" pattern as
+ * POLL_REFERENCE_CONSENT_LABEL above. There's no separate checkbox: the block renders
+ * outside the main question list (and can move to the thank-you screen later), so it
+ * can't rely on the form-level ReviewConsentCheckbox that gates per-question comments. */
+export const POLL_ELABORATION_CONSENT_LABEL =
+  "Published anonymously on this program's page after a moderator reviews it.";
+
 /** How many counted "overall" ratings a program needs before its aggregate rating is
  * considered trustworthy enough to lean on. Used by the admin rating-coverage overview
  * (/admin/polls/coverage) as one uniform bar across all programs. This is distinct from
@@ -321,6 +342,18 @@ export const reviewInputSchema = z.object({
 });
 
 export const reviewListSchema = z.array(reviewInputSchema);
+
+/** One consented answer to the end-of-poll elaboration block (components/polls/
+ * ElaborationBlock.tsx) -- same `consent` literal-true enforcement layer as
+ * reviewInputSchema above (client omission when not submitted, this zod literal, and the
+ * DB's hand-written `CHECK ("consentGiven")` on PollElaborationAnswer). Max length 2000,
+ * double reviewInputSchema's 1000 -- this block exists specifically to invite a longer
+ * answer than a per-question comment. */
+export const elaborationAnswerSubmitSchema = z.object({
+  promptKey: z.string().trim().min(1).max(64),
+  text: z.string().trim().min(1).max(2000),
+  consent: z.literal(true),
+});
 
 /** An opt-in to being contacted by prospective participants, collected at the end of the
  * rating flow -- deliberately separate from the heavier Reference/ContactRequest system

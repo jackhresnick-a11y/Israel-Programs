@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { listReviewQueue } from "@/lib/pollReviews";
+import { listElaborationQueue } from "@/lib/pollElaborations";
 import { listStandaloneReviewQueue } from "@/lib/reviews";
 import { listPublishedProgramNames } from "@/lib/programs";
 import { getUsersByIds } from "@/lib/clerkUsers";
 import type { PollReviewStatus } from "@/app/generated/prisma/enums";
-import PollReviewQueue from "@/components/admin/polls/PollReviewQueue";
+import PollReviewQueue, { type PollReviewRow } from "@/components/admin/polls/PollReviewQueue";
 import StandaloneReviewQueue from "@/components/admin/polls/StandaloneReviewQueue";
 
 const VALID_STATUSES: PollReviewStatus[] = ["PENDING", "APPROVED", "REJECTED", "ARCHIVED"];
@@ -36,8 +37,9 @@ export default async function AdminPollsReviewsPage({
   const sp = await searchParams;
   const status = VALID_STATUSES.includes(sp.status as PollReviewStatus) ? (sp.status as PollReviewStatus) : "PENDING";
 
-  const [reviews, standaloneReviews, programs] = await Promise.all([
+  const [reviews, elaborationAnswers, standaloneReviews, programs] = await Promise.all([
     listReviewQueue({ status, programId: sp.programId || undefined }),
+    listElaborationQueue({ status, programId: sp.programId || undefined }),
     listStandaloneReviewQueue({ status: POLL_TO_STANDALONE_STATUS[status], programId: sp.programId || undefined }),
     listPublishedProgramNames(),
   ]);
@@ -47,6 +49,7 @@ export default async function AdminPollsReviewsPage({
   // the client-component prop boundary, so each row gets its name pre-attached here.
   const archiverIds = [
     ...reviews.map((r) => r.archivedBy),
+    ...elaborationAnswers.map((a) => a.archivedBy),
     ...standaloneReviews.map((r) => r.archivedBy),
   ].filter((id): id is string => Boolean(id));
   const archivers = await getUsersByIds(archiverIds);
@@ -55,10 +58,25 @@ export default async function AdminPollsReviewsPage({
     archivedByName: row.archivedBy ? (archivers.get(row.archivedBy)?.name ?? "Unknown") : null,
   });
 
+  // Elaboration answers join PollReview in one merged queue (poll restructure item --
+  // one moderation surface, not a second page): reshaped into the same row shape
+  // PollReviewQueue renders, with `question` standing in for the prompt's key/text so no
+  // rendering branch is needed for that field. Merged rows sort oldest-first, matching
+  // each individual query's own `orderBy: { createdAt: "asc" }`.
+  const pollReviewRows: PollReviewRow[] = reviews.map((r) => ({ ...withArchiverName(r), kind: "question" as const }));
+  const elaborationRows: PollReviewRow[] = elaborationAnswers.map((a) => ({
+    ...withArchiverName(a),
+    kind: "prompt" as const,
+    question: { key: a.promptKey, text: a.promptText },
+  }));
+  const mergedRows = [...pollReviewRows, ...elaborationRows].sort(
+    (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+  );
+
   return (
     <div className="flex flex-col gap-8">
       <PollReviewQueue
-        reviews={reviews.map(withArchiverName)}
+        reviews={mergedRows}
         programs={programs}
         filters={{ status, programId: sp.programId ?? "" }}
       />

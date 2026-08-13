@@ -15,6 +15,7 @@ const TABS = [
   { href: "/admin/polls/moderation", label: "Moderation" },
   { href: "/admin/polls/reviews", label: "Reviews" },
   { href: "/admin/polls/faqs", label: "FAQs" },
+  { href: "/admin/polls/prompts", label: "Prompts" },
 ] as const;
 
 export default function PollsTabs({
