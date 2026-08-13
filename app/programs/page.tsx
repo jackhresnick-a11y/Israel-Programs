@@ -17,6 +17,7 @@ import SearchBar from "@/components/SearchBar";
 import { CompareProvider } from "@/components/CompareContext";
 import CompareCheckbox from "@/components/CompareCheckbox";
 import CompareBar from "@/components/CompareBar";
+import WeakMatchesSection from "@/components/WeakMatchesSection";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import {
@@ -278,11 +279,14 @@ export default async function ProgramsPage({
           <PageHeader
             title="Browse Programs"
             description={
-              programs.length > 0
-                ? `${programs.length} program${programs.length === 1 ? "" : "s"} found`
-                : weakMatches.length > 0
-                  ? `No exact matches — ${weakMatches.length} weaker match${weakMatches.length === 1 ? "" : "es"} found`
-                  : "0 programs found"
+              q
+                ? // Search active: count "matches" against the query, with the weak-band
+                  // count named separately -- "68 matches · 230 weaker", never blended
+                  // into one misleading total.
+                  weakMatches.length > 0
+                  ? `${programs.length} match${programs.length === 1 ? "" : "es"} · ${weakMatches.length} weaker`
+                  : `${programs.length} match${programs.length === 1 ? "" : "es"}`
+                : `${programs.length} program${programs.length === 1 ? "" : "s"} found`
             }
           />
 
@@ -375,27 +379,29 @@ export default async function ProgramsPage({
             </div>
           )}
 
-          {/* Partial-token matches -- never hidden, ranked below full-coverage results.
-              See rankBySearchTermScored / listProgramsBanded. */}
-          {weakMatches.length > 0 && (
-            <div className="flex flex-col gap-4 pb-16">
-              <p className="text-sm font-medium text-muted">
-                {programs.length > 0
-                  ? "Weaker matches — missing part of your search"
-                  : "No exact matches — closest results below"}
-              </p>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {weakMatches.map((program) => (
-                  <ProgramCard
-                    key={program.slug}
-                    program={program}
-                    durationLabelMap={durationLabelMap}
-                    action={<CompareCheckbox slug={program.slug} name={program.name} />}
-                  />
-                ))}
-              </div>
+          {/* Partial-token matches -- never dropped, ranked below full-coverage results,
+              but collapsed behind a button and closed by default so a broad query's
+              weak-match tail doesn't dominate the page. See rankBySearchTermScored /
+              listProgramsBanded / WeakMatchesSection. */}
+          <WeakMatchesSection
+            count={weakMatches.length}
+            heading={
+              programs.length > 0
+                ? "Weaker matches — missing part of your search"
+                : "No exact matches — closest results below"
+            }
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {weakMatches.map((program) => (
+                <ProgramCard
+                  key={program.slug}
+                  program={program}
+                  durationLabelMap={durationLabelMap}
+                  action={<CompareCheckbox slug={program.slug} name={program.name} />}
+                />
+              ))}
             </div>
-          )}
+          </WeakMatchesSection>
           <CompareBar />
         </CompareProvider>
       )}
