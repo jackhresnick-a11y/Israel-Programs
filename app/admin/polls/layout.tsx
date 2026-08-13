@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { countPendingReviews } from "@/lib/pollReviews";
+import { countPendingElaborationAnswers } from "@/lib/pollElaborations";
 import { countPendingStandaloneReviews } from "@/lib/reviews";
 import { countPendingQuestions } from "@/lib/programFaq";
 import PageContainer from "@/components/ui/PageContainer";
@@ -11,12 +12,14 @@ export default async function AdminPollsLayout({ children }: { children: React.R
   const role = await getCurrentRole();
   if (role !== "admin") redirect("/");
 
-  const [pendingPollReviewCount, pendingStandaloneReviewCount, pendingQuestionCount] = await Promise.all([
-    countPendingReviews(),
-    countPendingStandaloneReviews(),
-    countPendingQuestions(),
-  ]);
-  const pendingReviewCount = pendingPollReviewCount + pendingStandaloneReviewCount;
+  const [pendingPollReviewCount, pendingElaborationCount, pendingStandaloneReviewCount, pendingQuestionCount] =
+    await Promise.all([
+      countPendingReviews(),
+      countPendingElaborationAnswers(),
+      countPendingStandaloneReviews(),
+      countPendingQuestions(),
+    ]);
+  const pendingReviewCount = pendingPollReviewCount + pendingElaborationCount + pendingStandaloneReviewCount;
 
   return (
     <PageContainer width="wide">

@@ -7,6 +7,7 @@ import { listPendingReferences } from "@/lib/references";
 import { listPendingTags } from "@/lib/pendingTags";
 import { listRecentReviews, countPendingStandaloneReviews } from "@/lib/reviews";
 import { countPendingReviews } from "@/lib/pollReviews";
+import { countPendingElaborationAnswers } from "@/lib/pollElaborations";
 import { countPendingQuestions } from "@/lib/programFaq";
 import { buildFieldDiffs, buildTagDiff } from "@/lib/diff";
 import { getDurationLabelMap } from "@/lib/duration";
@@ -36,6 +37,7 @@ export default async function AdminPage() {
     recentReviews,
     durationLabelMap,
     pendingPollReviews,
+    pendingElaborationAnswers,
     pendingStandaloneReviews,
     pendingFaqQuestions,
   ] = await Promise.all([
@@ -47,11 +49,12 @@ export default async function AdminPage() {
     role === "admin" ? listRecentReviews(8) : Promise.resolve([]),
     getDurationLabelMap(),
     role === "admin" ? countPendingReviews() : Promise.resolve(0),
+    role === "admin" ? countPendingElaborationAnswers() : Promise.resolve(0),
     role === "admin" ? countPendingStandaloneReviews() : Promise.resolve(0),
     role === "admin" ? countPendingQuestions() : Promise.resolve(0),
   ]);
 
-  const pendingRatingsCount = pendingPollReviews + pendingStandaloneReviews + pendingFaqQuestions;
+  const pendingRatingsCount = pendingPollReviews + pendingElaborationAnswers + pendingStandaloneReviews + pendingFaqQuestions;
 
   const submitters = await getUsersByIds([
     ...pendingPrograms.map((p) => p.createdById),
