@@ -313,6 +313,7 @@ model Program {
   pollResponses          PollResponse[]
   referrerTokens         ReferrerToken[]
   pollReviews            PollReview[]
+  pollElaborationAnswers PollElaborationAnswer[]
   faqs                   ProgramFAQ[]
   pendingTags            PendingTag[]
 
@@ -1027,6 +1028,7 @@ model PollResponse {
   updatedAt            DateTime           @updatedAt
   answers              PollAnswer[]
   reviews              PollReview[]
+  elaborationAnswers   PollElaborationAnswer[]
 
   @@index([programId, status, verified])
   @@index([programId, ipHash])
@@ -1094,6 +1096,59 @@ model PollReview {
   createdAt       DateTime         @default(now())
 
   @@unique([responseId, questionId])
+  @@index([programId, status])
+  @@index([status])
+}
+
+/// An optional, per-response answer to one of a small admin-editable set of open-ended
+/// elaboration prompts ("What do you wish you'd known before you came?", etc. -- the live
+/// set lives in SiteContent("pollElaborationPrompts"), not a table, same pattern as
+/// PartnerLinksConfig/HomeVideoConfig) shown once, after every rating question, as its own
+/// self-contained block -- never a native <select>, since a dropdown costs too many taps
+/// on mobile. Deliberately its own table rather than reusing PollReview: PollReview's
+/// `questionId` is a non-null FK to PollQuestion under its own hand-written CHECK and
+/// `@@unique([responseId, questionId])` -- making it polymorphic over "a PollQuestion or a
+/// prompt key" would weaken invariants this schema otherwise states outright. `promptKey`
+/// is a soft reference (not a FK) to the live prompt config, same "soft ref, not enforced
+/// by the DB" precedent as Region.memberSlugs -- a later prompt rename/removal never
+/// orphans an existing answer. `promptText` snapshots the prompt's wording at submit time
+/// so a later rewording never rewrites what a respondent actually saw. Same
+/// consent/moderation shape as PollReview end to end: `consentGiven` is also a
+/// hand-written DB CHECK (see the migration), nothing ever auto-approves, rejected/
+/// archived rows are retained never deleted, and publishing is a query-time join against
+/// the parent response's live status -- see lib/pollElaborations.ts's
+/// listPublicElaborations, the direct counterpart of PollReview's listPublicReviews.
+/// `@@unique([responseId, promptKey])` mirrors PollReview's one-row-per-question rule:
+/// one answer per prompt per response, a second submission for an already-answered prompt
+/// is rejected rather than overwritten (mirrors PollReview's editing-is-out-of-scope
+/// posture). `programId` is denormalized for the same reason as PollReview's.
+model PollElaborationAnswer {
+  id            String           @id @default(cuid())
+  responseId    String
+  response      PollResponse     @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  programId     String
+  program       Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  promptKey     String
+  /// Snapshot of the prompt's text at submit time -- see the model doc comment.
+  promptText    String
+  text          String
+  consentGiven  Boolean
+  consentAt     DateTime
+  /// The fixed consent copy shown at submit time (POLL_ELABORATION_CONSENT_LABEL) --
+  /// snapshotted for the same reason PollReference stores its consentLabel: a permanent
+  /// record of what the respondent actually agreed to, independent of later copy edits.
+  consentLabel  String
+  status        PollReviewStatus @default(PENDING)
+  moderatedBy   String?
+  moderatedAt   DateTime?
+  moderatorNote String?
+  /// Set together on archive (alongside moderatedBy/moderatedAt/moderatorNote), both
+  /// cleared to null on restore -- identical pair to PollReview's.
+  archivedAt    DateTime?
+  archivedBy    String?
+  createdAt     DateTime         @default(now())
+
+  @@unique([responseId, promptKey])
   @@index([programId, status])
   @@index([status])
 }
