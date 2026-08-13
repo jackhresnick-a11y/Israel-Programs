@@ -260,45 +260,6 @@ function ProgressIndicator({ answered, total }: { answered: number; total: numbe
 }
 
 /**
- * A bottom-docked shortcut to submit, carrying NO progress readout of its own (that lives
- * in ProgressIndicator, above, which does not overlay anything).
- *
- * It appears only once the respondent has scrolled past the last question (`tailReached`)
- * AND the inline submit is not itself on screen. That first condition exists because a
- * `position: sticky; bottom: 0` element floats over whatever is scrolled beneath it, which
- * meant an always-on bar sat across the middle of a question for the entire poll. Rendering
- * nothing until the questions are behind the respondent removes the overlap where it
- * matters and keeps the shortcut where it's useful. The second condition keeps the string
- * "Submit ratings" from ever appearing twice at once (style guide §7).
- *
- * `sticky`, never `fixed` -- iOS Safari's collapsing toolbar occludes fixed elements.
- */
-function StickySubmitBar({
-  visible,
-  submitting,
-  onSubmit,
-}: {
-  visible: boolean;
-  submitting: boolean;
-  onSubmit: () => void;
-}) {
-  if (!visible) return null;
-  return (
-    <div className="sticky bottom-0 z-30 -mx-6 border-t border-border bg-background px-6 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-      <Button
-        type="button"
-        className="min-h-11 w-full active:bg-accent-strong-hover"
-        disabled={submitting}
-        aria-busy={submitting}
-        onClick={onSubmit}
-      >
-        {submitting ? "Submitting…" : "Submit ratings"}
-      </Button>
-    </div>
-  );
-}
-
-/**
  * The primary submit affordance at the end of the poll. Never gated on completeness -- a
  * respondent who answered two questions may still submit, and the server records that
  * without counting it (see lib/pollResponses.ts's markSubmitted). `disabled` only ever
@@ -314,14 +275,12 @@ function StickySubmitBar({
 function InlineSubmit({
   submitting,
   onSubmit,
-  innerRef,
 }: {
   submitting: boolean;
   onSubmit: () => void;
-  innerRef: React.Ref<HTMLDivElement>;
 }) {
   return (
-    <div ref={innerRef} className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <Button
         type="button"
         data-poll-submit
@@ -351,42 +310,6 @@ function FormAlert({ message }: { message: string }) {
       {message}
     </p>
   );
-}
-
-/** Watches the inline submit button and reports whether it's off screen, so the sticky bar
- * can show its own button only when the inline one isn't visible (never both -- §7). */
-function useIsOffScreen(ref: React.RefObject<HTMLDivElement | null>): boolean {
-  const [offScreen, setOffScreen] = useState(true);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => setOffScreen(!entry.isIntersecting), {
-      threshold: 0,
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref]);
-  return offScreen;
-}
-
-/** Latches true once the sentinel (placed just after the last question) has been reached,
- * and stays true -- the sticky submit shortcut shouldn't flicker away again if the
- * respondent scrolls back up to change an answer. */
-function useHasReached(ref: React.RefObject<HTMLDivElement | null>): boolean {
-  const [reached, setReached] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setReached(true);
-        observer.disconnect();
-      }
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref]);
-  return reached;
 }
 
 /**
@@ -532,10 +455,6 @@ function SignedInRateForm({
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
-  const inlineSubmitRef = useRef<HTMLDivElement>(null);
-  const tailRef = useRef<HTMLDivElement>(null);
-  const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
-  const tailReached = useHasReached(tailRef);
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
@@ -774,20 +693,8 @@ function SignedInRateForm({
         onAgeAttestedChange={handleAgeAttestedChange}
       />
       <ElaborationBlock responseId={responseId} prompts={elaborationPrompts} />
-      {/* Sentinel sits BELOW the contact-email block AND the elaboration block on purpose.
-          The sticky submit shortcut must not become tappable while either is still under
-          the fold, or a respondent can submit having never laid eyes on them -- which is
-          how the reference pipeline produced nothing for five weeks. Everything below here
-          is genuinely the end of the form, so the shortcut can appear without floating
-          across content. */}
-      <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
-      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
-      <StickySubmitBar
-        visible={tailReached && inlineSubmitOffScreen}
-        submitting={submitting}
-        onSubmit={handleSubmit}
-      />
+      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} />
     </div>
   );
 }
@@ -820,10 +727,6 @@ function AnonymousRateForm({
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
-  const inlineSubmitRef = useRef<HTMLDivElement>(null);
-  const tailRef = useRef<HTMLDivElement>(null);
-  const inlineSubmitOffScreen = useIsOffScreen(inlineSubmitRef);
-  const tailReached = useHasReached(tailRef);
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
 
   useEffect(() => {
@@ -1079,16 +982,8 @@ function AnonymousRateForm({
         onAgeAttestedChange={handleAgeAttestedChange}
       />
       <ElaborationBlock responseId={responseId} prompts={elaborationPrompts} />
-      {/* Sentinel sits BELOW the contact-email block AND the elaboration block on purpose
-          -- see SignedInRateForm's identical note. */}
-      <div ref={tailRef} aria-hidden="true" />
       {error && <FormAlert message={error} />}
-      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} innerRef={inlineSubmitRef} />
-      <StickySubmitBar
-        visible={tailReached && inlineSubmitOffScreen}
-        submitting={submitting}
-        onSubmit={handleSubmit}
-      />
+      <InlineSubmit submitting={submitting} onSubmit={handleSubmit} />
     </div>
   );
 }
