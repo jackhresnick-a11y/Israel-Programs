@@ -21,13 +21,18 @@ export async function POST(request: Request) {
     const result = await bulkRejectElaborationAnswers(ids, check.userId, note);
 
     // Revalidate every distinct program these answers belong to -- a bulk action can
-    // span multiple programs' ReviewsSection.
-    const answers = await prisma.pollElaborationAnswer.findMany({
-      where: { id: { in: ids } },
-      select: { response: { select: { programId: true } } },
-    });
-    const programIds = new Set(answers.map((a) => a.response.programId));
-    for (const programId of programIds) await revalidateProgram(programId);
+    // span multiple programs' ReviewsSection. Skipped entirely when nothing was actually
+    // rejected (result.count === 0) -- both the ordinary "none of these ids matched" case
+    // and the missing-table case bulkRejectElaborationAnswers degrades to, since this
+    // query has no isMissingTableError guard of its own and would otherwise still throw.
+    if (result.count > 0) {
+      const answers = await prisma.pollElaborationAnswer.findMany({
+        where: { id: { in: ids } },
+        select: { response: { select: { programId: true } } },
+      });
+      const programIds = new Set(answers.map((a) => a.response.programId));
+      for (const programId of programIds) await revalidateProgram(programId);
+    }
 
     return NextResponse.json(result);
   } catch (err) {

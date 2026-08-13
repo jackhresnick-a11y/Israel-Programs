@@ -21,7 +21,7 @@ vi.mock("@/lib/pollElaborationPrompts", () => ({
     config.prompts.filter((p) => p.enabled),
 }));
 
-const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted(() => {
+const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer, setMissingTable } = vi.hoisted(() => {
   type AnswerRow = {
     id: string;
     responseId: string;
@@ -44,6 +44,9 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
     answers: [] as AnswerRow[],
     responses: [] as ResponseRow[],
     seq: 0,
+    // Simulates the pre-migration state: every PollElaborationAnswer query throws the
+    // real Postgres "relation does not exist" error Prisma surfaces as P2021.
+    missingTable: false,
   };
 
   function nextId(prefix: string) {
@@ -53,6 +56,13 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
 
   function isUniqueViolation(responseId: string, promptKey: string): boolean {
     return db.answers.some((a) => a.responseId === responseId && a.promptKey === promptKey);
+  }
+
+  function throwIfMissingTable() {
+    if (!db.missingTable) return;
+    const err = new Error('relation "PollElaborationAnswer" does not exist') as Error & { code: string };
+    err.code = "P2021";
+    throw err;
   }
 
   const fakePrisma = {
@@ -70,6 +80,7 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
     },
     pollElaborationAnswer: {
       create: vi.fn(async (args: { data: Partial<AnswerRow> & { responseId: string; programId: string; promptKey: string } }) => {
+        throwIfMissingTable();
         if (isUniqueViolation(args.data.responseId, args.data.promptKey)) {
           const err = new Error("Unique constraint failed") as Error & { code: string };
           err.code = "P2002";
@@ -95,6 +106,7 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
         return row;
       }),
       findUnique: vi.fn(async (args: { where: { id: string }; select?: Record<string, unknown> }) => {
+        throwIfMissingTable();
         const row = db.answers.find((a) => a.id === args.where.id);
         if (!row) return null;
         const response = db.responses.find((r) => r.id === row.responseId);
@@ -106,8 +118,17 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
         Object.assign(row, args.data);
         return row;
       }),
+      updateMany: vi.fn(async (args: { where: { id: { in: string[] }; status?: string }; data: Partial<AnswerRow> }) => {
+        throwIfMissingTable();
+        const matched = db.answers.filter(
+          (a) => args.where.id.in.includes(a.id) && (args.where.status === undefined || a.status === args.where.status)
+        );
+        for (const row of matched) Object.assign(row, args.data);
+        return { count: matched.length };
+      }),
       findMany: vi.fn(
         async (args: { where: { programId?: string; status?: string; response?: { status?: unknown } } }) => {
+          throwIfMissingTable();
           return db.answers
             .filter((a) => {
               if (args.where.programId !== undefined && a.programId !== args.where.programId) return false;
@@ -132,6 +153,10 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
             }));
         }
       ),
+      count: vi.fn(async () => {
+        throwIfMissingTable();
+        return db.answers.filter((a) => a.status === "PENDING").length;
+      }),
     },
   };
 
@@ -141,11 +166,15 @@ const { fakePrisma, resetDb, snapshot, seedResponse, seedAnswer } = vi.hoisted((
       db.answers = [];
       db.responses = [];
       db.seq = 0;
+      db.missingTable = false;
       for (const model of Object.values(fakePrisma)) {
         for (const fn of Object.values(model)) {
           (fn as ReturnType<typeof vi.fn>).mockClear();
         }
       }
+    },
+    setMissingTable(v: boolean) {
+      db.missingTable = v;
     },
     snapshot: () => ({ answers: db.answers, responses: db.responses }),
     seedResponse(row: Partial<ResponseRow> & { id: string; programId: string }) {
@@ -179,10 +208,15 @@ vi.mock("@/lib/prisma", () => ({ prisma: fakePrisma }));
 
 const {
   createElaborationAnswer,
+  listAnsweredPromptKeys,
+  listElaborationQueue,
+  countPendingElaborationAnswers,
   approveElaborationAnswer,
   rejectElaborationAnswer,
+  bulkRejectElaborationAnswers,
   archiveElaborationAnswer,
   restoreElaborationAnswer,
+  hardDeleteElaborationAnswer,
   listPublicElaborations,
 } = await import("./pollElaborations");
 
@@ -341,5 +375,80 @@ describe("listPublicElaborations", () => {
     expect(groups).toHaveLength(1);
     expect(groups[0].promptKey).toBe("wish_known");
     expect(groups[0].answers).toEqual([{ text: "visible text", yearAttended: null }]);
+  });
+});
+
+/**
+ * Regression coverage for the missing-table trap: this repo's own migration-ordering
+ * rule ("apply the migration to production first") means the deployed CODE for this
+ * feature can briefly run before PollElaborationAnswer actually exists as a table, and
+ * Postgres/Prisma surfaces that as a P2021 "relation does not exist" error, not a 404 or
+ * an empty result by default. Every function here must degrade to its safe/empty value
+ * instead of throwing -- an uncaught throw from listElaborationQueue in particular would
+ * 500 the WHOLE /admin/polls/reviews page (it's awaited directly inside a Promise.all in
+ * that Server Component), taking the pre-existing PollReview and standalone-review
+ * queues down with it, not just this new feature.
+ */
+describe("degrades to empty/not-found on a missing table (P2021), never throws", () => {
+  it("listAnsweredPromptKeys -> []", async () => {
+    setMissingTable(true);
+    await expect(listAnsweredPromptKeys("resp_1")).resolves.toEqual([]);
+  });
+
+  it("countPendingElaborationAnswers -> 0", async () => {
+    setMissingTable(true);
+    await expect(countPendingElaborationAnswers()).resolves.toBe(0);
+  });
+
+  it("listPublicElaborations -> []", async () => {
+    setMissingTable(true);
+    await expect(listPublicElaborations("prog_1")).resolves.toEqual([]);
+  });
+
+  it("listElaborationQueue -> [] (the admin reviews queue -- must not 500 the whole page)", async () => {
+    setMissingTable(true);
+    await expect(listElaborationQueue({ status: "PENDING" })).resolves.toEqual([]);
+  });
+
+  it("approveElaborationAnswer -> not-found, same shape as an ordinary missing id", async () => {
+    setMissingTable(true);
+    await expect(approveElaborationAnswer("elab_missing", "mod_1")).resolves.toEqual({
+      ok: false,
+      reason: "Answer not found",
+    });
+  });
+
+  it("rejectElaborationAnswer -> not-found", async () => {
+    setMissingTable(true);
+    await expect(rejectElaborationAnswer("elab_missing", "mod_1")).resolves.toEqual({
+      ok: false,
+      reason: "Answer not found",
+    });
+  });
+
+  it("archiveElaborationAnswer -> not-found", async () => {
+    setMissingTable(true);
+    await expect(archiveElaborationAnswer("elab_missing", "mod_1")).resolves.toEqual({
+      ok: false,
+      reason: "Answer not found",
+    });
+  });
+
+  it("restoreElaborationAnswer -> not-found", async () => {
+    setMissingTable(true);
+    await expect(restoreElaborationAnswer("elab_missing", "mod_1")).resolves.toEqual({
+      ok: false,
+      reason: "Answer not found",
+    });
+  });
+
+  it("hardDeleteElaborationAnswer -> null", async () => {
+    setMissingTable(true);
+    await expect(hardDeleteElaborationAnswer("elab_missing")).resolves.toBeNull();
+  });
+
+  it("bulkRejectElaborationAnswers -> { count: 0 }", async () => {
+    setMissingTable(true);
+    await expect(bulkRejectElaborationAnswers(["elab_1", "elab_2"], "mod_1")).resolves.toEqual({ count: 0 });
   });
 });

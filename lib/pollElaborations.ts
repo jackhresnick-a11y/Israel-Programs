@@ -151,23 +151,34 @@ async function computeSharedAttentionFlags(
  * mirroring lib/pollReviews.ts's listReviewQueue shape so PollReviewQueue.tsx can render
  * both kinds of row with one component. */
 export async function listElaborationQueue(filter: PollElaborationFilter = {}) {
-  const answers = await prisma.pollElaborationAnswer.findMany({
-    where: {
-      status: filter.status ?? "PENDING",
-      ...(filter.programId ? { programId: filter.programId } : {}),
-    },
-    orderBy: { createdAt: "asc" },
-    take: 200,
-    include: {
-      program: { select: { name: true, slug: true } },
-      response: {
-        include: {
-          referrerToken: { select: { label: true } },
-          answers: { include: { question: { select: { key: true, text: true } } } },
+  let answers;
+  try {
+    answers = await prisma.pollElaborationAnswer.findMany({
+      where: {
+        status: filter.status ?? "PENDING",
+        ...(filter.programId ? { programId: filter.programId } : {}),
+      },
+      orderBy: { createdAt: "asc" },
+      take: 200,
+      include: {
+        program: { select: { name: true, slug: true } },
+        response: {
+          include: {
+            referrerToken: { select: { label: true } },
+            answers: { include: { question: { select: { key: true, text: true } } } },
+          },
         },
       },
-    },
-  });
+    });
+  } catch (err) {
+    // Called directly (awaited, inside Promise.all) from a Server Component
+    // (app/admin/polls/reviews/page.tsx) -- an uncaught throw here doesn't just fail
+    // silently, it fails the WHOLE page, taking listReviewQueue/listStandaloneReviewQueue
+    // down with it via Promise.all's all-or-nothing semantics. Same isMissingTableError
+    // degrade-to-empty posture as every other public/admin read in this file.
+    if (isMissingTableError(err)) return [];
+    throw err;
+  }
 
   const attentionByResponseId = await computeSharedAttentionFlags(
     answers.map((a) => ({
@@ -206,10 +217,20 @@ export type ModerateElaborationResult = { ok: true } | { ok: false; reason: stri
  * it, this gate re-evaluates accordingly. Nothing here or anywhere else auto-approves.
  */
 export async function approveElaborationAnswer(id: string, moderatorId: string): Promise<ModerateElaborationResult> {
-  const answer = await prisma.pollElaborationAnswer.findUnique({
-    where: { id },
-    select: { response: { select: { status: true } } },
-  });
+  let answer;
+  try {
+    answer = await prisma.pollElaborationAnswer.findUnique({
+      where: { id },
+      select: { response: { select: { status: true } } },
+    });
+  } catch (err) {
+    // A missing table means this id can't possibly exist yet -- same result shape as the
+    // ordinary "not found" case just below, not a throw. See listElaborationQueue's
+    // identical guard for why this matters: this function's caller (the PATCH route)
+    // catches unexpected errors as a 500, which "not found" (400) is not.
+    if (isMissingTableError(err)) return { ok: false, reason: "Answer not found" };
+    throw err;
+  }
   if (!answer) return { ok: false, reason: "Answer not found" };
   if (answer.response.status === "VOIDED") return { ok: false, reason: "The parent response was voided" };
   if (answer.response.status === "FLAGGED") return { ok: false, reason: "The parent response is flagged for review" };
@@ -227,7 +248,13 @@ export async function rejectElaborationAnswer(
   moderatorId: string,
   note?: string
 ): Promise<ModerateElaborationResult> {
-  const answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { id: true } });
+  let answer;
+  try {
+    answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { id: true } });
+  } catch (err) {
+    if (isMissingTableError(err)) return { ok: false, reason: "Answer not found" };
+    throw err;
+  }
   if (!answer) return { ok: false, reason: "Answer not found" };
 
   await prisma.pollElaborationAnswer.update({
@@ -242,11 +269,20 @@ export async function bulkRejectElaborationAnswers(
   moderatorId: string,
   note?: string
 ): Promise<{ count: number }> {
-  const result = await prisma.pollElaborationAnswer.updateMany({
-    where: { id: { in: ids }, status: "PENDING" },
-    data: { status: "REJECTED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: note ?? null },
-  });
-  return { count: result.count };
+  try {
+    const result = await prisma.pollElaborationAnswer.updateMany({
+      where: { id: { in: ids }, status: "PENDING" },
+      data: { status: "REJECTED", moderatedBy: moderatorId, moderatedAt: new Date(), moderatorNote: note ?? null },
+    });
+    return { count: result.count };
+  } catch (err) {
+    // A missing table can't have matched any of these ids -- 0 updated is the honest,
+    // non-throwing answer. The caller (the bulk-reject route) additionally skips its own
+    // follow-up revalidation query entirely when count is 0, so this alone is enough to
+    // keep the whole request from 500ing.
+    if (isMissingTableError(err)) return { count: 0 };
+    throw err;
+  }
 }
 
 export type ModerateElaborationWithProgramResult = { ok: true; programId: string } | { ok: false; reason: string };
@@ -258,7 +294,13 @@ export async function archiveElaborationAnswer(
   moderatorId: string,
   note?: string
 ): Promise<ModerateElaborationWithProgramResult> {
-  const answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { status: true, programId: true } });
+  let answer;
+  try {
+    answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { status: true, programId: true } });
+  } catch (err) {
+    if (isMissingTableError(err)) return { ok: false, reason: "Answer not found" };
+    throw err;
+  }
   if (!answer) return { ok: false, reason: "Answer not found" };
   if (answer.status !== "APPROVED") return { ok: false, reason: "Only an approved answer can be archived" };
 
@@ -281,10 +323,16 @@ export async function archiveElaborationAnswer(
  * approveElaborationAnswer enforces -- the response could have changed state while this
  * answer sat archived. */
 export async function restoreElaborationAnswer(id: string, moderatorId: string): Promise<ModerateElaborationWithProgramResult> {
-  const answer = await prisma.pollElaborationAnswer.findUnique({
-    where: { id },
-    select: { status: true, programId: true, response: { select: { status: true } } },
-  });
+  let answer;
+  try {
+    answer = await prisma.pollElaborationAnswer.findUnique({
+      where: { id },
+      select: { status: true, programId: true, response: { select: { status: true } } },
+    });
+  } catch (err) {
+    if (isMissingTableError(err)) return { ok: false, reason: "Answer not found" };
+    throw err;
+  }
   if (!answer) return { ok: false, reason: "Answer not found" };
   if (answer.status !== "ARCHIVED") return { ok: false, reason: "Only an archived answer can be restored" };
   if (answer.response.status === "VOIDED") return { ok: false, reason: "The parent response was voided" };
@@ -308,7 +356,13 @@ export async function restoreElaborationAnswer(id: string, moderatorId: string):
  * retain-never-delete posture -- the de-emphasised, irreversible action for spam or legal
  * removal, mirroring hardDeletePollReview. */
 export async function hardDeleteElaborationAnswer(id: string): Promise<{ programId: string } | null> {
-  const answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { programId: true } });
+  let answer;
+  try {
+    answer = await prisma.pollElaborationAnswer.findUnique({ where: { id }, select: { programId: true } });
+  } catch (err) {
+    if (isMissingTableError(err)) return null;
+    throw err;
+  }
   if (!answer) return null;
   await prisma.pollElaborationAnswer.delete({ where: { id } });
   return { programId: answer.programId };
