@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { listPrograms, listAllTags, getFacetData, type ProgramFilters } from "@/lib/programs";
+import { listPrograms, listProgramsBanded, listAllTags, getFacetData, type ProgramFilters } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
 import { listRegions } from "@/lib/regions";
@@ -75,9 +75,9 @@ export default async function ProgramsPage({
     travelType: travelType as TravelType | undefined,
   };
 
-  const [programs, tags, categories, durationOptions, regions, facetPrograms, siteContent] =
+  const [banded, tags, categories, durationOptions, regions, facetPrograms, siteContent] =
     await Promise.all([
-      listPrograms(programFilters),
+      listProgramsBanded(programFilters),
       listAllTags(),
       listTagCategories(),
       listDurationOptions(),
@@ -99,6 +99,14 @@ export default async function ProgramsPage({
         "regionFilterShow",
       ]),
     ]);
+  // Full-coverage results are today's exact set and order (unchanged semantics/count);
+  // anything after the boundary is a partial match the "no hard cut" search fix newly
+  // surfaces because it matched at least one query token, not all of them (see
+  // rankBySearchTermScored) -- rendered in a separate "Weaker matches" band below,
+  // never silently dropped.
+  const { programs: allMatches, fullCoverageCount } = banded;
+  const programs = allMatches.slice(0, fullCoverageCount);
+  const weakMatches = allMatches.slice(fullCoverageCount);
   const {
     backgroundLogoUrl: backgroundUrl,
     backgroundLogoEnabled: backgroundEnabled,
@@ -200,7 +208,10 @@ export default async function ProgramsPage({
   let emptyStateChips: { dimension: ActiveDimension; count: number; href: string }[] = [];
   let closestMatches: typeof programs = [];
   let closestMatchDimension: ActiveDimension | null = null;
-  if (programs.length === 0 && activeDimensions.length > 0) {
+  // True emptiness -- no full match AND no weaker (partial-token) match. A query with
+  // weak matches is handled by the "Weaker matches" band below, not this tag/duration
+  // relax-a-filter flow.
+  if (allMatches.length === 0 && activeDimensions.length > 0) {
     const dropped = dropOneCounts(facetPrograms, facetSelections, tagCategoryBySlug, activeDimensions);
     emptyStateChips = dropped.map(({ dimension, count }) => ({
       dimension,
@@ -226,9 +237,10 @@ export default async function ProgramsPage({
   const clearAllHref = q ? `/programs?q=${encodeURIComponent(q)}` : "/programs";
 
   // Slot 5: partner CTA for an empty result set. Resolved only when there are no results
-  // (no extra query on a normal search), and against `all`-scoped slots only.
+  // at all -- full or weak (no extra query on a normal search), and against `all`-scoped
+  // slots only.
   const emptySearchPartnerCta =
-    programs.length === 0 ? await resolveAllScopePartnerCta("EMPTY_SEARCH") : null;
+    allMatches.length === 0 ? await resolveAllScopePartnerCta("EMPTY_SEARCH") : null;
 
   return (
     <PageContainer width="wide">
@@ -265,7 +277,13 @@ export default async function ProgramsPage({
         <div className="relative flex flex-col gap-8">
           <PageHeader
             title="Browse Programs"
-            description={`${programs.length} program${programs.length === 1 ? "" : "s"} found`}
+            description={
+              programs.length > 0
+                ? `${programs.length} program${programs.length === 1 ? "" : "s"} found`
+                : weakMatches.length > 0
+                  ? `No exact matches — ${weakMatches.length} weaker match${weakMatches.length === 1 ? "" : "es"} found`
+                  : "0 programs found"
+            }
           />
 
           <SearchBar
@@ -282,7 +300,7 @@ export default async function ProgramsPage({
         </div>
       </div>
 
-      {programs.length === 0 ? (
+      {allMatches.length === 0 ? (
         <div className="flex flex-col gap-6 rounded border border-dashed border-border p-8 text-center">
           {activeDimensions.length > 0 ? (
             <>
@@ -344,16 +362,40 @@ export default async function ProgramsPage({
         </div>
       ) : (
         <CompareProvider>
-          <div className="grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
-            {programs.map((program) => (
-              <ProgramCard
-                key={program.slug}
-                program={program}
-                durationLabelMap={durationLabelMap}
-                action={<CompareCheckbox slug={program.slug} name={program.name} />}
-              />
-            ))}
-          </div>
+          {programs.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
+              {programs.map((program) => (
+                <ProgramCard
+                  key={program.slug}
+                  program={program}
+                  durationLabelMap={durationLabelMap}
+                  action={<CompareCheckbox slug={program.slug} name={program.name} />}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Partial-token matches -- never hidden, ranked below full-coverage results.
+              See rankBySearchTermScored / listProgramsBanded. */}
+          {weakMatches.length > 0 && (
+            <div className="flex flex-col gap-4 pb-16">
+              <p className="text-sm font-medium text-muted">
+                {programs.length > 0
+                  ? "Weaker matches — missing part of your search"
+                  : "No exact matches — closest results below"}
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {weakMatches.map((program) => (
+                  <ProgramCard
+                    key={program.slug}
+                    program={program}
+                    durationLabelMap={durationLabelMap}
+                    action={<CompareCheckbox slug={program.slug} name={program.name} />}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           <CompareBar />
         </CompareProvider>
       )}

@@ -11,7 +11,7 @@ import {
 } from "@/app/generated/prisma/client";
 import { recordProgramForExport } from "@/lib/programExport";
 import { resolveTagsByName, resolveExistingTagsByName } from "@/lib/tags";
-import { rankBySearchTerm } from "@/lib/programSearch";
+import { rankBySearchTerm, rankBySearchTermScored } from "@/lib/programSearch";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -367,7 +367,7 @@ async function buildTagAndClauses(slugs: string[]): Promise<Prisma.ProgramWhereI
   }));
 }
 
-export async function listPrograms(filters: ProgramFilters) {
+async function fetchFilteredPrograms(filters: ProgramFilters) {
   // Users are invited to type "#hashtag" into the same box, so strip a
   // leading "#" -- Fuse fuzzily matches the term against tag name/slug
   // directly, so no separate slugify-and-compare pass is needed.
@@ -392,9 +392,31 @@ export async function listPrograms(filters: ProgramFilters) {
     orderBy: { createdAt: "desc" },
   });
 
-  if (!term) return programs;
+  return { programs, term };
+}
 
+export async function listPrograms(filters: ProgramFilters) {
+  const { programs, term } = await fetchFilteredPrograms(filters);
+  if (!term) return programs;
   return rankBySearchTerm(programs, term);
+}
+
+/**
+ * Same query as listPrograms, but also reports the boundary between full-coverage
+ * and partial-coverage results -- see rankBySearchTermScored. Powers /programs'
+ * "weaker matches" band: results before `fullCoverageCount` are today's exact
+ * behavior (unchanged ordering/semantics), everything after is a program the
+ * broadened "no hard cut" recall newly surfaces because it matched at least one
+ * token, not all of them. With no free-text term every result is (vacuously) full
+ * coverage, same as listPrograms today.
+ */
+export async function listProgramsBanded(filters: ProgramFilters) {
+  const { programs, term } = await fetchFilteredPrograms(filters);
+  if (!term) return { programs, fullCoverageCount: programs.length };
+
+  const scored = rankBySearchTermScored(programs, term);
+  const fullCoverageCount = scored.filter((r) => r.full).length;
+  return { programs: scored.map((r) => r.item), fullCoverageCount };
 }
 
 export type FacetProgram = { id: string; durationType: DurationType; tagSlugs: string[] };
