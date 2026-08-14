@@ -43,6 +43,9 @@ export default async function Nav() {
             <Link href="/find" className="hover:text-accent">
               Narrow
             </Link>
+            <Link href="/glossary" className="hover:text-accent">
+              Glossary
+            </Link>
             <Link href="/mission" className="hover:text-accent">
               Background
             </Link>
@@ -92,6 +95,12 @@ export default async function Nav() {
                 className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
               >
                 Narrow
+              </Link>
+              <Link
+                href="/glossary"
+                className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
+              >
+                Glossary
               </Link>
               <Link
                 href="/mission"
