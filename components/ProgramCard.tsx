@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star } from "lucide-react";
-import { averageRating } from "@/lib/programs";
+import { programCountLabels } from "@/lib/programs";
 import type { DurationType } from "@/app/generated/prisma/client";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -21,9 +20,9 @@ export type ProgramCardProgram = {
   tags: { id: string; name: string; slug: string }[];
   reviews: { rating: number }[];
   /** Same source of truth the program page uses -- see fetchFilteredPrograms in
-   *  lib/programs.ts. Optional since only the browse-page query populates these;
-   *  other ProgramCard call sites (homepage, /match/results, recently-added) simply
-   *  render the card without them. */
+   *  lib/programs.ts. Every ProgramCard call site's query populates these; kept
+   *  optional (defaulting to 0 below) as a defensive fallback for any future caller
+   *  that doesn't. */
   referenceCount?: number;
   ratedResponseCount?: number;
 };
@@ -50,9 +49,11 @@ export function ProgramCardInfo({
    *  second tier (the pill) actually sits. */
   actionSpace?: "none" | "sm" | "lg";
 }) {
-  const rating = averageRating(program.reviews);
-  const referenceCount = program.referenceCount ?? 0;
-  const ratedResponseCount = program.ratedResponseCount ?? 0;
+  const countLabels = programCountLabels({
+    referenceCount: program.referenceCount ?? 0,
+    reviewCount: program.reviews.length,
+    ratedResponseCount: program.ratedResponseCount ?? 0,
+  });
 
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
@@ -94,22 +95,11 @@ export function ProgramCardInfo({
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {rating !== null && (
-            <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted">
-              <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
-              {rating.toFixed(1)} ({program.reviews.length})
+          {countLabels.map((label) => (
+            <span key={label} className="whitespace-nowrap text-muted">
+              {label}
             </span>
-          )}
-          {referenceCount > 0 && (
-            <span className="whitespace-nowrap text-muted">
-              {referenceCount} {referenceCount === 1 ? "reference" : "references"}
-            </span>
-          )}
-          {ratedResponseCount > 0 && (
-            <span className="whitespace-nowrap text-muted">
-              {ratedResponseCount} poll {ratedResponseCount === 1 ? "response" : "responses"}
-            </span>
-          )}
+          ))}
         </div>
       </div>
     </div>

@@ -65,10 +65,27 @@ export async function resolveManualItems(
   if (items.length === 0) return [];
 
   const slugs = items.map((item) => item.slug);
-  const programs = await prisma.program.findMany({
+  const rawPrograms = await prisma.program.findMany({
     where: { slug: { in: slugs }, status: "PUBLISHED" },
-    include: { tags: true, reviews: { where: { status: "PUBLISHED" } }, videos: true },
+    include: {
+      tags: true,
+      reviews: { where: { status: "PUBLISHED" } },
+      videos: true,
+      // Same filters/rationale as fetchFilteredPrograms (lib/programs.ts) -- so a
+      // manually-featured card can never disagree with the browse card or program page.
+      _count: {
+        select: {
+          references: { where: { status: "PUBLISHED" } },
+          pollResponses: { where: { status: "COUNTED" } },
+        },
+      },
+    },
   });
+  const programs = rawPrograms.map(({ _count, ...program }) => ({
+    ...program,
+    referenceCount: _count.references,
+    ratedResponseCount: _count.pollResponses,
+  }));
   const bySlug = new Map(programs.map((p) => [p.slug, p]));
 
   const resolved: ResolvedRecentlyAddedItem[] = [];

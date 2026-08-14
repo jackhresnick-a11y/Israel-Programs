@@ -485,6 +485,32 @@ export function averageRating(reviews: { rating: number }[]) {
   return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 }
 
+/** Formats the browse card / compare table's three feedback counts as
+ *  "N reference(s)" / "N review(s)" / "N poll response(s)", omitting any that are
+ *  zero -- shared so the singular/plural + omit-if-zero rules live in exactly one
+ *  place instead of being re-derived at each render site. */
+export function programCountLabels({
+  referenceCount,
+  reviewCount,
+  ratedResponseCount,
+}: {
+  referenceCount: number;
+  reviewCount: number;
+  ratedResponseCount: number;
+}): string[] {
+  const labels: string[] = [];
+  if (referenceCount > 0) {
+    labels.push(`${referenceCount} ${referenceCount === 1 ? "reference" : "references"}`);
+  }
+  if (reviewCount > 0) {
+    labels.push(`${reviewCount} ${reviewCount === 1 ? "review" : "reviews"}`);
+  }
+  if (ratedResponseCount > 0) {
+    labels.push(`${ratedResponseCount} poll ${ratedResponseCount === 1 ? "response" : "responses"}`);
+  }
+  return labels;
+}
+
 export async function listAllTags() {
   return prisma.tag.findMany({ orderBy: [{ order: "asc" }, { name: "asc" }] });
 }
@@ -492,10 +518,26 @@ export async function listAllTags() {
 /** Fetches published programs by slug, preserving the input order. */
 export async function getProgramsBySlugs(slugs: string[]) {
   if (slugs.length === 0) return [];
-  const programs = await prisma.program.findMany({
+  const rawPrograms = await prisma.program.findMany({
     where: { slug: { in: slugs }, status: "PUBLISHED" },
-    include: { tags: true, reviews: { where: { status: "PUBLISHED" } } },
+    include: {
+      tags: true,
+      reviews: { where: { status: "PUBLISHED" } },
+      // Same filters/rationale as fetchFilteredPrograms above -- so /compare's
+      // feedback row can never disagree with the browse card or program page.
+      _count: {
+        select: {
+          references: { where: { status: "PUBLISHED" } },
+          pollResponses: { where: { status: "COUNTED" } },
+        },
+      },
+    },
   });
+  const programs = rawPrograms.map(({ _count, ...program }) => ({
+    ...program,
+    referenceCount: _count.references,
+    ratedResponseCount: _count.pollResponses,
+  }));
   const bySlug = new Map(programs.map((p) => [p.slug, p]));
   return slugs.map((s) => bySlug.get(s)).filter((p): p is NonNullable<typeof p> => Boolean(p));
 }

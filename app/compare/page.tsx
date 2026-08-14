@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Star, X } from "lucide-react";
+import { X } from "lucide-react";
 import {
   getProgramsBySlugs,
   listPublishedProgramNames,
-  averageRating,
+  programCountLabels,
 } from "@/lib/programs";
 import { getDurationLabelMap } from "@/lib/duration";
 import type { DurationType } from "@/app/generated/prisma/enums";
@@ -37,15 +37,20 @@ function buildRows(durationLabelMap: Record<DurationType, string>): Row[] {
         `${durationLabelMap[p.durationType]}${p.durationText ? ` — ${p.durationText}` : ""}`,
     },
     {
-      label: "Rating",
+      label: "Feedback",
       render: (p) => {
-        const rating = averageRating(p.reviews);
-        if (rating === null) return "No reviews yet";
+        const labels = programCountLabels({
+          referenceCount: p.referenceCount,
+          reviewCount: p.reviews.length,
+          ratedResponseCount: p.ratedResponseCount,
+        });
+        if (labels.length === 0) return "None yet";
         return (
-          <span className="inline-flex items-center gap-1">
-            <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
-            {rating.toFixed(1)} ({p.reviews.length} review{p.reviews.length === 1 ? "" : "s"})
-          </span>
+          <div className="flex flex-col gap-1">
+            {labels.map((label) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
         );
       },
     },
