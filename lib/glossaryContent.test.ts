@@ -3,6 +3,8 @@ import {
   DEFAULT_GLOSSARY_ENTRIES,
   glossaryEntriesSchema,
   glossaryArticleJsonLd,
+  isGlossaryEntryPublished,
+  type GlossaryEntry,
 } from "./glossaryContent";
 
 describe("DEFAULT_GLOSSARY_ENTRIES", () => {
@@ -36,6 +38,42 @@ describe("DEFAULT_GLOSSARY_ENTRIES", () => {
     for (const entry of DEFAULT_GLOSSARY_ENTRIES) {
       expect(entry.sections.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("glossaryEntriesSchema cross-entry validation", () => {
+  it("rejects two entries sharing a slug", () => {
+    const [first, second, ...rest] = DEFAULT_GLOSSARY_ENTRIES;
+    const duplicated = [first, { ...second, slug: first.slug }, ...rest];
+    expect(() => glossaryEntriesSchema.parse(duplicated)).toThrow();
+  });
+
+  it("rejects a related slug that doesn't match any entry in the array", () => {
+    const [first, ...rest] = DEFAULT_GLOSSARY_ENTRIES;
+    const broken = [{ ...first, related: ["does-not-exist"] }, ...rest];
+    expect(() => glossaryEntriesSchema.parse(broken)).toThrow();
+  });
+
+  it("accepts an entry with no programLinks", () => {
+    const [first, ...rest] = DEFAULT_GLOSSARY_ENTRIES;
+    const noLinks = [{ ...first, programLinks: [] }, ...rest];
+    expect(() => glossaryEntriesSchema.parse(noLinks)).not.toThrow();
+  });
+});
+
+describe("isGlossaryEntryPublished", () => {
+  const base: GlossaryEntry = DEFAULT_GLOSSARY_ENTRIES[0];
+
+  it("treats an entry with no `published` field as published", () => {
+    expect(isGlossaryEntryPublished(base)).toBe(true);
+  });
+
+  it("treats `published: true` as published", () => {
+    expect(isGlossaryEntryPublished({ ...base, published: true })).toBe(true);
+  });
+
+  it("treats `published: false` as unpublished", () => {
+    expect(isGlossaryEntryPublished({ ...base, published: false })).toBe(false);
   });
 });
 

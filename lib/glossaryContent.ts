@@ -36,12 +36,59 @@ export const glossaryEntrySchema = z.object({
   kind: glossaryEntryKindSchema,
   summary: z.string().trim().min(1).max(300),
   sections: z.array(glossarySectionSchema).min(1).max(8),
-  programLinks: z.array(glossaryProgramLinkSchema).min(1).max(4),
+  // No .min(1) -- a term can exist with no matching /programs filter at all (e.g. no
+  // corresponding tag yet). The detail page omits the "See these programs" section
+  // entirely when this is empty, rather than rendering an empty-results block.
+  programLinks: z.array(glossaryProgramLinkSchema).max(4),
   related: z.array(z.string().trim().min(1)).max(8).optional(),
+  // Absent or true = published. Lets a single entry be hidden from the public without
+  // touching the section-wide glossaryEnabled SiteContent flag (see lib/glossary.ts).
+  published: z.boolean().optional(),
 });
 export type GlossaryEntry = z.infer<typeof glossaryEntrySchema>;
 
-export const glossaryEntriesSchema = z.array(glossaryEntrySchema).min(1).max(60);
+/** Absent `published` defaults to visible -- matches every entry in
+ * DEFAULT_GLOSSARY_ENTRIES below, none of which set the field. */
+export function isGlossaryEntryPublished(entry: GlossaryEntry): boolean {
+  return entry.published !== false;
+}
+
+// Cross-entry invariants that a single glossaryEntrySchema.parse can't see: slugs must
+// be unique (they're the URL identifier), and every `related` slug must resolve to
+// another entry in the same array. Enforced here rather than only in a unit test
+// against the hardcoded defaults, because admin-submitted entries (lib/glossary.ts's
+// saveGlossaryEntries, via app/api/admin/glossary/route.ts) now flow through this same
+// schema and need the same guarantee at write time.
+export const glossaryEntriesSchema = z
+  .array(glossaryEntrySchema)
+  .min(1)
+  .max(60)
+  .superRefine((entries, ctx) => {
+    const seenSlugs = new Set<string>();
+    entries.forEach((entry, index) => {
+      if (seenSlugs.has(entry.slug)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Duplicate slug "${entry.slug}"`,
+          path: [index, "slug"],
+        });
+      }
+      seenSlugs.add(entry.slug);
+    });
+
+    const allSlugs = new Set(entries.map((entry) => entry.slug));
+    entries.forEach((entry, index) => {
+      (entry.related ?? []).forEach((relatedSlug, relatedIndex) => {
+        if (!allSlugs.has(relatedSlug)) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Related slug "${relatedSlug}" does not match any entry`,
+            path: [index, "related", relatedIndex],
+          });
+        }
+      });
+    });
+  });
 
 /** Copy in every `sections[].body` below is a placeholder -- the real definitions are
  * written separately (see the glossary PR description). Do not treat this file's prose

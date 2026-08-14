@@ -25,6 +25,7 @@ export const config = {
     "/mission/edit",
     "/rate/:path*",
     "/match/:path*",
+    "/glossary/:path*",
     "/saved/:path*",
     "/references/:path*",
     "/sign-in/:path*",

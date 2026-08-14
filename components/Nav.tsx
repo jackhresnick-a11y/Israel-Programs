@@ -4,11 +4,17 @@ import { MobileAuthLinks, DesktopAuthControls } from "@/components/NavAuthContro
 import MobileNavDrawer from "@/components/MobileNavDrawer";
 
 export default async function Nav() {
-  const [logoUrl, logoMode] = await Promise.all([
+  const [logoUrl, logoMode, glossaryEnabled] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
+    getSiteContent("glossaryEnabled"),
   ]);
   const showText = !logoUrl || logoMode === "alongside";
+  // Flag-only, deliberately not role-aware -- Nav renders on every route via the root
+  // layout, and a role check here (Clerk reads cookies) would force the whole site
+  // dynamic. When the section is off, the link disappears for admins too; they can
+  // still reach /glossary or /admin/glossary by URL.
+  const showGlossaryLink = glossaryEnabled === "true";
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-primary">
@@ -43,9 +49,11 @@ export default async function Nav() {
             <Link href="/find" className="hover:text-accent">
               Narrow
             </Link>
-            <Link href="/glossary" className="hover:text-accent">
-              Glossary
-            </Link>
+            {showGlossaryLink && (
+              <Link href="/glossary" className="hover:text-accent">
+                Glossary
+              </Link>
+            )}
             <Link href="/mission" className="hover:text-accent">
               Background
             </Link>
@@ -96,12 +104,14 @@ export default async function Nav() {
               >
                 Narrow
               </Link>
-              <Link
-                href="/glossary"
-                className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
-              >
-                Glossary
-              </Link>
+              {showGlossaryLink && (
+                <Link
+                  href="/glossary"
+                  className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
+                >
+                  Glossary
+                </Link>
+              )}
               <Link
                 href="/mission"
                 className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
