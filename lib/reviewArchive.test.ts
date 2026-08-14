@@ -176,6 +176,9 @@ const { fakePrisma, resetDb, seedPollReview, seedReview, seedProgram, lastArgs }
               reviews: reviewWhere
                 ? db.reviews.filter((r) => r.programId === p.id && matchesPositiveStatus(r, reviewWhere.status))
                 : [],
+              // This fake doesn't seed References/PollResponses -- both are always 0,
+              // same as real Prisma would return for a program with none.
+              _count: { references: 0, pollResponses: 0 },
             }));
         }
       ),

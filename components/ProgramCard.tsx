@@ -20,6 +20,12 @@ export type ProgramCardProgram = {
   cost: string | null;
   tags: { id: string; name: string; slug: string }[];
   reviews: { rating: number }[];
+  /** Same source of truth the program page uses -- see fetchFilteredPrograms in
+   *  lib/programs.ts. Optional since only the browse-page query populates these;
+   *  other ProgramCard call sites (homepage, /match/results, recently-added) simply
+   *  render the card without them. */
+  referenceCount?: number;
+  ratedResponseCount?: number;
 };
 
 /** The name/blurb/hashtags block shared by the regular grid card and the featured (video) card. */
@@ -45,6 +51,8 @@ export function ProgramCardInfo({
   actionSpace?: "none" | "sm" | "lg";
 }) {
   const rating = averageRating(program.reviews);
+  const referenceCount = program.referenceCount ?? 0;
+  const ratedResponseCount = program.ratedResponseCount ?? 0;
 
   return (
     <div className={gap === "tight" ? "flex flex-col gap-2" : "flex flex-col gap-3"}>
@@ -85,12 +93,24 @@ export function ProgramCardInfo({
             </Badge>
           ))}
         </div>
-        {rating !== null && (
-          <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted">
-            <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
-            {rating.toFixed(1)} ({program.reviews.length})
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {rating !== null && (
+            <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted">
+              <Star width={16} height={16} strokeWidth={1.5} aria-hidden="true" className="fill-current text-accent-hover" />
+              {rating.toFixed(1)} ({program.reviews.length})
+            </span>
+          )}
+          {referenceCount > 0 && (
+            <span className="whitespace-nowrap text-muted">
+              {referenceCount} {referenceCount === 1 ? "reference" : "references"}
+            </span>
+          )}
+          {ratedResponseCount > 0 && (
+            <span className="whitespace-nowrap text-muted">
+              {ratedResponseCount} poll {ratedResponseCount === 1 ? "response" : "responses"}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
