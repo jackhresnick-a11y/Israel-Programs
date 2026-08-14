@@ -230,6 +230,16 @@ export type PollSummaryQuestionDTO = {
    * like normal. The results grid checks this flag directly rather than re-deriving it
    * from count/minResponsesToPublish, so there's exactly one place the OR lives. */
   published: boolean;
+  /** True when this question is part of the program's live-resolved poll set right now
+   * (lib/pollResults.ts's `flat`) -- the rating form can still serve it to a new
+   * respondent, so an unpublished count can still cross the publish threshold later.
+   * False for an orphaned question (retired, or otherwise no longer resolved for this
+   * program -- see getProgramPollSummary's `orphanedQuestions`): its count is frozen
+   * forever, so an unpublished orphaned question can never become published. The results
+   * grid uses this to distinguish "not enough responses yet, check back" (isCurrent) from
+   * a permanent dead end that should render nothing (see components/PollSummaryStrip.tsx's
+   * QuestionBlock and its section-visibility filter). */
+  isCurrent: boolean;
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same
@@ -237,11 +247,19 @@ export type PollSummaryQuestionDTO = {
  * `order` is the bucket's own QuestionBucket.order (global, admin-assigned, stable
  * across every program) -- carried here so the results grid can pick a ring color by
  * the bucket's identity rather than its position within this one program's resolved
- * list (see components/PollSummaryStrip.tsx's bucketColorVar). */
+ * list (see components/PollSummaryStrip.tsx's bucketColorVar). `description` is the
+ * admin-editable QuestionBucket.description, rendered on the collapsed results row when
+ * non-empty -- never a placeholder when null (style guide §5 rule 1's "no data, no
+ * placeholder" posture). `isCore` picks the one bucket the results grid expands by
+ * default; `retired` (QuestionBucket.status === "RETIRED") forces a bucket's row to stay
+ * collapsed regardless of isCore -- see components/PollSummaryStrip.tsx's BucketSection. */
 export type PollSummaryBucketDTO = {
   id: string;
   name: string;
+  description: string | null;
   order: number;
+  isCore: boolean;
+  retired: boolean;
 };
 
 /** The program page's survey-results data. Deliberately carries no aggregate/overall

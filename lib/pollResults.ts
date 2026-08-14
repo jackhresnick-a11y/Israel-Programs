@@ -97,7 +97,10 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
 
   const [resolved, coreBucket, answerStats] = await Promise.all([
     getQuestionsForProgram(programId),
-    prisma.questionBucket.findFirst({ where: { isCore: true }, select: { id: true, name: true, order: true } }),
+    prisma.questionBucket.findFirst({
+      where: { isCore: true },
+      select: { id: true, name: true, description: true, order: true, isCore: true, status: true },
+    }),
     prisma.pollAnswer.groupBy({
       by: ["questionId"],
       where: { response: { programId, status: "COUNTED" } },
@@ -116,14 +119,22 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       question,
       bucketId: coreBucket?.id ?? null,
       bucketName: coreBucket?.name ?? null,
+      bucketDescription: coreBucket?.description ?? null,
       bucketOrder: coreBucket?.order ?? null,
+      bucketIsCore: coreBucket?.isCore ?? false,
+      bucketRetired: coreBucket?.status === "RETIRED",
+      isCurrent: true,
     })),
     ...resolved.extras.flatMap(({ bucket, questions: bucketQuestions }) =>
       bucketQuestions.map((question) => ({
         question,
         bucketId: bucket.id,
         bucketName: bucket.name,
+        bucketDescription: bucket.description,
         bucketOrder: bucket.order,
+        bucketIsCore: bucket.isCore,
+        bucketRetired: bucket.status === "RETIRED",
+        isCurrent: true,
       }))
     ),
   ].filter(({ question }) => question.key !== OVERALL_QUESTION_KEY);
@@ -156,7 +167,12 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
   // flag on PollQuestion, not a structural removal from the bucket). If no bucket lists
   // it anymore, it renders ungrouped (bucketId: null), same fallback the results grid
   // already has for any unmatched bucket.
-  const allBuckets = orphanedQuestions.length > 0 ? await prisma.questionBucket.findMany({ select: { id: true, name: true, order: true, questionIds: true } }) : [];
+  const allBuckets =
+    orphanedQuestions.length > 0
+      ? await prisma.questionBucket.findMany({
+          select: { id: true, name: true, description: true, order: true, isCore: true, status: true, questionIds: true },
+        })
+      : [];
   function findBucketFor(questionId: string) {
     return allBuckets.find((b) => b.questionIds.includes(questionId)) ?? null;
   }
@@ -167,12 +183,21 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       .filter((q) => q.key !== OVERALL_QUESTION_KEY)
       .map((question) => {
         const bucket = findBucketFor(question.id);
-        return { question, bucketId: bucket?.id ?? null, bucketName: bucket?.name ?? null, bucketOrder: bucket?.order ?? null };
+        return {
+          question,
+          bucketId: bucket?.id ?? null,
+          bucketName: bucket?.name ?? null,
+          bucketDescription: bucket?.description ?? null,
+          bucketOrder: bucket?.order ?? null,
+          bucketIsCore: bucket?.isCore ?? false,
+          bucketRetired: bucket?.status === "RETIRED",
+          isCurrent: false,
+        };
       }),
   ];
 
   const grandfatheredIds = new Set(config.grandfatheredQuestionIds);
-  const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId }) => {
+  const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId, isCurrent }) => {
     const stats = statsByQuestionId.get(question.id);
     const count = stats?._count._all ?? 0;
     return {
@@ -184,17 +209,25 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       bucketId,
       labels: question.labels,
       published: count >= config.minResponsesToPublish || grandfatheredIds.has(question.id),
+      isCurrent,
     };
   });
 
   // Legend: distinct buckets behind the resolved questions, in resolved order.
   const buckets: PollSummaryBucketDTO[] = [];
   const seenBucketIds = new Set<string>();
-  for (const { bucketId, bucketName, bucketOrder } of flatWithOrphans) {
+  for (const { bucketId, bucketName, bucketDescription, bucketOrder, bucketIsCore, bucketRetired } of flatWithOrphans) {
     if (!bucketId || !bucketName || bucketOrder === null) continue;
     if (!seenBucketIds.has(bucketId)) {
       seenBucketIds.add(bucketId);
-      buckets.push({ id: bucketId, name: bucketName, order: bucketOrder });
+      buckets.push({
+        id: bucketId,
+        name: bucketName,
+        description: bucketDescription,
+        order: bucketOrder,
+        isCore: bucketIsCore,
+        retired: bucketRetired,
+      });
     }
   }
 

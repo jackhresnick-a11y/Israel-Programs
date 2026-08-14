@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
@@ -43,6 +46,17 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
   return `var(${BUCKET_COLOR_VARS[index]})`;
 }
 
+/** A question is worth rendering something for when either it's already published, or
+ * it's still `isCurrent` (part of the program's live poll set, so an unpublished count
+ * can still cross the bar later). An unpublished, non-current (orphaned/retired)
+ * question can never publish -- its count is frozen -- so it renders nothing anywhere:
+ * not a chart, not a "not enough responses yet" placeholder that would never resolve.
+ * Shared between QuestionBlock (per-question) and PollSummaryStrip's section build
+ * (per-bucket, to decide whether a bucket has anything to show at all). */
+function isRenderable(question: PollSummaryQuestionDTO): boolean {
+  return question.published || question.isCurrent;
+}
+
 /** One question's result block, keyed off `scaleType` -- stacked vertically, never
  * side-by-side, so two questions can never collide regardless of screen width.
  * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
@@ -54,7 +68,14 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * so the same grid can show a mix of published and "not enough yet" questions side by
  * side. Deliberately a different, higher bar than lib/pollBestFor.ts's own
  * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility -- a
- * different feature, untouched here. */
+ * different feature, untouched here.
+ *
+ * An unpublished, non-current question renders nothing (see isRenderable) rather than
+ * "Not enough responses yet." -- that placeholder promises the reader more responses
+ * could still arrive, which is false for an orphaned question the rating form no longer
+ * serves. PollSummaryStrip's section build already filters these out before they reach
+ * here; this is the same rule applied at the single-question level, in case a caller
+ * ever passes an unfiltered list. */
 function QuestionBlock({
   question,
   colorVar,
@@ -64,9 +85,10 @@ function QuestionBlock({
   colorVar: string | null;
   programName: string;
 }) {
-  const { text, mean, count, labels, scaleType, published } = question;
+  const { text, mean, count, labels, scaleType, published, isCurrent } = question;
 
   if (!published) {
+    if (!isCurrent) return null;
     return (
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium text-foreground">{text}</h3>
@@ -80,6 +102,83 @@ function QuestionBlock({
   }
 
   return <RatingRing text={text} programName={programName} mean={mean} count={count} labels={labels} colorVar={colorVar} />;
+}
+
+/** One collapsible bucket group -- a plain bucket (isCore/manual/rule-attached) or the
+ * synthetic "Other" pseudo-bucket for orphaned/unmatched questions (see
+ * PollSummaryStrip's `sections` build below). `key` doubles as the React key and the
+ * open-state map key. */
+type BucketSectionData = {
+  key: string;
+  name: string;
+  description: string | null;
+  colorVar: string | null;
+  questions: PollSummaryQuestionDTO[];
+  defaultOpen: boolean;
+  retired: boolean;
+};
+
+/** One collapsed-by-default results row. The collapsed header carries identity only --
+ * dot, name, description, a question count -- and deliberately no score/average/rating,
+ * so the summary layer can never be read as a ranking (see "There is no aggregate score"
+ * in CLAUDE.md). The panel is always rendered and toggled via the `hidden` attribute
+ * rather than conditionally mounted: RatingRing/DescriptiveTrack each render a fixed
+ * extractability sentence (lib/pollSentences.ts) into the server-rendered HTML for AI/
+ * search extraction, and unmounting a collapsed panel would delete that content from the
+ * page source, not just hide it visually. */
+function BucketSection({
+  section,
+  programName,
+  isOpen,
+  onToggle,
+}: {
+  section: BucketSectionData;
+  programName: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const panelId = `poll-bucket-panel-${section.key}`;
+  const questionCount = section.questions.length;
+
+  return (
+    <Card className="flex flex-col gap-4 p-4">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="flex w-full min-h-11 items-center gap-3 text-left"
+      >
+        <span
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: section.colorVar ?? "var(--border)" }}
+          aria-hidden="true"
+        />
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-foreground">{section.name}</span>
+            {section.retired && <Badge tone="neutral">Retired</Badge>}
+          </span>
+          {section.description && <span className="block text-xs text-muted">{section.description}</span>}
+          <span className="text-xs text-accent-hover">Expand to see results</span>
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <span className="font-mono text-xs tabular-nums text-muted">
+            {questionCount} question{questionCount === 1 ? "" : "s"}
+          </span>
+          <ChevronDown width={16} height={16} strokeWidth={1.5} aria-hidden="true" className={isOpen ? "rotate-180" : undefined} />
+        </span>
+      </button>
+
+      <div id={panelId} hidden={!isOpen} className="flex flex-col divide-y divide-border">
+        {section.questions.map((q) => (
+          <div key={q.key} className="py-4 first:pt-0 last:pb-0">
+            <QuestionBlock question={q} colorVar={section.colorVar} programName={programName} />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
 }
 
 /** The primary "Rate this program" button plus its optional social-proof line -- one
@@ -155,8 +254,64 @@ export default function PollSummaryStrip({
   const rateHref = publicPollLink ?? `/rate/${programSlug}`;
   const layout = deriveCtaLayout(summary);
 
+  // Excludes questions isRenderable would render nothing for (unpublished + orphaned --
+  // see isRenderable's doc comment) up front, so a bucket/section built from this list
+  // never ends up with a "N questions" count that overcounts blank rows, and a bucket
+  // whose every question is a permanent dead end is caught by the empty-list check below
+  // instead of rendering an expandable row with nothing behind it.
+  const visibleQuestions = summary.questions.filter(isRenderable);
+
   const groupedBucketIds = new Set(summary.buckets.map((b) => b.id));
-  const ungroupedQuestions = summary.questions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
+  const ungroupedQuestions = visibleQuestions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
+
+  // One row per bucket, plus a synthetic "Other" row for any question whose bucket
+  // didn't resolve (a dead soft-ref, or a retired bucket the results grid never lists --
+  // see lib/pollResults.ts). General (the isCore bucket) is the only section open by
+  // default; a retired bucket and "Other" always start closed, per the collapse spec.
+  // A bucket with zero renderable questions -- e.g. a retired bucket whose only question
+  // never crossed the publish threshold before being retired -- is omitted entirely
+  // rather than rendering an empty, expandable dead end.
+  const sections: BucketSectionData[] = [
+    ...summary.buckets
+      .map((bucket): BucketSectionData | null => {
+        const bucketQuestions = visibleQuestions.filter((q) => q.bucketId === bucket.id);
+        if (bucketQuestions.length === 0) return null;
+        return {
+          key: bucket.id,
+          name: bucket.name,
+          description: bucket.description,
+          colorVar: bucketColorVar(bucket.id, summary.buckets),
+          questions: bucketQuestions,
+          defaultOpen: bucket.isCore && !bucket.retired,
+          retired: bucket.retired,
+        };
+      })
+      .filter((section): section is BucketSectionData => section !== null),
+    ...(ungroupedQuestions.length > 0
+      ? [
+          {
+            key: "__ungrouped",
+            name: "Other",
+            description: null,
+            colorVar: null,
+            questions: ungroupedQuestions,
+            defaultOpen: false,
+            retired: false,
+          },
+        ]
+      : []),
+  ];
+
+  // Lazily seeded from each section's own defaultOpen -- runs once per mount, same
+  // idiom as components/polls/QuestionWithReview.tsx's commentOpen.
+  const [open, setOpen] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(sections.map((section) => [section.key, section.defaultOpen]))
+  );
+  const allOpen = sections.length > 0 && sections.every((section) => open[section.key] ?? section.defaultOpen);
+  function toggleAll() {
+    const next = !allOpen;
+    setOpen(Object.fromEntries(sections.map((section) => [section.key, next])));
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -168,9 +323,16 @@ export default function PollSummaryStrip({
         >
           Poll results
         </h2>
-        <Link href="/methodology" className="text-xs text-accent-hover underline">
-          How these results are collected →
-        </Link>
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          {layout.showResults && sections.length >= 2 && (
+            <button type="button" onClick={toggleAll} className="text-xs font-medium text-accent-hover underline">
+              {allOpen ? "Collapse all" : "Expand all"}
+            </button>
+          )}
+          <Link href="/methodology" className="text-xs text-accent-hover underline">
+            How these results are collected →
+          </Link>
+        </div>
       </div>
       <div className="flex flex-col gap-3">
         {layout.showResults && (
@@ -184,42 +346,18 @@ export default function PollSummaryStrip({
         <RateCta rateHref={rateHref} responseCount={summary.responseCount} showResponseCount={layout.showResponseCount} />
       </div>
 
-      {layout.showResults && summary.buckets.map((bucket) => {
-        const bucketQuestions = summary.questions.filter((q) => q.bucketId === bucket.id);
-        if (bucketQuestions.length === 0) return null;
-        const colorVar = bucketColorVar(bucket.id, summary.buckets);
-        return (
-          <Card key={bucket.id} className="flex flex-col gap-4 p-4">
-            <div className="flex items-center gap-3">
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: colorVar ?? "var(--border)" }}
-              />
-              <span className="text-sm font-medium text-foreground">{bucket.name}</span>
-            </div>
-            <div className="flex flex-col divide-y divide-border">
-              {bucketQuestions.map((q) => (
-                <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                  <QuestionBlock question={q} colorVar={colorVar} programName={programName} />
-                </div>
-              ))}
-            </div>
-          </Card>
-        );
-      })}
-
-      {layout.showResults && ungroupedQuestions.length > 0 && (
-        <Card className="flex flex-col gap-4 p-4">
-          <span className="text-sm font-medium text-foreground">Other</span>
-          <div className="flex flex-col divide-y divide-border">
-            {ungroupedQuestions.map((q) => (
-              <div key={q.key} className="py-4 first:pt-0 last:pb-0">
-                <QuestionBlock question={q} colorVar={null} programName={programName} />
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      {layout.showResults &&
+        sections.map((section) => (
+          <BucketSection
+            key={section.key}
+            section={section}
+            programName={programName}
+            isOpen={open[section.key] ?? section.defaultOpen}
+            onToggle={() =>
+              setOpen((prev) => ({ ...prev, [section.key]: !(prev[section.key] ?? section.defaultOpen) }))
+            }
+          />
+        ))}
 
       {/* Second CTA instance, at the bottom of the results grid -- after reading the
           strip and per-question breakdown is the highest-intent moment to ask. Never
