@@ -386,11 +386,32 @@ async function fetchFilteredPrograms(filters: ProgramFilters) {
     ...(filters.travelType ? { travelType: filters.travelType } : {}),
   };
 
-  const programs = await prisma.program.findMany({
+  const rawPrograms = await prisma.program.findMany({
     where,
-    include: { tags: true, reviews: { where: { status: "PUBLISHED" } } },
+    include: {
+      tags: true,
+      reviews: { where: { status: "PUBLISHED" } },
+      _count: {
+        select: {
+          // Same filters as countPublishedReferences (lib/references.ts) and
+          // getProgramPollSummary's flat responseCount (lib/pollResults.ts) -- the
+          // program page's own counts -- so the browse card can never show a number
+          // that disagrees with what the program page shows. Deliberately NOT
+          // countResponsesMeetingReadinessBar's stricter bucket-spread definition,
+          // which is admin-only (see /admin/programs, /admin/polls/coverage).
+          references: { where: { status: "PUBLISHED" } },
+          pollResponses: { where: { status: "COUNTED" } },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
+
+  const programs = rawPrograms.map(({ _count, ...program }) => ({
+    ...program,
+    referenceCount: _count.references,
+    ratedResponseCount: _count.pollResponses,
+  }));
 
   return { programs, term };
 }
