@@ -237,11 +237,19 @@ export type PollSummaryQuestionDTO = {
  * `order` is the bucket's own QuestionBucket.order (global, admin-assigned, stable
  * across every program) -- carried here so the results grid can pick a ring color by
  * the bucket's identity rather than its position within this one program's resolved
- * list (see components/PollSummaryStrip.tsx's bucketColorVar). */
+ * list (see components/PollSummaryStrip.tsx's bucketColorVar). `description` is the
+ * admin-editable QuestionBucket.description, rendered on the collapsed results row when
+ * non-empty -- never a placeholder when null (style guide §5 rule 1's "no data, no
+ * placeholder" posture). `isCore` picks the one bucket the results grid expands by
+ * default; `retired` (QuestionBucket.status === "RETIRED") forces a bucket's row to stay
+ * collapsed regardless of isCore -- see components/PollSummaryStrip.tsx's BucketSection. */
 export type PollSummaryBucketDTO = {
   id: string;
   name: string;
+  description: string | null;
   order: number;
+  isCore: boolean;
+  retired: boolean;
 };
 
 /** The program page's survey-results data. Deliberately carries no aggregate/overall
