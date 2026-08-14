@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { getDurationLabelMap } from "@/lib/duration";
-import { loadActiveFlowQuestions, runMatchResults, type MatchProgram } from "@/lib/flowRun";
+import { loadActiveFlowQuestions, runMatchResults, buildFlowCoverageContext, type MatchProgram } from "@/lib/flowRun";
 import { resolveFlow, parseAnswerState, withAnswer, buildMatchHref } from "@/lib/flowShared";
 import type { ScoredProgram } from "@/lib/flowRank";
 import FlowAnswerSummary from "@/components/find/FlowAnswerSummary";
@@ -51,9 +51,12 @@ export default async function MatchResultsPage({ searchParams }: { searchParams:
 
   const { s, a } = await searchParams;
 
-  const questions = await loadActiveFlowQuestions();
+  const [questions, coverage] = await Promise.all([loadActiveFlowQuestions(), buildFlowCoverageContext()]);
   const rawState = parseAnswerState(a);
-  const resolved = resolveFlow(questions, rawState, null);
+  // Same coverage context the live flow gated against, so the review-screen summary
+  // (FlowAnswerSummary below) lists exactly what the respondent actually saw --
+  // never a question that was silently dropped by guard 1 mid-flow.
+  const resolved = resolveFlow(questions, rawState, null, coverage);
 
   const [results, durationLabelMap] = await Promise.all([
     runMatchResults(questions, resolved.state),

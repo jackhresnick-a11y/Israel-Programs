@@ -12,6 +12,7 @@ import { listPrograms, listAllTags } from "@/lib/programs";
 import type { ProgramCardProgram } from "@/components/ProgramCard";
 import {
   resolveFlow,
+  type CoverageContext,
   type FlowAnswers,
   type FlowAnswerState,
   type FlowQuestionDTO,
@@ -21,6 +22,8 @@ import {
   survivingPrograms,
   rankPrograms,
   hardFilterRelaxations,
+  makeOptionCoverageCounter,
+  MIN_OPTION_COVERAGE,
   type RankableProgram,
   type ScoredProgram,
 } from "@/lib/flowRank";
@@ -167,6 +170,21 @@ export async function markFlowSessionSubmitted(sessionId: string, resultHref: st
 export async function buildTagCategoryMap(): Promise<Map<string, string | null>> {
   const tags = await listAllTags();
   return new Map(tags.map((t) => [t.slug, t.category]));
+}
+
+/**
+ * Live coverage-gating input for /match: every PUBLISHED program's tagSlugs +
+ * durationType, read fresh on every request (never cached, never a hardcoded
+ * list -- the task this backs is explicit about that), plus the tag-category map
+ * the same eliminator math elsewhere in this file already needs. `listPrograms({})`
+ * is the same live read runMatchResults uses for the results pipeline, so a
+ * program that's live enough to rank is live enough to back an option here --
+ * the two can never disagree about what "published" means.
+ */
+export async function buildFlowCoverageContext(): Promise<CoverageContext> {
+  const [programs, tagCategoryBySlug] = await Promise.all([listPrograms({}), buildTagCategoryMap()]);
+  const coveragePrograms = programs.map((p) => ({ id: p.id, durationType: p.durationType, tagSlugs: p.tags.map((t) => t.slug) }));
+  return { counter: makeOptionCoverageCounter(coveragePrograms, tagCategoryBySlug), floor: MIN_OPTION_COVERAGE };
 }
 
 export type MatchProgram = ProgramCardProgram & RankableProgram;

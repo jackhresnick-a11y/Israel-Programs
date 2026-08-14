@@ -12,7 +12,14 @@
  * different concern from resolving which questions are visible.
  */
 import { groupSlugsByCategory, matchedTagGroups, matchesDuration, type FacetProgram } from "@/lib/facetCounts";
-import type { FlowAnswerState, FlowOptionMatchMode, FlowQuestionDTO } from "@/lib/flowShared";
+import type {
+  CoverageEliminator,
+  FlowAnswerState,
+  FlowOptionDTO,
+  FlowOptionMatchMode,
+  FlowQuestionDTO,
+  OptionCoverageCounter,
+} from "@/lib/flowShared";
 
 export type RankableProgram = FacetProgram & { name: string };
 
@@ -147,6 +154,55 @@ export function passesAllRequireTargets(
   tagCategoryBySlug: Map<string, string | null>
 ): boolean {
   return targets.every((target) => passesRequireTarget(program, target, tagCategoryBySlug));
+}
+
+// ---------------------------------------------------------------------------
+// Live coverage gating -- the counter half of lib/flowShared.ts's
+// OptionCoverageCounter contract. Kept here, not there, for the same reason
+// everything else on this page lives here: it's REQUIRE-eliminator machinery, and
+// this is the one file that already owns passesRequireTarget/
+// passesAllRequireTargets. Still Prisma-free -- the caller (lib/flowRun.ts) does
+// the actual live Program read and hands the resulting array in.
+// ---------------------------------------------------------------------------
+
+/** "Below this many published programs, don't offer the option." The ONE place
+ * this number lives -- same one-threshold-one-place precedent as
+ * STRONG_MIN_CRITERIA above and lib/pollBestFor.ts's MIN_RESPONSES_PER_QUESTION,
+ * which this mirrors: a handful of real matches is the bar for "worth surfacing,"
+ * below that it's noise or a taxonomy gap, not a real choice. */
+export const MIN_OPTION_COVERAGE = 3;
+
+/** Builds the OptionCoverageCounter lib/flowShared.ts's resolveFlow calls at each
+ * step of its forward walk. `programs` is a plain already-fetched array (the same
+ * FacetProgram shape survivingPrograms/rankPrograms already use) -- this function
+ * itself never touches Prisma, so importing it doesn't drag lib/prisma.ts into
+ * anything that imports lib/flowShared.ts. */
+export function makeOptionCoverageCounter(
+  programs: FacetProgram[],
+  tagCategoryBySlug: Map<string, string | null>
+): OptionCoverageCounter {
+  return (option: FlowOptionDTO, eliminatorsSoFar: CoverageEliminator[]): number => {
+    const requireTargets: FlowRequireTarget[] = eliminatorsSoFar.map((e, i) => ({
+      questionKey: `__eliminator_${i}`,
+      label: "",
+      tagSlugs: e.tagSlugs,
+      durationValues: e.durationValues,
+      requireIncludesUntagged: e.requireIncludesUntagged,
+    }));
+    const pool = programs.filter((p) => passesAllRequireTargets(p, requireTargets, tagCategoryBySlug));
+    // Strict match for the option's OWN facet: requireIncludesUntagged forced
+    // false regardless of the option's authored value -- see
+    // OptionCoverageCounter's doc comment in lib/flowShared.ts for why an
+    // untagged program must never count toward THIS option's coverage.
+    const strictTarget: FlowRequireTarget = {
+      questionKey: "__coverage",
+      label: "",
+      tagSlugs: option.tagSlugs,
+      durationValues: option.durationValues,
+      requireIncludesUntagged: false,
+    };
+    return pool.filter((p) => passesRequireTarget(p, strictTarget, tagCategoryBySlug)).length;
+  };
 }
 
 export function survivingPrograms<T extends RankableProgram>(

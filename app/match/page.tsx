@@ -4,7 +4,13 @@ import { redirect, notFound } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { getClientIpFromHeaders } from "@/lib/rateLimit";
-import { loadActiveFlowQuestions, loadFlowClipData, resolveOrMintFlowSession, recordFlowResponses } from "@/lib/flowRun";
+import {
+  loadActiveFlowQuestions,
+  loadFlowClipData,
+  resolveOrMintFlowSession,
+  recordFlowResponses,
+  buildFlowCoverageContext,
+} from "@/lib/flowRun";
 import { resolveFlow, parseAnswerState, withAnswer, buildMatchHref } from "@/lib/flowShared";
 import FlowStep from "@/components/find/FlowStep";
 import FlowAnswerSummary from "@/components/find/FlowAnswerSummary";
@@ -59,7 +65,11 @@ export default async function MatchPage({ searchParams }: { searchParams: Search
     redirect(`/match?${params.toString()}`);
   }
 
-  const [questions, clipData] = await Promise.all([loadActiveFlowQuestions(), loadFlowClipData()]);
+  const [questions, clipData, coverage] = await Promise.all([
+    loadActiveFlowQuestions(),
+    loadFlowClipData(),
+    buildFlowCoverageContext(),
+  ]);
   const rawState = parseAnswerState(a);
 
   // A form submission (Continue or Skip) always carries `q` plus one of
@@ -73,12 +83,12 @@ export default async function MatchPage({ searchParams }: { searchParams: Search
   if (q && (answer !== undefined || skip === "1" || advance === "1")) {
     const value: string[] | null = skip === "1" ? null : answer ? [answer] : [];
     const nextRawState = withAnswer(rawState, q, value);
-    const resolved = resolveFlow(questions, nextRawState, null);
+    const resolved = resolveFlow(questions, nextRawState, null, coverage);
     recordFlowResponses(sessionId, questions, resolved.state, clipData, resolved.conditionAnswers);
     redirect(buildMatchHref("/match", resolved.current?.key ?? null, resolved.state, sessionId));
   }
 
-  const resolved = resolveFlow(questions, rawState, q ?? null);
+  const resolved = resolveFlow(questions, rawState, q ?? null, coverage);
   recordFlowResponses(sessionId, questions, resolved.state, clipData, resolved.conditionAnswers);
 
   if (!resolved.current) {
