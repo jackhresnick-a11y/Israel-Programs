@@ -230,6 +230,16 @@ export type PollSummaryQuestionDTO = {
    * like normal. The results grid checks this flag directly rather than re-deriving it
    * from count/minResponsesToPublish, so there's exactly one place the OR lives. */
   published: boolean;
+  /** True when this question is part of the program's live-resolved poll set right now
+   * (lib/pollResults.ts's `flat`) -- the rating form can still serve it to a new
+   * respondent, so an unpublished count can still cross the publish threshold later.
+   * False for an orphaned question (retired, or otherwise no longer resolved for this
+   * program -- see getProgramPollSummary's `orphanedQuestions`): its count is frozen
+   * forever, so an unpublished orphaned question can never become published. The results
+   * grid uses this to distinguish "not enough responses yet, check back" (isCurrent) from
+   * a permanent dead end that should render nothing (see components/PollSummaryStrip.tsx's
+   * QuestionBlock and its section-visibility filter). */
+  isCurrent: boolean;
 };
 
 /** One legend entry for the results grid -- ordered Core-first then extras, same

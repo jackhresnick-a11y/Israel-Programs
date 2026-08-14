@@ -46,6 +46,17 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
   return `var(${BUCKET_COLOR_VARS[index]})`;
 }
 
+/** A question is worth rendering something for when either it's already published, or
+ * it's still `isCurrent` (part of the program's live poll set, so an unpublished count
+ * can still cross the bar later). An unpublished, non-current (orphaned/retired)
+ * question can never publish -- its count is frozen -- so it renders nothing anywhere:
+ * not a chart, not a "not enough responses yet" placeholder that would never resolve.
+ * Shared between QuestionBlock (per-question) and PollSummaryStrip's section build
+ * (per-bucket, to decide whether a bucket has anything to show at all). */
+function isRenderable(question: PollSummaryQuestionDTO): boolean {
+  return question.published || question.isCurrent;
+}
+
 /** One question's result block, keyed off `scaleType` -- stacked vertically, never
  * side-by-side, so two questions can never collide regardless of screen width.
  * EVALUATIVE reads as a grade (a proportional ring, higher is better; see RatingRing).
@@ -57,7 +68,14 @@ function bucketColorVar(bucketId: string | null, buckets: PollSummaryBucketDTO[]
  * so the same grid can show a mix of published and "not enough yet" questions side by
  * side. Deliberately a different, higher bar than lib/pollBestFor.ts's own
  * MIN_RESPONSES_PER_QUESTION (=3), which only gates Best-For-strip eligibility -- a
- * different feature, untouched here. */
+ * different feature, untouched here.
+ *
+ * An unpublished, non-current question renders nothing (see isRenderable) rather than
+ * "Not enough responses yet." -- that placeholder promises the reader more responses
+ * could still arrive, which is false for an orphaned question the rating form no longer
+ * serves. PollSummaryStrip's section build already filters these out before they reach
+ * here; this is the same rule applied at the single-question level, in case a caller
+ * ever passes an unfiltered list. */
 function QuestionBlock({
   question,
   colorVar,
@@ -67,9 +85,10 @@ function QuestionBlock({
   colorVar: string | null;
   programName: string;
 }) {
-  const { text, mean, count, labels, scaleType, published } = question;
+  const { text, mean, count, labels, scaleType, published, isCurrent } = question;
 
   if (!published) {
+    if (!isCurrent) return null;
     return (
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium text-foreground">{text}</h3>
@@ -235,17 +254,27 @@ export default function PollSummaryStrip({
   const rateHref = publicPollLink ?? `/rate/${programSlug}`;
   const layout = deriveCtaLayout(summary);
 
+  // Excludes questions isRenderable would render nothing for (unpublished + orphaned --
+  // see isRenderable's doc comment) up front, so a bucket/section built from this list
+  // never ends up with a "N questions" count that overcounts blank rows, and a bucket
+  // whose every question is a permanent dead end is caught by the empty-list check below
+  // instead of rendering an expandable row with nothing behind it.
+  const visibleQuestions = summary.questions.filter(isRenderable);
+
   const groupedBucketIds = new Set(summary.buckets.map((b) => b.id));
-  const ungroupedQuestions = summary.questions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
+  const ungroupedQuestions = visibleQuestions.filter((q) => !q.bucketId || !groupedBucketIds.has(q.bucketId));
 
   // One row per bucket, plus a synthetic "Other" row for any question whose bucket
   // didn't resolve (a dead soft-ref, or a retired bucket the results grid never lists --
   // see lib/pollResults.ts). General (the isCore bucket) is the only section open by
   // default; a retired bucket and "Other" always start closed, per the collapse spec.
+  // A bucket with zero renderable questions -- e.g. a retired bucket whose only question
+  // never crossed the publish threshold before being retired -- is omitted entirely
+  // rather than rendering an empty, expandable dead end.
   const sections: BucketSectionData[] = [
     ...summary.buckets
       .map((bucket): BucketSectionData | null => {
-        const bucketQuestions = summary.questions.filter((q) => q.bucketId === bucket.id);
+        const bucketQuestions = visibleQuestions.filter((q) => q.bucketId === bucket.id);
         if (bucketQuestions.length === 0) return null;
         return {
           key: bucket.id,

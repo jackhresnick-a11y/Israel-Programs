@@ -123,6 +123,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       bucketOrder: coreBucket?.order ?? null,
       bucketIsCore: coreBucket?.isCore ?? false,
       bucketRetired: coreBucket?.status === "RETIRED",
+      isCurrent: true,
     })),
     ...resolved.extras.flatMap(({ bucket, questions: bucketQuestions }) =>
       bucketQuestions.map((question) => ({
@@ -133,6 +134,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
         bucketOrder: bucket.order,
         bucketIsCore: bucket.isCore,
         bucketRetired: bucket.status === "RETIRED",
+        isCurrent: true,
       }))
     ),
   ].filter(({ question }) => question.key !== OVERALL_QUESTION_KEY);
@@ -189,12 +191,13 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
           bucketOrder: bucket?.order ?? null,
           bucketIsCore: bucket?.isCore ?? false,
           bucketRetired: bucket?.status === "RETIRED",
+          isCurrent: false,
         };
       }),
   ];
 
   const grandfatheredIds = new Set(config.grandfatheredQuestionIds);
-  const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId }) => {
+  const questions: PollSummaryQuestionDTO[] = flatWithOrphans.map(({ question, bucketId, isCurrent }) => {
     const stats = statsByQuestionId.get(question.id);
     const count = stats?._count._all ?? 0;
     return {
@@ -206,6 +209,7 @@ export const getProgramPollSummary = cache(async (programId: string): Promise<Po
       bucketId,
       labels: question.labels,
       published: count >= config.minResponsesToPublish || grandfatheredIds.has(question.id),
+      isCurrent,
     };
   });
 
