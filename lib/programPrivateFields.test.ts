@@ -35,10 +35,15 @@ const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindMany
           ),
         };
       },
-      findMany: async (args: { where?: { status?: string }; omit?: Record<string, boolean> }) => {
+      findMany: async (args: {
+        where?: { status?: string; slug?: { in?: string[] } };
+        omit?: Record<string, boolean>;
+      }) => {
         lastFindManyArgs = args;
+        const slugsIn = args.where?.slug?.in;
         return db.programs
           .filter((p) => (args.where?.status ? p.status === args.where.status : true))
+          .filter((p) => (slugsIn ? slugsIn.includes(p.slug as string) : true))
           .map((row) => ({
             ...applyOmit(row, args.omit),
             tags: row.tags ?? [],
@@ -48,7 +53,14 @@ const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindMany
             _count: { references: 0, pollResponses: 0 },
           }));
       },
+      update: async (args: { where: { id: string }; data: Record<string, unknown> }) => {
+        const row = db.programs.find((p) => p.id === args.where.id);
+        if (!row) throw Object.assign(new Error("not found"), { code: "P2025" });
+        Object.assign(row, args.data);
+        return { ...applyOmit(row, { videoTranscript: true, transcriptTags: true }) };
+      },
     },
+    $transaction: async (ops: Promise<unknown>[]) => Promise.all(ops),
   };
 
   function seedProgram(overrides: Record<string, unknown> = {}) {
@@ -89,7 +101,8 @@ const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindMany
 
 vi.mock("@/lib/prisma", () => ({ prisma: fakePrisma }));
 
-const { getProgramBySlug, listPrograms, toPublicProgram } = await import("@/lib/programs");
+const { getProgramBySlug, getProgramsBySlugs, listPrograms, toPublicProgram } = await import("@/lib/programs");
+const { saveTranscriptsBulk } = await import("@/lib/transcripts");
 
 beforeEach(() => {
   resetDb();
@@ -163,5 +176,48 @@ describe("Program private-field boundary (videoTranscript/transcriptTags)", () =
       expect(result.aiBrief).toBe("A public brief.");
       expect(result.videoUrl).toBe("https://example.com/video");
     });
+  });
+
+  describe("getProgramsBySlugs", () => {
+    it("queries with omit: { videoTranscript, transcriptTags } and every result carries neither field or text", async () => {
+      seedProgram({
+        slug: "prog-c",
+        status: "PUBLISHED",
+        videoTranscript: SECRET_TRANSCRIPT,
+        transcriptTags: ["staged-slug"],
+      });
+
+      const results = await getProgramsBySlugs(["prog-c"]);
+
+      const args = getLastFindManyArgs() as { omit?: Record<string, boolean> };
+      expect(args.omit).toEqual({ videoTranscript: true, transcriptTags: true });
+      expect(results).toHaveLength(1);
+      expect(results[0]).not.toHaveProperty("videoTranscript");
+      expect(results[0]).not.toHaveProperty("transcriptTags");
+      expect(JSON.stringify(results)).not.toContain(SECRET_TRANSCRIPT);
+    });
+  });
+});
+
+describe("A transcript written through lib/transcripts.ts's bulk-upload path is still private everywhere lib/programs.ts reads", () => {
+  it("stays absent from getProgramBySlug, listPrograms, and toPublicProgram after saveTranscriptsBulk writes it", async () => {
+    const row = seedProgram({ slug: "prog-bulk", status: "PUBLISHED" });
+
+    await saveTranscriptsBulk([{ slug: "prog-bulk", text: SECRET_TRANSCRIPT }], { confirmOverwrite: false });
+
+    // The write landed on the underlying row (bulk-upload's whole point)...
+    expect(row.videoTranscript).toBe(SECRET_TRANSCRIPT);
+
+    // ...but every lib/programs.ts read path still keeps it out.
+    const bySlug = await getProgramBySlug("prog-bulk");
+    expect(bySlug).not.toHaveProperty("videoTranscript");
+    expect(JSON.stringify(bySlug)).not.toContain(SECRET_TRANSCRIPT);
+
+    const listed = await listPrograms({});
+    expect(JSON.stringify(listed)).not.toContain(SECRET_TRANSCRIPT);
+
+    const publicRow = toPublicProgram({ ...row });
+    expect(publicRow).not.toHaveProperty("videoTranscript");
+    expect(JSON.stringify(publicRow)).not.toContain(SECRET_TRANSCRIPT);
   });
 });

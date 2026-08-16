@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { setProgramVideoFields } from "@/lib/programs";
 import { revalidateProgram } from "@/lib/revalidate";
+import { MAX_TRANSCRIPT_CHARS } from "@/lib/transcriptsShared";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,7 +20,10 @@ const bodySchema = z.object({
   videoUrl: httpUrl.nullable(),
   // Raw transcript text -- admin-only, never validated as anything but a string. See
   // PROGRAM_PRIVATE_OMIT (lib/programs.ts) for why it can never reach a public route.
-  videoTranscript: z.string().trim().max(50_000).nullable(),
+  // Shares MAX_TRANSCRIPT_CHARS with lib/transcripts.ts's bulk-upload path
+  // (/admin/transcripts) -- both write this same column, so they must agree on the
+  // ceiling or a transcript saved via one becomes unsaveable via the other.
+  videoTranscript: z.string().trim().max(MAX_TRANSCRIPT_CHARS).nullable(),
   aiBrief: z.string().trim().max(2_000).nullable(),
 });
 
