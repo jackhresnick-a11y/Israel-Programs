@@ -296,6 +296,26 @@ model Program {
   /// client-component props, only shown on the admin program view. Not proposable
   /// content: no ProgramEdit field-decision path touches it.
   adminNote              String?
+  /// The program's own overview video link -- public, distinct from the embedded
+  /// videos Video[] relation below (YouTube/Vimeo/Facebook/Instagram/TikTok embeds a
+  /// user or moderator adds separately). Not yet validated/embedded like those; a
+  /// plain public URL field.
+  videoUrl               String?
+  /// Raw, unedited transcript of videoUrl -- admin-only, NEVER public. Never selected
+  /// into a public page, the public JSON API, or a ProgramCandidate (see
+  /// lib/ai/types.ts). Only aiBrief (below) may summarize it for public consumption.
+  /// Not proposable content: no ProgramEdit field-decision path touches it.
+  videoTranscript        String?
+  /// ~80-word distilled public summary, admin-authored (typically from
+  /// videoTranscript) -- the ONLY transcript-derived text allowed to reach a public
+  /// route, page payload, or ProgramCandidate.
+  aiBrief                String?
+  /// Tag slugs suggested from videoTranscript, staged for admin approval one at a
+  /// time (see lib/programs.ts's approveTranscriptTag/rejectTranscriptTag) -- never
+  /// auto-applied and never public. Approving connects an existing Tag by slug (never
+  /// mints a new one, per CLAUDE.md's tag-provenance rule); the slug is then removed
+  /// from this array either way.
+  transcriptTags         String[]
   status                 ProgramStatus              @default(PENDING)
   createdById            String
   createdAt              DateTime                   @default(now())

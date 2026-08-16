@@ -12,6 +12,7 @@ import {
 import { recordProgramForExport } from "@/lib/programExport";
 import { resolveTagsByName, resolveExistingTagsByName } from "@/lib/tags";
 import { rankBySearchTerm, rankBySearchTermScored } from "@/lib/programSearch";
+import { UnknownTagSlugsError } from "@/lib/finder";
 
 export { DURATION_LABELS } from "@/lib/duration";
 
@@ -107,8 +108,17 @@ export function parseTags(raw: string): string[] {
 /** Admin-only fields that must never reach the public JSON API -- strip these at every
  *  response boundary that isn't gated to a moderator/admin. Server Components render
  *  adminNote themselves behind an {isModerator && ...} check, so they call listPrograms/
- *  getProgramBySlug directly and don't go through this; only the public GET routes do. */
-const ADMIN_ONLY_PROGRAM_FIELDS = ["adminNote", "contactEmailSource", "outreachCategory"] as const;
+ *  getProgramBySlug directly and don't go through this; only the public GET routes do.
+ *  videoTranscript/transcriptTags are additionally never fetched in the first place at
+ *  any whole-row query (see PROGRAM_PRIVATE_OMIT below) -- this list is the second,
+ *  independent layer in case a row somehow arrives here with them still attached. */
+const ADMIN_ONLY_PROGRAM_FIELDS = [
+  "adminNote",
+  "contactEmailSource",
+  "outreachCategory",
+  "videoTranscript",
+  "transcriptTags",
+] as const;
 
 export function toPublicProgram<T extends Record<string, unknown>>(
   program: T
@@ -117,6 +127,16 @@ export function toPublicProgram<T extends Record<string, unknown>>(
   for (const field of ADMIN_ONLY_PROGRAM_FIELDS) delete result[field];
   return result;
 }
+
+/** Never selected into a public read. videoTranscript is the raw, unedited transcript
+ *  and transcriptTags are un-approved suggestions -- neither is public content, and
+ *  both would otherwise ride along on every whole-row Program query (these use
+ *  `include`, which returns every scalar column by default). Only aiBrief and videoUrl
+ *  are public. Admin surfaces (e.g. listProgramsBestFor) opt in explicitly via a narrow
+ *  `select` that names these fields, never by dropping this omit. `omit` composes with
+ *  `include` on the same query (only `select`+`omit` conflict), so this drops in
+ *  unchanged everywhere below. */
+export const PROGRAM_PRIVATE_OMIT = { videoTranscript: true, transcriptTags: true } as const;
 
 /** Plain-text share/OG description: strips the `**bold**` markers FormattedText
  *  renders, collapses whitespace, and truncates at a word boundary (~160 chars). */
@@ -179,6 +199,7 @@ export async function createProgram(
       status,
       tags: { connect: matched },
     },
+    omit: PROGRAM_PRIVATE_OMIT,
   });
 
   if (unknown.length > 0) {
@@ -290,6 +311,7 @@ export async function updateProgram(id: string, input: ProgramInput) {
       ...(emailChanged ? { contactEmailStatus: null, contactEmailVerifiedAt: null } : {}),
       tags: { set: [], connect: tags },
     },
+    omit: PROGRAM_PRIVATE_OMIT,
   });
 }
 
@@ -388,6 +410,7 @@ async function fetchFilteredPrograms(filters: ProgramFilters) {
 
   const rawPrograms = await prisma.program.findMany({
     where,
+    omit: PROGRAM_PRIVATE_OMIT,
     include: {
       tags: true,
       reviews: { where: { status: "PUBLISHED" } },
@@ -452,6 +475,7 @@ export async function getFacetData(q?: string): Promise<FacetProgram[]> {
   const term = q?.trim().replace(/^#/, "").trim();
   const programs = await prisma.program.findMany({
     where: { status: "PUBLISHED" },
+    omit: PROGRAM_PRIVATE_OMIT,
     include: { tags: true },
   });
   const matched = term ? rankBySearchTerm(programs, term) : programs;
@@ -465,6 +489,7 @@ export async function getFacetData(q?: string): Promise<FacetProgram[]> {
 export async function getProgramBySlug(slug: string) {
   return prisma.program.findUnique({
     where: { slug },
+    omit: PROGRAM_PRIVATE_OMIT,
     include: {
       tags: true,
       videos: { orderBy: { createdAt: "desc" } },
@@ -520,6 +545,7 @@ export async function getProgramsBySlugs(slugs: string[]) {
   if (slugs.length === 0) return [];
   const rawPrograms = await prisma.program.findMany({
     where: { slug: { in: slugs }, status: "PUBLISHED" },
+    omit: PROGRAM_PRIVATE_OMIT,
     include: {
       tags: true,
       reviews: { where: { status: "PUBLISHED" } },
@@ -645,4 +671,49 @@ export async function setProgramWebsiteLanguage(id: string, language: WebsiteLan
  * thin Prisma wrapper matching setProgramWebsiteLanguage's shape. */
 export async function setProgramOutreachCategory(id: string, category: string | null) {
   return prisma.program.update({ where: { id }, data: { outreachCategory: category } });
+}
+
+/** Admin-only: sets (or clears, with null) a program's overview video link, raw
+ * transcript, and distilled public brief in one write. `videoUrl` and `aiBrief` are
+ * public; `videoTranscript` never is (see PROGRAM_PRIVATE_OMIT/ADMIN_ONLY_PROGRAM_FIELDS
+ * above) -- http(s)-only validation on videoUrl happens at the API layer
+ * (app/api/admin/programs/[id]/video/route.ts), not here, same split as
+ * setProgramWebsiteLanguage/setProgramOutreachCategory. */
+export async function setProgramVideoFields(
+  id: string,
+  fields: { videoUrl: string | null; videoTranscript: string | null; aiBrief: string | null }
+) {
+  return prisma.program.update({ where: { id }, data: fields, omit: PROGRAM_PRIVATE_OMIT });
+}
+
+/** Approves one transcript-suggested tag: connects the existing Tag by slug (never
+ * mints one -- an unrecognized slug throws UnknownTagSlugsError, same "typed name must
+ * already exist" discipline lib/finder.ts's Finder options use, surfaced as a 400 by
+ * the API route) and removes it from the staged transcriptTags array either way, since
+ * an approved suggestion is no longer pending. A single nested `update` call, not a
+ * read-then-write race -- Prisma wraps the relation connect + scalar-list set in one
+ * transaction. */
+export async function approveTranscriptTag(id: string, slug: string) {
+  const tag = await prisma.tag.findUnique({ where: { slug }, select: { id: true } });
+  if (!tag) throw new UnknownTagSlugsError([slug]);
+  const program = await prisma.program.findUniqueOrThrow({ where: { id }, select: { transcriptTags: true } });
+  return prisma.program.update({
+    where: { id },
+    data: {
+      tags: { connect: { id: tag.id } },
+      transcriptTags: { set: program.transcriptTags.filter((s) => s !== slug) },
+    },
+    omit: PROGRAM_PRIVATE_OMIT,
+  });
+}
+
+/** Rejects one transcript-suggested tag: removes it from the staged transcriptTags
+ * array without touching the program's real tag relation. */
+export async function rejectTranscriptTag(id: string, slug: string) {
+  const program = await prisma.program.findUniqueOrThrow({ where: { id }, select: { transcriptTags: true } });
+  return prisma.program.update({
+    where: { id },
+    data: { transcriptTags: { set: program.transcriptTags.filter((s) => s !== slug) } },
+    omit: PROGRAM_PRIVATE_OMIT,
+  });
 }

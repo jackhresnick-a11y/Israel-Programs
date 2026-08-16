@@ -50,7 +50,12 @@ export type ChatMessage = {
  * never be handed, and can therefore never leak, a below-threshold rating or an
  * unapproved review. `alumniQuotes` is named (not `reviews`) specifically so a
  * provider's prompt is forced to frame it as "alumni describe it as...", never restate
- * it as fact about the program. */
+ * it as fact about the program.
+ *
+ * `aiBrief` is the ONLY transcript-derived field allowed here -- Program.videoTranscript
+ * (the raw transcript) and Program.transcriptTags (un-approved suggestions) must NEVER
+ * appear on this type or anywhere in app/api/assistant/route.ts; only Program.aiBrief,
+ * the admin-authored distilled public summary, may cross into a candidate. */
 export type ProgramCandidate = {
   slug: string;
   name: string;
@@ -66,6 +71,8 @@ export type ProgramCandidate = {
   bestForPhrases: string[];
   /** Approved alumni review text on a COUNTED response, already gated public. */
   alumniQuotes: string[];
+  /** Admin-authored ~80-word distilled summary (Program.aiBrief), or null if unset. */
+  aiBrief: string | null;
 };
 
 /** Everything the reply says about why this candidate fits must be traceable to

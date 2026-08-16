@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
+import Textarea from "@/components/ui/Textarea";
 import { programMatchesTagFilter } from "@/lib/adminFilters";
 
 export type ContactOptInRow = {
@@ -28,6 +29,10 @@ export type ProgramRow = {
   bestForPhrases: string[];
   editorialBestFor: string | null;
   contactOptIns: ContactOptInRow[];
+  videoUrl: string | null;
+  videoTranscript: string | null;
+  aiBrief: string | null;
+  transcriptTags: string[];
 };
 
 async function api(url: string, method: string, body?: object) {
@@ -50,6 +55,12 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
   const [error, setError] = useState<string | null>(null);
   const [editorialBestFor, setEditorialBestFor] = useState(program.editorialBestFor ?? "");
   const [tagsValue, setTagsValue] = useState(program.tags.map((t) => t.name).join(", "));
+  const [videoUrl, setVideoUrl] = useState(program.videoUrl ?? "");
+  const [aiBrief, setAiBrief] = useState(program.aiBrief ?? "");
+  const [videoTranscript, setVideoTranscript] = useState(program.videoTranscript ?? "");
+  const [tagBusy, setTagBusy] = useState<string | null>(null);
+
+  const aiBriefWordCount = aiBrief.trim() ? aiBrief.trim().split(/\s+/).length : 0;
 
   async function handleSave() {
     setBusy(true);
@@ -64,6 +75,11 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
             .split(/[,#]/)
             .map((t) => t.trim())
             .filter(Boolean),
+        }),
+        api(`/api/admin/programs/${program.id}/video`, "PATCH", {
+          videoUrl: videoUrl.trim() || null,
+          videoTranscript: videoTranscript.trim() || null,
+          aiBrief: aiBrief.trim() || null,
         }),
       ]);
       router.refresh();
@@ -87,6 +103,19 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to archive");
       setBusy(false);
+    }
+  }
+
+  async function handleTranscriptTagDecision(slug: string, action: "approve" | "reject") {
+    setTagBusy(slug);
+    setError(null);
+    try {
+      await api(`/api/admin/programs/${program.id}/transcript-tags`, "POST", { slug, action });
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update suggested tag");
+    } finally {
+      setTagBusy(null);
     }
   }
 
@@ -141,9 +170,74 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
               placeholder="Leave blank to use the generated strip"
             />
           </label>
+
+          {program.transcriptTags.length > 0 && (
+            <div className="flex flex-col gap-2 rounded border border-border bg-surface-muted p-3">
+              <p className="text-xs font-semibold text-muted">
+                Suggested from transcript — nothing is applied until you approve
+              </p>
+              <div className="flex flex-col gap-1">
+                {program.transcriptTags.map((slug) => {
+                  const match = allTags.find((t) => t.slug === slug);
+                  return (
+                    <div key={slug} className="flex items-center gap-2 text-xs">
+                      <span className="flex-1 text-foreground">
+                        {match ? match.name : <span className="italic text-muted">{slug} (no matching tag)</span>}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        disabled={tagBusy === slug || !match}
+                        onClick={() => handleTranscriptTagDecision(slug, "approve")}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        disabled={tagBusy === slug}
+                        onClick={() => handleTranscriptTagDecision(slug, "reject")}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <label className="flex flex-col gap-1 text-xs text-muted">
             Tags
             <TagPicker value={tagsValue} onChange={setTagsValue} allTags={allTags} categories={categories} />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-muted">
+            Video URL
+            <Input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-muted">
+            AI brief ({aiBriefWordCount} word{aiBriefWordCount === 1 ? "" : "s"}, target ~80) — public
+            <Textarea
+              value={aiBrief}
+              onChange={(e) => setAiBrief(e.target.value)}
+              rows={3}
+              placeholder="A short distilled summary, e.g. from the video transcript below"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-muted">
+            Transcript (admin only — never shown publicly)
+            <Textarea
+              value={videoTranscript}
+              onChange={(e) => setVideoTranscript(e.target.value)}
+              rows={8}
+              placeholder="Raw video transcript"
+            />
           </label>
           <Button type="button" size="sm" className="self-start" disabled={busy} onClick={handleSave}>
             {busy ? "Saving..." : "Save"}

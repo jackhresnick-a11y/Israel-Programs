@@ -156,6 +156,7 @@ export async function POST(request: Request) {
         unmetLabels: unmetLabels(s, criteria),
         bestForPhrases: pollSummary.bestForPhrases,
         alumniQuotes: extractAlumniQuotes(reviewsSummary, MAX_ALUMNI_QUOTES),
+        aiBrief: program.aiBrief,
       };
     })
   );

@@ -300,6 +300,10 @@ export type ProgramBestForRow = {
   bestForPhrases: string[];
   editorialBestFor: string | null;
   contactOptIns: ContactOptInRow[];
+  videoUrl: string | null;
+  videoTranscript: string | null;
+  aiBrief: string | null;
+  transcriptTags: string[];
 };
 
 /**
@@ -327,6 +331,13 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
         location: true,
         tags: { select: { slug: true, name: true } },
         pollConfig: { select: { editorialBestFor: true } },
+        // Explicit opt-in select, the deliberate admin-side exception to
+        // PROGRAM_PRIVATE_OMIT (lib/programs.ts) -- this view is /admin/programs,
+        // gated admin-only, and is exactly where a moderator curates these.
+        videoUrl: true,
+        videoTranscript: true,
+        aiBrief: true,
+        transcriptTags: true,
       },
       orderBy: { name: "asc" },
     }),
@@ -401,6 +412,10 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       bestForPhrases: computeBestForPhrases(candidates),
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
       contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
+      videoUrl: p.videoUrl,
+      videoTranscript: p.videoTranscript,
+      aiBrief: p.aiBrief,
+      transcriptTags: p.transcriptTags,
     };
   }));
 }
