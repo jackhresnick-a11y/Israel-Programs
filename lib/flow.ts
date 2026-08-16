@@ -46,6 +46,10 @@ export {
   type FlowOptionDTO,
   type FlowOptionMatchMode,
   type ResolvedFlow,
+  type CoverageContext,
+  type CoverageEliminator,
+  type OptionCoverageCounter,
+  type QuestionGateInfo,
 } from "@/lib/flowShared";
 
 // Re-exported so callers (routes, the admin manager) can catch a single error type

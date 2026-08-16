@@ -282,6 +282,54 @@ export function toConditionAnswers(state: FlowAnswerState): FlowAnswers {
   return answers;
 }
 
+// ---------------------------------------------------------------------------
+// Live-catalog coverage gating -- an option (or a whole question, once fewer than
+// 2 options survive) shouldn't render when the live published catalog can't back
+// it up. This file stays Prisma-free (see the top-of-file doc comment), so the
+// actual "how many programs" answer is never computed here: the caller (lib/
+// flowRank.ts's makeOptionCoverageCounter, backed by a live Program read) hands in
+// an OptionCoverageCounter closure, and this module only threads it through the
+// SAME forward walk evaluateVisibility already does. Passing no counter at all
+// (the default) skips gating entirely and reproduces the exact prior behavior --
+// every existing caller (admin preview, resolveFlow's own test suite) is
+// unaffected by this section.
+// ---------------------------------------------------------------------------
+
+/** One REQUIRE-mode option's facet, reduced to only what a coverage count needs --
+ * no questionKey/label, since a synthetic eliminator has neither. Accumulated ONLY
+ * from an actually-selected REQUIRE-mode option on a strictly-earlier visible
+ * question; a WEIGHT-mode selection -- however strongly weighted -- never
+ * contributes one. That's what "never gate on weighted criteria, only on REQUIRE
+ * eliminators" means in practice: the pool this option's coverage is measured
+ * against only ever shrinks via the same two hard eliminators lib/flowRank.ts's
+ * ranking pipeline itself uses, never via soft preference. */
+export type CoverageEliminator = { tagSlugs: string[]; durationValues: string[]; requireIncludesUntagged: boolean };
+
+/** Injected by the caller so this file never imports Prisma (lib/flowRank.ts's
+ * makeOptionCoverageCounter is the real implementation, closed over an
+ * already-fetched program array). Given one option and the REQUIRE eliminators
+ * accumulated so far on this path, returns how many published programs satisfy
+ * BOTH: the eliminators applied with their real requireIncludesUntagged behavior
+ * (narrowing the pool exactly like ranking does), and the option's own tag/
+ * duration facet matched STRICTLY -- no untagged leniency. That asymmetry is
+ * deliberate: requireIncludesUntagged exists so an unrelated eliminator doesn't
+ * wrongly exclude an untagged program from RESULTS, but here we're asking "does
+ * this specific option have real backing inventory" -- if untagged programs
+ * counted, a taxonomy gap (e.g. a program-type tag nothing is actually tagged
+ * with) could hide behind them and never get suppressed, defeating the point. */
+export type OptionCoverageCounter = (option: FlowOptionDTO, eliminatorsSoFar: CoverageEliminator[]) => number;
+
+export type CoverageContext = { counter: OptionCoverageCounter; floor: number };
+
+export type QuestionGateInfo = {
+  /** Every ACTIVE, option-set-resolved option on this question, each with its
+   * live coverage count and whether the floor suppressed it. */
+  options: { option: FlowOptionDTO; coverageCount: number; suppressed: boolean }[];
+  /** True when coverage gating -- not a show-condition -- is why this question is
+   * absent from `visible`: fewer than 2 options survived (guard 1). */
+  droppedByCoverage: boolean;
+};
+
 /** One forward pass over every question (in `order`): a question is visible only if
  * its showWhen passes against everything visible-and-answered SO FAR. A hidden
  * question's answer is never folded into conditionAnswers, so a condition can never
@@ -296,35 +344,75 @@ export function toConditionAnswers(state: FlowAnswerState): FlowAnswers {
  * must never observe an answer the current path no longer considers valid. Only
  * meaningful for a question that actually carries options (an interstitial's
  * acknowledgment is always `[]`, which the `stored.length === 0` guard already
- * short-circuits). */
+ * short-circuits).
+ *
+ * `coverage`, when given, additionally narrows each question's option-set down to
+ * only coverage-surviving options (same staleness treatment as an out-of-set
+ * answer: a selection the live catalog no longer backs is dropped and the question
+ * re-asked) and drops a question ENTIRELY once fewer than 2 options survive (guard
+ * 1 -- never render a 0- or 1-option stub). A dropped question's would-be REQUIRE
+ * selection can never exist (it was never shown to answer), so it can never
+ * contribute an eliminator either -- the same "hidden question's answer never
+ * counts" rule already governing showWhen extends to coverage gating for free. */
 function evaluateVisibility(
   questions: FlowQuestionDTO[],
-  state: FlowAnswerState
-): { visible: FlowQuestionDTO[]; conditionAnswers: FlowAnswers; staleKeys: Set<string> } {
+  state: FlowAnswerState,
+  coverage?: CoverageContext
+): { visible: FlowQuestionDTO[]; conditionAnswers: FlowAnswers; staleKeys: Set<string>; gateInfo: Map<string, QuestionGateInfo> } {
   const visible: FlowQuestionDTO[] = [];
   const conditionAnswers: FlowAnswers = {};
   const staleKeys = new Set<string>();
+  const gateInfo = new Map<string, QuestionGateInfo>();
+  const eliminatorsSoFar: CoverageEliminator[] = [];
+
   for (const q of questions) {
     if (!shouldShowQuestion(q.showWhen, conditionAnswers)) continue;
+
+    const setKey = resolveOptionSetKey(q.optionSetRules, q.defaultOptionSetKey, conditionAnswers);
+    const activeOptions = optionsForSet(q.options.filter((o) => o.status === "ACTIVE"), setKey);
+
+    let survivingOptions = activeOptions;
+    if (coverage && activeOptions.length > 0) {
+      const scored = activeOptions.map((option) => ({
+        option,
+        coverageCount: coverage.counter(option, eliminatorsSoFar),
+      }));
+      survivingOptions = scored
+        .filter((s) => s.coverageCount >= coverage.floor)
+        .map((s) => s.option);
+      gateInfo.set(q.key, {
+        options: scored.map((s) => ({ ...s, suppressed: s.coverageCount < coverage.floor })),
+        droppedByCoverage: survivingOptions.length < 2,
+      });
+      if (survivingOptions.length < 2) continue; // guard 1: skip the whole question, no stub
+    }
+
     visible.push(q);
     const stored = state.get(q.key);
     if (!stored || stored.length === 0) continue;
-    if (q.options.length > 0) {
-      const setKey = resolveOptionSetKey(q.optionSetRules, q.defaultOptionSetKey, conditionAnswers);
-      const validKeys = new Set(
-        optionsForSet(
-          q.options.filter((o) => o.status === "ACTIVE"),
-          setKey
-        ).map((o) => o.key)
-      );
+    if (activeOptions.length > 0) {
+      const validKeys = new Set(survivingOptions.map((o) => o.key));
       if (!stored.every((k) => validKeys.has(k))) {
         staleKeys.add(q.key);
         continue;
       }
     }
     conditionAnswers[q.key] = stored;
+
+    if (coverage) {
+      for (const key of stored) {
+        const selected = activeOptions.find((o) => o.key === key);
+        if (selected && selected.matchMode === "REQUIRE") {
+          eliminatorsSoFar.push({
+            tagSlugs: selected.tagSlugs,
+            durationValues: selected.durationValues,
+            requireIncludesUntagged: selected.requireIncludesUntagged,
+          });
+        }
+      }
+    }
   }
-  return { visible, conditionAnswers, staleKeys };
+  return { visible, conditionAnswers, staleKeys, gateInfo };
 }
 
 /** Drops any answer-state entry for a question that isn't (or is no longer) visible,
@@ -377,28 +465,46 @@ export type ResolvedFlow = {
   /** Answer state, pruned to only the keys of `visible` questions. */
   state: FlowAnswerState;
   conditionAnswers: FlowAnswers;
+  /** Present only when a CoverageContext was passed in -- every question the
+   * forward walk reached, including one dropped entirely by guard 1, with its
+   * per-option coverage counts. Additive: absent (undefined) whenever coverage
+   * gating wasn't requested, so every existing caller's shape is unchanged. */
+  coverageReport?: Map<string, QuestionGateInfo>;
 };
 
 /** The one function Back, Skip, hidden questions, and the admin preview all run
- * through. Pure: same (questions, state, requestedKey) always produces the same
- * result, which is what makes the admin preview panel able to render the REAL
- * FlowStep component against a locally-held answer map with zero server round trip. */
+ * through. Pure: same (questions, state, requestedKey, coverage) always produces
+ * the same result, which is what makes the admin preview panel able to render the
+ * REAL FlowStep component against a locally-held answer map with zero server round
+ * trip -- the admin preview never passes `coverage`, so it's completely unaffected
+ * by this section; only app/match/page.tsx (backed by a live Program read) does. */
 export function resolveFlow(
   questions: FlowQuestionDTO[],
   rawState: FlowAnswerState,
-  requestedKey: string | null
+  requestedKey: string | null,
+  coverage?: CoverageContext
 ): ResolvedFlow {
-  const { visible, conditionAnswers, staleKeys } = evaluateVisibility(questions, rawState);
+  const { visible, conditionAnswers, staleKeys, gateInfo } = evaluateVisibility(questions, rawState, coverage);
   const state = pruneAnswerState(rawState, visible, staleKeys);
   const current = resolveCurrentQuestion(visible, state, requestedKey);
   const visibleOptions = current
-    ? optionsForSet(
-        current.options.filter((o) => o.status === "ACTIVE"),
-        resolveOptionSetKey(current.optionSetRules, current.defaultOptionSetKey, conditionAnswers)
-      )
+    ? (coverage
+        ? gateInfo.get(current.key)?.options.filter((o) => !o.suppressed).map((o) => o.option) ?? []
+        : optionsForSet(
+            current.options.filter((o) => o.status === "ACTIVE"),
+            resolveOptionSetKey(current.optionSetRules, current.defaultOptionSetKey, conditionAnswers)
+          ))
     : [];
   const prevKey = resolvePrevKey(visible, current);
-  return { visible, current, visibleOptions, prevKey, state, conditionAnswers };
+  return {
+    visible,
+    current,
+    visibleOptions,
+    prevKey,
+    state,
+    conditionAnswers,
+    ...(coverage ? { coverageReport: gateInfo } : {}),
+  };
 }
 
 /** Builds a `/match` or `/match/results` href carrying the current question + answer

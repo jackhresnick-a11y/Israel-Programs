@@ -18,6 +18,8 @@ import {
   type FlowQuestionDTO,
   type FlowOptionDTO,
   type FlowAnswerState,
+  type CoverageEliminator,
+  type OptionCoverageCounter,
 } from "./flowShared";
 
 function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | "label">): FlowOptionDTO {
@@ -543,5 +545,101 @@ describe("applyOptionOverrides (admin preview's not-yet-saved matchMode edits)",
     const boysOnlyId = q.options[0].id;
     const result = applyOptionOverrides([q], new Map([[boysOnlyId, "WEIGHT"]]));
     expect(result[0].options.every((o) => o.matchMode === "WEIGHT")).toBe(true);
+  });
+});
+
+describe("resolveFlow coverage gating (live-catalog option/question suppression)", () => {
+  const lifeStage = question({
+    key: "life-stage",
+    order: 0,
+    options: [
+      option({ key: "still-in-hs", label: "Still in HS", matchMode: "REQUIRE", tagSlugs: ["age-hs"] }),
+      option({ key: "working", label: "Working", matchMode: "WEIGHT", tagSlugs: ["age-post-college"] }),
+    ],
+  });
+  const programType = question({
+    key: "program-type",
+    order: 1,
+    options: [
+      option({ key: "religious", label: "Religious mechina", tagSlugs: ["religious-mechina"] }),
+      option({ key: "mixed", label: "Mixed", tagSlugs: [] }),
+      option({ key: "academic", label: "Academic", tagSlugs: ["academic"] }),
+    ],
+  });
+  const questions = [lifeStage, programType];
+
+  /** A fake OptionCoverageCounter: fixed counts per option key (both life-stage
+   * options default to a healthy 5 unless overridden, so tests can focus on
+   * program-type's gating without also tripping guard 1 on life-stage). Records
+   * every call so tests can assert what eliminatorsSoFar the walk actually built. */
+  function fakeCounter(
+    overrides: Record<string, number>,
+    calls: { option: string; eliminators: CoverageEliminator[] }[] = []
+  ): OptionCoverageCounter {
+    const coverageByKey: Record<string, number> = { "still-in-hs": 5, working: 5, ...overrides };
+    return (opt, eliminatorsSoFar) => {
+      calls.push({ option: opt.key, eliminators: eliminatorsSoFar });
+      return coverageByKey[opt.key] ?? 0;
+    };
+  }
+
+  it("suppresses only the below-floor option, keeping the rest visible", () => {
+    const counter = fakeCounter({ religious: 1, mixed: 5, academic: 4 });
+    const state: FlowAnswerState = new Map([["life-stage", ["working"]]]);
+    const { visibleOptions } = resolveFlow(questions, state, "program-type", { counter, floor: 3 });
+    expect(visibleOptions.map((o) => o.key)).toEqual(["mixed", "academic"]);
+  });
+
+  it("guard 1: fewer than 2 surviving options drops the whole question, no stub", () => {
+    const counter = fakeCounter({ religious: 1, mixed: 0, academic: 4 });
+    const state: FlowAnswerState = new Map([["life-stage", ["working"]]]);
+    const { visible, coverageReport } = resolveFlow(questions, state, null, { counter, floor: 3 });
+    expect(visible.map((q) => q.key)).toEqual(["life-stage"]); // program-type dropped entirely
+    expect(coverageReport?.get("program-type")?.droppedByCoverage).toBe(true);
+    expect(coverageReport?.get("program-type")?.options.map((o) => [o.option.key, o.suppressed])).toEqual([
+      ["religious", true],
+      ["mixed", true],
+      ["academic", false],
+    ]);
+  });
+
+  it("never gates on a WEIGHT-mode selection -- a WEIGHT option's own tagSlugs never become an eliminator", () => {
+    const calls: { option: string; eliminators: CoverageEliminator[] }[] = [];
+    const counter = fakeCounter({ religious: 5, mixed: 5, academic: 5 }, calls);
+    const state: FlowAnswerState = new Map([["life-stage", ["working"]]]); // WEIGHT, has tagSlugs
+    resolveFlow(questions, state, "program-type", { counter, floor: 3 });
+    const programTypeCalls = calls.filter((c) => ["religious", "mixed", "academic"].includes(c.option));
+    expect(programTypeCalls.length).toBeGreaterThan(0);
+    expect(programTypeCalls.every((c) => c.eliminators.length === 0)).toBe(true);
+  });
+
+  it("a selected REQUIRE option DOES carry forward as an eliminator for the next question's gating", () => {
+    const calls: { option: string; eliminators: CoverageEliminator[] }[] = [];
+    const counter = fakeCounter({ religious: 5, mixed: 5, academic: 5 }, calls);
+    const state: FlowAnswerState = new Map([["life-stage", ["still-in-hs"]]]); // REQUIRE
+    resolveFlow(questions, state, "program-type", { counter, floor: 3 });
+    const programTypeCalls = calls.filter((c) => ["religious", "mixed", "academic"].includes(c.option));
+    expect(programTypeCalls.length).toBeGreaterThan(0);
+    for (const c of programTypeCalls) {
+      expect(c.eliminators).toEqual([{ tagSlugs: ["age-hs"], durationValues: [], requireIncludesUntagged: true }]);
+    }
+  });
+
+  it("omitting coverage entirely reproduces prior behavior exactly, and coverageReport is absent", () => {
+    const state: FlowAnswerState = new Map([["life-stage", ["working"]]]);
+    const result = resolveFlow(questions, state, "program-type");
+    expect(result.coverageReport).toBeUndefined();
+    expect(result.visibleOptions.map((o) => o.key)).toEqual(["religious", "mixed", "academic"]);
+  });
+
+  it("a previously-selected option that's since fallen below the floor is treated as stale and re-asked", () => {
+    const counter = fakeCounter({ religious: 1, mixed: 5, academic: 4 }); // religious now below floor
+    const state: FlowAnswerState = new Map([
+      ["life-stage", ["working"]],
+      ["program-type", ["religious"]], // valid when picked, no longer covered
+    ]);
+    const { current, state: pruned } = resolveFlow(questions, state, null, { counter, floor: 3 });
+    expect(current?.key).toBe("program-type"); // re-asked, not treated as already answered
+    expect(pruned.has("program-type")).toBe(false);
   });
 });

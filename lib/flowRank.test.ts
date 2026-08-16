@@ -6,12 +6,14 @@ import {
   hardFilterRelaxations,
   scoreCriterion,
   rankPrograms,
+  makeOptionCoverageCounter,
+  MIN_OPTION_COVERAGE,
   STRONG_MIN_CRITERIA,
   type FlowCriterion,
   type FlowRequireTarget,
   type RankableProgram,
 } from "./flowRank";
-import type { FlowAnswerState, FlowOptionDTO, FlowQuestionDTO } from "./flowShared";
+import type { CoverageEliminator, FlowAnswerState, FlowOptionDTO, FlowQuestionDTO } from "./flowShared";
 
 // -- fixtures mirroring the real taxonomy's shape (see lib/facetCounts.test.ts) --
 
@@ -413,5 +415,63 @@ describe("rankPrograms -- no hard cut, ever", () => {
     const a = rankPrograms(programs, [spiritual, gapYear, boysOnly], tagCategoryBySlug).map((r) => r.program.id);
     const b = rankPrograms(shuffled, [spiritual, gapYear, boysOnly], tagCategoryBySlug).map((r) => r.program.id);
     expect(a).toEqual(b);
+  });
+});
+
+describe("makeOptionCoverageCounter -- the live-catalog half of coverage gating", () => {
+  function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | "label">): FlowOptionDTO {
+    return {
+      id: overrides.key,
+      questionId: "q",
+      rationale: null,
+      order: 0,
+      optionSetKeys: [],
+      tagSlugs: [],
+      durationValues: [],
+      matchMode: "WEIGHT",
+      weight: 1,
+      requireIncludesUntagged: true,
+      status: "ACTIVE",
+      ...overrides,
+    };
+  }
+
+  it("matches strictly -- an untagged program never counts toward an option's own coverage, unlike passesRequireTarget's ranking leniency", () => {
+    const counter = makeOptionCoverageCounter(programs, tagCategoryBySlug);
+    const boysOnlyOption = option({ key: "boys-only-opt", label: "Boys only", tagSlugs: ["boys-only"] });
+    // programs[0] (Alpha) and [1] (Beta) carry boys-only; [3] (Delta) is untagged for
+    // gender -- passesRequireTarget with requireIncludesUntagged would count it, this
+    // must not.
+    expect(counter(boysOnlyOption, [])).toBe(2);
+  });
+
+  it("narrows the pool by eliminatorsSoFar using their REAL requireIncludesUntagged behavior", () => {
+    const counter = makeOptionCoverageCounter(programs, tagCategoryBySlug);
+    const spiritualOption = option({ key: "spiritual", label: "Spiritual growth", tagSlugs: ["essence-spiritual-growth"] });
+    expect(counter(spiritualOption, [])).toBe(2); // programs 1 and 5
+
+    // boys-only-or-untagged (requireIncludesUntagged: true) keeps programs 1, 2, 4
+    // (same arithmetic as the survivingPrograms test above) -- of those, only
+    // program 1 also carries essence-spiritual-growth.
+    const eliminators: CoverageEliminator[] = [{ tagSlugs: ["boys-only"], durationValues: [], requireIncludesUntagged: true }];
+    expect(counter(spiritualOption, eliminators)).toBe(1);
+  });
+
+  it("an option with no tag/duration facet is a trivial pass-through -- its coverage IS the eliminated pool size", () => {
+    const counter = makeOptionCoverageCounter(programs, tagCategoryBySlug);
+    const noPreference = option({ key: "no-pref", label: "No preference", tagSlugs: [], durationValues: [] });
+    expect(counter(noPreference, [])).toBe(programs.length);
+    const eliminators: CoverageEliminator[] = [{ tagSlugs: ["boys-only"], durationValues: [], requireIncludesUntagged: true }];
+    expect(counter(noPreference, eliminators)).toBe(3); // boys-only-or-untagged -> 1, 2, 4
+  });
+
+  it("a duration facet matches strictly too", () => {
+    const counter = makeOptionCoverageCounter(programs, tagCategoryBySlug);
+    const summerOption = option({ key: "summer", label: "Summer", durationValues: ["SUMMER"] });
+    expect(counter(summerOption, [])).toBe(1); // only Gamma Trip is SUMMER
+  });
+
+  it("MIN_OPTION_COVERAGE is the one small-floor constant", () => {
+    expect(MIN_OPTION_COVERAGE).toBe(3);
   });
 });
