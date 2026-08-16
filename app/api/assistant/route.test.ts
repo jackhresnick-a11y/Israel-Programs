@@ -64,6 +64,7 @@ function makeProgram(overrides: Record<string, unknown> = {}) {
     durationType: "GAP_YEAR",
     description: "A tech-focused gap year program.",
     tags: [{ name: "Tech", slug: "tech" }],
+    aiBrief: null,
     ...overrides,
   };
 }
@@ -192,6 +193,36 @@ describe("POST /api/assistant -- review data gating", () => {
     const { candidates } = mockRecommendPrograms.mock.calls[0][0];
     expect(candidates[0].alumniQuotes).toHaveLength(3);
     expect(candidates[0].alumniQuotes).toEqual(["Loved it", "Life changing", "Would recommend"]);
+  });
+});
+
+describe("POST /api/assistant -- transcript private-field boundary", () => {
+  const SECRET_TRANSCRIPT = "SECRET RAW TRANSCRIPT do-not-leak-24680";
+
+  it("aiBrief reaches the candidate payload, but videoTranscript/transcriptTags never do -- even when the program row still carries them", async () => {
+    mockListPrograms.mockResolvedValue([
+      makeProgram({
+        aiBrief: "A short public summary of the program.",
+        // Simulates the worst case -- lib/programs.ts's query-layer omit somehow
+        // bypassed and these two admin-only fields riding along on the row anyway.
+        // The route builds ProgramCandidate by naming allowed fields explicitly
+        // (never spreading the raw program), so this must still never leak.
+        videoTranscript: SECRET_TRANSCRIPT,
+        transcriptTags: ["staged-slug"],
+      }),
+    ]);
+
+    const res = await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0]).not.toHaveProperty("videoTranscript");
+    expect(candidates[0]).not.toHaveProperty("transcriptTags");
+    expect(JSON.stringify(candidates)).not.toContain(SECRET_TRANSCRIPT);
+    expect(candidates[0].aiBrief).toBe("A short public summary of the program.");
+
+    const data = await res.json();
+    expect(JSON.stringify(data)).not.toContain(SECRET_TRANSCRIPT);
+    expect(JSON.stringify(data)).not.toContain("staged-slug");
   });
 });
 

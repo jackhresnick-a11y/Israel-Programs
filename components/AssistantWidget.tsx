@@ -23,6 +23,7 @@ type RecommendedProgram = {
   why: string;
   role: "pick" | "alternative";
   unmetLabels: string[];
+  aiBrief: string | null;
 };
 
 const GREETING: Message = {

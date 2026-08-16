@@ -62,6 +62,7 @@ export class NullProvider implements AIProvider {
    * rather than omitted, per the "never hard-cut, say what's missing" requirement. */
   private describeCandidate(c: ProgramCandidate): string {
     const parts: string[] = [];
+    if (c.aiBrief) parts.push(c.aiBrief);
     if (c.location) parts.push(`located in ${c.location}`);
     if (c.tags.length > 0) parts.push(`tagged ${c.tags.slice(0, 3).join(", ")}`);
     if (c.bestForPhrases.length > 0) parts.push(`best for ${c.bestForPhrases[0]}`);

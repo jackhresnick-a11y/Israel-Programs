@@ -173,6 +173,7 @@ export class AnthropicProvider implements AIProvider {
           `- slug: ${c.slug} | name: ${c.name} | location: ${c.location ?? "unknown"} | duration: ${c.durationType} | tags: ${c.tags.join(", ") || "none"} | description: ${c.descriptionExcerpt}`,
         ];
         if (c.unmetLabels.length > 0) lines.push(`  does NOT match: ${c.unmetLabels.join(", ")}`);
+        if (c.aiBrief) lines.push(`  brief: ${c.aiBrief}`);
         if (c.bestForPhrases.length > 0) lines.push(`  published "best for": ${c.bestForPhrases.join("; ")}`);
         if (c.alumniQuotes.length > 0) lines.push(`  approved alumni review quotes: ${c.alumniQuotes.map((q) => `"${q}"`).join(" / ")}`);
         return lines.join("\n");
@@ -188,6 +189,7 @@ export class AnthropicProvider implements AIProvider {
         "CANDIDATES are pre-ranked by how many parts of the request they match; always pick your picks/alternatives from earlier in the list when quality is comparable, never skip ahead to a worse-matching candidate for variety. " +
         "Every candidate that doesn't fully satisfy the request still lists what it's missing under 'does NOT match' -- you MUST state that plainly in your why/line for that candidate, never omit it or gloss over it. " +
         "Never claim a program is a full match if it has any 'does NOT match' entries. " +
+        "'brief' is an admin-authored public summary of the program -- you may state it as fact about the program. " +
         "'published \"best for\"' lines are already-public aggregate results -- you may state them as fact about the program. " +
         "'approved alumni review quotes' are individual opinions, not facts about the program -- you MUST frame any use of them as \"alumni describe it as...\" or similar, never restate a quote as a plain fact. " +
         "Always return exactly 2 picks and up to 3 alternatives from the candidates given (fewer only if there are literally fewer than 5 candidates total) -- there is always something to show, even if it's an imperfect match; never respond as if nothing was found.\n\n" +

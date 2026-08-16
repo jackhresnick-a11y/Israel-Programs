@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { ZodError } from "zod";
 import { requireRole, requireSignedInNotBanned, isModeratorRole } from "@/lib/roles";
-import { createProgramEdit, parseProgramFormData, toPublicProgram, updateProgram } from "@/lib/programs";
+import {
+  createProgramEdit,
+  parseProgramFormData,
+  PROGRAM_PRIVATE_OMIT,
+  toPublicProgram,
+  updateProgram,
+} from "@/lib/programs";
 import { saveLogo, UploadError } from "@/lib/storage";
 import { isVercelBlobUrl } from "@/lib/blob";
 import { checkRateLimit } from "@/lib/rateLimit";
@@ -17,6 +23,7 @@ export async function GET(_request: Request, { params }: Params) {
     // PUBLISHED-only: PENDING/REJECTED rows aren't public yet, so an unguessable id
     // shouldn't surface them here any more than the moderation queue itself does.
     where: { id, status: "PUBLISHED" },
+    omit: PROGRAM_PRIVATE_OMIT,
     include: {
       tags: true,
       videos: true,
