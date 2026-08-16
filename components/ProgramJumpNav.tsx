@@ -105,11 +105,16 @@ function handleJumpClick(id: string) {
 
 /**
  * Single-row sticky jump bar for public program pages -- Ratings/Reviews/
- * Alumni anchors plus the persistent "Rate this program" CTA and a truncated
- * program name that returns to top. Purely additive: it doesn't restructure
- * the page, and every target it points at is a normal server-rendered
- * heading already in the DOM (rule 13). The caller (app/programs/[slug]/page.tsx)
- * only renders this when at least 2 items qualify (rule 1).
+ * Alumni anchors plus the persistent "Rate this program" CTA and, at `sm`
+ * (640px) and up, a truncated program name that returns to top. The name is
+ * dropped below `sm`: it's the row's least useful element on a phone (a
+ * `BackButton` already sits above the fold, and the phone's own scroll-to-top
+ * gesture covers the intent), and the row has less width to share with the
+ * jump anchors and CTA at those widths. Purely additive otherwise: it doesn't
+ * restructure the page, and every target it points at is a normal
+ * server-rendered heading already in the DOM (rule 13). The caller
+ * (app/programs/[slug]/page.tsx) only renders this when at least 2 items
+ * qualify (rule 1).
  *
  * Appearance is pure CSS sticky, not a scroll-triggered reveal -- style guide
  * §6 forbids fade-ins/scroll reveals outright, so this renders in normal
@@ -142,7 +147,7 @@ export default function ProgramJumpNav({
       <a
         href="#top"
         onClick={handleJumpClick("top")}
-        className="max-w-[8rem] shrink-0 truncate font-serif text-sm font-medium text-foreground sm:max-w-[12rem]"
+        className="hidden max-w-[12rem] shrink-0 truncate font-serif text-sm font-medium text-foreground sm:block"
       >
         {programName}
       </a>
