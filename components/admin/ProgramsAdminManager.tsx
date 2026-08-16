@@ -59,8 +59,23 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
   const [aiBrief, setAiBrief] = useState(program.aiBrief ?? "");
   const [videoTranscript, setVideoTranscript] = useState(program.videoTranscript ?? "");
   const [tagBusy, setTagBusy] = useState<string | null>(null);
+  const [generatingBrief, setGeneratingBrief] = useState(false);
+  const [generateBriefError, setGenerateBriefError] = useState<string | null>(null);
 
   const aiBriefWordCount = aiBrief.trim() ? aiBrief.trim().split(/\s+/).length : 0;
+
+  async function handleGenerateBrief() {
+    setGeneratingBrief(true);
+    setGenerateBriefError(null);
+    try {
+      const { brief } = await api(`/api/admin/programs/${program.id}/generate-brief`, "POST");
+      setAiBrief(brief);
+    } catch (err) {
+      setGenerateBriefError(err instanceof Error ? err.message : "Failed to generate a brief");
+    } finally {
+      setGeneratingBrief(false);
+    }
+  }
 
   async function handleSave() {
     setBusy(true);
@@ -221,15 +236,37 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
               placeholder="https://..."
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-muted">
-            AI brief ({aiBriefWordCount} word{aiBriefWordCount === 1 ? "" : "s"}, target ~80) — public
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-2 text-xs text-muted">
+              <span>AI brief ({aiBriefWordCount} word{aiBriefWordCount === 1 ? "" : "s"}, target ~80) — public</span>
+              {program.videoTranscript && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={generatingBrief}
+                  onClick={handleGenerateBrief}
+                >
+                  {generatingBrief ? "Generating..." : "Generate from transcript"}
+                </Button>
+              )}
+            </div>
             <Textarea
+              aria-label="AI brief"
               value={aiBrief}
               onChange={(e) => setAiBrief(e.target.value)}
               rows={3}
               placeholder="A short distilled summary, e.g. from the video transcript below"
             />
-          </label>
+            {generateBriefError && (
+              <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{generateBriefError}</p>
+            )}
+            {program.videoTranscript && (
+              <p className="text-[11px] text-muted">
+                Draft only — review and edit above, then press Save. Nothing is written until you save.
+              </p>
+            )}
+          </div>
           <label className="flex flex-col gap-1 text-xs text-muted">
             Transcript (admin only — never shown publicly)
             <Textarea

@@ -208,4 +208,32 @@ export class AnthropicProvider implements AIProvider {
     const recommendedSlugs = Array.from(new Set([...parsed.picks.map((p) => p.slug), ...parsed.alternatives.map((a) => a.slug)]));
     return { reply: parsed.reply, picks: parsed.picks, alternatives: parsed.alternatives, recommendedSlugs };
   }
+
+  /**
+   * A short, explicit timeout (rather than the SDK's 10-minute default) so a stuck
+   * request surfaces as a clear error near the admin's "Generate from transcript"
+   * button instead of hanging indefinitely -- see app/api/admin/programs/[id]/
+   * generate-brief/route.ts, which turns any rejection here into a surfaced 502.
+   */
+  async generateBrief(transcript: string): Promise<string> {
+    const response = await this.client.messages.create(
+      {
+        model: FAST_MODEL,
+        max_tokens: 400,
+        system:
+          "The following is a raw transcript of a study/gap-year/volunteer program's own self-shot video. " +
+          "Extract a short, factual brief from it for a program directory listing. These videos routinely mix " +
+          "real facts with promotional or sales language (e.g. \"this will change your life\", \"you won't " +
+          "regret it\") -- extract ONLY concrete facts stated in the transcript and discard every promotional " +
+          "or persuasive sentence entirely. Cover, whenever the transcript actually states them: location, " +
+          "program duration, languages of instruction, participant age range, and what a typical day looks " +
+          "like. Never invent or infer a fact the transcript doesn't state. Write flowing prose (no bullet " +
+          "points, no headers), roughly 60-100 words.",
+        messages: [{ role: "user", content: transcript }],
+      },
+      { timeout: 30_000 }
+    );
+    const textBlock = response.content.find((b) => b.type === "text");
+    return textBlock?.text.trim() ?? "";
+  }
 }
