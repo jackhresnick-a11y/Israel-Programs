@@ -1,5 +1,6 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getProgramSlugById } from "@/lib/programs";
+import { POLL_RANK_TAG } from "@/lib/pollRankData";
 
 /**
  * Call after any write that changes what a program's public page shows (poll counts
@@ -17,6 +18,12 @@ import { getProgramSlugById } from "@/lib/programs";
  * other call sites (tag edits, poll-response/review moderation) don't change a
  * program's published status, so revalidating /rate there is a harmless no-op, not a
  * new correctness dependency.
+ *
+ * Also invalidates the /match poll-rank-modifier aggregate (lib/pollRankData.ts) --
+ * every call site here is a write that can plausibly change a COUNTED recommend
+ * answer (the autosave COUNTED transition, review/response moderation), so this is
+ * the one place that cache needs to be told to refresh. Over-invalidating a ~300-row
+ * aggregate on an unrelated call site (e.g. a tag edit) costs nothing.
  */
 export async function revalidateProgram(programId: string): Promise<void> {
   const slug = await getProgramSlugById(programId);
@@ -25,4 +32,7 @@ export async function revalidateProgram(programId: string): Promise<void> {
   revalidatePath("/programs");
   revalidatePath("/");
   revalidatePath("/rate");
+  // { expire: 0 } is Next 16's non-deprecated spelling of "invalidate now" --
+  // revalidateTag(tag) alone still works but logs a deprecation warning on every call.
+  revalidateTag(POLL_RANK_TAG, { expire: 0 });
 }

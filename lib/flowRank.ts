@@ -254,15 +254,40 @@ export type MatchBand = "strong" | "partial" | "weak" | "unranked";
 
 export type ScoredProgram<T extends RankableProgram> = {
   program: T;
-  /** 0..1, used only to order WITHIN a band -- the band itself is a pure criteria
+  /** The final, sort-relevant number -- baseScore with the poll modifier (if any)
+   * applied. Equal to baseScore when rankPrograms is called with no pollModifier, so
+   * every existing caller/test that only ever knew about `score` keeps working
+   * unchanged. Used only to order WITHIN a band -- the band itself is a pure criteria
    * count (see rankPrograms), not a second score threshold, so "why is this program
    * here" stays explainable as a plain number of matched preferences. */
   score: number;
+  /** The pre-poll-modifier tag/duration score -- what `score` would be with no
+   * modifier applied. Exposed so a modifier's effect is inspectable (and boundable)
+   * independent of the sort-order number. */
+  baseScore: number;
+  /** The poll modifier actually applied to this program, 1 meaning "no effect" --
+   * exposed for the same reason as baseScore. Always exactly 1 when rankPrograms is
+   * called with no pollModifier. */
+  pollMultiplier: number;
   matchedCriteria: number;
   totalCriteria: number;
   matchedKeys: string[];
   band: MatchBand;
 };
+
+/** Applies a poll multiplier to a (possibly negative) base score, bounded to
+ * +/-10% of the score's own magnitude -- never a fixed number of score points, and
+ * never in a direction that could flip which side of zero the score is on if the
+ * multiplier itself never leaves [0.9, 1.1] (mult=0.9 pulls |base| down by at most
+ * 10%, so `base + (mult-1)*|base|` can't cross zero). A plain `base * mult` would be
+ * wrong for a negative base: multiplying a negative number by something > 1 makes it
+ * MORE negative (worse), the opposite of what a good poll multiplier should do. This
+ * form instead always moves the score toward the "better" end for its sign -- a
+ * mult > 1 raises a positive score and pulls a negative one toward zero, a mult < 1
+ * lowers a positive score and pushes a negative one further negative. */
+function applyPollMultiplier(base: number, mult: number): number {
+  return base + (mult - 1) * Math.abs(base);
+}
 
 /** A criterion's category grouping + part count depend only on the criterion
  * (+ the fixed tagCategoryBySlug), never on the program -- rankPrograms below
@@ -310,11 +335,22 @@ export function scoreCriterion(
  * count as the input -- no .filter(), no .slice(), verified by test rather than
  * left to a comment: the spec is emphatic that cutting the tail reintroduces the
  * exact failure this project exists to fix. Weak matches sort last; they never
- * disappear. */
+ * disappear.
+ *
+ * `pollModifier`, when given, is consulted ONLY here -- after every program's
+ * tag/duration score is fully computed, and never for matchedCriteria/matchedKeys/
+ * totalCriteria/band, which are derived solely from `criteria` above and are
+ * structurally unreachable from this parameter. It has no way to change which
+ * programs are present (that's decided by survivingPrograms' REQUIRE eliminators,
+ * called by the caller before this function ever runs) -- it can only nudge where an
+ * already-eligible program sorts, per applyPollMultiplier's bound. Omitting it
+ * reproduces pre-poll-modifier behavior exactly: score === baseScore, pollMultiplier
+ * === 1 for every program. */
 export function rankPrograms<T extends RankableProgram>(
   programs: T[],
   criteria: FlowCriterion[],
-  tagCategoryBySlug: Map<string, string | null>
+  tagCategoryBySlug: Map<string, string | null>,
+  pollModifier?: (programId: string) => number
 ): ScoredProgram<T>[] {
   // A weight of 0 or a target-less criterion can't move the score either direction;
   // dropping it up front keeps totalWeight (the normalizer) honest.
@@ -348,7 +384,9 @@ export function rankPrograms<T extends RankableProgram>(
           matchedKeys.push(criterion.questionKey);
         }
       }
-      const score = totalWeight === 0 ? 0 : weightedSum / totalWeight;
+      const baseScore = totalWeight === 0 ? 0 : weightedSum / totalWeight;
+      const pollMult = pollModifier ? pollModifier(program.id) : 1;
+      const score = pollMult === 1 ? baseScore : applyPollMultiplier(baseScore, pollMult);
       const band: MatchBand =
         active.length === 0
           ? "unranked"
@@ -357,7 +395,7 @@ export function rankPrograms<T extends RankableProgram>(
             : matchedCriteria >= 1
               ? "partial"
               : "weak";
-      return { program, score, matchedCriteria, totalCriteria: active.length, matchedKeys, band };
+      return { program, score, baseScore, pollMultiplier: pollMult, matchedCriteria, totalCriteria: active.length, matchedKeys, band };
     })
     .sort(
       (a, b) =>

@@ -28,6 +28,8 @@ import {
   type ScoredProgram,
 } from "@/lib/flowRank";
 import { selectClip, type FlowVideoTriggerDTO, type FlowVideoDTO } from "@/lib/flowClips";
+import { getPollRankStats } from "@/lib/pollRankData";
+import { makePollModifier } from "@/lib/pollRankModifier";
 
 /** `listFlowQuestions()`'s Prisma rows are structurally compatible with
  * FlowQuestionDTO (Json columns type as JsonValue, a superset of `unknown`) --
@@ -201,19 +203,30 @@ export type MatchResults = {
  * eliminate -> rank. All in memory over the ~460-program catalog, same posture
  * listPrograms already takes for its own free-text relevance pass -- see
  * lib/flowRank.ts's rankPrograms doc comment for why this never truncates.
+ *
+ * getPollRankStats() joins the same Promise.all as the catalog/tag reads below --
+ * it's one query over the ~300 COUNTED recommend answers (see lib/pollRankData.ts),
+ * cheaper than the catalog read it runs alongside, so this adds no serial latency.
+ * It only ever nudges ranking WITHIN the already-eliminated survivor set -- REQUIRE
+ * eliminators (survivingPrograms, just below) still run first and are never
+ * consulted by the poll modifier.
  */
 export async function runMatchResults(questions: FlowQuestionDTO[], state: FlowAnswerState): Promise<MatchResults> {
   const { visible } = resolveFlow(questions, state, null);
   const { criteria, requireTargets } = buildFlowRunInput(visible, state);
 
-  const [programs, tagCategoryBySlug] = await Promise.all([listPrograms({}), buildTagCategoryMap()]);
+  const [programs, tagCategoryBySlug, pollStats] = await Promise.all([
+    listPrograms({}),
+    buildTagCategoryMap(),
+    getPollRankStats(),
+  ]);
   const matchPrograms: MatchProgram[] = programs.map((p) => ({
     ...p,
     tagSlugs: p.tags.map((t) => t.slug),
   }));
 
   const survivors = survivingPrograms(matchPrograms, requireTargets, tagCategoryBySlug);
-  const scored = rankPrograms(survivors, criteria, tagCategoryBySlug);
+  const scored = rankPrograms(survivors, criteria, tagCategoryBySlug, makePollModifier(pollStats));
   const relaxations =
     survivors.length === 0 && requireTargets.length > 0
       ? hardFilterRelaxations(matchPrograms, requireTargets, tagCategoryBySlug)

@@ -418,6 +418,122 @@ describe("rankPrograms -- no hard cut, ever", () => {
   });
 });
 
+describe("rankPrograms -- poll modifier (4th arg), matchedCriteria-preserving and eligibility-preserving", () => {
+  const spiritual: FlowCriterion = {
+    questionKey: "essence",
+    label: "Spiritual growth",
+    weight: 1,
+    tagSlugs: ["essence-spiritual-growth"],
+    durationValues: [],
+  };
+  const gapYear: FlowCriterion = { questionKey: "duration", label: "Gap year", weight: 1, tagSlugs: [], durationValues: ["GAP_YEAR"] };
+  const boysOnly: FlowCriterion = { questionKey: "program-gender", label: "Boys only", weight: 1, tagSlugs: ["boys-only"], durationValues: [] };
+  const dislikesSpiritual: FlowCriterion = {
+    questionKey: "learning",
+    label: "School killed it for me",
+    weight: -1,
+    tagSlugs: ["essence-spiritual-growth"],
+    durationValues: [],
+  };
+  const criteria = [spiritual, gapYear, boysOnly];
+
+  function byProgramId<T extends { program: { id: string } }>(results: T[]): Map<string, T> {
+    return new Map(results.map((r) => [r.program.id, r]));
+  }
+
+  it("omitting the modifier reproduces pre-modifier behavior exactly: score === baseScore, pollMultiplier === 1", () => {
+    const results = rankPrograms(programs, criteria, tagCategoryBySlug);
+    for (const r of results) {
+      expect(r.pollMultiplier).toBe(1);
+      expect(r.score).toBe(r.baseScore);
+    }
+  });
+
+  it("a modifier returning 1 for everything produces output deep-equal to passing no modifier at all", () => {
+    const withoutModifier = rankPrograms(programs, criteria, tagCategoryBySlug);
+    const withNeutralModifier = rankPrograms(programs, criteria, tagCategoryBySlug, () => 1);
+    expect(withNeutralModifier).toEqual(withoutModifier);
+  });
+
+  it("matchedCriteria/matchedKeys/totalCriteria/band are identical with and without a modifier, per program", () => {
+    const skewedModifier = (id: string) => (id === "1" ? 1.1 : id === "5" ? 0.9 : 1);
+    const without = byProgramId(rankPrograms(programs, criteria, tagCategoryBySlug));
+    const withModifier = byProgramId(rankPrograms(programs, criteria, tagCategoryBySlug, skewedModifier));
+    for (const [id, base] of without) {
+      const modified = withModifier.get(id)!;
+      expect(modified.matchedCriteria).toBe(base.matchedCriteria);
+      expect(modified.matchedKeys).toEqual(base.matchedKeys);
+      expect(modified.totalCriteria).toBe(base.totalCriteria);
+      expect(modified.band).toBe(base.band);
+    }
+  });
+
+  it("eligibility-preserving: an extreme modifier changes ordering but not the set or count of programs returned", () => {
+    const extremeModifier = (id: string) => (Number(id) % 2 === 0 ? 1.1 : 0.9);
+    const without = rankPrograms(programs, criteria, tagCategoryBySlug);
+    const withModifier = rankPrograms(programs, criteria, tagCategoryBySlug, extremeModifier);
+    expect(withModifier).toHaveLength(without.length);
+    expect(withModifier.map((r) => r.program.id).sort()).toEqual(without.map((r) => r.program.id).sort());
+  });
+
+  it("REQUIRE eliminators are untouched: a program excluded by survivingPrograms stays excluded regardless of its modifier", () => {
+    const boysOnlyRequire: FlowRequireTarget = {
+      questionKey: "gender",
+      label: "Boys only",
+      tagSlugs: ["boys-only"],
+      durationValues: [],
+      requireIncludesUntagged: false,
+    };
+    const survivors = survivingPrograms(programs, [boysOnlyRequire], tagCategoryBySlug);
+    expect(survivors.map((p) => p.id)).not.toContain("5"); // Epsilon Seminary is girls-only
+    // Even a maximal +10% modifier for program 5 can't resurrect it -- it's simply
+    // never in the input rankPrograms is given, the same guarantee an unmodified run has.
+    const results = rankPrograms(survivors, criteria, tagCategoryBySlug, (id) => (id === "5" ? 1.1 : 1));
+    expect(results.map((r) => r.program.id)).not.toContain("5");
+  });
+
+  it("+/-10% bound holds at the score level under an extreme modifier, for a positive-score program", () => {
+    const results = rankPrograms(programs, criteria, tagCategoryBySlug, () => 1.1);
+    for (const r of results) {
+      expect(Math.abs(r.score - r.baseScore)).toBeLessThanOrEqual(0.1 * Math.abs(r.baseScore) + 1e-9);
+    }
+    const resultsLow = rankPrograms(programs, criteria, tagCategoryBySlug, () => 0.9);
+    for (const r of resultsLow) {
+      expect(Math.abs(r.score - r.baseScore)).toBeLessThanOrEqual(0.1 * Math.abs(r.baseScore) + 1e-9);
+    }
+  });
+
+  it("sign safety: a program with a negative baseScore gets a > 1 modifier applied TOWARD zero, not further negative", () => {
+    // program 1 (Alpha) carries essence-spiritual-growth, so dislikesSpiritual demotes it -- baseScore < 0.
+    const without = rankPrograms(programs, [dislikesSpiritual], tagCategoryBySlug);
+    const alphaBase = without.find((r) => r.program.id === "1")!;
+    expect(alphaBase.baseScore).toBeLessThan(0);
+
+    const withBoost = rankPrograms(programs, [dislikesSpiritual], tagCategoryBySlug, (id) => (id === "1" ? 1.1 : 1));
+    const alphaBoosted = withBoost.find((r) => r.program.id === "1")!;
+    // score moved closer to zero (better), never more negative -- a plain base*1.1 would
+    // have made this MORE negative, which is the bug applyPollMultiplier exists to avoid.
+    expect(alphaBoosted.score).toBeGreaterThan(alphaBase.baseScore);
+    expect(alphaBoosted.score).toBeLessThanOrEqual(0);
+  });
+
+  it("sign safety: a program with a negative baseScore and a < 1 modifier gets pushed further negative", () => {
+    const without = rankPrograms(programs, [dislikesSpiritual], tagCategoryBySlug);
+    const alphaBase = without.find((r) => r.program.id === "1")!;
+
+    const withPenalty = rankPrograms(programs, [dislikesSpiritual], tagCategoryBySlug, (id) => (id === "1" ? 0.9 : 1));
+    const alphaPenalized = withPenalty.find((r) => r.program.id === "1")!;
+    expect(alphaPenalized.score).toBeLessThan(alphaBase.baseScore);
+  });
+
+  it("determinism: two identical runs with the same modifier produce identical ordering and scores", () => {
+    const modifier = (id: string) => (id === "1" ? 1.05 : id === "3" ? 0.95 : 1);
+    const a = rankPrograms(programs, criteria, tagCategoryBySlug, modifier);
+    const b = rankPrograms(programs, criteria, tagCategoryBySlug, modifier);
+    expect(a.map((r) => ({ id: r.program.id, score: r.score }))).toEqual(b.map((r) => ({ id: r.program.id, score: r.score })));
+  });
+});
+
 describe("makeOptionCoverageCounter -- the live-catalog half of coverage gating", () => {
   function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | "label">): FlowOptionDTO {
     return {

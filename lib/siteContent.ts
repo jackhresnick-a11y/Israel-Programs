@@ -3,7 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 const SITE_CONTENT_TAG = "site-content";
 
-async function fetchSiteContent(key: string): Promise<string | null> {
+/** Exported (not just the private half of getSiteContent below) so a caller that's
+ * itself building an uncached read -- e.g. lib/pollRankData.ts's
+ * getPollRankStatsUncached, which a bare `tsx` script calls outside any Next
+ * request/work-unit store, where unstable_cache-wrapped functions throw -- can reach
+ * the same query without going through the cached wrapper. */
+export async function fetchSiteContent(key: string): Promise<string | null> {
   const row = await prisma.siteContent.findUnique({ where: { key } });
   return row?.body ?? null;
 }
