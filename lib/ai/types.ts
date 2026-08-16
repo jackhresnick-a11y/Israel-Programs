@@ -138,4 +138,14 @@ export interface AIProvider {
     history: ChatMessage[];
     candidates: ProgramCandidate[];
   }): Promise<RecommendationResult>;
+
+  /** Distills a program's raw video transcript (Program.videoTranscript, admin-only,
+   * never public -- see ProgramCandidate's doc comment) into a short factual draft for
+   * the admin-authored public Program.aiBrief field. The transcript is the program's
+   * own self-shot video, so it routinely mixes real facts with promotional/sales
+   * language -- an implementation must extract facts only (location, duration,
+   * languages, age range, what a typical day looks like) and discard anything
+   * persuasive. The caller (POST .../generate-brief) never saves this result directly;
+   * it only ever fills the aiBrief textarea as an editable draft. */
+  generateBrief(transcript: string): Promise<string>;
 }

@@ -686,6 +686,17 @@ export async function setProgramVideoFields(
   return prisma.program.update({ where: { id }, data: fields, omit: PROGRAM_PRIVATE_OMIT });
 }
 
+/** Admin-only: reads a program's raw transcript for the "Generate from transcript"
+ * button (POST .../generate-brief) -- an explicit, narrowly-scoped exception to
+ * PROGRAM_PRIVATE_OMIT's blanket "never selected into a whole-row query" rule, since
+ * that route's whole job is handing this exact field to the AI provider. Returns null
+ * for both "no program" and "no transcript" -- the caller's empty-transcript check
+ * doesn't need to distinguish the two. */
+export async function getProgramVideoTranscript(id: string): Promise<string | null> {
+  const program = await prisma.program.findUnique({ where: { id }, select: { videoTranscript: true } });
+  return program?.videoTranscript ?? null;
+}
+
 /** Approves one transcript-suggested tag: connects the existing Tag by slug (never
  * mints one -- an unrecognized slug throws UnknownTagSlugsError, same "typed name must
  * already exist" discipline lib/finder.ts's Finder options use, surfaced as a 400 by

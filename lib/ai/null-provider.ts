@@ -105,4 +105,16 @@ export class NullProvider implements AIProvider {
 
     return { reply, picks, alternatives, recommendedSlugs: shown.map((p) => p.slug) };
   }
+
+  /** No network call, and deliberately no real extraction -- there's no reliable
+   * non-AI way to separate fact from promotional language in free-form prose the way
+   * describeCandidate above does from already-structured fields. Returns the leading
+   * words of the transcript verbatim (roughly matching aiBrief's ~80-word admin target)
+   * so the draft flow still works end-to-end with AI off, at the cost of not actually
+   * filtering out any sales language -- callers should not expect this to be
+   * publish-ready the way the real AnthropicProvider's output aims to be. */
+  async generateBrief(transcript: string): Promise<string> {
+    const words = transcript.trim().split(/\s+/).filter(Boolean);
+    return words.slice(0, 80).join(" ");
+  }
 }
