@@ -49,5 +49,11 @@ next-env.d.ts
 # uploaded media (local dev storage)
 /uploads
 
+# local-only transcription working files (source videos, generated transcripts,
+# exported slug list) -- see scripts/transcribe/README.md
+/scripts/transcribe/videos/
+/scripts/transcribe/out/
+/scripts/transcribe/slugs.json
+
 # clerk configuration (can include secrets)
 /.clerk/

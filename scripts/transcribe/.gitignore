@@ -1,0 +1,9 @@
+# Local-only: source videos, generated transcripts, and the exported slug list.
+# None of this belongs in git -- videos never leave this machine, and slugs.json
+# is a live export from /admin/transcripts that goes stale immediately.
+/videos/
+/out/
+/slugs.json
+/.venv/
+__pycache__/
+*.pyc
