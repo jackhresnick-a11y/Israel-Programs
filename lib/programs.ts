@@ -589,6 +589,20 @@ export async function listPublishedProgramNames() {
   });
 }
 
+/** Admin-only counterpart to listPublishedProgramNames, adding videoUrl (public field,
+ * but not needed by any of that function's other -- several public-facing -- callers)
+ * and websiteLanguage (admin-only workflow signal per its own schema comment, so it must
+ * never ride the shared function into a public page's client-component props). Used
+ * solely by the transcripts slugs export (app/api/admin/transcripts/slugs/route.ts),
+ * itself already admin-gated and never rendered to a client component. */
+export async function listPublishedProgramNamesWithVideo() {
+  return prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: { id: true, slug: true, name: true, videoUrl: true, websiteLanguage: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 /** Every published program with the lightweight fields the /rate program picker needs to
  * fuzzy-rank client-side (the same rankBySearchTerm the directory search uses) -- name,
  * nameHe, organization, location, and tag names/slugs. Deliberately omits description/

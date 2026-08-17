@@ -3,12 +3,22 @@
 Turns your program videos into `.txt` transcripts on your own machine, then you
 upload the `.txt` files at `/admin/transcripts`. **Whisper never runs on the site's
 servers, and no video file is ever uploaded anywhere** — only the text you upload
-at the end crosses to the site.
+at the end crosses to the site. `fetch-videos.py` (below) *downloads* each
+program's own video from wherever it's linked (YouTube, Vimeo, Facebook, Instagram,
+or TikTok — same five platforms the site's video embeds support) straight to this
+machine; that doesn't change the "nothing is ever uploaded" guarantee, since
+nothing goes the other direction.
+
+This can only run locally, not on Vercel — Instagram and Facebook block requests
+from datacenter IPs and require a real logged-in browser session's cookies, which
+only makes sense from your own machine anyway.
 
 The filename of every video must be the **exact** program slug — `aish-hatorah.mp4`
 for the program whose slug is `aish-hatorah`. No spaces, no different casing, no
 extra words. A file whose name doesn't exactly match a slug is skipped and listed
-as unmatched — it is never guessed at.
+as unmatched — it is never guessed at. `fetch-videos.py` already names files this
+way automatically; this only matters by hand if you're placing a video manually
+(step 2 below).
 
 ## One-time setup
 
@@ -44,7 +54,10 @@ py -3.11 -m venv .venv
 pip install -r requirements.txt
 ```
 You'll need to run `.venv\Scripts\activate` again every time you open a new
-terminal to work on this.
+terminal to work on this. (`yt-dlp` — used by `fetch-videos.py`, step 2 below —
+installs from the same `requirements.txt`, no separate install needed. It reuses
+the FFmpeg you installed in step 2 above, the same way `winget install
+Gyan.FFmpeg` step already served `transcribe.py`.)
 
 ## Every time you have new videos to transcribe
 
@@ -52,9 +65,48 @@ terminal to work on this.
 
 Go to `/admin/transcripts` (signed in as an admin) and click **"Download slug
 list"**. Save the file as `slugs.json` directly in this folder
-(`scripts/transcribe/slugs.json`).
+(`scripts/transcribe/slugs.json`). Besides `slug`/`name`, each row now also
+carries `provider`/`watchUrl` (derived server-side from that program's own
+`videoUrl`, or `null` if it has none / isn't one of the five supported platforms)
+and `websiteLanguage` (a hint only — see step 2).
 
-### 2. Lay out your video files
+### 2. Fetch videos automatically (optional)
+
+For any program with a parseable `videoUrl`, this downloads it for you instead of
+you finding and saving the file by hand:
+
+```
+python fetch-videos.py --lang en
+```
+
+`--lang en|he` is **required, never inferred** — same rule as `transcribe.py`'s
+folder-forced language below. `slugs.json` prints each program's
+`websiteLanguage` next to it so you can decide which pass a program belongs in;
+run the command twice (once per language) rather than letting the script guess.
+
+**Instagram and Facebook need your own login.** Without it you'll get a
+"login required" / rate-limit error — pass your logged-in browser's cookies:
+
+```
+python fetch-videos.py --lang en --cookies-from-browser chrome
+```
+
+(`chrome`, `firefox`, `edge`, etc. — whichever browser you're logged into
+Instagram/Facebook with. YouTube and Vimeo don't need this.)
+
+Other flags, same shape as `transcribe.py`'s:
+- `--only <slug>` — only fetch one specific program.
+- `--force <slug>` — re-download one even though it already succeeded.
+- `--dry-run` — show what would be downloaded without running yt-dlp.
+
+This writes `videos/<lang>/<slug>.mp4` (see step 3) and its own
+`videos/fetch-state.json` so re-running skips anything already downloaded. A
+program with no `videoUrl`, or one yt-dlp/Instagram/Facebook refuses even with
+cookies (private post, deleted video, etc.), is reported and skipped — it never
+blocks the rest of the batch, and never blocks placing that one video manually
+(step 3) instead.
+
+### 3. Lay out your video files
 
 ```
 scripts/transcribe/
@@ -67,6 +119,11 @@ scripts/transcribe/
   slugs.json
 ```
 
+If you ran `fetch-videos.py` above, this is already done for everything it
+found — this step is only for filling in the rest by hand (a program with no
+`videoUrl`, one on a platform it doesn't cover, or one you'd rather source
+yourself).
+
 Everything under `videos/en/` is transcribed as **English**; everything under
 `videos/he/` is transcribed as **Hebrew**. The language is forced from the folder
 — it is never auto-detected, so put each file in the right folder. A file dropped
@@ -77,7 +134,7 @@ Each filename (minus its extension) must be byte-for-byte identical to a slug in
 `slugs.json`. Check the slug on `/admin/transcripts` or `/admin/programs` if
 you're not sure of the exact spelling.
 
-### 3. Run it
+### 4. Run it
 
 ```
 python transcribe.py
@@ -100,7 +157,7 @@ This will:
   fixed a bad source file).
 - `--dry-run` — show what would be processed without actually running Whisper.
 
-### 4. Check the manifest for warnings
+### 5. Check the manifest for warnings
 
 Open `out/manifest.json`. Two warning types can appear per file, and neither one
 blocks the `.txt` from being written — they're a flag to go listen to that part of
@@ -113,7 +170,7 @@ the video yourself before uploading:
   the top of `transcribe.py` if you find it too strict or too loose for your
   content.)
 
-### 5. Upload the transcripts
+### 6. Upload the transcripts
 
 Go to `/admin/transcripts`, use the multi-file upload, and select every `.txt`
 file in `out/`. You'll get a preview (which program each matches, word count,
@@ -153,3 +210,14 @@ CTranslate2 model instead of a Hugging Face model name.
 - **Re-running does nothing** — that's expected if everything already succeeded;
   `state.json` tracks completed files by content hash. Use `--force <slug>` to
   redo one on purpose, or delete `state.json` to redo everything.
+- **`fetch-videos.py` fails with "login required" / rate-limit error** — this is
+  Instagram or Facebook blocking the request; pass `--cookies-from-browser
+  <browser>` (see step 2 above). YouTube/Vimeo should never need this.
+- **`fetch-videos.py` re-downloads nothing on a second run** — same idea as
+  `transcribe.py`'s `state.json`, but its own file: `videos/fetch-state.json`
+  tracks completed downloads by slug + source URL. Use `--force <slug>` to redo
+  one, or delete `videos/fetch-state.json` to redo everything.
+- **A program's `provider` is `null` in `slugs.json`** — that program either has
+  no `videoUrl` set, or its `videoUrl` isn't one of the five supported platforms
+  (YouTube, Vimeo, Facebook, Instagram, TikTok). `fetch-videos.py` reports it and
+  skips it; place that video manually (step 3) if you have it some other way.
