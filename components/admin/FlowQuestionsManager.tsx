@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
-import { useToast } from "@/components/ui/Toast";
+import RuleEditor from "@/components/admin/flow/RuleEditor";
+import OptionSetRulesEditor from "@/components/admin/flow/OptionSetRulesEditor";
+import type { BuilderQuestionRef } from "@/lib/flowRuleBuilder";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
 export type FlowOptionRow = {
@@ -86,25 +87,6 @@ function errorMessage(err: unknown, fallback: string): string {
     return "Your admin session expired -- reload the page and sign in again.";
   }
   return err instanceof Error ? err.message : fallback;
-}
-
-/** Parses a JSON-rule textarea's current text into the value a PATCH body should
- * carry: empty text -> null (clears the rule), valid JSON -> the parsed value,
- * invalid JSON -> a parse error reported to the caller rather than sent to the
- * server (the server's own zod schema is the real validator; this is just a fast
- * "is this even JSON" check so a typo doesn't round-trip for nothing). */
-function parseRuleText(text: string): { ok: true; value: unknown } | { ok: false; error: string } {
-  const trimmed = text.trim();
-  if (!trimmed) return { ok: true, value: null };
-  try {
-    return { ok: true, value: JSON.parse(trimmed) };
-  } catch {
-    return { ok: false, error: "Not valid JSON" };
-  }
-}
-
-function jsonText(value: unknown): string {
-  return value == null ? "" : JSON.stringify(value, null, 2);
 }
 
 /**
@@ -244,81 +226,6 @@ function MatchModeControl({
 }
 
 /**
- * The show-condition (showWhen) editor, staged with an explicit Save/Cancel rather than
- * saving on blur like every other text field in this manager -- same reasoning and same
- * shape as MatchModeControl above, minus the preview step (a show-condition doesn't have
- * an equivalent "how many programs would this affect" check). A silent on-blur save here
- * previously gave zero feedback on success (the field was an uncontrolled defaultValue
- * textarea, so router.refresh() never visibly updated it) and, on failure, surfaced a
- * bare "Unauthorized" or validation string in a banner at the top of the whole page,
- * disconnected from the field that caused it.
- */
-function ShowWhenEditor({ question, onSaved }: { question: FlowQuestionRow; onSaved: () => void }) {
-  const { toast } = useToast();
-  const [text, setText] = useState(jsonText(question.showWhen));
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  const parsed = parseRuleText(text);
-  // Same "compare to the prop, not a stashed baseline" trick as MatchModeControl's
-  // `dirty` -- once a save lands, router.refresh() delivers a question.showWhen that
-  // matches what was just saved, so this naturally goes false and the staging UI
-  // self-dismisses with no extra bookkeeping.
-  const dirty = !parsed.ok || JSON.stringify(parsed.value) !== JSON.stringify(question.showWhen ?? null);
-  const canSave = dirty && parsed.ok && !saving;
-
-  async function handleSave() {
-    if (!parsed.ok) return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      await api(`/api/admin/flow/questions/${question.id}`, "PATCH", { showWhen: parsed.value });
-      toast("Show-condition saved");
-      onSaved();
-    } catch (err) {
-      setSaveError(errorMessage(err, "Failed to save"));
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function handleCancel() {
-    setText(jsonText(question.showWhen));
-    setSaveError(null);
-  }
-
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted">
-          Show-condition (JSON, empty = always shown) -- see find-v2-question-spec.md for the rule shape
-        </span>
-        {dirty && <Badge tone="info">Unsaved</Badge>}
-      </div>
-      <Textarea
-        value={text}
-        placeholder='{"v":1,"when":{"type":"answerIn","questionKey":"life-stage","optionKeys":["working"]}}'
-        className="min-h-16 font-mono text-xs"
-        disabled={saving}
-        onChange={(e) => setText(e.target.value)}
-      />
-      {!parsed.ok && <p className="text-xs text-danger">{parsed.error}</p>}
-      {dirty && (
-        <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border px-2 py-1">
-          <Button type="button" size="sm" disabled={!canSave} className="ml-auto" onClick={handleSave}>
-            {saving ? "Saving..." : "Save show-condition"}
-          </Button>
-          <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
-      )}
-      {saveError && <p className="text-xs text-danger">{saveError}</p>}
-    </div>
-  );
-}
-
-/**
  * Admin CRUD for the /match challenge flow: questions (prompt, help text, type,
  * skippable, show-condition, option-set rules, order, active/retired) each own an
  * ordered set of options (label, rationale, weight, match mode, the tag slugs /
@@ -326,11 +233,13 @@ function ShowWhenEditor({ question, onSaved }: { question: FlowQuestionRow; onSa
  * fetch-then-router.refresh() shape as FinderQuestionsManager -- no client-side
  * cache of its own, the server component re-fetches on every mutation.
  *
- * showWhen/optionSetRules are edited as raw JSON in a textarea rather than a visual
- * rule builder -- the server (lib/flow.ts, via lib/flowShared.ts's
- * flowConditionSchema/flowOptionSetRulesSchema) is the real validator either way, and
- * a working textarea beats a half-built visual editor. See find-v2-question-spec.md
- * for the rule shapes each question actually needs.
+ * showWhen/optionSetRules are edited via RuleEditor/OptionSetRulesEditor
+ * (components/admin/flow/*) -- a row-based visual builder for the modellable subset
+ * of the rule grammar, with a raw-JSON fallback for anything it can't express. The
+ * server (lib/flow.ts, via lib/flowShared.ts's flowConditionSchema/
+ * flowOptionSetRulesSchema) remains the real validator either way -- the builder's
+ * client-side checks (lib/flowRuleBuilder.ts) mirror it, they don't replace it. See
+ * find-v2-question-spec.md for the rule shapes each question actually needs.
  */
 export default function FlowQuestionsManager({
   questions,
@@ -354,7 +263,6 @@ export default function FlowQuestionsManager({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [ruleErrors, setRuleErrors] = useState<Record<string, string>>({});
   const [newPrompt, setNewPrompt] = useState("");
   const [creatingQuestion, setCreatingQuestion] = useState(false);
   const [newOptionLabel, setNewOptionLabel] = useState<Record<string, string>>({});
@@ -369,6 +277,16 @@ export default function FlowQuestionsManager({
     if (bucket) bucket.push(tag);
     else tagsByCategory.set(key, [tag]);
   }
+
+  // The rule builder's question/option reference bank -- derived fresh from the live
+  // `questions` prop on every render, so an admin's edit to another question's order
+  // or a retired option is reflected the instant router.refresh() delivers new props.
+  const bank: BuilderQuestionRef[] = questions.map((q) => ({
+    key: q.key,
+    order: q.order,
+    prompt: q.prompt,
+    options: q.options.map((o) => ({ key: o.key, label: o.label, status: o.status })),
+  }));
 
   // "Only two things eliminate: program gender, and 'still in high school'" is a
   // property of the data (exactly two ELIMINATING QUESTIONS), never enforced by
@@ -392,15 +310,6 @@ export default function FlowQuestionsManager({
     } finally {
       setBusyId(null);
     }
-  }
-
-  function setRuleError(fieldId: string, message: string | null) {
-    setRuleErrors((prev) => {
-      const next = { ...prev };
-      if (message) next[fieldId] = message;
-      else delete next[fieldId];
-      return next;
-    });
   }
 
   // -- question field handlers --
@@ -430,20 +339,6 @@ export default function FlowQuestionsManager({
     if (next === question.defaultOptionSetKey) return;
     withBusy(question.id, () =>
       api(`/api/admin/flow/questions/${question.id}`, "PATCH", { defaultOptionSetKey: next })
-    );
-  }
-
-  function handleOptionSetRulesChange(question: FlowQuestionRow, text: string) {
-    const fieldId = `optionSetRules:${question.id}`;
-    const parsed = parseRuleText(text);
-    if (!parsed.ok) {
-      setRuleError(fieldId, parsed.error);
-      return;
-    }
-    setRuleError(fieldId, null);
-    if (JSON.stringify(parsed.value) === JSON.stringify(question.optionSetRules ?? null)) return;
-    withBusy(question.id, () =>
-      api(`/api/admin/flow/questions/${question.id}`, "PATCH", { optionSetRules: parsed.value })
     );
   }
 
@@ -596,7 +491,6 @@ export default function FlowQuestionsManager({
       <div className="flex flex-col gap-4">
         {sortedQuestions.map((question, index) => {
           const sortedOptions = [...question.options].sort((a, b) => a.order - b.order);
-          const optionSetRulesError = ruleErrors[`optionSetRules:${question.id}`];
           return (
             <div key={question.id} className="flex flex-col gap-3 rounded border border-border p-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -683,25 +577,25 @@ export default function FlowQuestionsManager({
                 Skippable
               </label>
 
-              <ShowWhenEditor question={question} onSaved={() => router.refresh()} />
+              <RuleEditor
+                question={question}
+                bank={bank}
+                onSaved={() => router.refresh()}
+                api={api}
+                errorMessage={errorMessage}
+              />
 
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted">
-                  Option-set rules (JSON, empty = one shared option set for every respondent)
-                </span>
-                <Textarea
-                  defaultValue={jsonText(question.optionSetRules)}
-                  placeholder='{"v":1,"default":"mixed","rules":[{"optionSetKey":"boys","when":{...}}]}'
-                  className="min-h-16 font-mono text-xs"
-                  disabled={busyId === question.id}
-                  onBlur={(e) => handleOptionSetRulesChange(question, e.target.value)}
-                />
-                {optionSetRulesError && <p className="text-xs text-danger">{optionSetRulesError}</p>}
-              </div>
+              <OptionSetRulesEditor
+                question={question}
+                bank={bank}
+                onSaved={() => router.refresh()}
+                api={api}
+                errorMessage={errorMessage}
+              />
 
               <Input
                 defaultValue={question.defaultOptionSetKey ?? ""}
-                placeholder="Default option-set key (used when no rule above matches)"
+                placeholder="Fallback option-set key (used only if option-set rules above are empty or fail to parse)"
                 className="max-w-md"
                 disabled={busyId === question.id}
                 onBlur={(e) => handleDefaultOptionSetKeyChange(question, e.target.value)}

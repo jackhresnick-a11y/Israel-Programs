@@ -2,7 +2,7 @@
 import "@testing-library/jest-dom/vitest";
 import { StrictMode, useState } from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FlowQuestionsManager, { type FlowOptionRow, type FlowQuestionRow } from "./FlowQuestionsManager";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -252,12 +252,24 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
 // field used to save silently on blur (an uncontrolled defaultValue textarea, so a
 // successful save produced zero visible change) and, on failure, surfaced a bare
 // "Unauthorized" or validation string in a page-top banner disconnected from the field.
-describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for the show-condition field", () => {
-  const q = question({ id: "q1", key: "life-stage", options: [] });
+// Since RuleEditor (components/admin/flow/RuleEditor.tsx) replaced that bare textarea
+// with a builder/raw-JSON toggle, these tests open the "Raw JSON" view first -- every
+// other invariant (no silent save, Unsaved badge, disabled-on-invalid-JSON, Cancel is a
+// zero-write revert, 401/403 reads as "session expired") is unchanged and re-asserted
+// here scoped to this question's data-testid="show-when-<id>" container, since a real
+// page renders one RuleEditor + one OptionSetRulesEditor per question and an unscoped
+// query would be ambiguous the moment more than one question is on screen.
+describe("RuleEditor (via FlowQuestionsManager): explicit Save/Cancel for the show-condition field", () => {
+  // An earlier question is required so VALID_SHOW_WHEN can name a legitimate backward
+  // reference -- RuleEditor now validates references client-side before allowing Save
+  // (see lib/flowRuleBuilder.ts's validateRawCondition), so a condition naming its own
+  // question (the old fixture's shape) would correctly be blocked as a self-reference.
+  const earlier = question({ id: "q0", key: "opener", order: -1, options: [] });
+  const q = question({ id: "q1", key: "life-stage", order: 0, options: [] });
 
   const SHOW_WHEN_PLACEHOLDER =
     '{"v":1,"when":{"type":"answerIn","questionKey":"life-stage","optionKeys":["working"]}}';
-  const VALID_SHOW_WHEN = { v: 1, when: { type: "answered", questionKey: "life-stage" } };
+  const VALID_SHOW_WHEN = { v: 1, when: { type: "answered", questionKey: "opener" } };
   const VALID_SHOW_WHEN_TEXT = JSON.stringify(VALID_SHOW_WHEN, null, 2);
 
   let patchCalls: Array<{ id: string; body: { showWhen?: unknown } }>;
@@ -290,13 +302,21 @@ describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for th
     cleanup();
   });
 
+  /** Switches question "q1"'s show-condition editor to raw-JSON view and returns its
+   * textarea, scoped to that question's own container. */
+  function openRawShowWhen() {
+    const container = screen.getByTestId("show-when-q1");
+    fireEvent.click(within(container).getByRole("button", { name: "Raw JSON" }));
+    return within(container).getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+  }
+
   it("editing the text alone fires no PATCH -- saving now requires the explicit button", async () => {
     render(
       <ToastProvider>
-        <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
+        <FlowQuestionsManager questions={[earlier, q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: VALID_SHOW_WHEN_TEXT } });
     fireEvent.blur(textarea);
     expect(patchCalls).toHaveLength(0);
@@ -306,14 +326,15 @@ describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for th
     const user = userEvent.setup();
     render(
       <ToastProvider>
-        <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
+        <FlowQuestionsManager questions={[earlier, q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: VALID_SHOW_WHEN_TEXT } });
 
-    expect(screen.getByText("Unsaved")).toBeInTheDocument();
-    const saveButton = screen.getByRole("button", { name: /Save show-condition/i });
+    const container = screen.getByTestId("show-when-q1");
+    expect(within(container).getByText("Unsaved")).toBeInTheDocument();
+    const saveButton = within(container).getByRole("button", { name: /Save show-condition/i });
     expect(saveButton).toBeEnabled();
 
     await user.click(saveButton);
@@ -326,14 +347,15 @@ describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for th
   it("invalid JSON keeps Save disabled with an inline parse error and sends no request", async () => {
     render(
       <ToastProvider>
-        <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
+        <FlowQuestionsManager questions={[earlier, q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: "{ not json" } });
 
-    expect(screen.getByText("Not valid JSON")).toBeInTheDocument();
-    const saveButton = screen.getByRole("button", { name: /Save show-condition/i });
+    const container = screen.getByTestId("show-when-q1");
+    expect(within(container).getByText("Not valid JSON")).toBeInTheDocument();
+    const saveButton = within(container).getByRole("button", { name: /Save show-condition/i });
     expect(saveButton).toBeDisabled();
 
     await userEvent.setup().click(saveButton);
@@ -344,17 +366,18 @@ describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for th
     const user = userEvent.setup();
     render(
       <ToastProvider>
-        <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
+        <FlowQuestionsManager questions={[earlier, q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: VALID_SHOW_WHEN_TEXT } });
-    expect(screen.getByText("Unsaved")).toBeInTheDocument();
+    const container = screen.getByTestId("show-when-q1");
+    expect(within(container).getByText("Unsaved")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /Cancel/i }));
+    await user.click(within(container).getByRole("button", { name: /Cancel/i }));
 
     expect(textarea).toHaveValue(""); // q.showWhen is null -> jsonText(null) === ""
-    expect(screen.queryByText("Unsaved")).not.toBeInTheDocument();
+    expect(within(container).queryByText("Unsaved")).not.toBeInTheDocument();
     expect(patchCalls).toHaveLength(0);
   });
 
@@ -363,26 +386,28 @@ describe("ShowWhenEditor (via FlowQuestionsManager): explicit Save/Cancel for th
     patchStatus = 403;
     render(
       <ToastProvider>
-        <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
+        <FlowQuestionsManager questions={[earlier, q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: VALID_SHOW_WHEN_TEXT } });
-    await user.click(screen.getByRole("button", { name: /Save show-condition/i }));
+    const container = screen.getByTestId("show-when-q1");
+    await user.click(within(container).getByRole("button", { name: /Save show-condition/i }));
 
-    await waitFor(() => expect(screen.getByText(/session expired/i)).toBeInTheDocument());
-    expect(screen.queryByText("Unauthorized")).not.toBeInTheDocument();
+    await waitFor(() => expect(within(container).getByText(/session expired/i)).toBeInTheDocument());
+    expect(within(container).queryByText("Unauthorized")).not.toBeInTheDocument();
   });
 
   it("a real save-then-refresh cycle: the staging block disappears once the saved value comes back as props", async () => {
     const user = userEvent.setup();
-    render(<Harness initialQuestions={[q]} />);
+    render(<Harness initialQuestions={[earlier, q]} />);
 
-    const textarea = screen.getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);
+    const textarea = openRawShowWhen();
     fireEvent.change(textarea, { target: { value: VALID_SHOW_WHEN_TEXT } });
-    const saveButton = screen.getByRole("button", { name: /Save show-condition/i });
+    const container = screen.getByTestId("show-when-q1");
+    const saveButton = within(container).getByRole("button", { name: /Save show-condition/i });
     await user.click(saveButton);
 
-    await waitFor(() => expect(screen.queryByText("Unsaved")).not.toBeInTheDocument());
+    await waitFor(() => expect(within(container).queryByText("Unsaved")).not.toBeInTheDocument());
   });
 });
