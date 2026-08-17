@@ -1,13 +1,16 @@
 import type { MetadataRoute } from "next";
 import { listPublishedProgramSlugsForSitemap } from "@/lib/programs";
 import { getPublishedGlossaryEntries } from "@/lib/glossary";
+import { listLocationRoutes } from "@/lib/locationPages";
+import { canonicalPathFor } from "@/lib/locationPagesContent";
 import { getSiteContent } from "@/lib/siteContent";
 import { SITE_URL } from "@/lib/siteUrl";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [programs, glossaryFlag] = await Promise.all([
+  const [programs, glossaryFlag, locationRoutes] = await Promise.all([
     listPublishedProgramSlugsForSitemap(),
     getSiteContent("glossaryEnabled"),
+    listLocationRoutes(),
   ]);
   // Crawled anonymously -- reflects public-visible state only, no admin bypass. When
   // the section is globally off, every glossary URL (index + entries) is omitted
@@ -54,6 +57,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: program.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    // Static type/location landing pages -- only routes that actually clear
+    // MIN_PROGRAMS_PER_PAGE (see lib/locationPages.ts) are listed here, matching exactly
+    // what generateStaticParams prerenders for both route trees below. The equivalent
+    // `?tags=...` parameter URLs are deliberately never included -- they carry a
+    // canonical tag pointing at these instead (see app/programs/page.tsx).
+    ...locationRoutes.map((route) => ({
+      url: `${SITE_URL}${canonicalPathFor(route.typeSlug, route.locationSlug)}`,
+      changeFrequency: "weekly" as const,
+      priority: route.typeSlug === null ? 0.8 : 0.7,
     })),
   ];
 }
