@@ -10,6 +10,7 @@ import Badge from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
 import RuleEditor from "@/components/admin/flow/RuleEditor";
 import OptionSetRulesEditor from "@/components/admin/flow/OptionSetRulesEditor";
+import FacetCheckboxGroups from "@/components/admin/flow/FacetCheckboxGroups";
 import type { BuilderQuestionRef } from "@/lib/flowRuleBuilder";
 import type { DurationType } from "@/app/generated/prisma/enums";
 
@@ -682,40 +683,16 @@ function QuestionCard({
               />
 
               <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted">Duration values this option contributes:</span>
-                <div className="flex flex-wrap gap-x-4 gap-y-1">
-                  {durationOptions.map((d) => (
-                    <label key={d.value} className="flex items-center gap-2 text-xs text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={draft.durationValues.includes(d.value)}
-                        disabled={busyId === option.id || saving}
-                        onChange={() => toggleOptionDuration(option, d.value)}
-                      />
-                      {d.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted">Tags this option contributes:</span>
-                {[...tagsByCategory.entries()].map(([category, categoryTags]) => (
-                  <div key={category} className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span className="text-xs text-muted">{category}:</span>
-                    {categoryTags.map((tag) => (
-                      <label key={tag.slug} className="flex items-center gap-2 text-xs text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={draft.tagSlugs.includes(tag.slug)}
-                          disabled={busyId === option.id || saving}
-                          onChange={() => toggleOptionTag(option, tag.slug)}
-                        />
-                        {tag.name}
-                      </label>
-                    ))}
-                  </div>
-                ))}
+                <span className="text-xs text-muted">Tags &amp; duration this option contributes:</span>
+                <FacetCheckboxGroups
+                  tagsByCategory={tagsByCategory}
+                  durationOptions={durationOptions}
+                  selectedTagSlugs={draft.tagSlugs}
+                  selectedDurationValues={draft.durationValues}
+                  onToggleTag={(slug) => toggleOptionTag(option, slug)}
+                  onToggleDuration={(value) => toggleOptionDuration(option, value)}
+                  disabled={busyId === option.id || saving}
+                />
               </div>
             </div>
           );

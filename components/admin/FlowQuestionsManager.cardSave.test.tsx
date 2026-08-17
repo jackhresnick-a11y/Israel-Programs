@@ -140,6 +140,9 @@ describe("QuestionCard: Save batches question + changed-option PATCHes and toast
       </ToastProvider>
     );
 
+    // The "affiliation" facet section is collapsed by default (nothing selected, no
+    // filter) -- FacetCheckboxGroups (commit 4) requires expanding it first.
+    await user.click(screen.getByRole("button", { name: "affiliation" }));
     const checkbox = screen.getByRole("checkbox", { name: "Orthodox" });
     await user.click(checkbox);
     expect(patchCalls).toHaveLength(0);
