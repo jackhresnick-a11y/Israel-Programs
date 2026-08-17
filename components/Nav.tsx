@@ -47,7 +47,7 @@ export default async function Nav() {
               Browse
             </Link>
             <Link href="/find" className="hover:text-accent">
-              Narrow
+              Placement Quiz
             </Link>
             {showGlossaryLink && (
               <Link href="/glossary" className="hover:text-accent">
@@ -102,7 +102,7 @@ export default async function Nav() {
                 href="/find"
                 className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
               >
-                Narrow
+                Placement Quiz
               </Link>
               {showGlossaryLink && (
                 <Link
