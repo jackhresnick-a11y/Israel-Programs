@@ -153,10 +153,13 @@ describe("A show-condition the builder can't model stays raw-JSON-only", () => {
     const textarea = within(container).getByRole("textbox") as HTMLTextAreaElement;
     expect(JSON.parse(textarea.value)).toEqual(UNMODELABLE_SHOW_WHEN);
 
-    // Editing an UNRELATED field on the same card (the prompt) saves independently.
+    // Editing an UNRELATED field on the same card (the prompt) and saving the card
+    // (per-field edits stage behind one card-wide Save -- see QuestionCard) doesn't
+    // touch this field at all.
     const promptInput = screen.getByDisplayValue("Question service-intent");
     fireEvent.change(promptInput, { target: { value: "New prompt text" } });
-    fireEvent.blur(promptInput);
+    const saveQuestionButton = await screen.findByRole("button", { name: /Save question/i });
+    fireEvent.click(saveQuestionButton);
 
     await waitFor(() => expect(patchCalls).toHaveLength(1));
     expect(patchCalls[0]).toEqual({ id: "q1", body: { prompt: "New prompt text" } });

@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { useToast } from "@/components/ui/Toast";
 import RuleEditor from "@/components/admin/flow/RuleEditor";
 import OptionSetRulesEditor from "@/components/admin/flow/OptionSetRulesEditor";
 import type { BuilderQuestionRef } from "@/lib/flowRuleBuilder";
@@ -98,9 +99,9 @@ function errorMessage(err: unknown, fallback: string): string {
  * respondent picked exactly this option), and Save stays disabled until a preview
  * matching the CURRENT pending selection has loaded -- same `previewKey` staleness gate
  * as BucketRuleManager's rule preview. Cancel reverts to the live value with no write at
- * all, so nothing here is ever a dead end: every other field keeps its existing
- * immediate-save behavior, and this one stays just as editable, only with a
- * look-before-you-leap step in front of the one edit that's easy to get wrong silently.
+ * all. Deliberately kept OUT of QuestionCard's card-wide Save (see that component's doc
+ * comment) -- folding it in would either drop this preview-gate or block the whole
+ * card's Save on a preview fetch, so it keeps its own independent save affordance.
  */
 function MatchModeControl({
   option,
@@ -225,6 +226,537 @@ function MatchModeControl({
   );
 }
 
+// ---------------------------------------------------------------------------
+// QuestionCard's staged-draft model -- every field EXCEPT status/order (moved by
+// explicit actions, always immediate, never staged) and showWhen/optionSetRules/
+// matchMode (each has its own independent save UI -- RuleEditor/
+// OptionSetRulesEditor/MatchModeControl). "" stands in for a null string field so a
+// controlled <input> always has a defined value.
+// ---------------------------------------------------------------------------
+
+type QuestionFieldDraft = {
+  prompt: string;
+  helpText: string;
+  type: FlowQuestionRow["type"];
+  skippable: boolean;
+  defaultOptionSetKey: string;
+};
+
+type OptionFieldDraft = {
+  label: string;
+  rationale: string;
+  weight: string;
+  requireIncludesUntagged: boolean;
+  optionSetKeysText: string;
+  tagSlugs: string[];
+  durationValues: string[];
+};
+
+function questionDraftFromRow(q: FlowQuestionRow): QuestionFieldDraft {
+  return {
+    prompt: q.prompt,
+    helpText: q.helpText ?? "",
+    type: q.type,
+    skippable: q.skippable,
+    defaultOptionSetKey: q.defaultOptionSetKey ?? "",
+  };
+}
+
+function optionDraftFromRow(o: FlowOptionRow): OptionFieldDraft {
+  return {
+    label: o.label,
+    rationale: o.rationale ?? "",
+    weight: String(o.weight),
+    requireIncludesUntagged: o.requireIncludesUntagged,
+    optionSetKeysText: o.optionSetKeys.join(", "),
+    tagSlugs: o.tagSlugs,
+    durationValues: o.durationValues,
+  };
+}
+
+function sameStringSet(a: string[], b: string[]): boolean {
+  return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+}
+
+function isQuestionDirty(draft: QuestionFieldDraft, q: FlowQuestionRow): boolean {
+  return (
+    draft.prompt !== q.prompt ||
+    draft.helpText !== (q.helpText ?? "") ||
+    draft.type !== q.type ||
+    draft.skippable !== q.skippable ||
+    draft.defaultOptionSetKey !== (q.defaultOptionSetKey ?? "")
+  );
+}
+
+function isOptionDirty(draft: OptionFieldDraft, o: FlowOptionRow): boolean {
+  return (
+    draft.label !== o.label ||
+    draft.rationale !== (o.rationale ?? "") ||
+    draft.weight !== String(o.weight) ||
+    draft.requireIncludesUntagged !== o.requireIncludesUntagged ||
+    draft.optionSetKeysText !== o.optionSetKeys.join(", ") ||
+    !sameStringSet(draft.tagSlugs, o.tagSlugs) ||
+    !sameStringSet(draft.durationValues, o.durationValues)
+  );
+}
+
+/** Only the fields that actually changed, in the shape each PATCH route expects --
+ * `null` when nothing changed (nothing to send). A blank prompt/label is never sent
+ * (mirrors the pre-staging behavior of silently no-op'ing on blank), which is why
+ * QuestionCard additionally disables Save outright while any touched prompt/label is
+ * blank -- see canSaveCard -- rather than letting Save silently skip just that field. */
+function questionPatchBody(draft: QuestionFieldDraft, q: FlowQuestionRow): Record<string, unknown> | null {
+  const body: Record<string, unknown> = {};
+  if (draft.prompt.trim() && draft.prompt !== q.prompt) body.prompt = draft.prompt.trim();
+  if (draft.helpText !== (q.helpText ?? "")) body.helpText = draft.helpText.trim() || null;
+  if (draft.type !== q.type) body.type = draft.type;
+  if (draft.skippable !== q.skippable) body.skippable = draft.skippable;
+  if (draft.defaultOptionSetKey !== (q.defaultOptionSetKey ?? "")) {
+    body.defaultOptionSetKey = draft.defaultOptionSetKey.trim() || null;
+  }
+  return Object.keys(body).length > 0 ? body : null;
+}
+
+function optionPatchBody(draft: OptionFieldDraft, o: FlowOptionRow): Record<string, unknown> | null {
+  const body: Record<string, unknown> = {};
+  if (draft.label.trim() && draft.label !== o.label) body.label = draft.label.trim();
+  if (draft.rationale !== (o.rationale ?? "")) body.rationale = draft.rationale.trim() || null;
+  const weightNum = Number.parseInt(draft.weight, 10);
+  if (!Number.isNaN(weightNum) && weightNum !== o.weight) body.weight = weightNum;
+  if (draft.requireIncludesUntagged !== o.requireIncludesUntagged) {
+    body.requireIncludesUntagged = draft.requireIncludesUntagged;
+  }
+  const optionSetKeys = draft.optionSetKeysText
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (JSON.stringify(optionSetKeys) !== JSON.stringify(o.optionSetKeys)) body.optionSetKeys = optionSetKeys;
+  if (!sameStringSet(draft.tagSlugs, o.tagSlugs)) body.tagSlugs = draft.tagSlugs;
+  if (!sameStringSet(draft.durationValues, o.durationValues)) body.durationValues = draft.durationValues;
+  return Object.keys(body).length > 0 ? body : null;
+}
+
+/**
+ * One question's editable fields, staged behind a single explicit Save/Cancel --
+ * nothing here (prompt, help text, type, skippable, default option-set fallback, and
+ * every option's label/rationale/weight/require-includes-untagged/option-set-keys/
+ * tag & duration facets) saves silently on blur/change anymore. State is plain
+ * useState seeded once from props (same "compare state to the live prop, never a
+ * stashed baseline" trick RuleEditor/MatchModeControl already use) -- a successful
+ * save's router.refresh() delivers new props matching what was just saved, so the
+ * dirty flag and "Unsaved" badge self-dismiss with no extra resync effect; an
+ * UNRELATED refresh (another card's edit, a Retire elsewhere) simply leaves an
+ * in-progress draft here untouched, since this component never remounts for its own
+ * question id. Option drafts are a lazy id-keyed map (component: `optionDrafts[id]
+ * ?? optionDraftFromRow(option)`) rather than eagerly mirroring the whole options
+ * array, so a same-card option add/remove (Add option, Delete) -- both still
+ * immediate actions, not staged -- can never desync this map from the live options.
+ *
+ * Explicit actions (move up/down, Retire/Reactivate, Delete, Add option) stay
+ * immediate, unstaged -- a click IS the confirmation for those; staging them would
+ * be surprising. showWhen/optionSetRules (RuleEditor/OptionSetRulesEditor) and
+ * matchMode (MatchModeControl) keep their own independent save UIs (see design
+ * decisions in the plan this shipped from) -- only the fields above are gathered
+ * into this card-wide Save.
+ */
+function QuestionCard({
+  question,
+  index,
+  totalQuestions,
+  bank,
+  tagsByCategory,
+  durationOptions,
+  busyId,
+  onMoveQuestion,
+  onToggleQuestionStatus,
+  onDeleteQuestion,
+  onMoveOption,
+  onToggleOptionStatus,
+  onDeleteOption,
+  newOptionLabel,
+  onNewOptionLabelChange,
+  creatingOptionFor,
+  onCreateOption,
+}: {
+  question: FlowQuestionRow;
+  index: number;
+  totalQuestions: number;
+  bank: BuilderQuestionRef[];
+  tagsByCategory: Map<string, TagOption[]>;
+  durationOptions: DurationOptionRow[];
+  busyId: string | null;
+  onMoveQuestion: (index: number, direction: -1 | 1) => void;
+  onToggleQuestionStatus: (question: FlowQuestionRow) => void;
+  onDeleteQuestion: (question: FlowQuestionRow) => void;
+  onMoveOption: (question: FlowQuestionRow, index: number, direction: -1 | 1) => void;
+  onToggleOptionStatus: (option: FlowOptionRow) => void;
+  onDeleteOption: (option: FlowOptionRow) => void;
+  newOptionLabel: string;
+  onNewOptionLabelChange: (value: string) => void;
+  creatingOptionFor: boolean;
+  onCreateOption: (question: FlowQuestionRow) => void;
+}) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [questionDraft, setQuestionDraft] = useState<QuestionFieldDraft>(() => questionDraftFromRow(question));
+  const [optionDrafts, setOptionDrafts] = useState<Record<string, OptionFieldDraft>>({});
+  const [saving, setSaving] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
+
+  const sortedOptions = [...question.options].sort((a, b) => a.order - b.order);
+  const effectiveOptionDraft = (option: FlowOptionRow) => optionDrafts[option.id] ?? optionDraftFromRow(option);
+
+  const questionDirty = isQuestionDirty(questionDraft, question);
+  const optionsDirty = question.options.some((o) => isOptionDirty(effectiveOptionDraft(o), o));
+  const cardDirty = questionDirty || optionsDirty;
+
+  const blankTouchedField =
+    (questionDirty && !questionDraft.prompt.trim()) ||
+    question.options.some((o) => {
+      const draft = effectiveOptionDraft(o);
+      return isOptionDirty(draft, o) && !draft.label.trim();
+    });
+
+  const canSaveCard = cardDirty && !saving && !blankTouchedField;
+
+  function updateQuestionField<K extends keyof QuestionFieldDraft>(field: K, value: QuestionFieldDraft[K]) {
+    setQuestionDraft((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function updateOptionField<K extends keyof OptionFieldDraft>(option: FlowOptionRow, field: K, value: OptionFieldDraft[K]) {
+    setOptionDrafts((prev) => ({
+      ...prev,
+      [option.id]: { ...(prev[option.id] ?? optionDraftFromRow(option)), [field]: value },
+    }));
+  }
+
+  function toggleOptionTag(option: FlowOptionRow, slug: string) {
+    const draft = effectiveOptionDraft(option);
+    const next = draft.tagSlugs.includes(slug)
+      ? draft.tagSlugs.filter((s) => s !== slug)
+      : [...draft.tagSlugs, slug];
+    updateOptionField(option, "tagSlugs", next);
+  }
+
+  function toggleOptionDuration(option: FlowOptionRow, value: string) {
+    const draft = effectiveOptionDraft(option);
+    const next = draft.durationValues.includes(value)
+      ? draft.durationValues.filter((v) => v !== value)
+      : [...draft.durationValues, value];
+    updateOptionField(option, "durationValues", next);
+  }
+
+  async function handleSaveCard() {
+    setSaving(true);
+    setCardError(null);
+    const requests: Promise<unknown>[] = [];
+    const qBody = questionPatchBody(questionDraft, question);
+    if (qBody) requests.push(api(`/api/admin/flow/questions/${question.id}`, "PATCH", qBody));
+    for (const option of question.options) {
+      const oBody = optionPatchBody(effectiveOptionDraft(option), option);
+      if (oBody) requests.push(api(`/api/admin/flow/options/${option.id}`, "PATCH", oBody));
+    }
+    const results = await Promise.allSettled(requests);
+    router.refresh();
+    const firstFailure = results.find((r): r is PromiseRejectedResult => r.status === "rejected");
+    if (firstFailure) {
+      setCardError(errorMessage(firstFailure.reason, "Failed to save"));
+    } else {
+      toast("Question saved");
+    }
+    setSaving(false);
+  }
+
+  function handleCancelCard() {
+    setQuestionDraft(questionDraftFromRow(question));
+    setOptionDrafts({});
+    setCardError(null);
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded border border-border p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-5 px-1 py-0"
+            disabled={index === 0 || busyId === question.id}
+            onClick={() => onMoveQuestion(index, -1)}
+            aria-label="Move question up"
+          >
+            <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-5 px-1 py-0"
+            disabled={index === totalQuestions - 1 || busyId === question.id}
+            onClick={() => onMoveQuestion(index, 1)}
+            aria-label="Move question down"
+          >
+            <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
+          </Button>
+        </div>
+        <Input
+          value={questionDraft.prompt}
+          className="max-w-md flex-1"
+          disabled={busyId === question.id || saving}
+          onChange={(e) => updateQuestionField("prompt", e.target.value)}
+        />
+        <Select
+          value={questionDraft.type}
+          disabled={busyId === question.id || saving}
+          onChange={(e) => updateQuestionField("type", e.target.value as FlowQuestionRow["type"])}
+          className="w-auto"
+        >
+          {QUESTION_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </Select>
+        <Badge tone="neutral">v{question.version}</Badge>
+        <span className="text-xs text-muted">{question.status === "ACTIVE" ? "Active" : "Retired"}</span>
+        {cardDirty && <Badge tone="info">Unsaved</Badge>}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={busyId === question.id}
+          onClick={() => onToggleQuestionStatus(question)}
+        >
+          {question.status === "ACTIVE" ? "Retire" : "Reactivate"}
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          disabled={busyId === question.id}
+          onClick={() => onDeleteQuestion(question)}
+        >
+          Delete
+        </Button>
+      </div>
+
+      <p className="font-mono text-xs text-muted">key: {question.key}</p>
+
+      <Input
+        value={questionDraft.helpText}
+        placeholder="Help text shown under the prompt (optional)"
+        disabled={busyId === question.id || saving}
+        onChange={(e) => updateQuestionField("helpText", e.target.value)}
+      />
+
+      <label className="flex items-center gap-2 text-xs text-foreground">
+        <input
+          type="checkbox"
+          checked={questionDraft.skippable}
+          disabled={busyId === question.id || saving}
+          onChange={(e) => updateQuestionField("skippable", e.target.checked)}
+        />
+        Skippable
+      </label>
+
+      <RuleEditor question={question} bank={bank} onSaved={() => router.refresh()} api={api} errorMessage={errorMessage} />
+
+      <OptionSetRulesEditor
+        question={question}
+        bank={bank}
+        onSaved={() => router.refresh()}
+        api={api}
+        errorMessage={errorMessage}
+      />
+
+      <Input
+        value={questionDraft.defaultOptionSetKey}
+        placeholder="Fallback option-set key (used only if option-set rules above are empty or fail to parse)"
+        className="max-w-md"
+        disabled={busyId === question.id || saving}
+        onChange={(e) => updateQuestionField("defaultOptionSetKey", e.target.value)}
+      />
+
+      <div className="flex flex-col divide-y divide-border rounded border border-border pl-2">
+        {sortedOptions.map((option, optIndex) => {
+          const draft = effectiveOptionDraft(option);
+          return (
+            <div key={option.id} className="flex flex-col gap-2 px-3 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 px-1 py-0"
+                    disabled={optIndex === 0 || busyId === option.id}
+                    onClick={() => onMoveOption(question, optIndex, -1)}
+                    aria-label="Move option up"
+                  >
+                    <ArrowUp className="h-3 w-3" strokeWidth={1.5} />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 px-1 py-0"
+                    disabled={optIndex === sortedOptions.length - 1 || busyId === option.id}
+                    onClick={() => onMoveOption(question, optIndex, 1)}
+                    aria-label="Move option down"
+                  >
+                    <ArrowDown className="h-3 w-3" strokeWidth={1.5} />
+                  </Button>
+                </div>
+                <Input
+                  value={draft.label}
+                  className="max-w-xs"
+                  disabled={busyId === option.id || saving}
+                  onChange={(e) => updateOptionField(option, "label", e.target.value)}
+                />
+                <span className="text-xs text-muted">{option.status === "ACTIVE" ? "Active" : "Retired"}</span>
+                {isOptionDirty(draft, option) && <Badge tone="info">Unsaved</Badge>}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={busyId === option.id}
+                  onClick={() => onToggleOptionStatus(option)}
+                >
+                  {option.status === "ACTIVE" ? "Retire" : "Reactivate"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="ml-auto"
+                  disabled={busyId === option.id}
+                  onClick={() => onDeleteOption(option)}
+                >
+                  Delete
+                </Button>
+              </div>
+
+              <p className="font-mono text-xs text-muted">key: {option.key}</p>
+
+              <MatchModeControl option={option} question={question} onSaved={() => router.refresh()} />
+
+              <Input
+                value={draft.rationale}
+                placeholder="One-line reason this option exists (shown under it)"
+                className="max-w-md"
+                disabled={busyId === option.id || saving}
+                onChange={(e) => updateOptionField(option, "rationale", e.target.value)}
+              />
+
+              <div className="flex flex-wrap items-center gap-4">
+                <label className="flex items-center gap-2 text-xs text-foreground">
+                  Weight
+                  <Input
+                    type="number"
+                    value={draft.weight}
+                    className="w-20"
+                    disabled={busyId === option.id || saving}
+                    onChange={(e) => updateOptionField(option, "weight", e.target.value)}
+                  />
+                </label>
+                {option.matchMode === "REQUIRE" && (
+                  <label className="flex items-center gap-2 text-xs text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={draft.requireIncludesUntagged}
+                      disabled={busyId === option.id || saving}
+                      onChange={(e) => updateOptionField(option, "requireIncludesUntagged", e.target.checked)}
+                    />
+                    A program with no tag in this category still passes
+                  </label>
+                )}
+              </div>
+
+              <Input
+                value={draft.optionSetKeysText}
+                placeholder="Option-set keys this belongs to, comma-separated (empty = every set)"
+                className="max-w-md"
+                disabled={busyId === option.id || saving}
+                onChange={(e) => updateOptionField(option, "optionSetKeysText", e.target.value)}
+              />
+
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted">Duration values this option contributes:</span>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {durationOptions.map((d) => (
+                    <label key={d.value} className="flex items-center gap-2 text-xs text-foreground">
+                      <input
+                        type="checkbox"
+                        checked={draft.durationValues.includes(d.value)}
+                        disabled={busyId === option.id || saving}
+                        onChange={() => toggleOptionDuration(option, d.value)}
+                      />
+                      {d.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted">Tags this option contributes:</span>
+                {[...tagsByCategory.entries()].map(([category, categoryTags]) => (
+                  <div key={category} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <span className="text-xs text-muted">{category}:</span>
+                    {categoryTags.map((tag) => (
+                      <label key={tag.slug} className="flex items-center gap-2 text-xs text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={draft.tagSlugs.includes(tag.slug)}
+                          disabled={busyId === option.id || saving}
+                          onChange={() => toggleOptionTag(option, tag.slug)}
+                        />
+                        {tag.name}
+                      </label>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-2 pl-4">
+        <Input
+          placeholder="New option label"
+          value={newOptionLabel}
+          onChange={(e) => onNewOptionLabelChange(e.target.value)}
+          className="max-w-56"
+        />
+        <Button
+          type="button"
+          size="sm"
+          disabled={!newOptionLabel.trim() || creatingOptionFor}
+          onClick={() => onCreateOption(question)}
+        >
+          {creatingOptionFor ? "Adding..." : "Add option"}
+        </Button>
+      </div>
+
+      {cardDirty && (
+        <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border px-2 py-1">
+          {blankTouchedField && (
+            <span className="text-xs text-danger">Prompt and every option label must be non-empty.</span>
+          )}
+          <Button type="button" size="sm" disabled={!canSaveCard} className="ml-auto" onClick={handleSaveCard}>
+            {saving ? "Saving..." : "Save question"}
+          </Button>
+          <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={handleCancelCard}>
+            Cancel
+          </Button>
+        </div>
+      )}
+      {cardError && <p className="text-xs text-danger">{cardError}</p>}
+    </div>
+  );
+}
+
 /**
  * Admin CRUD for the /match challenge flow: questions (prompt, help text, type,
  * skippable, show-condition, option-set rules, order, active/retired) each own an
@@ -233,6 +765,8 @@ function MatchModeControl({
  * fetch-then-router.refresh() shape as FinderQuestionsManager -- no client-side
  * cache of its own, the server component re-fetches on every mutation.
  *
+ * Field edits are staged behind an explicit Save/Cancel per question card
+ * (QuestionCard above) -- nothing here saves silently on blur/change anymore.
  * showWhen/optionSetRules are edited via RuleEditor/OptionSetRulesEditor
  * (components/admin/flow/*) -- a row-based visual builder for the modellable subset
  * of the rule grammar, with a raw-JSON fallback for anything it can't express. The
@@ -312,35 +846,7 @@ export default function FlowQuestionsManager({
     }
   }
 
-  // -- question field handlers --
-
-  function handleRenamePrompt(question: FlowQuestionRow, prompt: string) {
-    if (!prompt.trim() || prompt === question.prompt) return;
-    withBusy(question.id, () => api(`/api/admin/flow/questions/${question.id}`, "PATCH", { prompt }));
-  }
-
-  function handleQuestionHelpTextChange(question: FlowQuestionRow, helpText: string) {
-    const next = helpText.trim() || null;
-    if (next === question.helpText) return;
-    withBusy(question.id, () => api(`/api/admin/flow/questions/${question.id}`, "PATCH", { helpText: next }));
-  }
-
-  function handleQuestionTypeChange(question: FlowQuestionRow, type: string) {
-    if (type === question.type) return;
-    withBusy(question.id, () => api(`/api/admin/flow/questions/${question.id}`, "PATCH", { type }));
-  }
-
-  function handleSkippableChange(question: FlowQuestionRow, skippable: boolean) {
-    withBusy(question.id, () => api(`/api/admin/flow/questions/${question.id}`, "PATCH", { skippable }));
-  }
-
-  function handleDefaultOptionSetKeyChange(question: FlowQuestionRow, value: string) {
-    const next = value.trim() || null;
-    if (next === question.defaultOptionSetKey) return;
-    withBusy(question.id, () =>
-      api(`/api/admin/flow/questions/${question.id}`, "PATCH", { defaultOptionSetKey: next })
-    );
-  }
+  // -- explicit, always-immediate question actions --
 
   function handleToggleQuestionStatus(question: FlowQuestionRow) {
     const next = question.status === "ACTIVE" ? "RETIRED" : "ACTIVE";
@@ -378,57 +884,11 @@ export default function FlowQuestionsManager({
     }
   }
 
-  // -- option field handlers --
-
-  function handleRenameOptionLabel(option: FlowOptionRow, label: string) {
-    if (!label.trim() || label === option.label) return;
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { label }));
-  }
-
-  function handleOptionRationaleChange(option: FlowOptionRow, rationale: string) {
-    const next = rationale.trim() || null;
-    if (next === option.rationale) return;
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { rationale: next }));
-  }
-
-  function handleWeightChange(option: FlowOptionRow, text: string) {
-    const value = Number.parseInt(text, 10);
-    if (Number.isNaN(value) || value === option.weight) return;
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { weight: value }));
-  }
-
-  function handleRequireIncludesUntaggedChange(option: FlowOptionRow, requireIncludesUntagged: boolean) {
-    withBusy(option.id, () =>
-      api(`/api/admin/flow/options/${option.id}`, "PATCH", { requireIncludesUntagged })
-    );
-  }
-
-  function handleOptionSetKeysChange(option: FlowOptionRow, text: string) {
-    const next = text
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (JSON.stringify(next) === JSON.stringify(option.optionSetKeys)) return;
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { optionSetKeys: next }));
-  }
+  // -- explicit, always-immediate option actions --
 
   function handleToggleOptionStatus(option: FlowOptionRow) {
     const next = option.status === "ACTIVE" ? "RETIRED" : "ACTIVE";
     withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { status: next }));
-  }
-
-  function handleToggleOptionTag(option: FlowOptionRow, slug: string) {
-    const next = option.tagSlugs.includes(slug)
-      ? option.tagSlugs.filter((s) => s !== slug)
-      : [...option.tagSlugs, slug];
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { tagSlugs: next }));
-  }
-
-  function handleToggleOptionDuration(option: FlowOptionRow, value: string) {
-    const next = option.durationValues.includes(value)
-      ? option.durationValues.filter((v) => v !== value)
-      : [...option.durationValues, value];
-    withBusy(option.id, () => api(`/api/admin/flow/options/${option.id}`, "PATCH", { durationValues: next }));
   }
 
   function handleMoveOption(question: FlowQuestionRow, index: number, direction: -1 | 1) {
@@ -489,277 +949,28 @@ export default function FlowQuestionsManager({
       )}
 
       <div className="flex flex-col gap-4">
-        {sortedQuestions.map((question, index) => {
-          const sortedOptions = [...question.options].sort((a, b) => a.order - b.order);
-          return (
-            <div key={question.id} className="flex flex-col gap-3 rounded border border-border p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex flex-col gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-5 px-1 py-0"
-                    disabled={index === 0 || busyId === question.id}
-                    onClick={() => handleMoveQuestion(index, -1)}
-                    aria-label="Move question up"
-                  >
-                    <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-5 px-1 py-0"
-                    disabled={index === sortedQuestions.length - 1 || busyId === question.id}
-                    onClick={() => handleMoveQuestion(index, 1)}
-                    aria-label="Move question down"
-                  >
-                    <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
-                  </Button>
-                </div>
-                <Input
-                  defaultValue={question.prompt}
-                  className="max-w-md flex-1"
-                  disabled={busyId === question.id}
-                  onBlur={(e) => handleRenamePrompt(question, e.target.value)}
-                />
-                <Select
-                  defaultValue={question.type}
-                  disabled={busyId === question.id}
-                  onChange={(e) => handleQuestionTypeChange(question, e.target.value)}
-                  className="w-auto"
-                >
-                  {QUESTION_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </Select>
-                <Badge tone="neutral">v{question.version}</Badge>
-                <span className="text-xs text-muted">{question.status === "ACTIVE" ? "Active" : "Retired"}</span>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  disabled={busyId === question.id}
-                  onClick={() => handleToggleQuestionStatus(question)}
-                >
-                  {question.status === "ACTIVE" ? "Retire" : "Reactivate"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  disabled={busyId === question.id}
-                  onClick={() => handleDeleteQuestion(question)}
-                >
-                  Delete
-                </Button>
-              </div>
-
-              <p className="font-mono text-xs text-muted">key: {question.key}</p>
-
-              <Input
-                defaultValue={question.helpText ?? ""}
-                placeholder="Help text shown under the prompt (optional)"
-                disabled={busyId === question.id}
-                onBlur={(e) => handleQuestionHelpTextChange(question, e.target.value)}
-              />
-
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  checked={question.skippable}
-                  disabled={busyId === question.id}
-                  onChange={(e) => handleSkippableChange(question, e.target.checked)}
-                />
-                Skippable
-              </label>
-
-              <RuleEditor
-                question={question}
-                bank={bank}
-                onSaved={() => router.refresh()}
-                api={api}
-                errorMessage={errorMessage}
-              />
-
-              <OptionSetRulesEditor
-                question={question}
-                bank={bank}
-                onSaved={() => router.refresh()}
-                api={api}
-                errorMessage={errorMessage}
-              />
-
-              <Input
-                defaultValue={question.defaultOptionSetKey ?? ""}
-                placeholder="Fallback option-set key (used only if option-set rules above are empty or fail to parse)"
-                className="max-w-md"
-                disabled={busyId === question.id}
-                onBlur={(e) => handleDefaultOptionSetKeyChange(question, e.target.value)}
-              />
-
-              <div className="flex flex-col divide-y divide-border rounded border border-border pl-2">
-                {sortedOptions.map((option, optIndex) => (
-                  <div key={option.id} className="flex flex-col gap-2 px-3 py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 px-1 py-0"
-                          disabled={optIndex === 0 || busyId === option.id}
-                          onClick={() => handleMoveOption(question, optIndex, -1)}
-                          aria-label="Move option up"
-                        >
-                          <ArrowUp className="h-3 w-3" strokeWidth={1.5} />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 px-1 py-0"
-                          disabled={optIndex === sortedOptions.length - 1 || busyId === option.id}
-                          onClick={() => handleMoveOption(question, optIndex, 1)}
-                          aria-label="Move option down"
-                        >
-                          <ArrowDown className="h-3 w-3" strokeWidth={1.5} />
-                        </Button>
-                      </div>
-                      <Input
-                        defaultValue={option.label}
-                        className="max-w-xs"
-                        disabled={busyId === option.id}
-                        onBlur={(e) => handleRenameOptionLabel(option, e.target.value)}
-                      />
-                      <span className="text-xs text-muted">{option.status === "ACTIVE" ? "Active" : "Retired"}</span>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        disabled={busyId === option.id}
-                        onClick={() => handleToggleOptionStatus(option)}
-                      >
-                        {option.status === "ACTIVE" ? "Retire" : "Reactivate"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="ml-auto"
-                        disabled={busyId === option.id}
-                        onClick={() => handleDeleteOption(option)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-
-                    <p className="font-mono text-xs text-muted">key: {option.key}</p>
-
-                    <MatchModeControl option={option} question={question} onSaved={() => router.refresh()} />
-
-                    <Input
-                      defaultValue={option.rationale ?? ""}
-                      placeholder="One-line reason this option exists (shown under it)"
-                      className="max-w-md"
-                      disabled={busyId === option.id}
-                      onBlur={(e) => handleOptionRationaleChange(option, e.target.value)}
-                    />
-
-                    <div className="flex flex-wrap items-center gap-4">
-                      <label className="flex items-center gap-2 text-xs text-foreground">
-                        Weight
-                        <Input
-                          type="number"
-                          defaultValue={option.weight}
-                          className="w-20"
-                          disabled={busyId === option.id}
-                          onBlur={(e) => handleWeightChange(option, e.target.value)}
-                        />
-                      </label>
-                      {option.matchMode === "REQUIRE" && (
-                        <label className="flex items-center gap-2 text-xs text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={option.requireIncludesUntagged}
-                            disabled={busyId === option.id}
-                            onChange={(e) => handleRequireIncludesUntaggedChange(option, e.target.checked)}
-                          />
-                          A program with no tag in this category still passes
-                        </label>
-                      )}
-                    </div>
-
-                    <Input
-                      defaultValue={option.optionSetKeys.join(", ")}
-                      placeholder="Option-set keys this belongs to, comma-separated (empty = every set)"
-                      className="max-w-md"
-                      disabled={busyId === option.id}
-                      onBlur={(e) => handleOptionSetKeysChange(option, e.target.value)}
-                    />
-
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted">Duration values this option contributes:</span>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1">
-                        {durationOptions.map((d) => (
-                          <label key={d.value} className="flex items-center gap-2 text-xs text-foreground">
-                            <input
-                              type="checkbox"
-                              checked={option.durationValues.includes(d.value)}
-                              disabled={busyId === option.id}
-                              onChange={() => handleToggleOptionDuration(option, d.value)}
-                            />
-                            {d.label}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted">Tags this option contributes:</span>
-                      {[...tagsByCategory.entries()].map(([category, categoryTags]) => (
-                        <div key={category} className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                          <span className="text-xs text-muted">{category}:</span>
-                          {categoryTags.map((tag) => (
-                            <label key={tag.slug} className="flex items-center gap-2 text-xs text-foreground">
-                              <input
-                                type="checkbox"
-                                checked={option.tagSlugs.includes(tag.slug)}
-                                disabled={busyId === option.id}
-                                onChange={() => handleToggleOptionTag(option, tag.slug)}
-                              />
-                              {tag.name}
-                            </label>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-2 pl-4">
-                <Input
-                  placeholder="New option label"
-                  value={newOptionLabel[question.id] ?? ""}
-                  onChange={(e) => setNewOptionLabel((prev) => ({ ...prev, [question.id]: e.target.value }))}
-                  className="max-w-56"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!(newOptionLabel[question.id] ?? "").trim() || creatingOptionFor === question.id}
-                  onClick={() => handleCreateOption(question)}
-                >
-                  {creatingOptionFor === question.id ? "Adding..." : "Add option"}
-                </Button>
-              </div>
-            </div>
-          );
-        })}
+        {sortedQuestions.map((question, index) => (
+          <QuestionCard
+            key={question.id}
+            question={question}
+            index={index}
+            totalQuestions={sortedQuestions.length}
+            bank={bank}
+            tagsByCategory={tagsByCategory}
+            durationOptions={durationOptions}
+            busyId={busyId}
+            onMoveQuestion={handleMoveQuestion}
+            onToggleQuestionStatus={handleToggleQuestionStatus}
+            onDeleteQuestion={handleDeleteQuestion}
+            onMoveOption={handleMoveOption}
+            onToggleOptionStatus={handleToggleOptionStatus}
+            onDeleteOption={handleDeleteOption}
+            newOptionLabel={newOptionLabel[question.id] ?? ""}
+            onNewOptionLabelChange={(value) => setNewOptionLabel((prev) => ({ ...prev, [question.id]: value }))}
+            creatingOptionFor={creatingOptionFor === question.id}
+            onCreateOption={handleCreateOption}
+          />
+        ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border p-3">
