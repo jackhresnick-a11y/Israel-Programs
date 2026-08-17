@@ -249,11 +249,6 @@ export default function OptionSetRulesEditor({
               onChange={(key) => handleRulesChange({ ...builderResult.value, default: key })}
             />
           </label>
-          {describeSetRules(builderResult.value, bank).map((line, i) => (
-            <p key={i} className="text-xs text-muted">
-              {line}
-            </p>
-          ))}
         </div>
       ) : (
         <Textarea
@@ -264,6 +259,15 @@ export default function OptionSetRulesEditor({
           onChange={(e) => setText(e.target.value)}
         />
       )}
+
+      {/* Rendered regardless of which view is active -- see RuleEditor's identical
+       * comment. */}
+      {builderResult?.ok &&
+        describeSetRules(builderResult.value, bank).map((line, i) => (
+          <p key={i} className="text-xs text-muted">
+            {line}
+          </p>
+        ))}
 
       {!parsed.ok && <p className="text-xs text-danger">{parsed.error}</p>}
       {!canUseBuilder && parsed.ok && structural && !structural.success && (

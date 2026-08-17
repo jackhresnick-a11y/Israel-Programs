@@ -193,11 +193,6 @@ export default function RuleEditor({
           >
             Add rule row
           </Button>
-          {builderResult.value.rows.length > 0 && (
-            <p className="text-xs text-muted">
-              Shown when {describeGroup(builderResult.value, bank)}
-            </p>
-          )}
         </div>
       ) : (
         <Textarea
@@ -207,6 +202,13 @@ export default function RuleEditor({
           disabled={saving}
           onChange={(e) => setText(e.target.value)}
         />
+      )}
+
+      {/* Rendered regardless of which view is active (builder OR raw JSON) -- a
+       * plain-English readout of the rule is more useful in raw mode, where the
+       * JSON itself is harder to scan, not less. */}
+      {builderResult?.ok && builderResult.value.rows.length > 0 && (
+        <p className="text-xs text-muted">Shown when {describeGroup(builderResult.value, bank)}</p>
       )}
 
       {!parsed.ok && <p className="text-xs text-danger">{parsed.error}</p>}

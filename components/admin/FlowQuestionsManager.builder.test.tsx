@@ -207,3 +207,79 @@ describe("A rule naming an unknown option key blocks Save", () => {
     expect(patchCalls).toHaveLength(0);
   });
 });
+
+describe("The plain-English rule summary line", () => {
+  it("uses the real question prompt and option label, and stays visible after switching to Raw JSON", async () => {
+    const user = userEvent.setup();
+    const earlier = question({
+      id: "q0",
+      key: "life-stage",
+      order: 0,
+      prompt: "What stage will you be in when you go?",
+      options: [option({ id: "opt-working", key: "working", label: "Working / later" })],
+    });
+    const target = question({
+      id: "q1",
+      key: "program-gender",
+      order: 1,
+      showWhen: { v: 1, when: { type: "answerIn", questionKey: "life-stage", optionKeys: ["working"] } },
+      options: [],
+    });
+
+    render(
+      <ToastProvider>
+        <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
+      </ToastProvider>
+    );
+
+    const container = screen.getByTestId("show-when-q1");
+    const summary = "'What stage will you be in when you go?' is Working / later";
+    expect(within(container).getByText(`Shown when ${summary}`)).toBeInTheDocument();
+
+    // Still shown after toggling to the raw-JSON view -- it's more useful there, not less.
+    fireEvent.click(within(container).getByRole("button", { name: "Raw JSON" }));
+    expect(within(container).getByText(`Shown when ${summary}`)).toBeInTheDocument();
+
+    // And back again.
+    await user.click(within(container).getByRole("button", { name: "Builder" }));
+    expect(within(container).getByText(`Shown when ${summary}`)).toBeInTheDocument();
+  });
+
+  it("renders one line per option-set rule plus a default line, in both views", () => {
+    const earlier = question({
+      id: "q0",
+      key: "program-gender",
+      order: 0,
+      prompt: "What kind of program are you looking for?",
+      options: [option({ id: "opt-boys", key: "boys-only", label: "Boys only" })],
+    });
+    const target = question({
+      id: "q1",
+      key: "program-essence",
+      order: 1,
+      optionSetRules: {
+        v: 1,
+        default: "mixed",
+        rules: [{ optionSetKey: "boys", when: { type: "answerIn", questionKey: "program-gender", optionKeys: ["boys-only"] } }],
+      },
+      options: [],
+    });
+
+    render(
+      <ToastProvider>
+        <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
+      </ToastProvider>
+    );
+
+    const container = screen.getByTestId("option-set-rules-q1");
+    expect(
+      within(container).getByText("'What kind of program are you looking for?' is Boys only → option set: boys")
+    ).toBeInTheDocument();
+    expect(within(container).getByText("Otherwise → option set: mixed")).toBeInTheDocument();
+
+    fireEvent.click(within(container).getByRole("button", { name: "Raw JSON" }));
+    expect(
+      within(container).getByText("'What kind of program are you looking for?' is Boys only → option set: boys")
+    ).toBeInTheDocument();
+  });
+});
