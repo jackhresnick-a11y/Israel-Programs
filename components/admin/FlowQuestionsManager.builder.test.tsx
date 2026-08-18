@@ -47,6 +47,12 @@ function question(overrides: Partial<FlowQuestionRow> & Pick<FlowQuestionRow, "i
   };
 }
 
+/** QuestionCard (commit 5) collapses to a summary row by default -- every field this
+ * test file interacts with lives in the expanded body. */
+function expandCard(questionId: string) {
+  fireEvent.click(screen.getByTestId(`question-card-toggle-${questionId}`));
+}
+
 let patchCalls: Array<{ id: string; body: Record<string, unknown> }>;
 
 beforeEach(() => {
@@ -86,6 +92,7 @@ describe("Building a show-condition rule through the dropdowns", () => {
         <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const container = screen.getByTestId("show-when-q1");
     await user.click(within(container).getByRole("button", { name: "Add rule row" }));
@@ -142,6 +149,7 @@ describe("A show-condition the builder can't model stays raw-JSON-only", () => {
         <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const container = screen.getByTestId("show-when-q1");
     // Locked to raw view (the row builder can't model nested groups) and untouched, so
@@ -184,6 +192,7 @@ describe("A rule naming an unknown option key blocks Save", () => {
         <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const container = screen.getByTestId("show-when-q1");
     fireEvent.click(within(container).getByRole("button", { name: "Raw JSON" }));
@@ -231,6 +240,7 @@ describe("The plain-English rule summary line", () => {
         <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const container = screen.getByTestId("show-when-q1");
     const summary = "'What stage will you be in when you go?' is Working / later";
@@ -270,6 +280,7 @@ describe("The plain-English rule summary line", () => {
         <FlowQuestionsManager questions={[earlier, target]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const container = screen.getByTestId("option-set-rules-q1");
     expect(

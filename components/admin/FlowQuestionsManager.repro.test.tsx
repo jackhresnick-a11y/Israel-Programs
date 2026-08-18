@@ -79,6 +79,13 @@ function question(overrides: Partial<FlowQuestionRow> & Pick<FlowQuestionRow, "i
   };
 }
 
+/** QuestionCard (commit 5) collapses to a summary row by default -- every field this
+ * test file interacts with lives in the expanded body, so tests must open the card
+ * first via its dedicated toggle button before finding anything inside it. */
+function expandCard(questionId: string) {
+  fireEvent.click(screen.getByTestId(`question-card-toggle-${questionId}`));
+}
+
 describe("MatchModeControl (via FlowQuestionsManager): Save button after a staged matchMode change", () => {
   const q = question({
     id: "q1",
@@ -130,6 +137,7 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
         </ToastProvider>
       </StrictMode>
     );
+    expandCard("q1");
 
     const matchModeSelects = screen.getAllByRole("combobox").filter((el) => (el as HTMLSelectElement).value === "WEIGHT");
     expect(matchModeSelects).toHaveLength(2);
@@ -157,6 +165,7 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const matchModeSelects = screen.getAllByRole("combobox").filter((el) => (el as HTMLSelectElement).value === "WEIGHT");
     const [matchModeSelect] = matchModeSelects;
@@ -181,6 +190,7 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const matchModeSelects = screen.getAllByRole("combobox").filter((el) => (el as HTMLSelectElement).value === "WEIGHT");
     expect(matchModeSelects).toHaveLength(2);
@@ -198,6 +208,7 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
   it("a real save-then-refresh cycle: Save disappears after saving, and a NEW edit on a DIFFERENT option still works", async () => {
     const user = userEvent.setup();
     render(<Harness initialQuestions={[q]} />);
+    expandCard("q1");
 
     const matchModeSelects = screen.getAllByRole("combobox").filter((el) => (el as HTMLSelectElement).value === "WEIGHT");
     const [boysSelect, mixedSelect] = matchModeSelects;
@@ -225,6 +236,7 @@ describe("MatchModeControl (via FlowQuestionsManager): Save button after a stage
   it("real save-then-refresh cycle: re-editing the SAME option after saving still enables Save", async () => {
     const user = userEvent.setup();
     render(<Harness initialQuestions={[q]} />);
+    expandCard("q1");
 
     const matchModeSelects = screen.getAllByRole("combobox").filter((el) => (el as HTMLSelectElement).value === "WEIGHT");
     const [boysSelect] = matchModeSelects;
@@ -302,9 +314,10 @@ describe("RuleEditor (via FlowQuestionsManager): explicit Save/Cancel for the sh
     cleanup();
   });
 
-  /** Switches question "q1"'s show-condition editor to raw-JSON view and returns its
-   * textarea, scoped to that question's own container. */
+  /** Expands question "q1"'s card, switches its show-condition editor to raw-JSON
+   * view, and returns the textarea, scoped to that question's own container. */
   function openRawShowWhen() {
+    expandCard("q1");
     const container = screen.getByTestId("show-when-q1");
     fireEvent.click(within(container).getByRole("button", { name: "Raw JSON" }));
     return within(container).getByPlaceholderText(SHOW_WHEN_PLACEHOLDER);

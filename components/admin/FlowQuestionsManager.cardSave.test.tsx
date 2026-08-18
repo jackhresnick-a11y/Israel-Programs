@@ -75,6 +75,12 @@ afterEach(() => {
   cleanup();
 });
 
+/** QuestionCard (commit 5) collapses to a summary row by default -- every field this
+ * test file interacts with lives in the expanded body. */
+function expandCard(questionId: string) {
+  fireEvent.click(screen.getByTestId(`question-card-toggle-${questionId}`));
+}
+
 describe("QuestionCard: editing a field alone fires no PATCH", () => {
   it("typing in the prompt field sends no request until Save is clicked", async () => {
     const q = question({ id: "q1", key: "life-stage", options: [] });
@@ -83,6 +89,7 @@ describe("QuestionCard: editing a field alone fires no PATCH", () => {
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const promptInput = screen.getByDisplayValue("Question life-stage");
     fireEvent.change(promptInput, { target: { value: "New prompt" } });
@@ -105,6 +112,7 @@ describe("QuestionCard: Save batches question + changed-option PATCHes and toast
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     fireEvent.change(screen.getByDisplayValue("Question program-gender"), {
       target: { value: "What kind of program?" },
@@ -139,6 +147,7 @@ describe("QuestionCard: Save batches question + changed-option PATCHes and toast
         />
       </ToastProvider>
     );
+    expandCard("q1");
 
     // The "affiliation" facet section is collapsed by default (nothing selected, no
     // filter) -- FacetCheckboxGroups (commit 4) requires expanding it first.
@@ -169,6 +178,7 @@ describe("QuestionCard: Cancel reverts with zero writes", () => {
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     const promptInput = screen.getByDisplayValue("Question program-gender");
     fireEvent.change(promptInput, { target: { value: "Changed" } });
@@ -196,6 +206,7 @@ describe("QuestionCard: a save failure surfaces inline and preserves the draft",
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     fireEvent.change(screen.getByDisplayValue("Question life-stage"), { target: { value: "New prompt" } });
     await user.click(screen.getByRole("button", { name: /Save question/i }));
@@ -215,6 +226,7 @@ describe("QuestionCard: a blank touched prompt or option label blocks Save", () 
         <FlowQuestionsManager questions={[q]} tags={[]} durationOptions={[]} />
       </ToastProvider>
     );
+    expandCard("q1");
 
     fireEvent.change(screen.getByDisplayValue("Question life-stage"), { target: { value: "" } });
 
