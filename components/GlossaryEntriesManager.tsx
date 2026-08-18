@@ -1,14 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
 import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+import { useToast } from "@/components/ui/Toast";
 import {
   glossaryEntryKindSchema,
+  glossaryEntriesSchema,
   type GlossaryEntry,
   type GlossaryEntryKind,
 } from "@/lib/glossaryContent";
@@ -16,12 +19,22 @@ import {
 /** Client-only editing shape -- alsoKnownAs/related are edited as raw comma-separated
  * text rather than derived live from the array on every keystroke, so a trailing ", "
  * mid-typing doesn't get silently collapsed away by an immediate array<->string
- * round-trip. Converted back to string[] only in buildPayload, right before submit. */
-type EditableEntry = GlossaryEntry & { alsoKnownAsText: string; relatedText: string };
+ * round-trip. Converted back to string[] only in buildPayload, right before submit.
+ * `uid` is a client-only stable identity (never sent to the API) -- entries are
+ * reordered in place by moveEntry, so per-entry save/dirty/error state keyed by array
+ * index would silently follow the wrong entry after a reorder. */
+type EditableEntry = GlossaryEntry & { uid: string; alsoKnownAsText: string; relatedText: string };
+
+let uidCounter = 0;
+function nextUid(): string {
+  uidCounter += 1;
+  return `g${uidCounter}`;
+}
 
 function toEditable(entry: GlossaryEntry): EditableEntry {
   return {
     ...entry,
+    uid: nextUid(),
     alsoKnownAsText: (entry.alsoKnownAs ?? []).join(", "),
     relatedText: (entry.related ?? []).join(", "),
   };
@@ -35,15 +48,38 @@ function parseList(text: string): string[] {
 }
 
 function buildPayload(entries: EditableEntry[]): GlossaryEntry[] {
-  return entries.map(({ alsoKnownAsText, relatedText, ...entry }) => ({
-    ...entry,
-    alsoKnownAs: parseList(alsoKnownAsText),
-    related: parseList(relatedText),
+  return entries.map((entry) => ({
+    slug: entry.slug,
+    term: entry.term,
+    termHe: entry.termHe,
+    kind: entry.kind,
+    summary: entry.summary,
+    sections: entry.sections,
+    programLinks: entry.programLinks,
+    published: entry.published,
+    alsoKnownAs: parseList(entry.alsoKnownAsText),
+    related: parseList(entry.relatedText),
   }));
+}
+
+/** Stable, key-sorted serialization so the dirty check compares VALUES, not key order
+ * or optional-vs-empty-array representation -- `initial` comes from the server via
+ * glossaryEntriesSchema.parse (optional fields may be entirely absent), while
+ * buildPayload always emits alsoKnownAs/related as arrays (possibly empty). */
+function canonical(entry: GlossaryEntry): string {
+  const normalized = {
+    ...entry,
+    termHe: entry.termHe ?? null,
+    alsoKnownAs: entry.alsoKnownAs ?? [],
+    related: entry.related ?? [],
+    published: entry.published !== false,
+  };
+  return JSON.stringify(normalized, Object.keys(normalized).sort());
 }
 
 function blankEntry(kind: GlossaryEntryKind): EditableEntry {
   return {
+    uid: nextUid(),
     slug: "",
     term: "",
     termHe: null,
@@ -57,11 +93,59 @@ function blankEntry(kind: GlossaryEntryKind): EditableEntry {
   };
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  slug: "Slug",
+  term: "Term",
+  termHe: "Hebrew name",
+  alsoKnownAs: "Also known as",
+  kind: "Kind",
+  summary: "Summary",
+  sections: "Sections",
+  programLinks: "Program links",
+  related: "Related entry slugs",
+  published: "Published",
+};
+
+/** Turns a zod issue path like ["sections", 2, "body"] into "Sections 3 → body" --
+ * readable enough to point an admin at the right field without them having to guess
+ * from a bare validation message. */
+function describePath(path: (string | number)[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < path.length; i++) {
+    const segment = path[i];
+    if (typeof segment === "number") {
+      parts[parts.length - 1] = `${parts[parts.length - 1]} ${segment + 1}`;
+      continue;
+    }
+    parts.push(FIELD_LABELS[segment] ?? segment);
+  }
+  return parts.join(" → ");
+}
+
 export default function GlossaryEntriesManager({ initial }: { initial: GlossaryEntry[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [entries, setEntries] = useState<EditableEntry[]>(() => initial.map(toEditable));
-  const [submitting, setSubmitting] = useState(false);
+  const [savingUid, setSavingUid] = useState<string | null>(null);
+  const [errorsByUid, setErrorsByUid] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
+
+  const payload = useMemo(() => buildPayload(entries), [entries]);
+  const baseline = useMemo(() => initial.map(canonical), [initial]);
+  const dirtyFlags = payload.map((e, i) => canonical(e) !== baseline[i]);
+  const dirtyCount = dirtyFlags.filter(Boolean).length;
+  const anyDirty = dirtyCount > 0 || payload.length !== initial.length;
+
+  // Warn before an accidental refresh/close discards unsaved typing -- the bug this
+  // whole component change exists to fix.
+  useEffect(() => {
+    if (!anyDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [anyDirty]);
 
   function update<K extends keyof EditableEntry>(index: number, key: K, value: EditableEntry[K]) {
     setEntries((prev) => prev.map((e, i) => (i === index ? { ...e, [key]: value } : e)));
@@ -142,41 +226,95 @@ export default function GlossaryEntriesManager({ initial }: { initial: GlossaryE
     );
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
+  /** Single save path used by every per-entry Save button AND the bottom "Save all"
+   * button (originUid null), so the two can't drift. The API is a whole-array replace
+   * over one SiteContent JSON blob (see app/api/admin/glossary/route.ts), so any save
+   * -- from any entry -- persists every entry's current edits; that's surfaced to the
+   * admin via a note in the UI rather than hidden. Validates client-side first with
+   * the same glossaryEntriesSchema the API uses, so a bad entry is flagged on itself
+   * instead of producing an off-screen, pathless 400. */
+  async function save(originUid: string | null) {
+    setSavingUid(originUid ?? "__all__");
     setError(null);
+    setErrorsByUid({});
+
+    const parsed = glossaryEntriesSchema.safeParse(payload);
+    if (!parsed.success) {
+      const nextErrors: Record<string, string[]> = {};
+      let firstUid: string | null = null;
+      for (const issue of parsed.error.issues) {
+        const entryIndex = typeof issue.path[0] === "number" ? issue.path[0] : null;
+        const entry = entryIndex !== null ? entries[entryIndex] : undefined;
+        const uid = entry?.uid;
+        const label = describePath(issue.path.slice(1).map((p) => p as string | number));
+        const message = label ? `${label}: ${issue.message}` : issue.message;
+        if (uid) {
+          nextErrors[uid] = [...(nextErrors[uid] ?? []), message];
+          firstUid ??= uid;
+        } else {
+          setError(issue.message);
+        }
+      }
+      setErrorsByUid(nextErrors);
+      setSavingUid(null);
+      if (firstUid) {
+        document.getElementById(`glossary-entry-${firstUid}`)?.scrollIntoView?.({ block: "center" });
+      }
+      return;
+    }
+
     try {
       const res = await fetch("/api/admin/glossary", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries: buildPayload(entries) }),
+        body: JSON.stringify({ entries: parsed.data }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? "Failed to save");
       }
+      toast("Glossary saved");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      const message = err instanceof Error ? err.message : "Failed to save";
+      if (originUid) {
+        setErrorsByUid({ [originUid]: [message] });
+      } else {
+        setError(message);
+      }
     } finally {
-      setSubmitting(false);
+      setSavingUid(null);
     }
   }
 
-  const withIndex = entries.map((entry, index) => ({ entry, index }));
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await save(null);
+  }
+
+  const withIndex = entries.map((entry, index) => ({ entry, index, dirty: dirtyFlags[index] }));
   const terms = withIndex.filter(({ entry }) => entry.kind === "term");
   const comparisons = withIndex.filter(({ entry }) => entry.kind === "comparison");
 
-  function renderEntry({ entry, index }: { entry: EditableEntry; index: number }, groupPos: number, groupLength: number) {
+  function renderEntry(
+    { entry, index, dirty }: { entry: EditableEntry; index: number; dirty: boolean },
+    groupPos: number,
+    groupLength: number
+  ) {
+    const entryErrors = errorsByUid[entry.uid] ?? [];
     return (
-      <div key={index} className="flex flex-col gap-3 rounded border border-border p-4">
+      <div
+        key={entry.uid}
+        id={`glossary-entry-${entry.uid}`}
+        className="flex flex-col gap-3 rounded border border-border p-4"
+      >
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-2 text-sm font-medium text-foreground">
             {entry.term || "(untitled entry)"}
             {entry.published === false && (
               <span className="rounded bg-warning-bg px-2 py-0.5 text-xs text-warning">Unpublished</span>
             )}
+            {dirty && <Badge tone="info">Unsaved</Badge>}
           </span>
           <div className="flex items-center gap-2 text-xs">
             <button
@@ -334,6 +472,28 @@ export default function GlossaryEntriesManager({ initial }: { initial: GlossaryE
           <span className="font-medium text-foreground">Related entry slugs (comma-separated, optional)</span>
           <Input value={entry.relatedText} onChange={(e) => update(index, "relatedText", e.target.value)} />
         </label>
+
+        <div className="flex flex-col gap-1 border-t border-border pt-3">
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              size="sm"
+              disabled={savingUid !== null}
+              onClick={() => save(entry.uid)}
+            >
+              {savingUid === entry.uid ? "Saving…" : "Save"}
+            </Button>
+            {!dirty && <span className="text-xs text-muted">Saved.</span>}
+          </div>
+          {entryErrors.map((msg) => (
+            <p key={msg} className="text-xs text-danger">
+              {msg}
+            </p>
+          ))}
+          <p className="text-xs text-muted">
+            The glossary saves as one document, so this saves every change on this page.
+          </p>
+        </div>
       </div>
     );
   }
@@ -364,9 +524,23 @@ export default function GlossaryEntriesManager({ initial }: { initial: GlossaryE
         </Button>
       </div>
 
-      <Button type="submit" disabled={submitting} className="w-fit">
-        {submitting ? "Saving..." : "Save changes"}
+      {/* Kept in the DOM (not omitted) so Enter-to-submit still works while dirty --
+          just visually hidden so it never repeats the sticky bar's identical label on
+          screen at the same time. */}
+      <Button type="submit" disabled={savingUid !== null} className={anyDirty ? "sr-only" : "w-fit"}>
+        {savingUid === "__all__" ? "Saving…" : "Save all changes"}
       </Button>
+
+      {anyDirty && (
+        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-border bg-surface px-4 py-3">
+          <span className="text-sm text-muted">
+            {dirtyCount} {dirtyCount === 1 ? "entry has" : "entries have"} unsaved changes
+          </span>
+          <Button type="button" disabled={savingUid !== null} onClick={() => save(null)}>
+            {savingUid === "__all__" ? "Saving…" : "Save all changes"}
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
