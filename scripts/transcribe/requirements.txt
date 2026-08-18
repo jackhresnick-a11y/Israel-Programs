@@ -1,2 +1,6 @@
 faster-whisper==1.0.3
+# faster_whisper/utils.py imports requests directly but doesn't declare it -- it
+# relied on getting it transitively via huggingface-hub, which has since switched
+# its HTTP client to httpx and no longer pulls requests in at all.
+requests>=2.31
 yt-dlp>=2024.8.6
