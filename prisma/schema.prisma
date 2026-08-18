@@ -470,6 +470,51 @@ model Tag {
   programs Program[] @relation("ProgramTags")
 }
 
+enum TagProvenanceSource {
+  OFFICIAL_SITE
+  POLL_DERIVED
+  ADMIN_ASSERTED
+  INFERRED
+  UNKNOWN
+}
+
+/// Admin-only recordkeeping for where one program-tag pair's tag came from --
+/// deliberately a standalone sidecar, not a field on the Program<->Tag relation itself.
+/// `Program.tags`/`Tag.programs` stay the implicit many-to-many they've always been
+/// (over the Prisma-managed `_ProgramTags` shadow table); converting that to an explicit
+/// join model would rewrite every tag query in the codebase for the sake of one
+/// admin-only field, so this table is keyed on the same (programId, tagId) pair instead,
+/// with no relation field on either Program or Tag pointing back at it. That also means
+/// it's structurally unreachable from any Program/Tag query -- nothing can leak it into
+/// a public payload by accident, only by someone deliberately querying this model.
+/// **Absence of a row IS the UNKNOWN state** -- there is no backfill for the pairs that
+/// existed before this table shipped, and none should ever be added: we do not actually
+/// know how those tags were assigned, so writing INFERRED or any other value would assert
+/// something false. Every reader must resolve a missing row the same way a row explicitly
+/// holding `source: UNKNOWN` resolves (see lib/tagProvenanceShared.ts's resolveSource).
+/// programId/tagId are plain scalar columns, not `@relation` fields -- Prisma requires a
+/// matching back-relation field on the target model for `@relation`, which would mean
+/// adding a relation field to Program/Tag, out of scope here. The two ON DELETE CASCADE
+/// foreign keys instead live only in the hand-authored migration SQL; a future
+/// `prisma migrate dev` diff will not see them and may propose dropping them -- same
+/// Prisma-blind-spot precedent as the hand-written CHECK constraints on PollAnswer/
+/// PollReview (never run `prisma db push` against this schema).
+model ProgramTagProvenance {
+  id         String              @id @default(cuid())
+  programId  String
+  tagId      String
+  source     TagProvenanceSource @default(UNKNOWN)
+  sourceUrl  String?
+  note       String?
+  verifiedAt DateTime?
+  verifiedBy String?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@unique([programId, tagId])
+  @@index([source])
+}
+
 /// A tag name typed into a non-moderator's new-program submission that matched no
 /// existing Tag (see lib/tags.ts's matchTag) -- queued for a moderator to approve
 /// (mints/reattaches the real Tag) or reject, instead of resolveTagsByName minting an

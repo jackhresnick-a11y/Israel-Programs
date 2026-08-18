@@ -118,6 +118,12 @@ const ADMIN_ONLY_PROGRAM_FIELDS = [
   "outreachCategory",
   "videoTranscript",
   "transcriptTags",
+  // Per-tag provenance (ProgramTagProvenance) has no relation field back to Program, so
+  // no query can attach it to a row this function receives -- but lib/pollResults.ts's
+  // ProgramBestForRow (admin-only) does manually attach a `provenance` array onto a
+  // program-shaped object, so this is the same "second, independent layer" belt-and-
+  // suspenders as the fields above, in case that shape is ever reused somewhere public.
+  "provenance",
 ] as const;
 
 export function toPublicProgram<T extends Record<string, unknown>>(

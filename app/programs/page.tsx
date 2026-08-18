@@ -6,6 +6,8 @@ import { listPrograms, listProgramsBanded, listAllTags, getFacetData, type Progr
 import { listTagCategories } from "@/lib/tags";
 import { listDurationOptions, durationLabelMapFromOptions } from "@/lib/duration";
 import { listRegions } from "@/lib/regions";
+import { findRouteByTagSet } from "@/lib/locationPages";
+import { canonicalPathFor } from "@/lib/locationPagesContent";
 import type { DurationType, TravelType } from "@/app/generated/prisma/client";
 import { getSiteContentMany } from "@/lib/siteContent";
 import { trackSearch, trackFilterUse } from "@/lib/analytics";
@@ -30,24 +32,6 @@ import {
 const LISTING_DESCRIPTION =
   "Search and filter hundreds of Israel programs by duration, region, affiliation, and more.";
 
-export const metadata: Metadata = {
-  title: "Browse Programs",
-  description: LISTING_DESCRIPTION,
-  alternates: { canonical: "/programs" },
-  openGraph: {
-    title: "Browse Programs",
-    description: LISTING_DESCRIPTION,
-    url: "/programs",
-    type: "website",
-    siteName: SITE_NAME,
-    // Nested `openGraph` objects replace the parent's wholesale (not merge),
-    // so without this the root's file-convention og:image silently drops
-    // off any page that sets its own openGraph -- point it at the same
-    // generated image explicitly rather than relying on inheritance.
-    images: "/opengraph-image",
-  },
-};
-
 type SearchParams = Promise<{
   q?: string;
   tags?: string;
@@ -56,6 +40,46 @@ type SearchParams = Promise<{
   hasCollegeCredit?: string;
   travelType?: string;
 }>;
+
+/**
+ * The static /programs/location/... and /programs/type/.../location/... routes are the
+ * canonical version of their equivalent `?tags=...` URL (see lib/locationPages.ts's
+ * findRouteByTagSet) -- duplicate-content requirement from the location-landing-pages
+ * PR. Only a request with tags set and NO other filter (q/duration/scholarship/credit/
+ * travelType) and whose tag set exactly matches a route that actually cleared the
+ * MIN_PROGRAMS_PER_PAGE threshold gets redirected to that canonical; every other
+ * /programs URL (including any tag combination that isn't a generated static page)
+ * keeps today's self-canonical "/programs" -- the parameter filters themselves are
+ * unchanged and still fully functional for shareable links and the AI assistant.
+ */
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const { q, tags: tagsParam, duration, hasScholarship, hasCollegeCredit, travelType } = await searchParams;
+  const activeTagSlugs = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+
+  let canonicalPath = "/programs";
+  if (!q && !duration && !hasScholarship && !hasCollegeCredit && !travelType && activeTagSlugs.length > 0) {
+    const route = await findRouteByTagSet(activeTagSlugs);
+    if (route) canonicalPath = canonicalPathFor(route.typeSlug, route.locationSlug);
+  }
+
+  return {
+    title: "Browse Programs",
+    description: LISTING_DESCRIPTION,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title: "Browse Programs",
+      description: LISTING_DESCRIPTION,
+      url: canonicalPath,
+      type: "website",
+      siteName: SITE_NAME,
+      // Nested `openGraph` objects replace the parent's wholesale (not merge),
+      // so without this the root's file-convention og:image silently drops
+      // off any page that sets its own openGraph -- point it at the same
+      // generated image explicitly rather than relying on inheritance.
+      images: "/opengraph-image",
+    },
+  };
+}
 
 export default async function ProgramsPage({
   searchParams,

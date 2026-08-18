@@ -10,6 +10,12 @@ import Badge from "@/components/ui/Badge";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
 import Textarea from "@/components/ui/Textarea";
 import { programMatchesTagFilter } from "@/lib/adminFilters";
+import {
+  TAG_PROVENANCE_SOURCES,
+  TAG_PROVENANCE_SOURCE_LABELS,
+  resolveSource,
+  type TagProvenanceSource,
+} from "@/lib/tagProvenanceShared";
 
 export type ContactOptInRow = {
   contactName: string;
@@ -18,13 +24,23 @@ export type ContactOptInRow = {
   contactAgeAttestedAt: Date;
 };
 
+export type ProgramTagProvenanceRow = {
+  tagId: string;
+  source: TagProvenanceSource;
+  sourceUrl: string | null;
+  note: string | null;
+  verifiedAt: Date | null;
+  verifiedBy: string | null;
+};
+
 export type ProgramRow = {
   id: string;
   name: string;
   slug: string;
   organization: string | null;
   location: string | null;
-  tags: { slug: string; name: string }[];
+  tags: { id: string; slug: string; name: string }[];
+  provenance: ProgramTagProvenanceRow[];
   responseCount: number;
   bestForPhrases: string[];
   editorialBestFor: string | null;
@@ -34,6 +50,10 @@ export type ProgramRow = {
   aiBrief: string | null;
   transcriptTags: string[];
 };
+
+export type TagProvenanceBacklogRow = { programId: string; unprovenancedCount: number };
+
+export type UnusedTagRow = { id: string; name: string; slug: string };
 
 async function api(url: string, method: string, body?: object) {
   const res = await fetch(url, {
@@ -48,7 +68,17 @@ async function api(url: string, method: string, body?: object) {
   return res.json().catch(() => ({}));
 }
 
-function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow; allTags: TagOption[]; categories: TagCategoryOption[] }) {
+function ProgramRowCard({
+  program,
+  allTags,
+  categories,
+  unprovenancedCount,
+}: {
+  program: ProgramRow;
+  allTags: TagOption[];
+  categories: TagCategoryOption[];
+  unprovenancedCount: number;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -61,6 +91,56 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
   const [tagBusy, setTagBusy] = useState<string | null>(null);
   const [generatingBrief, setGeneratingBrief] = useState(false);
   const [generateBriefError, setGenerateBriefError] = useState<string | null>(null);
+
+  const provenanceByTagId = useMemo(() => {
+    const map = new Map<string, ProgramTagProvenanceRow>();
+    for (const row of program.provenance) map.set(row.tagId, row);
+    return map;
+  }, [program.provenance]);
+
+  const [provenanceDrafts, setProvenanceDrafts] = useState<
+    Record<string, { source: TagProvenanceSource; sourceUrl: string; note: string }>
+  >(() => {
+    const drafts: Record<string, { source: TagProvenanceSource; sourceUrl: string; note: string }> = {};
+    for (const tag of program.tags) {
+      const row = provenanceByTagId.get(tag.id) ?? null;
+      drafts[tag.id] = {
+        source: resolveSource(row),
+        sourceUrl: row?.sourceUrl ?? "",
+        note: row?.note ?? "",
+      };
+    }
+    return drafts;
+  });
+  const [provenanceBusyTagId, setProvenanceBusyTagId] = useState<string | null>(null);
+  const [provenanceErrors, setProvenanceErrors] = useState<Record<string, string>>({});
+
+  function setProvenanceDraft(tagId: string, patch: Partial<{ source: TagProvenanceSource; sourceUrl: string; note: string }>) {
+    setProvenanceDrafts((prev) => ({ ...prev, [tagId]: { ...prev[tagId], ...patch } }));
+  }
+
+  async function handleSaveProvenance(tagId: string) {
+    const draft = provenanceDrafts[tagId];
+    if (!draft) return;
+    setProvenanceBusyTagId(tagId);
+    setProvenanceErrors((prev) => ({ ...prev, [tagId]: "" }));
+    try {
+      await api(`/api/admin/programs/${program.id}/tag-provenance`, "PATCH", {
+        tagId,
+        source: draft.source,
+        sourceUrl: draft.sourceUrl.trim(),
+        note: draft.note.trim(),
+      });
+      router.refresh();
+    } catch (err) {
+      setProvenanceErrors((prev) => ({
+        ...prev,
+        [tagId]: err instanceof Error ? err.message : "Failed to save provenance",
+      }));
+    } finally {
+      setProvenanceBusyTagId(null);
+    }
+  }
 
   const aiBriefWordCount = aiBrief.trim() ? aiBrief.trim().split(/\s+/).length : 0;
 
@@ -150,6 +230,11 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
             {program.contactOptIns.length} open to contact
           </Badge>
         )}
+        {unprovenancedCount > 0 && (
+          <Badge tone="warning">
+            {unprovenancedCount} unprovenanced tag{unprovenancedCount === 1 ? "" : "s"}
+          </Badge>
+        )}
         <span className="ml-auto text-xs text-muted">
           {program.responseCount} response{program.responseCount === 1 ? "" : "s"}
         </span>
@@ -228,6 +313,75 @@ function ProgramRowCard({ program, allTags, categories }: { program: ProgramRow;
             Tags
             <TagPicker value={tagsValue} onChange={setTagsValue} allTags={allTags} categories={categories} />
           </label>
+
+          {program.tags.length > 0 && (
+            <div className="flex flex-col gap-2 rounded border border-border p-3">
+              <p className="text-xs font-semibold text-muted">
+                Tag provenance — admin only, never shown publicly
+              </p>
+              <div className="flex flex-col divide-y divide-border">
+                {program.tags.map((tag) => {
+                  const draft = provenanceDrafts[tag.id];
+                  const savedRow = provenanceByTagId.get(tag.id);
+                  if (!draft) return null;
+                  return (
+                    <div key={tag.id} className="flex flex-col gap-1 py-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-medium text-foreground">{tag.name}</span>
+                        <select
+                          aria-label={`Source for ${tag.name}`}
+                          value={draft.source}
+                          onChange={(e) =>
+                            setProvenanceDraft(tag.id, { source: e.target.value as TagProvenanceSource })
+                          }
+                          className="rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                        >
+                          {TAG_PROVENANCE_SOURCES.map((s) => (
+                            <option key={s} value={s}>
+                              {TAG_PROVENANCE_SOURCE_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                        <Input
+                          aria-label={`Source URL for ${tag.name}`}
+                          value={draft.sourceUrl}
+                          onChange={(e) => setProvenanceDraft(tag.id, { sourceUrl: e.target.value })}
+                          placeholder="https://... (optional)"
+                          className="max-w-xs text-xs"
+                        />
+                        <Input
+                          aria-label={`Note for ${tag.name}`}
+                          value={draft.note}
+                          onChange={(e) => setProvenanceDraft(tag.id, { note: e.target.value })}
+                          placeholder="Note (optional)"
+                          className="max-w-xs text-xs"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          disabled={provenanceBusyTagId === tag.id}
+                          onClick={() => handleSaveProvenance(tag.id)}
+                        >
+                          {provenanceBusyTagId === tag.id ? "Saving..." : "Save"}
+                        </Button>
+                      </div>
+                      {savedRow?.verifiedAt && (
+                        <p className="text-[11px] text-muted">
+                          Last recorded {new Date(savedRow.verifiedAt).toLocaleDateString()}
+                          {savedRow.verifiedBy ? ` by ${savedRow.verifiedBy}` : ""}
+                        </p>
+                      )}
+                      {provenanceErrors[tag.id] && (
+                        <p className="text-[11px] text-danger">{provenanceErrors[tag.id]}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <label className="flex flex-col gap-1 text-xs text-muted">
             Video URL
             <Input
@@ -310,16 +464,27 @@ export default function ProgramsAdminManager({
   programs,
   allTags,
   categories,
+  provenanceBacklog,
+  unusedTags,
 }: {
   programs: ProgramRow[];
   allTags: TagOption[];
   categories: TagCategoryOption[];
+  provenanceBacklog: { totalPairs: number; unprovenancedPairs: number; programs: TagProvenanceBacklogRow[] };
+  unusedTags: UnusedTagRow[];
 }) {
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [tagFilterSearch, setTagFilterSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortAsc, setSortAsc] = useState(true);
+  const [needsProvenanceOnly, setNeedsProvenanceOnly] = useState(false);
+
+  const backlogByProgramId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of provenanceBacklog.programs) map.set(row.programId, row.unprovenancedCount);
+    return map;
+  }, [provenanceBacklog.programs]);
 
   const filteredTagOptions = useMemo(() => {
     const term = tagFilterSearch.trim().toLowerCase();
@@ -346,12 +511,15 @@ export default function ProgramsAdminManager({
       const selectedTagSlugs = Array.from(selectedTags);
       result = result.filter((p) => programMatchesTagFilter(p.tags.map((t) => t.slug), selectedTagSlugs));
     }
+    if (needsProvenanceOnly) {
+      result = result.filter((p) => (backlogByProgramId.get(p.id) ?? 0) > 0);
+    }
     const sorted = [...result].sort((a, b) => {
       const cmp = sortKey === "name" ? a.name.localeCompare(b.name) : a.responseCount - b.responseCount;
       return sortAsc ? cmp : -cmp;
     });
     return sorted;
-  }, [programs, search, selectedTags, sortKey, sortAsc]);
+  }, [programs, search, selectedTags, sortKey, sortAsc, needsProvenanceOnly, backlogByProgramId]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -365,6 +533,21 @@ export default function ProgramsAdminManager({
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex flex-col gap-3 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-xs text-muted">
+            <span className="font-semibold text-foreground">{provenanceBacklog.unprovenancedPairs}</span> of{" "}
+            {provenanceBacklog.totalPairs} tag pairs have no recorded source
+          </p>
+          <label className="flex items-center gap-1 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={needsProvenanceOnly}
+              onChange={(e) => setNeedsProvenanceOnly(e.target.checked)}
+              className="accent-accent"
+            />
+            Needs provenance only
+          </label>
+        </div>
         <div className="flex flex-wrap items-end gap-3">
           <Input
             placeholder={`Search ${programs.length} programs by name or slug...`}
@@ -449,9 +632,30 @@ export default function ProgramsAdminManager({
         </div>
       </Card>
 
+      {unusedTags.length > 0 && (
+        <Card className="flex flex-col gap-2 p-4">
+          <p className="text-xs font-semibold text-muted">
+            Unused tags ({unusedTags.length}) — attached to zero programs, read-only cleanup list
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {unusedTags.map((tag) => (
+              <Badge key={tag.id} tone="tag">
+                {tag.name}
+              </Badge>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <div className="flex flex-col divide-y divide-border rounded border border-border">
         {filtered.map((program) => (
-          <ProgramRowCard key={program.id} program={program} allTags={allTags} categories={categories} />
+          <ProgramRowCard
+            key={program.id}
+            program={program}
+            allTags={allTags}
+            categories={categories}
+            unprovenancedCount={backlogByProgramId.get(program.id) ?? 0}
+          />
         ))}
         {filtered.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted">No programs match.</p>}
       </div>

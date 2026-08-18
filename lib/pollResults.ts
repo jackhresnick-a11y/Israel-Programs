@@ -16,6 +16,7 @@ import {
   type RatingCoverageRow,
 } from "@/lib/pollShared";
 import { computeClusterSignal, type ClusterResponseInput } from "@/lib/pollClustering";
+import type { TagProvenanceSource } from "@/lib/tagProvenanceShared";
 
 /** The one question every program's poll always carries (see the Core bucket seed) whose
  * answers we deliberately never surface -- no aggregate/overall scored number appears
@@ -286,6 +287,18 @@ export type ContactOptInRow = {
   contactAgeAttestedAt: Date;
 };
 
+/** Admin-only, /admin/programs' inline tag-provenance editor -- never selected into any
+ * public read (see ProgramTagProvenance's schema doc comment: there is no relation field
+ * to reach this from a Program query in the first place). */
+export type ProgramTagProvenanceRow = {
+  tagId: string;
+  source: TagProvenanceSource;
+  sourceUrl: string | null;
+  note: string | null;
+  verifiedAt: Date | null;
+  verifiedBy: string | null;
+};
+
 /** One program's row on /admin/programs -- the live-computed strip alongside the
  * editorial override, so an admin can see at a glance which programs are relying on the
  * generated strip vs. a manual override, and how thin each program's data still is. */
@@ -295,7 +308,8 @@ export type ProgramBestForRow = {
   slug: string;
   organization: string | null;
   location: string | null;
-  tags: { slug: string; name: string }[];
+  tags: { id: string; slug: string; name: string }[];
+  provenance: ProgramTagProvenanceRow[];
   responseCount: number;
   bestForPhrases: string[];
   editorialBestFor: string | null;
@@ -320,7 +334,7 @@ export type ProgramBestForRow = {
  * at all" signal for sorting, not a per-question figure.
  */
 export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
-  const [programs, questions, answerRows, contactOptInRows] = await Promise.all([
+  const [programs, questions, answerRows, contactOptInRows, provenanceRows] = await Promise.all([
     prisma.program.findMany({
       where: { status: "PUBLISHED" },
       select: {
@@ -329,7 +343,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
         slug: true,
         organization: true,
         location: true,
-        tags: { select: { slug: true, name: true } },
+        tags: { select: { id: true, slug: true, name: true } },
         pollConfig: { select: { editorialBestFor: true } },
         // Explicit opt-in select, the deliberate admin-side exception to
         // PROGRAM_PRIVATE_OMIT (lib/programs.ts) -- this view is /admin/programs,
@@ -361,7 +375,27 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       where: { status: "COUNTED", contactOptIn: true },
       select: { programId: true, contactName: true, contactMethod: true, contactOptInAt: true, contactAgeAttestedAt: true },
     }),
+    // Batched, same posture as contactOptInRows above -- one fetch for every program's
+    // tag-provenance rows rather than a query per program. Admin-only (see
+    // ProgramTagProvenanceRow's doc comment); this is /admin/programs, gated admin-only.
+    prisma.programTagProvenance.findMany({
+      select: { programId: true, tagId: true, source: true, sourceUrl: true, note: true, verifiedAt: true, verifiedBy: true },
+    }),
   ]);
+
+  const provenanceByProgramId = new Map<string, ProgramTagProvenanceRow[]>();
+  for (const row of provenanceRows) {
+    const list = provenanceByProgramId.get(row.programId) ?? [];
+    list.push({
+      tagId: row.tagId,
+      source: row.source,
+      sourceUrl: row.sourceUrl,
+      note: row.note,
+      verifiedAt: row.verifiedAt,
+      verifiedBy: row.verifiedBy,
+    });
+    provenanceByProgramId.set(row.programId, list);
+  }
 
   const contactOptInsByProgramId = new Map<string, ContactOptInRow[]>();
   for (const row of contactOptInRows) {
@@ -405,6 +439,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       organization: p.organization,
       location: p.location,
       tags: p.tags,
+      provenance: provenanceByProgramId.get(p.id) ?? [],
       // countResponsesMeetingReadinessBar -- was a raw COUNTED-row count, now the
       // same shared "genuine engagement" definition listRatingCoverage uses, so this
       // admin list and the coverage list can never disagree with each other again.
