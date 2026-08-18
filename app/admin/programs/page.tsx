@@ -3,6 +3,7 @@ import { getCurrentRole } from "@/lib/roles";
 import { listProgramsBestFor } from "@/lib/pollResults";
 import { listAllTags } from "@/lib/programs";
 import { listTagCategories } from "@/lib/tags";
+import { getTagProvenanceBacklog, listUnusedTags } from "@/lib/tagProvenance";
 import ProgramsAdminManager from "@/components/admin/ProgramsAdminManager";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
@@ -11,10 +12,12 @@ export default async function AdminProgramsPage() {
   const role = await getCurrentRole();
   if (role !== "admin") redirect("/");
 
-  const [programs, allTags, categories] = await Promise.all([
+  const [programs, allTags, categories, provenanceBacklog, unusedTags] = await Promise.all([
     listProgramsBestFor(),
     listAllTags(),
     listTagCategories(),
+    getTagProvenanceBacklog(),
+    listUnusedTags(),
   ]);
 
   return (
@@ -27,6 +30,15 @@ export default async function AdminProgramsPage() {
         programs={programs}
         allTags={allTags.map((t) => ({ slug: t.slug, name: t.name, category: t.category }))}
         categories={categories.map((c) => ({ slug: c.slug, label: c.label }))}
+        provenanceBacklog={{
+          totalPairs: provenanceBacklog.totalPairs,
+          unprovenancedPairs: provenanceBacklog.unprovenancedPairs,
+          programs: provenanceBacklog.programs.map((p) => ({
+            programId: p.programId,
+            unprovenancedCount: p.unprovenancedCount,
+          })),
+        }}
+        unusedTags={unusedTags}
       />
     </PageContainer>
   );

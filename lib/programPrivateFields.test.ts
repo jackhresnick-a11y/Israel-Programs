@@ -5,10 +5,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // `omit`), this one implements it for real -- videoTranscript/transcriptTags must
 // actually be dropped by the query, not just absent from what the fake happens to
 // return, or these tests would pass for the wrong reason.
-const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindManyArgs } = vi.hoisted(() => {
+const {
+  fakePrisma,
+  resetDb,
+  seedProgram,
+  getLastFindUniqueArgs,
+  getLastFindManyArgs,
+  getProvenanceFindManyCallCount,
+} = vi.hoisted(() => {
   const db = { programs: [] as Record<string, unknown>[], seq: 0 };
   let lastFindUniqueArgs: unknown = null;
   let lastFindManyArgs: unknown = null;
+  let provenanceFindManyCallCount = 0;
 
   function applyOmit(row: Record<string, unknown>, omit?: Record<string, boolean>) {
     const result = { ...row };
@@ -60,6 +68,17 @@ const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindMany
         return { ...applyOmit(row, { videoTranscript: true, transcriptTags: true }) };
       },
     },
+    // No relation field connects Program to this table (see ProgramTagProvenance's
+    // schema doc comment) -- a public read path calling this would be a deliberate,
+    // out-of-band query, not something a blanket `include`/`select: { tags: true }`
+    // could ever pick up by accident. This spy proves none of the public read paths
+    // do that anyway.
+    programTagProvenance: {
+      findMany: async () => {
+        provenanceFindManyCallCount += 1;
+        return [];
+      },
+    },
     $transaction: async (ops: Promise<unknown>[]) => Promise.all(ops),
   };
 
@@ -92,10 +111,12 @@ const { fakePrisma, resetDb, seedProgram, getLastFindUniqueArgs, getLastFindMany
     resetDb: () => {
       db.programs = [];
       db.seq = 0;
+      provenanceFindManyCallCount = 0;
     },
     seedProgram,
     getLastFindUniqueArgs: () => lastFindUniqueArgs,
     getLastFindManyArgs: () => lastFindManyArgs,
+    getProvenanceFindManyCallCount: () => provenanceFindManyCallCount,
   };
 });
 
@@ -219,5 +240,36 @@ describe("A transcript written through lib/transcripts.ts's bulk-upload path is 
     const publicRow = toPublicProgram({ ...row });
     expect(publicRow).not.toHaveProperty("videoTranscript");
     expect(JSON.stringify(publicRow)).not.toContain(SECRET_TRANSCRIPT);
+  });
+});
+
+describe("Per-tag provenance (ProgramTagProvenance) never reaches the public program DTO", () => {
+  it("toPublicProgram strips a `provenance` array even if one arrived on the row (e.g. reused from lib/pollResults.ts's admin-only ProgramBestForRow shape)", () => {
+    const row = {
+      id: "prog_x",
+      name: "X",
+      provenance: [
+        { tagId: "tag_1", source: "ADMIN_ASSERTED", sourceUrl: "https://internal.example/x", note: "internal note", verifiedBy: "admin_user_id" },
+      ],
+    };
+
+    const result = toPublicProgram(row);
+
+    expect(result).not.toHaveProperty("provenance");
+    expect(JSON.stringify(result)).not.toContain("internal note");
+    expect(JSON.stringify(result)).not.toContain("admin_user_id");
+  });
+
+  it("getProgramBySlug/listPrograms/getProgramsBySlugs never query prisma.programTagProvenance", async () => {
+    seedProgram({ slug: "prog-provenance", status: "PUBLISHED" });
+
+    await getProgramBySlug("prog-provenance");
+    await listPrograms({});
+    await getProgramsBySlugs(["prog-provenance"]);
+
+    // ProgramTagProvenance has no relation field back to Program (see the model's schema
+    // doc comment) -- these three public read paths have no way to reach it structurally,
+    // and this spy proves none of them do so via a separate, hand-added query either.
+    expect(getProvenanceFindManyCallCount()).toBe(0);
   });
 });
