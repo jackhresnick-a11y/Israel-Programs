@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "yeshivat-or-torah-machanaim",
+    "name": "Yeshivat Or Torah Machanaim",
+    "contactEmail": "machanaim@ots.org.il",
+    "category": "yeshivot",
+    "contactWebsite": "https://www.machanaim.org.il/"
+  },
+  {
+    "slug": "yeshivat-eshtamoa",
+    "name": "Yeshivat Eshtamoa",
+    "contactEmail": "harshalom1@gmail.com",
+    "category": "yeshivot",
+    "contactWebsite": "https://n-yeminecha.org/"
+  },
+  {
+    "slug": "midreshet-lindenbaum-hadas",
+    "name": "Midreshet Lindenbaum — Hadas",
+    "contactEmail": "mlisrael@ots.org.il",
+    "category": "yeshivot",
+    "signupUrl": "https://lindenbaum.ots.org.il/hadas",
+    "contactWebsite": "https://www.lind.org.il/תכנית-הדס/"
+  }
+]

@@ -17,7 +17,8 @@ type HebrewNameRecord = {
 };
 
 async function main() {
-  const jsonPath = join(__dirname, "..", "research", "hebrew-names.json");
+  const fileName = process.argv[2] || "hebrew-names.json";
+  const jsonPath = join(__dirname, "..", "research", fileName);
   const records = JSON.parse(readFileSync(jsonPath, "utf-8")) as HebrewNameRecord[];
   const confirmed = records.filter((r) => r.confidence === "CONFIRMED");
 
