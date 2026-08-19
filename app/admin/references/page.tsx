@@ -9,9 +9,11 @@ import Badge from "@/components/ui/Badge";
 import ReferenceWhatsappEditor from "@/components/ReferenceWhatsappEditor";
 import ReferenceVisibilityControl from "@/components/ReferenceVisibilityControl";
 
-// Reference.status reuses the ProgramStatus enum for its own approve/reject workflow;
-// ARCHIVED is a Program-only lifecycle value no Reference row will ever hold, but the
-// shared enum type still requires an exhaustive key here.
+// Reference.status reuses the ProgramStatus enum for its own approve/reject workflow.
+// ARCHIVED is now a real state here, not a Program-only value: it is what a reference-giver
+// removing themselves via /references/remove/[token] lands on (lib/references.ts's
+// removeReferenceByToken). It reads as "gone from the public list, row retained", distinct
+// from REJECTED, which means a moderator turned the reference down.
 const STATUS_TONE = { PUBLISHED: "success", PENDING: "warning", REJECTED: "danger", ARCHIVED: "neutral" } as const;
 
 export default async function AdminReferencesPage() {

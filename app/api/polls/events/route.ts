@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { pollShareEventSchema } from "@/lib/pollShared";
+import { pollClientEventSchema } from "@/lib/pollShared";
 import { trackPollShare } from "@/lib/pollAnalytics";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 /**
- * Client-triggered analytics beacon for the two post-poll share events
- * (share_button_shown / share_button_clicked -- see components/polls/WhatsAppShareButton.tsx
- * and lib/pollClientEvents.ts). Every other poll analytics event is emitted server-side
- * from an existing autosave route; this is the one place a client component needs to log
- * something directly, since "the respondent tapped the WhatsApp share link" has no other
- * server round trip to piggyback on.
+ * Client-triggered analytics beacon for the poll events that have no server round trip to
+ * piggyback on: the two post-poll share events (share_button_shown / share_button_clicked,
+ * see components/polls/WhatsAppShareButton.tsx) and the reference opt-in's
+ * reference_optin_viewed / reference_optin_focused (see RateForm.tsx's
+ * ReferenceOptInBlock). Both are things the respondent did in the page that never reach
+ * the server otherwise. Every other poll analytics event is emitted server-side from an
+ * existing route -- including reference_optin_submitted, which is deliberately NOT
+ * accepted here (the schema's enum excludes it), because whether an opt-in produced a
+ * Reference is a server fact and must not be assertable by a client.
  *
  * Always 204, even on a bad body or an unknown responseId -- analytics must never surface
  * an error to the UI, and the client's fetch is fire-and-forget (`keepalive: true`) so
@@ -27,7 +30,7 @@ export async function POST(request: Request) {
 
   try {
     const json = await request.json();
-    const body = pollShareEventSchema.parse(json);
+    const body = pollClientEventSchema.parse(json);
 
     const response = await prisma.pollResponse.findUnique({
       where: { id: body.responseId },

@@ -60,8 +60,32 @@ export type PollFlag = (typeof POLL_FLAGS)[keyof typeof POLL_FLAGS];
  * each respondent agreed to. Bump the version string whenever this text changes.
  */
 export const POLL_REFERENCE_CONSENT_LABEL =
-  "Want to help future students? Enter your email to be listed as a reference. Students may contact you directly. Your email is never shown publicly — we pass it on only to students who ask.";
-export const POLL_REFERENCE_CONSENT_VERSION = "poll-reference-consent-v1";
+  "Enter your email to be listed as a reference for this program. Students may contact you directly, and you can remove yourself at any time.";
+export const POLL_REFERENCE_CONSENT_VERSION = "poll-reference-consent-v2";
+
+/**
+ * The section copy above the field, rendered by RateForm.tsx's ReferenceOptInBlock. Kept
+ * here beside the consent label rather than inline in the component so the whole ask reads
+ * as one piece of writing, and so the label can be trimmed against it without the two
+ * drifting into repeating each other (style guide §7: never repeat the same string twice
+ * on one screen).
+ *
+ * Every claim in ASSURANCE is true as written, and each is enforced somewhere real:
+ * - "never shown publicly" -- listPublishedReferences selects only
+ *   id/displayName/attendedText/note; contactEmail and pollEmailKey never enter a public
+ *   payload (lib/references.ts).
+ * - "listed as Past participant, never by name" -- the poll collects no name at all, and
+ *   POLL_REFERENCE_DISPLAY_NAME is the only value a poll-created reference ever gets;
+ *   there is no update path for Reference.displayName anywhere in the codebase.
+ * - "remove yourself at any time" -- lib/references.ts's removeReferenceByToken, reached
+ *   from the unauthenticated /references/remove/[token] page. Do not restate this claim
+ *   here if that route is ever removed.
+ */
+export const POLL_REFERENCE_SECTION_TITLE = "Be a reference for future students";
+export const POLL_REFERENCE_SECTION_BODY =
+  "Every year students decide on this program with almost nothing to go on. A few minutes answering someone’s questions is worth more to them than anything else on the page.";
+export const POLL_REFERENCE_SECTION_ASSURANCE =
+  "Your email is never shown publicly — we pass it on only to students who ask; you’re listed as “Past participant,” never by name; and you can remove yourself at any time.";
 
 /** Shown above the poll's very first comment box only (RateForm.tsx's QuestionWithReview,
  * `isFirst`) -- the moderation notice itself already lives once, above the whole question
@@ -121,11 +145,38 @@ export const POLL_SHARE_EVENTS = {
 
 export type PollShareEventType = (typeof POLL_SHARE_EVENTS)[keyof typeof POLL_SHARE_EVENTS];
 
+/** The reference opt-in's funnel events, same client-safe-boundary arrangement as
+ * POLL_SHARE_EVENTS above. VIEWED and FOCUSED are genuinely client-only signals (the
+ * section scrolled into view; the email field was first focused) and travel through
+ * POST /api/polls/events. SUBMITTED is deliberately NOT in here: whether an opt-in
+ * actually produced a Reference is only knowable server-side, so it is emitted from the
+ * submit route via lib/pollAnalytics.ts's trackPollReferenceOptInSubmitted -- unspoofable,
+ * and it records the real outcome rather than the client's intent. */
+export const POLL_REFERENCE_OPTIN_EVENTS = {
+  VIEWED: "reference_optin_viewed",
+  FOCUSED: "reference_optin_focused",
+  SUBMITTED: "reference_optin_submitted",
+} as const;
+
+export type PollReferenceOptInEventType =
+  (typeof POLL_REFERENCE_OPTIN_EVENTS)[keyof typeof POLL_REFERENCE_OPTIN_EVENTS];
+
+/** The subset of event types a client is allowed to emit directly. SUBMITTED is excluded
+ * on purpose -- see POLL_REFERENCE_OPTIN_EVENTS. */
+export const POLL_CLIENT_EVENTS = [
+  POLL_SHARE_EVENTS.SHARE_SHOWN,
+  POLL_SHARE_EVENTS.SHARE_CLICKED,
+  POLL_REFERENCE_OPTIN_EVENTS.VIEWED,
+  POLL_REFERENCE_OPTIN_EVENTS.FOCUSED,
+] as const;
+
+export type PollClientEventType = (typeof POLL_CLIENT_EVENTS)[number];
+
 /** Body for `POST /api/polls/events`. `responseId` is the only identifier -- the server
  * looks up `programId` from the response itself rather than trusting a client-supplied
- * one, so a crafted request can't attribute a share to a program it didn't happen on. */
-export const pollShareEventSchema = z.object({
-  type: z.enum([POLL_SHARE_EVENTS.SHARE_SHOWN, POLL_SHARE_EVENTS.SHARE_CLICKED]),
+ * one, so a crafted request can't attribute an event to a program it didn't happen on. */
+export const pollClientEventSchema = z.object({
+  type: z.enum(POLL_CLIENT_EVENTS),
   responseId: z.string().min(1).max(64),
 });
 

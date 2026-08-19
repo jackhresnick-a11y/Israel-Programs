@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { markSubmitted, finalizeReferenceFromPoll } from "@/lib/pollResponses";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
-import { trackPollSubmitted } from "@/lib/pollAnalytics";
+import { trackPollSubmitted, trackPollReferenceOptInSubmitted } from "@/lib/pollAnalytics";
 
 /**
  * The explicit "Submit ratings" action. `id` is a bare responseId capability with no auth,
@@ -47,11 +47,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // After the stamp, never before: the reference is derived from data autosave already
     // wrote, and a failure inside here is swallowed so it can't fail the submission.
-    await finalizeReferenceFromPoll(id);
+    const reference = await finalizeReferenceFromPoll(id);
 
     trackPollSubmitted(response.programId, id, result.status);
+    // Only when the respondent actually staged an opt-in -- firing on every submit would
+    // make the denominator meaningless. `created` distinguishes "opted in and it worked"
+    // from the silent-skip paths.
+    if (reference.created || reference.removalToken) {
+      trackPollReferenceOptInSubmitted(response.programId, id, reference.created);
+    }
 
-    return NextResponse.json({ ok: true, status: result.status, submittedAt: result.submittedAt.toISOString() });
+    return NextResponse.json({
+      ok: true,
+      status: result.status,
+      submittedAt: result.submittedAt.toISOString(),
+      // The respondent's own self-removal link, for the thank-you screen. Reaches only
+      // the browser that just submitted -- never a public page, never another visitor.
+      // Null whenever no reference was created (or the row predates the removal-token
+      // migration), and the panel simply renders nothing in that case.
+      referenceRemovalPath: reference.removalToken
+        ? `/references/remove/${reference.removalToken}`
+        : null,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to submit" }, { status: 500 });

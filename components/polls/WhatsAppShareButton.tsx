@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { MessageCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/Button";
 import { buildShareMessage, buildWhatsAppHref } from "@/lib/pollShare";
-import { emitPollShareEvent } from "@/lib/pollClientEvents";
+import { emitPollEvent } from "@/lib/pollClientEvents";
 import { POLL_SHARE_EVENTS } from "@/lib/pollShared";
 import { SITE_URL } from "@/lib/siteUrl";
 
@@ -39,13 +39,13 @@ export default function WhatsAppShareButton({
   useEffect(() => {
     if (shownRef.current || !responseId) return;
     shownRef.current = true;
-    emitPollShareEvent(POLL_SHARE_EVENTS.SHARE_SHOWN, responseId);
+    emitPollEvent(POLL_SHARE_EVENTS.SHARE_SHOWN, responseId);
   }, [responseId]);
 
   function handleClick() {
-    emitPollShareEvent(POLL_SHARE_EVENTS.SHARE_CLICKED, responseId);
+    emitPollEvent(POLL_SHARE_EVENTS.SHARE_CLICKED, responseId);
     // No preventDefault -- the wa.me navigation must never wait on this fetch;
-    // emitPollShareEvent's keepalive:true is what lets the beacon survive it.
+    // emitPollEvent's keepalive:true is what lets the beacon survive it.
   }
 
   return (
