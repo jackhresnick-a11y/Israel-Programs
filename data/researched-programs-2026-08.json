@@ -1,0 +1,53 @@
+{
+  "_note": "August 2026 batch: three new programs from primary-source research, approved via research/findings-2026-08.md. Mahanaim (hesder yeshiva, Gush Etzion), Yeshivat Eshtamoa (agricultural yeshiva, resolves the 'Neta Yadicha' ambiguity as a distinct institution from the already-listed Yeshivat Har Shalom), and Midreshet Lindenbaum -- Hadas (the Israeli track, split out of the existing midreshet-lindenbaum entry which remains the overseas/Hadas-Chu\"l track -- see prisma/apply-program-additions-2026-08.ts for that row's field updates). Hebrew names for all three are applied separately via research/hebrew-names-2026-08.json + import-hebrew-names.ts, since import-researched.ts does not populate nameHe. No known cross-batch duplicates.",
+  "yeshivot": [
+    {
+      "name": "Yeshivat Or Torah Machanaim",
+      "organization": "Ohr Torah Stone",
+      "location": "Migdal Oz, Gush Etzion, Israel",
+      "description": "A hesder yeshiva at Migdal Oz in Gush Etzion, part of the Ohr Torah Stone network, built around the motto \"Torah, World, Tikkun\" (תורה, עולם, תיקון) -- deep, foundational Torah study aimed at existential relevance to students' lives, alongside a Halacha Kollel, a rabbinical-training kollel for the Diaspora, and a higher beit midrash for Jewish thought.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "",
+      "contactPhone": "02-5880906",
+      "contactWebsite": "https://www.machanaim.org.il/",
+      "contactEmail": "machanaim@ots.org.il",
+      "tags": ["hesder", "yeshiva", "Gap year (post-high school)", "Boys only", "High integration", "Religious Zionism/Modern Orthodox", "Spiritual growth", "Pre-military", "Israeli yeshiva"],
+      "adminNote": "Researched Aug 2026 -- see research/findings-2026-08.md. contactEmail (machanaim@ots.org.il) uses the shared @ots.org.il domain (Ohr Torah Stone network) -- possibly an Organization-model candidate rather than a program-owned address; flagged for an admin decision, not acted on here. Duration, cost, and a signup URL were not found on the yeshiva's own site as of this research pass."
+    },
+    {
+      "name": "Yeshivat Eshtamoa",
+      "organization": "",
+      "location": "Mitzpe Eshtamoa, southern Mount Hebron, Israel",
+      "description": "An agricultural higher yeshiva and beit midrash (\"ישיבה גבוהה ובית מדרש חקלאי\"), led by Rabbi Betzalel HaGer, combining advanced Torah study with agricultural work on the southern Mount Hebron ridge.",
+      "durationType": "MULTI_YEAR",
+      "durationText": "",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "",
+      "contactPhone": "055-994-3776",
+      "contactWebsite": "https://n-yeminecha.org/",
+      "contactEmail": "harshalom1@gmail.com",
+      "tags": ["yeshiva", "Boys only"],
+      "adminNote": "Researched Aug 2026 -- resolves the 'Neta Yadicha/Eshtamoa' ambiguity from this batch's research as a real, DISTINCT institution from the already-listed Yeshivat Har Shalom (different name, different rosh yeshiva -- Rabbi Betzalel HaGer here vs. Rabbi Itzik Idles/Amti there -- and different institutional character: agricultural yeshiva gevoha here vs. hesder there). See research/findings-2026-08.md for the full resolution. Age-range and religious-affiliation tags deliberately left unassigned -- the source doesn't state whether this serves gap-year-age students or an older/mixed population typical of some agricultural yeshivot gevohot; needs an admin who knows the institution to fill in rather than a guess. durationType is a MULTI_YEAR category default (advanced yeshiva, not a fixed gap-year track), also worth an admin's confirmation. Newest dated site content is Dec 2024 (~20 months old at import time) -- under the 2-year staleness bar but the most dated source in this batch, worth a periodic recheck. contactPhone/contactEmail are the yeshiva's general office line, not a personal number -- retained from the campus's prior occupant per the office's own listing."
+    },
+    {
+      "name": "Midreshet Lindenbaum — Hadas",
+      "organization": "Midreshet Lindenbaum (OU Israel / Ohr Torah Stone network)",
+      "location": "Leib Yaffe 51, Jerusalem",
+      "description": "The flagship program of Midreshet Lindenbaum for Israeli high-school graduates, integrating a year of deep Torah study (Tanach, Talmud, Halacha, and Jewish thought) with three years of IDF service in the Education Corps, Intelligence Corps, or Air Force. Includes biweekly in-person support sessions at military bases during service and Jerusalem-area housing for participants stationed nearby.",
+      "durationType": "GAP_YEAR",
+      "durationText": "1 year at the midrasha (Elul–Tammuz), followed by 3 years of IDF service",
+      "cost": "",
+      "signupInstructions": "",
+      "signupUrl": "https://lindenbaum.ots.org.il/hadas",
+      "contactPhone": "02-6710043",
+      "contactWebsite": "https://www.lind.org.il/תכנית-הדס/",
+      "contactEmail": "mlisrael@ots.org.il",
+      "tags": ["Girls only", "jerusalem", "Gap year (post-high school)", "High integration", "Religious Zionism/Modern Orthodox", "Spiritual growth", "Pre-military"],
+      "adminNote": "Split from the combined midreshet-lindenbaum entry in Aug 2026 -- this is the Israeli track (full 3-year IDF integration); see that program's own adminNote for the overseas/Hadas Chu\"l counterpart it was split from, and research/findings-2026-08.md for the full sourcing that established these are two genuinely distinct tracks sharing the 'Hadas' name."
+    }
+  ]
+}

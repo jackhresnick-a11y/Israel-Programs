@@ -1,0 +1,23 @@
+[
+  {
+    "id": "cmszi58qd0000admzywoxuft3",
+    "name": "Yeshivat Or Torah Machanaim",
+    "nameHe": "ישיבת אור תורה מחנים",
+    "sourceUrl": "https://www.machanaim.org.il/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmszi5ao50002admzhfa6rn2i",
+    "name": "Yeshivat Eshtamoa",
+    "nameHe": "ישיבת אשתמוע – ישיבה חקלאית",
+    "sourceUrl": "https://n-yeminecha.org/",
+    "confidence": "CONFIRMED"
+  },
+  {
+    "id": "cmszi5c010004admz7d5kmv8h",
+    "name": "Midreshet Lindenbaum — Hadas",
+    "nameHe": "תכנית הדס ע\"ש משפחת פאווה",
+    "sourceUrl": "https://www.lind.org.il/תכנית-הדס/",
+    "confidence": "CONFIRMED"
+  }
+]

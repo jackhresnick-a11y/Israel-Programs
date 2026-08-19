@@ -1,0 +1,48 @@
+[
+  {
+    "slug": "yeshivat-shavy-hebron",
+    "priorValues": {
+      "contactWebsite": "",
+      "contactPhone": "",
+      "adminNote": null
+    },
+    "proposedValues": {
+      "contactWebsite": "https://shaveihevron.org/",
+      "contactPhone": "02-996-3777",
+      "adminNote": "General office email found during Aug 2026 research: office@shevron.org (not written -- contactEmail is owned exclusively by the contact-verification workflow). See research/findings-2026-08.md."
+    },
+    "foundInDb": true
+  },
+  {
+    "slug": "yeshivat-har-shalom-mitzpe-ashtamoa",
+    "priorValues": {
+      "nameHe": null
+    },
+    "proposedValues": {
+      "nameHe": "ישיבת הר שלום"
+    },
+    "foundInDb": true
+  },
+  {
+    "slug": "mechinat-shuvu-achim",
+    "priorValues": {
+      "contactPhone": null
+    },
+    "proposedValues": {
+      "contactPhone": "08-9170727"
+    },
+    "foundInDb": true
+  },
+  {
+    "slug": "midreshet-lindenbaum",
+    "priorValues": {
+      "durationText": "1 year (options for 6-month or 2.5-month tracks)",
+      "adminNote": null
+    },
+    "proposedValues": {
+      "durationText": "6 months (Midrashit, Aug–Nov), 11 months (Hadas Chu\"l), or 18 months (Machal option)",
+      "adminNote": "Split from a single combined entry in Aug 2026 -- this row is specifically the Hadas Chu\"l / overseas track (applytosem.org signup); see the separate \"Midreshet Lindenbaum — Hadas\" entry for the Israeli program. Coordinator: Ariel Hurwich Braun, ariel@ots.org.il, +972-54-5814783 (not written to contactEmail). See research/findings-2026-08.md."
+    },
+    "foundInDb": true
+  }
+]
