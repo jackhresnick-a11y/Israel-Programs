@@ -1,7 +1,12 @@
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getQuestionsForProgram } from "@/lib/pollConfig";
-import { flattenResolvedQuestionIds, POLL_SHARE_EVENTS, type PollShareEventType } from "@/lib/pollShared";
+import {
+  flattenResolvedQuestionIds,
+  POLL_SHARE_EVENTS,
+  POLL_REFERENCE_OPTIN_EVENTS,
+  type PollClientEventType,
+} from "@/lib/pollShared";
 import type { Prisma } from "@/app/generated/prisma/client";
 
 /**
@@ -29,6 +34,14 @@ export const POLL_ANALYTICS_EVENTS = {
   // (app/api/polls/events/route.ts) instead of directly from a server action like the
   // rest of this registry.
   ...POLL_SHARE_EVENTS,
+  // Same arrangement as POLL_SHARE_EVENTS: defined in the client-safe boundary
+  // (lib/pollShared.ts) so there is one source of type strings. Listed key by key rather
+  // than spread, because POLL_REFERENCE_OPTIN_EVENTS has its own `SUBMITTED` key and a
+  // spread would silently overwrite `SUBMITTED: "poll_submitted"` above -- turning every
+  // trackPollSubmitted call into a reference_optin_submitted row.
+  REFERENCE_OPTIN_VIEWED: POLL_REFERENCE_OPTIN_EVENTS.VIEWED,
+  REFERENCE_OPTIN_FOCUSED: POLL_REFERENCE_OPTIN_EVENTS.FOCUSED,
+  REFERENCE_OPTIN_SUBMITTED: POLL_REFERENCE_OPTIN_EVENTS.SUBMITTED,
 } as const;
 
 export type PollAnalyticsEventType = (typeof POLL_ANALYTICS_EVENTS)[keyof typeof POLL_ANALYTICS_EVENTS];
@@ -108,8 +121,27 @@ export function trackPollSubmitted(programId: string, responseId: string, status
  * app/api/polls/events/route.ts after it resolves programId from the given responseId
  * server-side. Reuses record() -- same after() + swallow-everything posture as every
  * other event here, no new writer. */
-export function trackPollShare(type: PollShareEventType, programId: string, responseId: string): void {
+export function trackPollShare(type: PollClientEventType, programId: string, responseId: string): void {
   record(type, { programId, responseId });
+}
+
+/**
+ * The reference opt-in's terminal funnel event, emitted from the submit route rather than
+ * the client. `created` is the whole point of putting it here: the client knows only that
+ * an email was typed, while the server knows whether that actually became a Reference --
+ * which is false whenever the address didn't parse, the 18+ box wasn't ticked, or the
+ * response was VOIDED. The gap between reference_optin_focused and a `created: true`
+ * submitted event is exactly the "tried to help and silently failed" cohort, which is
+ * otherwise invisible (upsertReferenceFromPoll skips silently by design).
+ *
+ * No email, no IP, no Clerk id -- same payload discipline as every other event here.
+ */
+export function trackPollReferenceOptInSubmitted(
+  programId: string,
+  responseId: string,
+  created: boolean
+): void {
+  record(POLL_ANALYTICS_EVENTS.REFERENCE_OPTIN_SUBMITTED, { programId, responseId, created });
 }
 
 export function trackPollFullyCompletedIfNew(programId: string, responseId: string): void {

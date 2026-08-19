@@ -669,6 +669,21 @@ model Reference {
   consentLabel         String?
   consentVersion       String?
   pollEmailKey         String?
+  /// Unguessable per-reference self-removal capability, minted on every create path
+  /// (createReference and upsertReferenceFromPoll). Never rotated on a poll re-submit
+  /// (the upsert's update branch is a deliberate no-op). Null for references that
+  /// predate this column -- they simply have no self-removal link.
+  removalToken         String?          @unique
+  /// Set by removeReferenceByToken when a reference-giver removes themselves. The row
+  /// is moved to ARCHIVED, not REJECTED: REJECTED means "a moderator turned this down",
+  /// and conflating the two would lose why a reference left the public list. ARCHIVED is
+  /// already in ProgramStatus with exactly these semantics (hidden by the same
+  /// `status !== PUBLISHED` checks that gate REJECTED, row preserved), which is what lets
+  /// every existing read path -- listPublishedReferences, countPublishedReferences,
+  /// getReferenceListVisibility, the _count.references card counts in lib/programs.ts and
+  /// lib/recentlyAdded.ts, and the PUBLISHED guard on the contact-request route -- exclude
+  /// a removed reference with no query change at all. Retain-never-delete: the row survives.
+  removedAt            DateTime?
   createdAt            DateTime         @default(now())
   contactRequests      ContactRequest[]
 

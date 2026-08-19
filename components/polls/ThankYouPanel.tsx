@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ProgramProgressLine from "@/components/polls/ProgramProgressLine";
 import WhatsAppShareButton from "@/components/polls/WhatsAppShareButton";
 import PartnerCta from "@/components/PartnerCta";
@@ -26,6 +27,7 @@ export default function ThankYouPanel({
   incomplete,
   headline,
   postPollCta,
+  referenceRemovalPath,
   onKeepAnswering,
 }: {
   /** Carried onto the wrapper as data-poll-mode, same attribute the pre-refactor inline
@@ -46,6 +48,11 @@ export default function ThankYouPanel({
   incomplete: boolean;
   headline: string;
   postPollCta: PartnerLinkSlot | null;
+  /** This respondent's own self-removal link, returned by the submit route when their
+   *  opt-in produced a Reference. Null whenever it didn't -- and also on the anonymous
+   *  reload path, which re-enters this panel through /open and has no token to hand back.
+   *  Never rendered to anyone but the browser that just submitted. */
+  referenceRemovalPath?: string | null;
   /** Returns to the form with every saved answer intact. Submitting is never a one-way
    *  door: re-submitting is idempotent server-side, so there is no reason to strand
    *  someone here -- least of all the uncounted respondent, who is exactly the person who
@@ -94,6 +101,19 @@ export default function ThankYouPanel({
         >
           Keep answering
         </Button>
+      )}
+
+      {/* Shown only to someone who just opted in. The poll promises "you can remove
+          yourself at any time", so the first opportunity to act on that is here, before
+          they leave the page -- there is no email delivery for this link yet. */}
+      {referenceRemovalPath && (
+        <p className="text-sm text-muted">
+          You&rsquo;re now listed as a reference for this program.{" "}
+          <Link href={referenceRemovalPath} className="text-accent-hover underline">
+            Remove yourself
+          </Link>{" "}
+          any time — the link keeps working, so it&rsquo;s worth saving.
+        </p>
       )}
 
       <PartnerCta slot={postPollCta} />

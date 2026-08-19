@@ -15,6 +15,44 @@ export const referenceInputSchema = z.object({
 
 export type ReferenceInput = z.infer<typeof referenceInputSchema>;
 
+/** 192 bits, URL-safe -- same generation as this file's generateContactRequestToken,
+ * lib/pollTokens.ts's ReferrerToken, and lib/folders.ts's Folder.shareToken. Never
+ * derived from the reference's id, program, or email: the whole point is that holding
+ * the link proves nothing except that we gave it to you. */
+function generateRemovalToken(): string {
+  return randomBytes(24).toString("base64url");
+}
+
+/**
+ * Runs a query that touches a column added by the pending removal-token migration, and
+ * returns `empty` instead of throwing when that column isn't in the database yet. Used on
+ * the removal updateMany as well as the reads, so a pre-migration removal attempt reports
+ * "link not found" rather than 500ing at someone trying to unlist themselves.
+ *
+ * This exists because of the exact trap CLAUDE.md documents at length: a preview or
+ * production deployment carrying code that selects a not-yet-migrated column 500s with
+ * Prisma P2022 / Postgres 42703, and the reads wrapped here sit on pages (the admin
+ * queue, the public removal link) where a 500 is much worse than an empty result.
+ * Migration ordering is still code-last -- this is the safety net, not the plan.
+ *
+ * Deliberately narrow: it only swallows the missing-column error. Any other failure
+ * propagates, because "the database is down" must not silently render as "you have no
+ * pending references."
+ */
+async function emptyIfColumnMissing<T>(run: () => Promise<T>, empty: T): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    const message = err instanceof Error ? err.message : String(err);
+    if (code === "P2022" || message.includes("42703")) {
+      console.error("[references] removal-token migration not applied yet; degrading to empty", message);
+      return empty;
+    }
+    throw err;
+  }
+}
+
 export async function createReference(
   programId: string,
   input: ReferenceInput,
@@ -37,6 +75,7 @@ export async function createReference(
       status: "PENDING",
       consentGiven: true,
       consentAt: new Date(),
+      removalToken: generateRemovalToken(),
     },
   });
 }
@@ -99,9 +138,9 @@ export async function upsertReferenceFromPoll(input: {
   email: string;
   ageAttested: boolean;
   yearAttended: number | null;
-}): Promise<void> {
-  if (!input.ageAttested) return;
-  if (!isValidReferenceEmail(input.email)) return;
+}): Promise<{ removalToken: string | null } | null> {
+  if (!input.ageAttested) return null;
+  if (!isValidReferenceEmail(input.email)) return null;
 
   const email = input.email.trim();
   const pollEmailKey = email.toLowerCase();
@@ -121,15 +160,75 @@ export async function upsertReferenceFromPoll(input: {
     consentAt: now,
     consentLabel: POLL_REFERENCE_CONSENT_LABEL,
     consentVersion: POLL_REFERENCE_CONSENT_VERSION,
+    removalToken: generateRemovalToken(),
   };
 
-  await prisma.reference.upsert({
+  // `update: {}` stays a deliberate no-op -- a re-submit must never disturb the original
+  // consent record, and that now covers the removal token too: rotating it on re-submit
+  // would silently break a link the respondent may already have saved. The select is what
+  // lets the caller hand the token to the browser that just submitted; on a re-submit it
+  // returns the token minted the first time (or null for a row predating this column).
+  const reference = await prisma.reference.upsert({
     where: input.userId
       ? { programId_userId: { programId: input.programId, userId: input.userId } }
       : { programId_pollEmailKey: { programId: input.programId, pollEmailKey } },
     create,
     update: {},
+    select: { removalToken: true },
   });
+
+  return { removalToken: reference.removalToken };
+}
+
+/**
+ * Resolves a self-removal link. Selects only what the confirmation page renders -- no
+ * email, no displayName, nothing that would put a reference-giver's details into a page
+ * anyone holding a guessed URL could load. Returns null for an unknown token, which the
+ * page renders as "link not found" (the same shape as the contact-request token pages).
+ */
+export async function getReferenceByRemovalToken(token: string) {
+  return emptyIfColumnMissing(
+    () =>
+      prisma.reference.findUnique({
+        where: { removalToken: token },
+        select: { id: true, removedAt: true, program: { select: { name: true } } },
+      }),
+    null
+  );
+}
+
+/**
+ * The reference-giver's own way out: moves the row to ARCHIVED and stamps `removedAt`.
+ *
+ * ARCHIVED rather than REJECTED because REJECTED means "a moderator turned this down" --
+ * see the schema comment on `removedAt`. Because ARCHIVED is simply not PUBLISHED, every
+ * existing read path drops the row with no query change: the public list and count, the
+ * visibility gate, all three _count.references card counts, and the PUBLISHED guard that
+ * stops any further ContactRequest being created against it.
+ *
+ * Idempotent, and safe against a link shared or prefetched twice: the `removedAt: null`
+ * in the where-clause means a second call matches nothing and reports `alreadyRemoved`
+ * rather than re-stamping or erroring. Retain-never-delete -- the row itself survives, so
+ * an admin can still see that this reference existed and that its owner removed it.
+ */
+export async function removeReferenceByToken(
+  token: string
+): Promise<{ ok: boolean; alreadyRemoved: boolean }> {
+  const result = await emptyIfColumnMissing(
+    () =>
+      prisma.reference.updateMany({
+        where: { removalToken: token, removedAt: null },
+        data: { status: "ARCHIVED", removedAt: new Date() },
+      }),
+    { count: 0 }
+  );
+  if (result.count > 0) return { ok: true, alreadyRemoved: false };
+
+  // Nothing matched: either the token is unknown, or it was already used. Distinguish the
+  // two so the page can say "already removed" instead of "link not found" -- being told
+  // your removal link is invalid, when it worked, is the one message guaranteed to alarm.
+  const existing = await getReferenceByRemovalToken(token);
+  return { ok: Boolean(existing), alreadyRemoved: Boolean(existing) };
 }
 
 /**
@@ -152,12 +251,20 @@ export async function countPublishedReferences(programId: string): Promise<numbe
   return prisma.reference.count({ where: { programId, status: "PUBLISHED" } });
 }
 
+/** Wrapped because `include` selects every scalar on Reference, including the columns the
+ * removal-token migration adds -- so this is one of the reads that would P2022 if code
+ * landed first. It backs the /admin queue, where an empty list is recoverable and a 500
+ * is not. */
 export async function listPendingReferences() {
-  return prisma.reference.findMany({
-    where: { status: "PENDING" },
-    include: { program: { select: { name: true, slug: true } } },
-    orderBy: { createdAt: "asc" },
-  });
+  return emptyIfColumnMissing(
+    () =>
+      prisma.reference.findMany({
+        where: { status: "PENDING" },
+        include: { program: { select: { name: true, slug: true } } },
+        orderBy: { createdAt: "asc" },
+      }),
+    []
+  );
 }
 
 /**
@@ -182,13 +289,18 @@ export async function countRecentPendingReferences(sinceDays = 7): Promise<numbe
  * a client component wholesale.
  */
 export async function listAllReferencesForAdmin() {
-  const references = await prisma.reference.findMany({
-    include: {
-      program: { select: { name: true, slug: true } },
-      _count: { select: { contactRequests: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  // Same `include`-selects-every-scalar reasoning as listPendingReferences above.
+  const references = await emptyIfColumnMissing(
+    () =>
+      prisma.reference.findMany({
+        include: {
+          program: { select: { name: true, slug: true } },
+          _count: { select: { contactRequests: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    []
+  );
   return references.map((r) => ({ ...r, requestCount: r._count.contactRequests }));
 }
 

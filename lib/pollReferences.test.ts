@@ -23,7 +23,7 @@ vi.mock("@/lib/pollConfig", () => ({
 // maybeTransition revalidates the program page on a COUNTED transition (lib/revalidate.ts);
 // unrelated to what these tests exercise, and the fake prisma below has no `program` model.
 vi.mock("@/lib/revalidate", () => ({ revalidateProgram: vi.fn(async () => {}) }));
-const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindManyArgs } =
+const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindManyArgs, findReference } =
   vi.hoisted(() => {
     type ReferenceRow = {
       id: string;
@@ -39,6 +39,8 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       consentVersion: string | null;
       pollResponseId: string | null;
       pollEmailKey: string | null;
+      removalToken: string | null;
+      removedAt: Date | null;
       createdAt: Date;
     };
     type PollResponseRow = {
@@ -83,6 +85,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
             };
             create: Record<string, unknown>;
             update?: Record<string, unknown>;
+            select?: Record<string, boolean>;
           }) => {
           if (db.upsertError) throw db.upsertError;
           // Two uniques, matching lib/references.ts: signed-in poll references key on the
@@ -95,9 +98,17 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
                   r.programId === args.where.programId_pollEmailKey!.programId &&
                   r.pollEmailKey === args.where.programId_pollEmailKey!.pollEmailKey
               );
+          const project = (row: ReferenceRow) => {
+            if (!args.select) return row;
+            return Object.fromEntries(
+              Object.keys(args.select)
+                .filter((k) => args.select![k])
+                .map((k) => [k, (row as Record<string, unknown>)[k]])
+            );
+          };
           if (existing) {
             Object.assign(existing, args.update ?? {});
-            return existing;
+            return project(existing);
           }
           const row = {
             id: nextId("ref"),
@@ -106,12 +117,52 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
             consentVersion: null,
             pollResponseId: null,
             pollEmailKey: null,
+            removalToken: null,
+            removedAt: null,
             createdAt: new Date(),
             ...(args.create as Partial<ReferenceRow>),
           } as ReferenceRow;
           db.references.push(row);
-          return row;
+          return project(row);
         }),
+        findUnique: vi.fn(
+          async (args: {
+            where: { removalToken?: string; id?: string };
+            select?: Record<string, unknown>;
+          }) => {
+            const row = db.references.find(
+              (r) =>
+                (args.where.removalToken === undefined || r.removalToken === args.where.removalToken) &&
+                (args.where.id === undefined || r.id === args.where.id)
+            );
+            if (!row) return null;
+            if (!args.select) return row;
+            // Only the nested shape lib/references.ts actually asks for: program.name.
+            return Object.fromEntries(
+              Object.entries(args.select)
+                .filter(([, v]) => v)
+                .map(([k]) =>
+                  k === "program"
+                    ? [k, { name: `Program ${row.programId}` }]
+                    : [k, (row as Record<string, unknown>)[k]]
+                )
+            );
+          }
+        ),
+        updateMany: vi.fn(
+          async (args: {
+            where: { removalToken?: string; removedAt?: Date | null };
+            data: Record<string, unknown>;
+          }) => {
+            const rows = db.references.filter(
+              (r) =>
+                (args.where.removalToken === undefined || r.removalToken === args.where.removalToken) &&
+                (args.where.removedAt === undefined || r.removedAt === args.where.removedAt)
+            );
+            for (const row of rows) Object.assign(row, args.data);
+            return { count: rows.length };
+          }
+        ),
         count: vi.fn(
           async (args: { where?: { status?: string; createdAt?: { gte?: Date } } }) => {
             const where = args?.where ?? {};
@@ -257,6 +308,8 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
       seedReference(row: Partial<ReferenceRow> & { programId: string; pollEmailKey: string }) {
         const full: ReferenceRow = {
           id: nextId("ref"),
+          removalToken: null,
+          removedAt: null,
           userId: `poll:${nextId("resp")}`,
           displayName: "Past participant",
           contactEmail: row.contactEmail ?? row.pollEmailKey,
@@ -277,6 +330,7 @@ const { fakePrisma, resetDb, snapshot, seedReference, setUpsertError, getFindMan
         db.upsertError = err;
       },
       getFindManyArgs: () => db.lastReferenceFindManyArgs,
+      findReference: (predicate: (row: ReferenceRow) => boolean) => db.references.find(predicate) ?? null,
     };
   });
 
@@ -286,7 +340,10 @@ const {
   upsertReferenceFromPoll,
   isValidReferenceEmail,
   listPublishedReferences,
+  countPublishedReferences,
   countRecentPendingReferences,
+  getReferenceByRemovalToken,
+  removeReferenceByToken,
   POLL_REFERENCE_DISPLAY_NAME,
 } = await import("./references");
 const { openAnonymousResponse, saveAnswer, addDetailAnswersAndReviews, markSubmitted, finalizeReferenceFromPoll } =
@@ -689,5 +746,152 @@ describe("privacy: no contact email / real name in the public payload", () => {
       expect(r).not.toHaveProperty("pollEmailKey");
       expect(r.displayName).toBe("Past participant");
     }
+  });
+});
+
+/**
+ * Self-removal. The poll now prints "you can remove yourself at any time" directly above
+ * the email field, so these are the tests that keep that sentence from becoming a lie.
+ *
+ * The removal state is ARCHIVED rather than a dedicated boolean, and that choice is what
+ * the "disappears from the public list" case below is really asserting: because ARCHIVED
+ * is simply not PUBLISHED, every pre-existing read path drops the row with no query change
+ * -- the public list and count here, and by the same `status: "PUBLISHED"` filter the
+ * visibility gate, the three _count.references card counts, and the guard that stops any
+ * further ContactRequest being created against it.
+ */
+describe("reference self-removal", () => {
+  beforeEach(() => resetDb());
+
+  it("mints an unguessable removal token on a poll-created reference", async () => {
+    const result = await upsertReferenceFromPoll({
+      programId: "prog_1",
+      pollResponseId: "resp_1",
+      email: "alum@example.com",
+      ageAttested: true,
+      yearAttended: 2021,
+    });
+
+    expect(result?.removalToken).toBeTruthy();
+    // 24 random bytes, base64url -- long enough that guessing is not a threat model.
+    expect(result!.removalToken!.length).toBeGreaterThanOrEqual(32);
+    expect(findReference((r) => r.pollEmailKey === "alum@example.com")?.removalToken).toBe(
+      result!.removalToken
+    );
+  });
+
+  it("never rotates the token on a re-submit", async () => {
+    const first = await upsertReferenceFromPoll({
+      programId: "prog_1",
+      pollResponseId: "resp_1",
+      email: "alum@example.com",
+      ageAttested: true,
+      yearAttended: 2021,
+    });
+    const second = await upsertReferenceFromPoll({
+      programId: "prog_1",
+      pollResponseId: "resp_1",
+      email: "alum@example.com",
+      ageAttested: true,
+      yearAttended: 2021,
+    });
+
+    // The upsert's `update: {}` no-op has to cover the token too: a respondent who saved
+    // their link and then re-submitted must not find it silently dead.
+    expect(second?.removalToken).toBe(first?.removalToken);
+    expect(snapshot().references.length).toBe(1);
+  });
+
+  it("returns null (no token, no row) when the gate rejects the opt-in", async () => {
+    expect(
+      await upsertReferenceFromPoll({
+        programId: "prog_1",
+        pollResponseId: "resp_1",
+        email: "not-an-email",
+        ageAttested: true,
+        yearAttended: null,
+      })
+    ).toBeNull();
+    expect(
+      await upsertReferenceFromPoll({
+        programId: "prog_1",
+        pollResponseId: "resp_2",
+        email: "alum@example.com",
+        ageAttested: false,
+        yearAttended: null,
+      })
+    ).toBeNull();
+  });
+
+  it("archives the row and stamps removedAt", async () => {
+    seedReference({ programId: "prog_1", pollEmailKey: "alum@example.com", status: "PUBLISHED" });
+    const row = findReference((r) => r.pollEmailKey === "alum@example.com")!;
+    row.removalToken = "tok_live";
+
+    expect(await removeReferenceByToken("tok_live")).toEqual({ ok: true, alreadyRemoved: false });
+
+    const after = findReference((r) => r.pollEmailKey === "alum@example.com")!;
+    expect(after.status).toBe("ARCHIVED");
+    expect(after.removedAt).toBeInstanceOf(Date);
+    // Retain-never-delete: the row survives so an admin can still see it existed.
+    expect(snapshot().references.length).toBe(1);
+  });
+
+  it("is idempotent — a second use reports alreadyRemoved rather than re-stamping", async () => {
+    seedReference({ programId: "prog_1", pollEmailKey: "alum@example.com", status: "PUBLISHED" });
+    findReference((r) => r.pollEmailKey === "alum@example.com")!.removalToken = "tok_live";
+
+    await removeReferenceByToken("tok_live");
+    const firstStamp = findReference((r) => r.pollEmailKey === "alum@example.com")!.removedAt;
+
+    expect(await removeReferenceByToken("tok_live")).toEqual({ ok: true, alreadyRemoved: true });
+    expect(findReference((r) => r.pollEmailKey === "alum@example.com")!.removedAt).toBe(firstStamp);
+  });
+
+  it("reports not-found for an unknown token, distinct from already-removed", async () => {
+    expect(await removeReferenceByToken("tok_nope")).toEqual({ ok: false, alreadyRemoved: false });
+    expect(await getReferenceByRemovalToken("tok_nope")).toBeNull();
+  });
+
+  it("drops a removed reference out of the public list and count with no query change", async () => {
+    seedReference({ programId: "prog_1", pollEmailKey: "a@example.com", status: "PUBLISHED" });
+    seedReference({ programId: "prog_1", pollEmailKey: "b@example.com", status: "PUBLISHED" });
+    findReference((r) => r.pollEmailKey === "b@example.com")!.removalToken = "tok_live";
+
+    expect(await countPublishedReferences("prog_1")).toBe(2);
+    await removeReferenceByToken("tok_live");
+
+    expect(await countPublishedReferences("prog_1")).toBe(1);
+    const rows = (await listPublishedReferences("prog_1")) as Record<string, unknown>[];
+    expect(rows).toHaveLength(1);
+    // The filter is still the plain status one -- no removedAt clause was added anywhere.
+    expect((getFindManyArgs() as { where: Record<string, unknown> }).where).toEqual({
+      programId: "prog_1",
+      status: "PUBLISHED",
+    });
+  });
+
+  it("resolves a live token to only the fields the confirmation page renders", async () => {
+    seedReference({ programId: "prog_1", pollEmailKey: "alum@example.com", status: "PUBLISHED" });
+    findReference((r) => r.pollEmailKey === "alum@example.com")!.removalToken = "tok_live";
+
+    const found = (await getReferenceByRemovalToken("tok_live")) as Record<string, unknown>;
+    expect(found).toBeTruthy();
+    // Anyone holding the URL loads this page, so it must carry nothing about the person.
+    expect(found).not.toHaveProperty("contactEmail");
+    expect(found).not.toHaveProperty("pollEmailKey");
+    expect(found).not.toHaveProperty("displayName");
+    expect(found).not.toHaveProperty("userId");
+    expect(Object.keys(found).sort()).toEqual(["id", "program", "removedAt"]);
+  });
+
+  it("never puts the removal token into the public payload", async () => {
+    seedReference({ programId: "prog_1", pollEmailKey: "alum@example.com", status: "PUBLISHED" });
+    findReference((r) => r.pollEmailKey === "alum@example.com")!.removalToken = "tok_live";
+
+    const rows = (await listPublishedReferences("prog_1")) as Record<string, unknown>[];
+    for (const r of rows) expect(r).not.toHaveProperty("removalToken");
+    const select = (getFindManyArgs() as { select: Record<string, boolean> }).select;
+    expect(select).not.toHaveProperty("removalToken");
   });
 });

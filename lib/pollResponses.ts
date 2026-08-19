@@ -367,7 +367,9 @@ export async function markSubmitted(responseId: string): Promise<{ status: PollR
  * Idempotent by DB constraint, so re-submitting can't produce a duplicate. Wrapped so a
  * failure can never fail the submit -- the submission itself is already persisted.
  */
-export async function finalizeReferenceFromPoll(responseId: string): Promise<void> {
+export async function finalizeReferenceFromPoll(
+  responseId: string
+): Promise<{ created: boolean; removalToken: string | null }> {
   const response = await prisma.pollResponse.findUnique({
     where: { id: responseId },
     select: {
@@ -379,10 +381,12 @@ export async function finalizeReferenceFromPoll(responseId: string): Promise<voi
       yearAttended: true,
     },
   });
-  if (!response || response.status === "VOIDED" || !response.referenceEmail) return;
+  if (!response || response.status === "VOIDED" || !response.referenceEmail) {
+    return { created: false, removalToken: null };
+  }
 
   try {
-    await upsertReferenceFromPoll({
+    const result = await upsertReferenceFromPoll({
       programId: response.programId,
       pollResponseId: responseId,
       userId: response.userId,
@@ -390,8 +394,14 @@ export async function finalizeReferenceFromPoll(responseId: string): Promise<voi
       ageAttested: response.ageAttested,
       yearAttended: response.yearAttended,
     });
+    // null means the upsert declined the row (18+ not attested, or the address didn't
+    // parse) -- still not an error, still silent to the respondent, exactly as before.
+    // The return value only ever travels to the browser that just submitted, so it can
+    // hand that one person their own removal link; it is never rendered to anyone else.
+    return { created: result !== null, removalToken: result?.removalToken ?? null };
   } catch (err) {
     console.error("upsertReferenceFromPoll failed for poll response", responseId, err);
+    return { created: false, removalToken: null };
   }
 }
 

@@ -8,7 +8,18 @@ import QuestionWithReview from "@/components/polls/QuestionWithReview";
 import ElaborationBlock from "@/components/polls/ElaborationBlock";
 import ThankYouPanel from "@/components/polls/ThankYouPanel";
 import Button from "@/components/ui/Button";
-import { pollDraftKey, yearAttendedOptions, POLL_REFERENCE_CONSENT_LABEL, type PollQuestionDTO, type PollBucketDTO } from "@/lib/pollShared";
+import {
+  pollDraftKey,
+  yearAttendedOptions,
+  POLL_REFERENCE_CONSENT_LABEL,
+  POLL_REFERENCE_SECTION_TITLE,
+  POLL_REFERENCE_SECTION_BODY,
+  POLL_REFERENCE_SECTION_ASSURANCE,
+  POLL_REFERENCE_OPTIN_EVENTS,
+  type PollQuestionDTO,
+  type PollBucketDTO,
+} from "@/lib/pollShared";
+import { emitPollEvent } from "@/lib/pollClientEvents";
 import type { PartnerLinkSlot } from "@/lib/partnerLinksConfig";
 import type { ElaborationPrompt } from "@/lib/pollElaborationPromptsConfig";
 
@@ -352,41 +363,105 @@ function submitFailedMessage(status?: number): string {
 }
 
 /**
- * The anonymous form's single contact-email opt-in. Entering an email under
- * POLL_REFERENCE_CONSENT_LABEL IS the consent to be listed as a reference -- there is NO
- * separate contact-consent checkbox. The 18+ self-attestation gates the field (disabled
- * until checked); both autosave (debounced) as typed, never blocking anything. Server-
- * side, a PENDING reference is created only once this response transitions to COUNTED
- * with 18+ attested and a valid email (lib/references.ts's upsertReferenceFromPoll).
+ * The reference opt-in, rendered as a section of its own rather than one more field in the
+ * stack. Entering an email under POLL_REFERENCE_CONSENT_LABEL IS the consent to be listed
+ * as a reference -- there is NO separate contact-consent checkbox. The 18+
+ * self-attestation gates the field (disabled until checked); both autosave (debounced) as
+ * typed, and neither ever blocks or gates submission. Server-side, a PENDING reference is
+ * created at submit from the staged email (lib/pollResponses.ts's
+ * finalizeReferenceFromPoll -> lib/references.ts's upsertReferenceFromPoll).
+ *
+ * Why a section and not a field: this is the only surface that produces alumni references
+ * at any volume, and as an unlabelled bordered box holding a checkbox and an input it read
+ * as boilerplate to scroll past. The header follows the style guide's entry-header shape
+ * (§5: serif title, muted supporting line beneath, rule below, accent never beside the
+ * heading) -- but with a 1px stone rule, NOT a second 2px brass hairline. §5.3 makes the
+ * page's one brass hairline "the only place brass appears above the fold" and §1.7 caps
+ * brass at ~5% of a screen; §4 gives sections a 1px stone rule. ProgressIndicator above
+ * already declines brass for exactly this reason.
+ *
+ * Every claim in the assurance line is enforced somewhere real -- see
+ * POLL_REFERENCE_SECTION_ASSURANCE's own comment, which names the enforcement for each and
+ * says not to keep the removal claim if the removal route ever goes away.
+ *
+ * The two beacons are the only client-emitted events here. `viewed` fires when the section
+ * has actually been scrolled to (an IntersectionObserver, not a mount effect -- the block
+ * is far down a long form and "rendered" is not "seen"), `focused` on the first focus of
+ * the email input. Both are useRef-guarded to once per mount, the same guard
+ * WhatsAppShareButton uses to survive router.refresh() and StrictMode's dev double-invoke,
+ * and both are fire-and-forget: a blocked or failed beacon must never affect the form.
  */
 function ReferenceOptInBlock({
+  responseId,
   email,
   onEmailChange,
   ageAttested,
   onAgeAttestedChange,
 }: {
+  /** Null until poll-open resolves. emitPollEvent no-ops on null, so the beacons simply
+   *  don't fire for a respondent who reaches this block before that lands. */
+  responseId: string | null;
   email: string;
   onEmailChange: (email: string) => void;
   ageAttested: boolean;
   onAgeAttestedChange: (ageAttested: boolean) => void;
 }) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const viewedRef = useRef(false);
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || viewedRef.current || !responseId) return;
+    if (typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        if (viewedRef.current) return;
+        viewedRef.current = true;
+        emitPollEvent(POLL_REFERENCE_OPTIN_EVENTS.VIEWED, responseId);
+        observer.disconnect();
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [responseId]);
+
+  function handleEmailFocus() {
+    if (focusedRef.current) return;
+    focusedRef.current = true;
+    emitPollEvent(POLL_REFERENCE_OPTIN_EVENTS.FOCUSED, responseId);
+  }
+
   return (
-    <div className="flex flex-col gap-2 rounded border border-border p-3">
+    <section ref={sectionRef} data-poll-reference-optin className="flex flex-col gap-4 border-t border-border pt-8">
+      <div className="flex flex-col">
+        <h2 className="font-serif text-h2 font-semibold tracking-tight text-foreground">
+          {POLL_REFERENCE_SECTION_TITLE}
+        </h2>
+        <p className="mt-2 text-sm text-foreground/80">{POLL_REFERENCE_SECTION_BODY}</p>
+        <p className="mt-2 text-sm text-muted">{POLL_REFERENCE_SECTION_ASSURANCE}</p>
+        <div className="mt-4 h-px bg-border" />
+      </div>
       <label className="flex items-start gap-2 text-sm text-foreground">
         <input type="checkbox" checked={ageAttested} onChange={(e) => onAgeAttestedChange(e.target.checked)} className="mt-1 accent-accent" />
         <span>I&rsquo;m 18 or older.</span>
       </label>
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-2">
         <span className="text-sm text-foreground">{POLL_REFERENCE_CONSENT_LABEL}</span>
         <Input
           type="email"
+          data-poll-reference-email
           placeholder="you@example.com"
           value={email}
+          onFocus={handleEmailFocus}
           onChange={(e) => onEmailChange(e.target.value)}
           disabled={!ageAttested}
         />
       </label>
-    </div>
+    </section>
   );
 }
 
@@ -453,6 +528,10 @@ function SignedInRateForm({
   const [justCompleted, setJustCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
+  /** This respondent's own reference self-removal link, handed back by the submit route
+   *  when their opt-in actually produced a Reference. Never fetched, never derived
+   *  client-side, and only ever rendered on this browser's own confirmation. */
+  const [referenceRemovalPath, setReferenceRemovalPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
@@ -594,6 +673,7 @@ function SignedInRateForm({
       const body = await res.json();
       applyStatus(body.status);
       setSubmittedStatus(body.status);
+      setReferenceRemovalPath(body.referenceRemovalPath ?? null);
       setJustCompleted(true);
       router.refresh();
     } catch {
@@ -659,6 +739,7 @@ function SignedInRateForm({
           countedText: isUpdate ? "Your rating has been updated." : "Thanks for rating this program.",
         })}
         postPollCta={postPollCta}
+        referenceRemovalPath={referenceRemovalPath}
         onKeepAnswering={handleKeepAnswering}
       />
     );
@@ -687,6 +768,7 @@ function SignedInRateForm({
         hint={!consentGiven && Object.values(reviewTexts).some((t) => t.trim().length > 0)}
       />
       <ReferenceOptInBlock
+        responseId={responseId}
         email={referenceEmail}
         onEmailChange={handleEmailChange}
         ageAttested={ageAttested}
@@ -725,6 +807,10 @@ function AnonymousRateForm({
   const [justCompleted, setJustCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
+  /** This respondent's own reference self-removal link, handed back by the submit route
+   *  when their opt-in actually produced a Reference. Never fetched, never derived
+   *  client-side, and only ever rendered on this browser's own confirmation. */
+  const [referenceRemovalPath, setReferenceRemovalPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const statusRef = useRef<string>("INCOMPLETE");
   const [schedule, flushAll] = useKeyedDebounce(DEBOUNCE_MS);
@@ -868,6 +954,7 @@ function AnonymousRateForm({
       const body = await res.json();
       applyStatus(body.status);
       setSubmittedStatus(body.status);
+      setReferenceRemovalPath(body.referenceRemovalPath ?? null);
       setJustCompleted(true);
       router.refresh();
     } catch {
@@ -937,6 +1024,7 @@ function AnonymousRateForm({
           countedText: `Thanks — your rating of ${programName} has been recorded.`,
         })}
         postPollCta={postPollCta}
+        referenceRemovalPath={referenceRemovalPath}
         onKeepAnswering={handleKeepAnswering}
       />
     );
@@ -976,6 +1064,7 @@ function AnonymousRateForm({
         hint={!consentGiven && Object.values(reviewTexts).some((t) => t.trim().length > 0)}
       />
       <ReferenceOptInBlock
+        responseId={responseId}
         email={referenceEmail}
         onEmailChange={handleEmailChange}
         ageAttested={ageAttested}
