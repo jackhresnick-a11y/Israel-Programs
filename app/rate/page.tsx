@@ -8,6 +8,7 @@ import PageHeader from "@/components/ui/PageHeader";
 export const metadata: Metadata = {
   title: "Rate your program",
   description: "Been through a program? Help the next person by picking yours and leaving a quick, anonymous rating.",
+  alternates: { canonical: "/rate" },
 };
 
 // Backstop only -- program approve/reject and public-poll-link/token writes already
