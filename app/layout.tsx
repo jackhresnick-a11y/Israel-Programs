@@ -50,7 +50,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
+  // Deliberately no `alternates.canonical` here -- Next merges metadata parent-to-child,
+  // so a hardcoded "/" would be inherited by any route that doesn't set its own canonical
+  // (an omission bug, not a deliberate default) and self-canonicalize to the homepage.
+  // Every real page sets its own; the homepage itself gets one below.
   openGraph: {
     siteName: SITE_NAME,
     type: "website",

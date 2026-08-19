@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getSiteContent } from "@/lib/siteContent";
 import { getMissionBlocks } from "@/lib/mission";
+import { SITE_NAME } from "@/lib/siteUrl";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
 import EmblemDefault from "@/components/EmblemDefault";
@@ -9,6 +11,29 @@ import MissionIcon from "@/components/MissionIcon";
 import FormattedText from "@/components/FormattedText";
 import MissionEditLink from "@/components/MissionEditLink";
 import ContactForm from "@/components/ContactForm";
+
+const MISSION_DESCRIPTION =
+  "What Israel Programs Wiki is, who runs it, and why -- a community-driven, independent guide to Jewish Israel programs.";
+
+// Previously missing entirely -- with no metadata export this page inherited the root
+// layout's alternates.canonical (see app/layout.tsx), self-canonicalizing to the
+// homepage even though it's a listed sitemap URL. Every real page needs its own.
+export const metadata: Metadata = {
+  title: "Background",
+  description: MISSION_DESCRIPTION,
+  alternates: { canonical: "/mission" },
+  openGraph: {
+    title: "Background",
+    description: MISSION_DESCRIPTION,
+    url: "/mission",
+    type: "website",
+    siteName: SITE_NAME,
+    // Nested `openGraph` objects replace the parent's wholesale (not merge) -- see the
+    // same note in app/programs/page.tsx.
+    images: "/opengraph-image",
+  },
+  twitter: { card: "summary_large_image", title: "Background", description: MISSION_DESCRIPTION },
+};
 
 // Backstop only -- getMissionBlocks/getSiteContent are tagged "site-content" (see
 // lib/siteContent.ts), so upsertSiteContent's revalidateTag already invalidates this

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Info } from "lucide-react";
 import { listPrograms } from "@/lib/programs";
@@ -12,11 +13,39 @@ import { buttonVariants } from "@/components/ui/Button";
 import PageContainer from "@/components/ui/PageContainer";
 import { getHomeVideoSettings } from "@/lib/homeVideo";
 import HomeVideoHero from "@/components/HomeVideoHero";
+import { SITE_NAME, SITE_URL } from "@/lib/siteUrl";
 import {
   getRecentlyAddedConfig,
   resolveManualItems,
   type ResolvedRecentlyAddedItem,
 } from "@/lib/recentlyAdded";
+
+// Explicit self-canonical -- the root layout deliberately sets no canonical of its own
+// (see app/layout.tsx), so every real page, including this one, states its own.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+// Organization + WebSite JSON-LD: cheapest entity/credibility signal available, feeds
+// knowledge-panel and AI entity resolution. No SearchAction target -- /programs has no
+// query-string-driven search endpoint distinct from the page itself worth declaring.
+function homeJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+      {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+    ],
+  };
+}
 
 // Recently-added programs + latest reviews change a handful of times a day at most --
 // hourly is well inside that editorial cadence. No revalidatePath hook needed here: unlike
@@ -42,6 +71,10 @@ export default async function Home() {
 
   return (
     <PageContainer width="wide" className="gap-12 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd()) }}
+      />
       <div className="relative flex flex-col gap-4 text-center sm:text-left">
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Find your place in Israel

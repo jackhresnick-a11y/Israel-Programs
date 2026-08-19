@@ -17,6 +17,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // outright rather than left in with a 404 behind it.
   const glossaryEntries = glossaryFlag === "true" ? await getPublishedGlossaryEntries() : [];
 
+  // Static pages have no per-page "last edited" timestamp to report honestly, so
+  // lastModified is omitted on them (Google treats a missing value as "unknown", not
+  // "never changed") -- program entries below do have a real updatedAt and keep it.
   return [
     {
       url: SITE_URL,
@@ -27,6 +30,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/programs`,
       changeFrequency: "daily",
       priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/find`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/rate`,
+      changeFrequency: "monthly",
+      priority: 0.6,
     },
     {
       url: `${SITE_URL}/mission`,

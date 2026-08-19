@@ -45,10 +45,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Honored by Bing/Yandex/etc.; Googlebot ignores crawlDelay entirely
-        // (its crawl rate is controlled via Search Console instead) -- this
-        // only slows the crawlers that respect it, not a universal throttle.
-        crawlDelay: 5,
+        // No crawlDelay: Googlebot ignores it anyway (crawl rate is controlled via
+        // Search Console), but it does throttle Bing to ~12 URLs/min -- the wrong
+        // tradeoff right after recovering from a sitewide noindex, when ~470 URLs need
+        // re-crawling as fast as those crawlers are willing to go.
         disallow: GENERAL_DISALLOW,
       },
       {

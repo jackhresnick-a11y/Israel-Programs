@@ -90,11 +90,12 @@ export const glossaryEntriesSchema = z
     });
   });
 
-/** Copy in every `sections[].body` below is a placeholder -- the real definitions are
- * written separately (see the glossary PR description). Do not treat this file's prose
- * as reviewed or accurate; only the structure, links, and schema are final. */
-const PLACEHOLDER_BODY =
-  "Copy to be written. This section will explain this term for a parent unfamiliar with Israel program terminology.";
+/** Every `sections[].body` below is reviewed, published-ready copy -- plain-language
+ * definitions written for a parent or participant unfamiliar with Israel program
+ * terminology, deliberately neutral about which specific programs are "best" (that
+ * judgment belongs to the alumni survey/reviews, not the glossary). Kept general and
+ * definitional rather than citing specific programs by name, since program-level facts
+ * belong on that program's own page, not duplicated here where they'd drift out of sync. */
 
 export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
   {
@@ -105,9 +106,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A gap-year program that prepares young Israelis and overseas participants for army service.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
-      { heading: "What a typical day looks like", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "A mechina (Hebrew for \"preparatory\") is a one- or two-year program that combines physical training, Jewish and Zionist studies, volunteer work, and leadership development, generally aimed at preparing 18-year-olds for military service in the Israel Defense Forces. Many mechinot have a religious-Zionist orientation, though secular and mixed mechinot exist as well. Most participants enroll for a single year, sometimes called \"mechina shana aleph\" (mechina, year one), though a smaller number of programs offer a second year.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Mechinot are primarily built for Israeli 18-year-olds who have finished high school and are looking to mature, build resilience, and clarify their motivation before starting IDF service. Some mechinot also accept overseas participants, including those without an obligation to serve, who join for the personal-growth and Israel-experience elements rather than the pre-army track itself. Because the daily schedule is demanding and communal, mechinot suit participants who are comfortable with structure, physical activity, and group living.",
+      },
+      {
+        heading: "What a typical day looks like",
+        body: "A mechina day typically opens early with physical training or a run, followed by structured study sessions covering Jewish text, Zionist history, or current events, and afternoon blocks for volunteering in the local community, hiking, or navigation exercises. Evenings often include group discussion or a guest lecture, and the week is usually punctuated by a multi-day field trip or overnight hike roughly once a month. Most mechinot run Sunday through Thursday or Friday, with participants going home for Shabbat.",
+      },
     ],
     programLinks: [{ label: "Browse mechina programs", href: "/programs?tags=mechina" }],
     related: ["yeshiva", "mechina-vs-yeshiva", "gap-year"],
@@ -119,9 +129,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A yeshiva track that combines Torah study with active-duty Israeli army service.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
-      { heading: "How the schedule works", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "Hesder (\"arrangement\") is a track that combines yeshiva-style Torah study with active-duty service in the Israel Defense Forces, typically over roughly five years in total. Participants usually study at the yeshiva full time for a stretch, then serve for a period of continuous active duty that's shorter than standard conscription (since the yeshiva study counts toward the overall arrangement), then return to complete their studies. Hesder yeshivas are religious-Zionist institutions, and because the track is tied to Israeli military service, it's generally not available to overseas participants without Israeli citizenship or aliyah plans.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Hesder is built for religious-Zionist Israeli men who want to combine advanced Torah study with IDF service rather than choosing one before the other. It suits students who see themselves staying within a yeshiva framework past their service and are comfortable committing to a multi-year track rather than a single gap year.",
+      },
+      {
+        heading: "How the schedule works",
+        body: "The exact split varies by yeshiva, but a common pattern is an initial period of full-time study, then a continuous stretch of active service, then a final period of study to complete the arrangement; some hesder yeshivas interleave shorter study and service blocks instead of one long block of each. Either way, the total commitment usually runs several years longer than a typical one-year gap-year program.",
+      },
     ],
     programLinks: [{ label: "Browse hesder yeshivas", href: "/programs?tags=hesder" }],
     related: ["yeshiva", "hesder-vs-regular-yeshiva"],
@@ -133,9 +152,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A school for the study of Torah and Jewish religious texts, traditionally for men.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
-      { heading: "Common variations", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "A yeshiva is an institution dedicated to the study of Torah and Jewish religious texts, especially Talmud, generally through chavruta (paired study) alongside lectures from a rabbi or senior teacher. Israel hosts many yeshivas spanning a wide range of religious outlook, study intensity, and student age. \"Yeshiva\" as commonly used by English-speaking gap-year students usually refers to a post-high-school program built for that age group specifically, distinct from a full-time adult yeshiva (a \"yeshiva gevoha\").",
+      },
+      {
+        heading: "Who it's for",
+        body: "Post-high-school yeshiva programs are aimed at religiously observant young men (the women's equivalent is usually called a seminary or midrasha -- see those entries) looking to deepen their Torah study for a gap year, a semester, or longer, often before or alongside college. Programs range from those geared toward students with a strong existing textual background to those built for students newer to intensive Jewish study.",
+      },
+      {
+        heading: "Common variations",
+        body: "Yeshivas vary along several axes: hesder yeshivas add IDF service to the track (see the hesder entry); some yeshivas emphasize Israeli integration and Hebrew immersion while others teach primarily in English; and religious orientation ranges from Haredi to religious-Zionist to more pluralistic or open Orthodox. Length also varies -- some programs run a single semester, others a full year, and some offer a second year (see shana bet).",
+      },
     ],
     programLinks: [{ label: "Browse yeshivas", href: "/programs?tags=yeshiva" }],
     related: ["hesder", "mechina-vs-yeshiva", "hesder-vs-regular-yeshiva"],
@@ -146,13 +174,22 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "The common English term for a women's post-high-school program of Jewish religious study in Israel.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
-      { heading: "Seminary vs. midrasha", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "\"Seminary\" is the common English term for a women's post-high-school program of Jewish study in Israel, roughly the counterpart to a men's yeshiva program. Seminaries typically combine text study -- Tanach, Jewish law, and Jewish thought -- with programming on relationships, personal growth, and Israeli life, and most run either a single semester or a single year.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Seminaries are built for religiously observant young women looking for a structured year of Jewish study and personal development before college, often as a parallel track to the yeshiva programs their male peers attend. Programs range in religious intensity and Israeli-integration level, so families choosing between seminaries usually weigh a program's hashkafa (religious outlook) and how much time is spent studying versus touring or volunteering.",
+      },
+      {
+        heading: "Seminary vs. midrasha",
+        body: "The two terms overlap heavily and some programs use them interchangeably, but \"midrasha\" is the more common term in Israeli usage, and midrashot as a group tend to run more Hebrew-language classes and closer integration with Israeli society than a typical English-language seminary. There's no firm rule -- the clearest way to tell them apart in practice is a program's own language of instruction and daily schedule rather than the label it uses.",
+      },
     ],
-    // No dedicated "seminary" tag exists in the current catalog (see the glossary PR
-    // description) -- this is a proxy filter (girls-only + spiritual-growth essence +
-    // gap-year duration) until the program-type taxonomy is backfilled.
+    // No dedicated "seminary" tag exists in the current catalog -- this is a proxy
+    // filter (girls-only + spiritual-growth essence + gap-year duration) until the
+    // program-type taxonomy is backfilled.
     programLinks: [
       {
         label: "Browse programs like this",
@@ -168,9 +205,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "The Hebrew/Israeli term for a women's program of Jewish study, often with more Israeli integration than a seminary.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
-      { heading: "Midrasha vs. seminary", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "A midrasha is the Hebrew/Israeli term for a women's program of Jewish study, functionally similar to what English-speaking students call a seminary (see that entry) but generally with more Hebrew-language instruction and closer day-to-day integration into Israeli society. Midrashot are a common destination for religious young women doing a gap year of study, sometimes alongside sherut leumi.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Midrashot suit students who want more Hebrew immersion and Israeli-society integration than a typical English-language seminary offers, whether or not they're fluent going in. Many midrashot combine study with volunteering, national-service-adjacent tracks, or informal integration into an Israeli community.",
+      },
+      {
+        heading: "Midrasha vs. seminary",
+        body: "As with the seminary entry above, the line between the two terms is blurry and program-specific. A midrasha is more likely to teach primarily in Hebrew and place students closer to Israeli daily life, while a seminary more often teaches in English with a more insulated, English-speaking cohort -- but check each program directly rather than assuming from the label alone.",
+      },
     ],
     // No dedicated "midrasha" tag exists yet either -- proxy filter (girls-only +
     // medium/high Israeli integration) until the program-type taxonomy is backfilled.
@@ -188,8 +234,14 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A year between high school and college, often spent studying, volunteering, or training in Israel.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Common formats", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "A gap year is a year taken between high school and college, and in the context of Israel programs usually means a year spent studying, volunteering, or training in Israel rather than starting college immediately. Israel gap-year programs span yeshivas and seminaries, mechinot, service and volunteer programs, and Hebrew-immersion tracks, and can run anywhere from a semester to a full year, with some extending into a second year (see shana bet).",
+      },
+      {
+        heading: "Common formats",
+        body: "Common Israel gap-year formats include yeshiva or seminary programs centered on religious text study; mechinot centered on pre-army preparation and personal growth; volunteer or service programs combining Hebrew study with community work; and touring programs that move between cities and regions rather than basing at one campus. Many participants choose based on religious orientation, program length, and how much time is spent studying versus doing hands-on activities.",
+      },
     ],
     programLinks: [{ label: "Browse gap year programs", href: "/programs?duration=GAP_YEAR" }],
     related: ["shana-bet", "gap-year-vs-seminary"],
@@ -201,8 +253,14 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "An intensive Hebrew-language study program.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "An ulpan is an intensive Hebrew-language program, typically full-time and immersive, designed to bring a participant from limited or no Hebrew to conversational or functional fluency over a period of weeks to months. The term is used both for short-term programs aimed at overseas students and for the longer-running Hebrew classes new immigrants (olim) take as part of absorption into Israeli life.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Ulpan suits participants whose main goal is Hebrew fluency rather than religious study or pre-army training specifically, including students planning to study, volunteer, or live in Israel afterward and wanting a functional base in the language first. Some gap-year and service programs build an ulpan component into their first weeks for exactly this reason, even when Hebrew isn't the program's main focus.",
+      },
     ],
     programLinks: [{ label: "Browse ulpan programs", href: "/programs?tags=ulpan" }],
     related: ["sherut-leumi"],
@@ -215,8 +273,14 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A national civilian service program, often chosen by religious women as an alternative to army service.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "Who it's for", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "Sherut leumi (national service) is a voluntary, non-military civilian service program, most often chosen by religious Israeli women as an alternative to army service, though some religious men and others also participate. Volunteers typically serve for one to two years in schools, hospitals, social-service organizations, or community programs, and receive a small stipend along with benefits similar to those given to soldiers.",
+      },
+      {
+        heading: "Who it's for",
+        body: "Sherut leumi is generally open only to those who would otherwise be subject to Israeli conscription, so it isn't typically available to overseas participants without Israeli citizenship. It's a common path for religious young women who prefer a civilian service framework to army service, and is sometimes combined with or followed by a year of study at a midrasha.",
+      },
     ],
     programLinks: [
       { label: "Browse sherut leumi programs", href: "/programs?tags=sherut-leumi-national-service" },
@@ -231,8 +295,14 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "term",
     summary: "A second year added onto a one-year gap-year program, at the same or a different institution.",
     sections: [
-      { heading: "What it means", body: PLACEHOLDER_BODY },
-      { heading: "How it's usually arranged", body: PLACEHOLDER_BODY },
+      {
+        heading: "What it means",
+        body: "Shana bet (\"year two\") refers to an additional year added onto a one-year gap-year program, either continuing at the same yeshiva, seminary, or mechina, or moving to a different institution for the second year. Some programs are structured from the outset as two-year tracks, while others treat the second year as an optional extension a student applies for after the first.",
+      },
+      {
+        heading: "How it's usually arranged",
+        body: "Where a program has a formal shana bet track, returning students typically apply, or are invited, partway through their first year, and the second year often carries more independence, advanced study material, or added responsibilities like mentoring newer students. Moving to a different institution for a second year is also common, particularly among students who want a change in religious intensity, location, or focus -- for example, moving from a study-heavy first year to a more service- or army-prep-oriented second year.",
+      },
     ],
     programLinks: [{ label: "Browse multi-year programs", href: "/programs?duration=MULTI_YEAR" }],
     related: ["gap-year", "sherut-leumi"],
@@ -243,9 +313,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "comparison",
     summary: "How a general gap-year program differs from a women's seminary program.",
     sections: [
-      { heading: "The short answer", body: PLACEHOLDER_BODY },
-      { heading: "Structure and focus", body: PLACEHOLDER_BODY },
-      { heading: "Which one fits", body: PLACEHOLDER_BODY },
+      {
+        heading: "The short answer",
+        body: "A gap year is the general category -- a year (or part of one) spent in Israel instead of starting college -- while a seminary is one specific type of gap-year program, built around women's Jewish text study. Every seminary program is a gap-year program, but far from every gap-year program is a seminary.",
+      },
+      {
+        heading: "Structure and focus",
+        body: "A general gap-year program might emphasize volunteering, touring, Hebrew immersion, or a mix of activities, with religious study as one component among several. A seminary is built specifically around structured, in-depth Jewish study -- Tanach, halacha, and Jewish thought -- as its central activity, with touring, chesed (volunteer) work, and social programming filling the remaining time.",
+      },
+      {
+        heading: "Which one fits",
+        body: "Students looking primarily for depth of religious study, in a single-sex, seminary-style environment, are usually better served by choosing a seminary directly. Students who want more flexibility across activities, locations, or religious intensity -- or who are considering non-religious-study formats like a mechina or a volunteer program -- are better served starting from the broader gap-year category and comparing across program types.",
+      },
     ],
     programLinks: [
       { label: "Browse gap year programs", href: "/programs?duration=GAP_YEAR" },
@@ -262,9 +341,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "comparison",
     summary: "How a hesder yeshiva's combined army-and-study track differs from a standard yeshiva program.",
     sections: [
-      { heading: "The short answer", body: PLACEHOLDER_BODY },
-      { heading: "Time commitment", body: PLACEHOLDER_BODY },
-      { heading: "Which one fits", body: PLACEHOLDER_BODY },
+      {
+        heading: "The short answer",
+        body: "A hesder yeshiva combines Torah study with active-duty IDF service over roughly five years total. A regular (non-hesder) yeshiva program is study-only, and for a gap-year-age student is typically one or two years long with no service component built in.",
+      },
+      {
+        heading: "Time commitment",
+        body: "Hesder is a multi-year commitment -- a mix of study and service that runs several years longer than a standard one- or two-year yeshiva gap-year program. A student choosing a regular yeshiva program keeps their post-yeshiva plans (army service, college, or otherwise) as a separate, later decision, while hesder bundles study and service into one continuous track from the start.",
+      },
+      {
+        heading: "Which one fits",
+        body: "Hesder suits Israeli men who are certain they want to serve in the IDF and want that service woven together with ongoing yeshiva study rather than treated as a separate life stage. A regular yeshiva program suits students -- Israeli or overseas -- who want a dedicated period of study without committing to a service arrangement as part of it; overseas students in particular should default to a regular yeshiva, since hesder's service component isn't open to them.",
+      },
     ],
     // No NOT-operator on /programs, so this links the two filtered views side by
     // side (hesder-tagged vs. all yeshiva-tagged, which includes hesder programs)
@@ -281,9 +369,18 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
     kind: "comparison",
     summary: "How a pre-military mechina differs from a Torah-study-focused yeshiva.",
     sections: [
-      { heading: "The short answer", body: PLACEHOLDER_BODY },
-      { heading: "Daily focus", body: PLACEHOLDER_BODY },
-      { heading: "Which one fits", body: PLACEHOLDER_BODY },
+      {
+        heading: "The short answer",
+        body: "A mechina centers on physical training, Zionist and general Jewish studies, volunteering, and pre-army readiness; a yeshiva centers on in-depth study of Torah and Talmud as its main activity. A mechina prepares a student for what typically comes next -- IDF service -- while a yeshiva's focus is the study itself, whatever comes after it.",
+      },
+      {
+        heading: "Daily focus",
+        body: "A mechina day usually mixes physical training, hikes, volunteering, and study sessions covering Zionist history, current events, and Jewish thought, with structured group activities throughout. A yeshiva day centers on chavruta (paired) study and lectures on Talmud and Jewish law, typically with far more hours spent on text study and comparatively little physical training or volunteer work.",
+      },
+      {
+        heading: "Which one fits",
+        body: "A mechina fits a student -- most often an Israeli 18-year-old, though some accept overseas participants -- primarily focused on building resilience and life skills ahead of army service, over an in-depth text-study curriculum. A yeshiva fits a student whose priority is depth of religious learning itself, whether or not army service follows, and who wants to spend the bulk of the day in study rather than physical training or fieldwork.",
+      },
     ],
     programLinks: [
       { label: "Browse mechina programs", href: "/programs?tags=mechina" },
