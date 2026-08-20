@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getGlossaryEntries, isGlossaryEntryPublished } from "@/lib/glossary";
 import { getCurrentRole } from "@/lib/roles";
@@ -71,12 +72,16 @@ export default async function GlossaryPage() {
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Terms</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {terms.map((entry) => (
-            <Card key={entry.slug} as={Link} href={`/glossary/${entry.slug}`} interactive className="flex flex-col gap-1 p-4">
+            <Card key={entry.slug} as={Link} href={`/glossary/${entry.slug}`} interactive className="group flex flex-col gap-1 p-4">
               <span className="flex items-center gap-2">
                 <span className="font-serif text-base font-semibold text-foreground">{entry.term}</span>
                 {!isGlossaryEntryPublished(entry) && <Badge tone="warning">Hidden</Badge>}
               </span>
               <span className="text-sm text-muted">{entry.summary}</span>
+              <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-accent-hover group-hover:underline">
+                Read more
+                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+              </span>
             </Card>
           ))}
         </div>
@@ -87,12 +92,16 @@ export default async function GlossaryPage() {
           <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">Comparisons</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {comparisons.map((entry) => (
-              <Card key={entry.slug} as={Link} href={`/glossary/${entry.slug}`} interactive className="flex flex-col gap-1 p-4">
+              <Card key={entry.slug} as={Link} href={`/glossary/${entry.slug}`} interactive className="group flex flex-col gap-1 p-4">
                 <span className="flex items-center gap-2">
                   <span className="font-serif text-base font-semibold text-foreground">{entry.term}</span>
                   {!isGlossaryEntryPublished(entry) && <Badge tone="warning">Hidden</Badge>}
                 </span>
                 <span className="text-sm text-muted">{entry.summary}</span>
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-accent-hover group-hover:underline">
+                  Read more
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                </span>
               </Card>
             ))}
           </div>
