@@ -1,0 +1,649 @@
+{
+  "essencePreMilitaryBefore": {
+    "id": "cmrcghw0e000c33mzoig1t7xi",
+    "name": "Pre-military",
+    "slug": "essence-pre-military",
+    "category": "essence",
+    "order": 3
+  },
+  "preArmyBefore": {
+    "id": "cmr8bo6ah0012hdmzlti67ika",
+    "name": "pre-army",
+    "slug": "pre-army",
+    "category": null,
+    "order": 40,
+    "programs": [
+      {
+        "id": "cmr8bo6bu0019hdmzafo3av3d",
+        "name": "Mechinat Beit Yisrael (Big)",
+        "slug": "mechinat-beit-yisrael-big"
+      },
+      {
+        "id": "cmr9qi31r001irumz1bjcnbb6",
+        "name": "Mechinat Dror",
+        "slug": "mechinat-dror"
+      },
+      {
+        "id": "cmr9qgxas0012rumzkffy7is9",
+        "name": "Mechinat Five Fingers (Chamesh Etzbaot)",
+        "slug": "mechinat-five-fingers-chamesh-etzbaot"
+      },
+      {
+        "id": "cmrem742l000arvmzbwk227rf",
+        "name": "Mechinat Avner - Akko",
+        "slug": "mechinat-avner-akko"
+      },
+      {
+        "id": "cmr9qhsqj001erumzr9myf0d1",
+        "name": "Mechinat Arava",
+        "slug": "mechinat-arava"
+      },
+      {
+        "id": "cmrem7541000crvmzsyylfqxg",
+        "name": "Mechinat Orot",
+        "slug": "mechinat-orot"
+      },
+      {
+        "id": "cmr8bgr9s000yvkmzlua78lst",
+        "name": "Sar-El (Volunteers for Israel)",
+        "slug": "sar-el-volunteers-for-israel"
+      },
+      {
+        "id": "cmrem769i000ervmzc8j29189",
+        "name": "Mechinat Eitan",
+        "slug": "mechinat-eitan"
+      },
+      {
+        "id": "cmr8bo6bf0017hdmza0gvenaq",
+        "name": "Mechinat Rabin",
+        "slug": "mechinat-rabin"
+      },
+      {
+        "id": "cmrem7asb000mrvmz97prdrs0",
+        "name": "Mechinat Chosen Peduel",
+        "slug": "mechinat-chosen-peduel"
+      },
+      {
+        "id": "cmrem7e70000srvmz3pa06495",
+        "name": "Mechinat Yonatan",
+        "slug": "mechinat-yonatan"
+      },
+      {
+        "id": "cmrem7fg4000urvmzyiykua3c",
+        "name": "Mechinat Ke'Ayal",
+        "slug": "mechinat-keayal"
+      },
+      {
+        "id": "cmrem7grc000wrvmzbgwknowi",
+        "name": "Midreshet Rina (Shlomit)",
+        "slug": "midreshet-rina-shlomit"
+      },
+      {
+        "id": "cmrwiz1w00000ujmzx3zgjxyb",
+        "name": "Gur Arie (Betar)",
+        "slug": "gur-arie-betar"
+      },
+      {
+        "id": "cmrem7jab0010rvmz2kwz0vgl",
+        "name": "Mechinat Magen Shaul (Nokdim)",
+        "slug": "mechinat-magen-shaul-nokdim"
+      },
+      {
+        "id": "cmrem7lur0014rvmzk5nq2nlv",
+        "name": "Mechinat Mashahiyot (Maskyot)",
+        "slug": "mechinat-mashahiyot-maskyot"
+      },
+      {
+        "id": "cmr8bo6b00015hdmzfshu4egd",
+        "name": "Ein Prat Academy for Leadership",
+        "slug": "ein-prat-academy-for-leadership"
+      },
+      {
+        "id": "cmrem7n020016rvmz2o6dcesy",
+        "name": "Mechinat Oz Shlomo",
+        "slug": "mechinat-oz-shlomo"
+      },
+      {
+        "id": "cmrem7skb001grvmz0yn9s8zi",
+        "name": "Mechinat Uri",
+        "slug": "mechinat-uri"
+      },
+      {
+        "id": "cmrem7vwo001mrvmzwnsf8pf8",
+        "name": "Mechinat Beer Ora",
+        "slug": "mechinat-beer-ora"
+      },
+      {
+        "id": "cmrem7ylt001qrvmzyvzgobww",
+        "name": "Mechinat Gal",
+        "slug": "mechinat-gal"
+      },
+      {
+        "id": "cmrem82oz001wrvmzjjv3ssky",
+        "name": "Mechinat HaNegev (Sde Boker)",
+        "slug": "mechinat-hanegev-sde-boker"
+      },
+      {
+        "id": "cmrem84zn0020rvmz9h1ae1pz",
+        "name": "Mechinat Yiftach",
+        "slug": "mechinat-yiftach"
+      },
+      {
+        "id": "cmrem81hq001urvmzahuoguq7",
+        "name": "The Jerusalem Preparatory Program (HaYerushalmit)",
+        "slug": "the-jerusalem-preparatory-program-hayerushalmit"
+      },
+      {
+        "id": "cmra8ige3000a7fmzajdtdl0b",
+        "name": "Shnat Betar",
+        "slug": "shnat-betar"
+      },
+      {
+        "id": "cmrem89lb0028rvmz2ixpbecy",
+        "name": "Mechinat Meitarim Lachish",
+        "slug": "mechinat-meitarim-lachish"
+      },
+      {
+        "id": "cmr9qgrug0010rumzypq1gsa3",
+        "name": "Mechinat Meitzar",
+        "slug": "mechinat-meitzar"
+      },
+      {
+        "id": "cmr9qh1an0014rumzxjqfcggf",
+        "name": "Mechinat Melach HaAretz",
+        "slug": "mechinat-melach-haaretz"
+      },
+      {
+        "id": "cmrem8aur002arvmzniyt8lwo",
+        "name": "Mechinat Minsharim Kalo",
+        "slug": "mechinat-minsharim-kalo"
+      },
+      {
+        "id": "cmr9qhy4b001grumz1o8hc6wx",
+        "name": "Mechinat Be'eri",
+        "slug": "mechinat-beeri"
+      },
+      {
+        "id": "cmrem8eor002grvmzvvsqg80w",
+        "name": "Mechinat Bina",
+        "slug": "mechinat-bina"
+      },
+      {
+        "id": "cmr9qhiqh001arumzvz2qltfk",
+        "name": "Mechinat Hannaton",
+        "slug": "mechinat-hannaton"
+      },
+      {
+        "id": "cmr9qho82001crumzws5gczx5",
+        "name": "Mechinat Rakia",
+        "slug": "mechinat-rakia"
+      },
+      {
+        "id": "cmrem8fu1002irvmz402uska8",
+        "name": "Mechinat Nir Oz",
+        "slug": "mechinat-nir-oz"
+      },
+      {
+        "id": "cmra8faw6000e2wmzoyllelyd",
+        "name": "Maccabi Gap Year",
+        "slug": "maccabi-gap-year"
+      },
+      {
+        "id": "cmr9qg8ka000urumzr32g6rvk",
+        "name": "Mechinat Lachish",
+        "slug": "mechinat-lachish"
+      },
+      {
+        "id": "cmr7sl7mh000hw9mz8902ii45",
+        "name": "Young Judaea Year Course",
+        "slug": "young-judaea-year-course"
+      },
+      {
+        "id": "cmrkw55we0002otmzl54o2txb",
+        "name": "Mechinat Shahar Degania",
+        "slug": "mechinat-shahar-degania"
+      },
+      {
+        "id": "cmrkw546i0000otmz8g5ge3ys",
+        "name": "Mechinat Shahar Elrom",
+        "slug": "mechinat-shahar-elrom"
+      },
+      {
+        "id": "cmrkw57kw0004otmzp22ds36w",
+        "name": "Mechinat Shahar Malkia",
+        "slug": "mechinat-shahar-malkia"
+      },
+      {
+        "id": "cmrkw592t0006otmzqky5wyhe",
+        "name": "Mechinat Shahar David (Tel Katzir)",
+        "slug": "mechinat-shahar-david-tel-katzir"
+      },
+      {
+        "id": "cmrkw5dxr000cotmz4a1osemd",
+        "name": "Mechinat Shahar Haon",
+        "slug": "mechinat-shahar-haon"
+      },
+      {
+        "id": "cmrkw5ffy000eotmzd7n5d39j",
+        "name": "Mechinat Shahar Hukuk",
+        "slug": "mechinat-shahar-hukuk"
+      },
+      {
+        "id": "cmrkw5chi000aotmzbl11dqo9",
+        "name": "Mechinat Shahar Rotem",
+        "slug": "mechinat-shahar-rotem"
+      },
+      {
+        "id": "cmrkw5ar30008otmz8i3qsqoh",
+        "name": "Mechinat Shahar Tal",
+        "slug": "mechinat-shahar-tal"
+      },
+      {
+        "id": "cmrls7acj0004eimzsmbamjq3",
+        "name": "Garin Mahal",
+        "slug": "garin-mahal"
+      },
+      {
+        "id": "cmrwivxqc000afxmzp27211rn",
+        "name": "Mechinat Galil Elyon",
+        "slug": "mechinat-galil-elyon"
+      },
+      {
+        "id": "cmrwivwfz0008fxmzjgl4vmq1",
+        "name": "Mechinat Maale Ephraim",
+        "slug": "mechinat-maale-ephraim"
+      },
+      {
+        "id": "cmr9qik8n001orumz7f50tzu4",
+        "name": "Kadima (World Bnei Akiva)",
+        "slug": "kadima-world-bnei-akiva"
+      },
+      {
+        "id": "cmr9qic99001mrumzm2f1a8mq",
+        "name": "Mechinat Haviva Reich",
+        "slug": "mechinat-haviva-reich"
+      },
+      {
+        "id": "cmrwiw192000gfxmzvmf3hart",
+        "name": "Mechinat HaShomer HaChadash",
+        "slug": "mechinat-hashomer-hachadash"
+      },
+      {
+        "id": "cmrwivzz6000efxmz651xasct",
+        "name": "Mechinat Ruach HaSadeh",
+        "slug": "mechinat-ruach-hasadeh"
+      },
+      {
+        "id": "cmr7sl7n4000lw9mzudhbeacz",
+        "name": "Nativ College Leadership Program",
+        "slug": "nativ"
+      },
+      {
+        "id": "cmrem77ay000grvmzdef78186",
+        "name": "Mechinat Elisha",
+        "slug": "mechinat-elisha"
+      },
+      {
+        "id": "cmrem78gh000irvmz8hhrg951",
+        "name": "Mechinat Arzei HaLevanon",
+        "slug": "mechinat-arzei-halevanon"
+      },
+      {
+        "id": "cmrem79hy000krvmz3issbr9e",
+        "name": "Mechinat Beit Yatir",
+        "slug": "mechinat-beit-yatir"
+      },
+      {
+        "id": "cmr8bo6ao0013hdmzbawf89co",
+        "name": "Mechinat Bnei David (Eli)",
+        "slug": "mechinat-bnei-david-eli"
+      },
+      {
+        "id": "cmrem7c09000orvmzgne5njlf",
+        "name": "Mechinat Chemdat Yehuda",
+        "slug": "mechinat-chemdat-yehuda"
+      },
+      {
+        "id": "cmrem7d5i000qrvmzoh6j6f05",
+        "name": "Mechinat Yedidya",
+        "slug": "mechinat-yedidya"
+      },
+      {
+        "id": "cmr8bo6di001ihdmzyzna575r",
+        "name": "Garin Tzabar",
+        "slug": "garin-tzabar"
+      },
+      {
+        "id": "cmrem7i8x000yrvmz96w2mjq0",
+        "name": "Mechinat Lapidot Emuna",
+        "slug": "mechinat-lapidot-emuna"
+      },
+      {
+        "id": "cmr8bo6cm001dhdmzapy541kf",
+        "name": "Otzem Overseas Program (Atzmona)",
+        "slug": "otzem-overseas-program"
+      },
+      {
+        "id": "cmrem7knv0012rvmz7ra5bn7z",
+        "name": "Mechinat Maoz (Lod)",
+        "slug": "mechinat-maoz-lod"
+      },
+      {
+        "id": "cmrem7o490018rvmzme4yuetk",
+        "name": "Mechinat Shuvu Achim",
+        "slug": "mechinat-shuvu-achim"
+      },
+      {
+        "id": "cmrem7ur8001krvmz0gtzlazk",
+        "name": "Mechinat Echad V'Achat Mishelanu",
+        "slug": "mechinat-echad-vachat-mishelanu"
+      },
+      {
+        "id": "cmrem7qdi001crvmzzauqvki8",
+        "name": "Mechinat Keshet Yehuda",
+        "slug": "mechinat-keshet-yehuda"
+      },
+      {
+        "id": "cmrem7tpu001irvmzt3pa1p60",
+        "name": "Mechinat Lavi",
+        "slug": "mechinat-lavi"
+      },
+      {
+        "id": "cmrem7rix001ervmz1i2nhlgq",
+        "name": "Mechinat Tamir",
+        "slug": "mechinat-tamir"
+      },
+      {
+        "id": "cmrem7pc5001arvmz7ee8i3c7",
+        "name": "Mechinat Tzahali",
+        "slug": "mechinat-tzahali"
+      },
+      {
+        "id": "cmrem8c01002crvmzeezkw8dm",
+        "name": "Mechinat Ami-Chai",
+        "slug": "mechinat-ami-chai"
+      },
+      {
+        "id": "cmrem86590022rvmzg5ky1p8v",
+        "name": "Mechinat Kerem El",
+        "slug": "mechinat-kerem-el"
+      },
+      {
+        "id": "cmrem876m0024rvmz804xfaaq",
+        "name": "Mechinat Migdalor",
+        "slug": "mechinat-migdalor"
+      },
+      {
+        "id": "cmrem8df0002ervmz98gdc81m",
+        "name": "Mechinat Ruach Nachon",
+        "slug": "mechinat-ruach-nachon"
+      },
+      {
+        "id": "cmrem88k60026rvmzf7vhz1xw",
+        "name": "Midreshet HaShiluv Natur",
+        "slug": "midreshet-hashiluv-natur"
+      },
+      {
+        "id": "cmrem8gv9002krvmzi8tcb4yz",
+        "name": "Mechinat Yesodot",
+        "slug": "mechinat-yesodot"
+      },
+      {
+        "id": "cmrwiyk5u0002s2mz2r49ptld",
+        "name": "Amijai (World Bnei Akiva)",
+        "slug": "amijai-world-bnei-akiva"
+      },
+      {
+        "id": "cmrwiyiyo0000s2mz88m7xayp",
+        "name": "Oz (World Bnei Akiva)",
+        "slug": "oz-world-bnei-akiva"
+      },
+      {
+        "id": "cmrxhod6m0008bfmztk0m92g6",
+        "name": "Mechinat Maamakim",
+        "slug": "mechinat-maamakim"
+      },
+      {
+        "id": "cmrem7zww001srvmz61r5n7z9",
+        "name": "Derech Eretz",
+        "slug": "derech-eretz"
+      },
+      {
+        "id": "cmrwiw2fj000ifxmznhiaosib",
+        "name": "HaMechina HaChadasha BeLod (The New Academy in Lod)",
+        "slug": "hamechina-hachadasha-belod-the-new-academy-in-lod"
+      },
+      {
+        "id": "cmrwivysn000cfxmzsi9fgaxr",
+        "name": "HaMechina HaMadait (Scientific Pre-Military Academy)",
+        "slug": "hamechina-hamadait-scientific-pre-military-academy"
+      },
+      {
+        "id": "cmr9qisxy001qrumz18e82noz",
+        "name": "Mechina Olamit (World Bnei Akiva and Kol Ami)",
+        "slug": "mechina-olamit-world-bnei-akiva"
+      },
+      {
+        "id": "cmr9qh80x0016rumzew38iuxr",
+        "name": "Mechinat Aderet",
+        "slug": "mechinat-aderet"
+      },
+      {
+        "id": "cmr9qhdtf0018rumzb2cx0o3u",
+        "name": "Mechinat Amichai",
+        "slug": "mechinat-amichai"
+      },
+      {
+        "id": "cmrxhoc4e0006bfmzty2bhlan",
+        "name": "Mechinat Ateret Yerushalayim",
+        "slug": "mechinat-ateret-yerushalayim"
+      },
+      {
+        "id": "cmrem7xaz001orvmz4ipvkp2k",
+        "name": "Mechinat Bnot HaMidbar",
+        "slug": "mechinat-bnot-hamidbar"
+      },
+      {
+        "id": "cmrwivvc60006fxmz090o2chd",
+        "name": "Mechinat Derech Avot",
+        "slug": "mechinat-derech-avot"
+      },
+      {
+        "id": "cmr9qglg7000yrumz83jboc5v",
+        "name": "Mechinat HaEmek",
+        "slug": "mechinat-haemek"
+      },
+      {
+        "id": "cmr8bo6c3001ahdmz9uoz6g1b",
+        "name": "Mechinat Nachshon",
+        "slug": "mechinat-nachshon"
+      },
+      {
+        "id": "cmrkw5gyd000gotmzqtyvjtln",
+        "name": "Mechinat Shahar Mevo Dotan",
+        "slug": "mechinat-shahar-mevo-dotan"
+      },
+      {
+        "id": "cmrkw5img000iotmz10t1lea0",
+        "name": "Mechinat Shahar Nitzan",
+        "slug": "mechinat-shahar-nitzan"
+      },
+      {
+        "id": "cmr9qi7uu001krumzk47gp02g",
+        "name": "Mechinat Tavor",
+        "slug": "mechinat-tavor"
+      },
+      {
+        "id": "cmr9qgffw000wrumz3ok3qf8x",
+        "name": "Mechinat Telem",
+        "slug": "mechinat-telem"
+      },
+      {
+        "id": "cmrem83ui001yrvmz43bwb5tv",
+        "name": "Mechinat Yemin Orde",
+        "slug": "mechinat-yemin-orde"
+      }
+    ]
+  },
+  "volunteeringBefore": {
+    "id": "cmr7sl7m0000ew9mz2efu8jyn",
+    "name": "volunteering",
+    "slug": "volunteering",
+    "category": null,
+    "order": 55
+  },
+  "hebrewRequiredBefore": {
+    "id": "cmr8qbl24000ejbmzxaic2pcn",
+    "name": "hebrew-required",
+    "slug": "hebrew-required",
+    "category": null,
+    "order": 29
+  },
+  "preArmyProgramsGainingEssenceTag": [
+    {
+      "id": "cmrem742l000arvmzbwk227rf",
+      "name": "Mechinat Avner - Akko",
+      "slug": "mechinat-avner-akko"
+    },
+    {
+      "id": "cmrem7541000crvmzsyylfqxg",
+      "name": "Mechinat Orot",
+      "slug": "mechinat-orot"
+    },
+    {
+      "id": "cmrem769i000ervmzc8j29189",
+      "name": "Mechinat Eitan",
+      "slug": "mechinat-eitan"
+    },
+    {
+      "id": "cmrem7asb000mrvmz97prdrs0",
+      "name": "Mechinat Chosen Peduel",
+      "slug": "mechinat-chosen-peduel"
+    },
+    {
+      "id": "cmrem7e70000srvmz3pa06495",
+      "name": "Mechinat Yonatan",
+      "slug": "mechinat-yonatan"
+    },
+    {
+      "id": "cmrem7fg4000urvmzyiykua3c",
+      "name": "Mechinat Ke'Ayal",
+      "slug": "mechinat-keayal"
+    },
+    {
+      "id": "cmrem7grc000wrvmzbgwknowi",
+      "name": "Midreshet Rina (Shlomit)",
+      "slug": "midreshet-rina-shlomit"
+    },
+    {
+      "id": "cmrwiz1w00000ujmzx3zgjxyb",
+      "name": "Gur Arie (Betar)",
+      "slug": "gur-arie-betar"
+    },
+    {
+      "id": "cmrem7jab0010rvmz2kwz0vgl",
+      "name": "Mechinat Magen Shaul (Nokdim)",
+      "slug": "mechinat-magen-shaul-nokdim"
+    },
+    {
+      "id": "cmrem7lur0014rvmzk5nq2nlv",
+      "name": "Mechinat Mashahiyot (Maskyot)",
+      "slug": "mechinat-mashahiyot-maskyot"
+    },
+    {
+      "id": "cmrem7n020016rvmz2o6dcesy",
+      "name": "Mechinat Oz Shlomo",
+      "slug": "mechinat-oz-shlomo"
+    },
+    {
+      "id": "cmrem7skb001grvmz0yn9s8zi",
+      "name": "Mechinat Uri",
+      "slug": "mechinat-uri"
+    },
+    {
+      "id": "cmrem7vwo001mrvmzwnsf8pf8",
+      "name": "Mechinat Beer Ora",
+      "slug": "mechinat-beer-ora"
+    },
+    {
+      "id": "cmr9qik8n001orumz7f50tzu4",
+      "name": "Kadima (World Bnei Akiva)",
+      "slug": "kadima-world-bnei-akiva"
+    },
+    {
+      "id": "cmrem77ay000grvmzdef78186",
+      "name": "Mechinat Elisha",
+      "slug": "mechinat-elisha"
+    },
+    {
+      "id": "cmrem78gh000irvmz8hhrg951",
+      "name": "Mechinat Arzei HaLevanon",
+      "slug": "mechinat-arzei-halevanon"
+    },
+    {
+      "id": "cmrem79hy000krvmz3issbr9e",
+      "name": "Mechinat Beit Yatir",
+      "slug": "mechinat-beit-yatir"
+    },
+    {
+      "id": "cmrem7c09000orvmzgne5njlf",
+      "name": "Mechinat Chemdat Yehuda",
+      "slug": "mechinat-chemdat-yehuda"
+    },
+    {
+      "id": "cmrem7d5i000qrvmzoh6j6f05",
+      "name": "Mechinat Yedidya",
+      "slug": "mechinat-yedidya"
+    },
+    {
+      "id": "cmrem7i8x000yrvmz96w2mjq0",
+      "name": "Mechinat Lapidot Emuna",
+      "slug": "mechinat-lapidot-emuna"
+    },
+    {
+      "id": "cmrem7knv0012rvmz7ra5bn7z",
+      "name": "Mechinat Maoz (Lod)",
+      "slug": "mechinat-maoz-lod"
+    },
+    {
+      "id": "cmrem7o490018rvmzme4yuetk",
+      "name": "Mechinat Shuvu Achim",
+      "slug": "mechinat-shuvu-achim"
+    },
+    {
+      "id": "cmrem7ur8001krvmz0gtzlazk",
+      "name": "Mechinat Echad V'Achat Mishelanu",
+      "slug": "mechinat-echad-vachat-mishelanu"
+    },
+    {
+      "id": "cmrem7qdi001crvmzzauqvki8",
+      "name": "Mechinat Keshet Yehuda",
+      "slug": "mechinat-keshet-yehuda"
+    },
+    {
+      "id": "cmrem7tpu001irvmzt3pa1p60",
+      "name": "Mechinat Lavi",
+      "slug": "mechinat-lavi"
+    },
+    {
+      "id": "cmrem7rix001ervmz1i2nhlgq",
+      "name": "Mechinat Tamir",
+      "slug": "mechinat-tamir"
+    },
+    {
+      "id": "cmrem7pc5001arvmz7ee8i3c7",
+      "name": "Mechinat Tzahali",
+      "slug": "mechinat-tzahali"
+    },
+    {
+      "id": "cmrem88k60026rvmzf7vhz1xw",
+      "name": "Midreshet HaShiluv Natur",
+      "slug": "midreshet-hashiluv-natur"
+    },
+    {
+      "id": "cmr9qisxy001qrumz18e82noz",
+      "name": "Mechina Olamit (World Bnei Akiva and Kol Ami)",
+      "slug": "mechina-olamit-world-bnei-akiva"
+    }
+  ]
+}
