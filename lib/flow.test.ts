@@ -6,7 +6,7 @@ import type { FlowCondition, FlowOptionSetRules } from "./flowShared";
 // Prisma surface: FlowQuestion/FlowOption CRUD + reorder, FlowResponse existence
 // checks (for the version-bump and retire-never-delete guards), and Tag lookups (for
 // the shared UnknownTagSlugsError contract).
-const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse } = vi.hoisted(() => {
+const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, seedProgram } = vi.hoisted(() => {
   type QuestionRow = {
     id: string;
     key: string;
@@ -37,13 +37,15 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse } =
     optionSetKeys: string[];
   };
   type ResponseRow = { id: string; questionKey: string; optionKeys: string[] };
-  type TagRow = { slug: string };
+  type TagRow = { slug: string; category?: string | null };
+  type ProgramRow = { id: string; status: string; tagSlugs: string[] };
 
   const db = {
     questions: [] as QuestionRow[],
     options: [] as OptionRow[],
     responses: [] as ResponseRow[],
     tags: [] as TagRow[],
+    programs: [] as ProgramRow[],
     seq: 0,
   };
 
@@ -160,6 +162,26 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse } =
       findMany: async ({ where }: { where: { slug: { in: string[] } } }) =>
         db.tags.filter((t) => where.slug.in.includes(t.slug)).map((t) => ({ slug: t.slug })),
     },
+    // Minimal fake for countProgramsMissingCategoryTags's two `prisma.program.count`
+    // calls -- a plain status equality filter, plus a `tags.none.category` relation
+    // filter resolved by looking each of a program's tagSlugs up in db.tags.
+    program: {
+      count: async ({
+        where,
+      }: {
+        where?: { status?: string; tags?: { none?: { category?: string } } };
+      }) => {
+        let rows = [...db.programs];
+        if (where?.status) rows = rows.filter((p) => p.status === where.status);
+        const category = where?.tags?.none?.category;
+        if (category !== undefined) {
+          rows = rows.filter(
+            (p) => !p.tagSlugs.some((slug) => db.tags.find((t) => t.slug === slug)?.category === category)
+          );
+        }
+        return rows.length;
+      },
+    },
     $transaction: async (arg: unknown) => {
       if (Array.isArray(arg)) return Promise.all(arg);
       if (typeof arg === "function") return arg(fakePrisma);
@@ -174,6 +196,7 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse } =
       db.options = [];
       db.responses = [];
       db.tags = [];
+      db.programs = [];
       db.seq = 0;
     },
     seedQuestion: (row: Partial<QuestionRow> & { id: string; key: string }) =>
@@ -204,8 +227,10 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse } =
         optionSetKeys: [],
         ...row,
       }),
-    seedTag: (slug: string) => db.tags.push({ slug }),
+    seedTag: (slug: string, category?: string) => db.tags.push({ slug, category }),
     seedResponse: (row: ResponseRow) => db.responses.push(row),
+    seedProgram: (row: Partial<ProgramRow> & { id: string }) =>
+      db.programs.push({ status: "PUBLISHED", tagSlugs: [], ...row }),
   };
 });
 
@@ -224,6 +249,7 @@ const {
   deleteFlowOption,
   reorderFlowOptions,
   UnknownTagSlugsError,
+  countProgramsMissingCategoryTags,
 } = await import("./flow");
 
 beforeEach(() => {
@@ -587,5 +613,28 @@ describe("reordering can't silently break an EXISTING show-condition elsewhere i
     // (0) is invalid (1 >= 0), and must be rejected on that basis.
     const badRule = { v: 1 as const, when: { type: "answerIn" as const, questionKey: "s", optionKeys: ["x"] } };
     await expect(updateFlowQuestion("q", { showWhen: badRule, order: 0 })).rejects.toThrow(/isn't ordered before/);
+  });
+});
+
+describe("countProgramsMissingCategoryTags", () => {
+  beforeEach(() => {
+    seedTag("israeli-yeshiva", "program-type");
+    seedTag("essence-travel", "essence");
+  });
+
+  it("total is PUBLISHED programs only; missing is PUBLISHED programs with no tag in the given category", async () => {
+    seedProgram({ id: "p1", status: "PUBLISHED", tagSlugs: ["israeli-yeshiva"] }); // has a program-type tag
+    seedProgram({ id: "p2", status: "PUBLISHED", tagSlugs: [] }); // no tags at all -- missing
+    seedProgram({ id: "p3", status: "PUBLISHED", tagSlugs: ["essence-travel"] }); // tagged, but wrong category -- still missing
+    seedProgram({ id: "p4", status: "PENDING", tagSlugs: [] }); // not PUBLISHED -- excluded from both total and missing
+
+    await expect(countProgramsMissingCategoryTags("program-type")).resolves.toEqual({ total: 3, missing: 2 });
+  });
+
+  it("missing is 0 once every PUBLISHED program carries a tag in the category", async () => {
+    seedProgram({ id: "p1", status: "PUBLISHED", tagSlugs: ["israeli-yeshiva"] });
+    seedProgram({ id: "p2", status: "PENDING", tagSlugs: [] });
+
+    await expect(countProgramsMissingCategoryTags("program-type")).resolves.toEqual({ total: 1, missing: 0 });
   });
 });
