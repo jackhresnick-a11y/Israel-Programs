@@ -15,6 +15,12 @@
  * this category" (the reviewer deliberately cleared a pre-filled cell), not "no change".
  * A category's tags are fully replaced by whatever survives validation in its cell.
  *
+ * Because blank now means "remove everything", a mis-selected/deleted spreadsheet
+ * column looks identical to a genuine mass-removal. The bulk-removal guard refuses to
+ * report when more rows propose a removal than the smaller of 10% of the CSV's rows or
+ * 25 rows, printing the affected program names -- pass --confirm-bulk-removal to
+ * proceed anyway. Applies to this dry-run reporting already, not just a future --apply.
+ *
  * MODIFIES NOTHING. Run:
  *   set -a && source .env && source .env.local && set +a
  *   npx tsx scripts/import-tag-audit.ts <path-to-csv>
@@ -216,6 +222,11 @@ type ProgramResult = {
   diffs: CategoryDiff[];
 };
 
+// Bulk-removal guard: refuse when proposed removals exceed the smaller of 10% of the
+// CSV's rows or 25 rows, unless --confirm-bulk-removal is passed.
+const BULK_REMOVAL_PERCENT = 0.1;
+const BULK_REMOVAL_ABS_CAP = 25;
+
 function splitValues(cell: string): string[] {
   return cell
     .split("|")
@@ -385,8 +396,48 @@ async function main() {
     }
   });
 
+  // --- Bulk-removal guard ---
+  // Blank proposed cells mean "remove everything in this category" now (see header
+  // comment), so a mis-selected/deleted column in the source spreadsheet looks
+  // identical to a genuine mass-removal: every row's proposed cell reads as blank.
+  // Refuse rather than report a huge removal silently -- this must hold even though
+  // --apply doesn't exist yet, so the refusal is proven out before there's a write
+  // path behind it to protect.
+  const rowsWithRemovals = results.filter((r) => r.diffs.some((d) => d.toRemove.length > 0));
+  const bulkRemovalThreshold = Math.min(totalRows * BULK_REMOVAL_PERCENT, BULK_REMOVAL_ABS_CAP);
+  const confirmBulkRemoval = args.includes("--confirm-bulk-removal");
+  const bulkRemovalTripped = rowsWithRemovals.length > bulkRemovalThreshold;
+
+  if (bulkRemovalTripped && !confirmBulkRemoval) {
+    log("## REFUSED: bulk-removal guard");
+    log("");
+    log(
+      `${rowsWithRemovals.length} row(s) propose removing at least one tag, exceeding the ` +
+        `bulk-removal threshold of ${bulkRemovalThreshold} (the smaller of 10% of ${totalRows} ` +
+        `total rows and 25 rows). This usually means a mis-selected or accidentally-cleared ` +
+        `column, not ${rowsWithRemovals.length} genuine removals.`
+    );
+    log("");
+    log("Affected programs:");
+    for (const r of rowsWithRemovals) {
+      log(`- row ${r.row}: ${r.name} (${r.slug}, ${r.id})`);
+    }
+    log("");
+    log("Re-run with --confirm-bulk-removal if this many removals is genuinely intended.");
+    mkdirSync("exports", { recursive: true });
+    writeFileSync("exports/tag-import-dryrun.md", out.join("\n") + "\n");
+    process.exit(1);
+  }
+
   // --- Summary ---
   log("## Summary");
+  if (bulkRemovalTripped) {
+    log(
+      `(bulk-removal guard: ${rowsWithRemovals.length} rows with removals exceeded the ` +
+        `${bulkRemovalThreshold} threshold -- proceeding because --confirm-bulk-removal was passed)`
+    );
+    log("");
+  }
   log("");
   log(`- total rows: ${totalRows}`);
   log(`- rows with proposals (matched): ${matchedRows}`);
