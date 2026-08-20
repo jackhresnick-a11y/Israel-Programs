@@ -1,9 +1,15 @@
 /**
  * Read-only tag audit: for every PUBLISHED program, dumps its current tag/duration/region
- * state to a CSV with empty proposed_type/proposed_essence/reviewer/notes columns, so a
- * human can work the program-type/essence backfill backlog in a spreadsheet. Never writes
- * to the DB -- this is the input to a later, separate backfill pass, not the backfill
- * itself.
+ * state to a CSV with reviewer/notes columns, so a human can work the program-type/essence
+ * backfill backlog in a spreadsheet. Never writes to the DB -- this is the input to a
+ * later, separate backfill pass, not the backfill itself.
+ *
+ * proposed_type/proposed_essence start pre-filled with each program's current values
+ * (same pipe-joined format as current_type/current_essence), not blank. The importer
+ * (scripts/import-tag-audit.ts) replaces the full tag set within a category from
+ * whatever survives in the proposed cell, so a blank cell there means "remove
+ * everything in this category" -- pre-filling means that only happens when a reviewer
+ * deliberately clears it, not by leaving a cell untouched.
  *
  * MODIFIES NOTHING. Run:
  *   set -a && source .env && source .env.local && set +a
@@ -60,21 +66,24 @@ async function main() {
     const regionSlugs = regions
       .filter((r) => r.memberSlugs.some((s) => locationSlugs.has(s)))
       .map((r) => r.slug);
+    const currentType = slugsIn(p.tags, FAMILY.type);
+    const currentEssence = slugsIn(p.tags, FAMILY.essence);
 
     return {
       id: p.id,
       name: p.name,
       slug: p.slug,
       url: `${LISTING_BASE_URL}/${p.slug}`,
-      current_type: slugsIn(p.tags, FAMILY.type),
-      current_essence: slugsIn(p.tags, FAMILY.essence),
+      current_type: currentType,
+      current_essence: currentEssence,
       current_duration: durationLabels[p.durationType],
       current_gender: slugsIn(p.tags, FAMILY.gender),
       current_religious_affiliation: slugsIn(p.tags, FAMILY.affiliation),
       current_israeli_integration: slugsIn(p.tags, FAMILY.integration),
       current_region: regionSlugs.join("|"),
-      proposed_type: "",
-      proposed_essence: "",
+      // Pre-filled with the current value, not blank -- see header comment.
+      proposed_type: currentType,
+      proposed_essence: currentEssence,
       reviewer: "",
       notes: "",
     };
