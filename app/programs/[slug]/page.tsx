@@ -25,7 +25,6 @@ import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PartnerCta from "@/components/PartnerCta";
 import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
 import ReviewsSection from "@/components/ReviewsSection";
-import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
 import ProgramJumpNav, { type JumpNavItem } from "@/components/ProgramJumpNav";
 import PageContainer from "@/components/ui/PageContainer";
@@ -245,8 +244,6 @@ export default async function ProgramDetailPage({
           when the one-per-page resolver picked PROGRAM_LOCKED (which already required
           !pollSummary.visible). */}
       {partnerCta?.placement === "PROGRAM_LOCKED" && <PartnerCta slot={partnerCta.slot} />}
-
-      {publicPollLink && <PublicPollLink link={publicPollLink} />}
 
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 

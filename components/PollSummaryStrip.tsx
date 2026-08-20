@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/Button";
 import DescriptiveTrack from "@/components/polls/DescriptiveTrack";
 import RatingRing from "@/components/polls/RatingRing";
 import BestForStrip from "@/components/polls/BestForStrip";
+import PublicPollLink from "@/components/polls/PublicPollLink";
 import { deriveCtaLayout } from "@/lib/contactOptIn";
 import { useIsModerator } from "@/lib/useModeratorRole";
 import type { PollSummaryDTO, PollSummaryQuestionDTO, PollSummaryBucketDTO } from "@/lib/pollShared";
@@ -344,6 +345,7 @@ export default function PollSummaryStrip({
           />
         )}
         <RateCta rateHref={rateHref} responseCount={summary.responseCount} showResponseCount={layout.showResponseCount} />
+        {publicPollLink && <PublicPollLink link={publicPollLink} />}
       </div>
 
       {layout.showResults &&
