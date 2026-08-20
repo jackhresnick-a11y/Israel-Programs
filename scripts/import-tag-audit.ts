@@ -4,8 +4,16 @@
  * validates proposed slugs against the live taxonomy, and reports the exact add/remove
  * diff per category -- never guessing, never writing.
  *
- * Column matching is fuzzy (not a fixed header) since the exporter's format is still
- * being finalized -- see the resolution block printed at the top of the report/output.
+ * Column matching tries scripts/export-tag-audit.ts's exact header names ("id",
+ * "proposed_type", "proposed_essence") first, and only falls back to fuzzy matching
+ * (proposed_* by suffix) if that exact match fails -- e.g. against a hand-edited or
+ * differently-shaped CSV. Either way, the resolution block printed at the top of the
+ * report/output shows which strategy matched and which columns it landed on.
+ *
+ * export-tag-audit.ts pre-fills proposed_type/proposed_essence with each program's
+ * current value, so a *blank* proposed cell here is an explicit "remove everything in
+ * this category" (the reviewer deliberately cleared a pre-filled cell), not "no change".
+ * A category's tags are fully replaced by whatever survives validation in its cell.
  *
  * MODIFIES NOTHING. Run:
  *   set -a && source .env && source .env.local && set +a
@@ -92,7 +100,8 @@ function parseCsv(text: string): string[][] {
 }
 
 // ---------------------------------------------------------------------------
-// Column resolution (fuzzy)
+// Column resolution: scripts/export-tag-audit.ts's exact headers first, fuzzy
+// suffix-matching as a fallback for anything else.
 // ---------------------------------------------------------------------------
 
 function normalizeHeader(h: string): string {
@@ -106,6 +115,7 @@ function suffixToCategory(suffix: string): string | null {
 }
 
 type ColumnResolution = {
+  strategy: "exact" | "fuzzy";
   idColumn: string | null;
   idIndex: number;
   proposalColumns: { header: string; index: number; category: string }[];
@@ -113,7 +123,52 @@ type ColumnResolution = {
   ignoredColumns: string[];
 };
 
-function resolveColumns(header: string[]): ColumnResolution {
+const EXACT_ID_HEADER = "id";
+const EXACT_PROPOSAL_HEADERS: Record<string, string> = {
+  proposed_type: "program-type",
+  proposed_essence: "essence",
+};
+
+// Exact match against export-tag-audit.ts's real header names. Requires the id column
+// and at least one proposed_* column to hit exactly; anything else about the header
+// (name/slug/url/current_*/reviewer/notes, or a differently-cased/spaced variant) just
+// falls through to ignoredColumns/fuzzy. Returns null (never a partial exact match) so
+// the caller falls back to fuzzy matching wholesale on failure.
+function resolveColumnsExact(header: string[]): ColumnResolution | null {
+  const idIndex = header.indexOf(EXACT_ID_HEADER);
+  if (idIndex === -1) return null;
+
+  const proposalColumns: ColumnResolution["proposalColumns"] = [];
+  header.forEach((h, index) => {
+    if (index === idIndex) return;
+    const category = EXACT_PROPOSAL_HEADERS[h];
+    if (category) proposalColumns.push({ header: h, index, category });
+  });
+  if (proposalColumns.length === 0) return null;
+
+  const claimedIndices = new Set([idIndex, ...proposalColumns.map((c) => c.index)]);
+  const unrecognizedProposedColumns: ColumnResolution["unrecognizedProposedColumns"] = [];
+  const ignoredColumns: string[] = [];
+  header.forEach((h, index) => {
+    if (claimedIndices.has(index)) return;
+    if (normalizeHeader(h).startsWith("proposed_")) {
+      unrecognizedProposedColumns.push({ header: h, index });
+    } else {
+      ignoredColumns.push(h);
+    }
+  });
+
+  return {
+    strategy: "exact",
+    idColumn: header[idIndex],
+    idIndex,
+    proposalColumns,
+    unrecognizedProposedColumns,
+    ignoredColumns,
+  };
+}
+
+function resolveColumnsFuzzy(header: string[]): ColumnResolution {
   let idColumn: string | null = null;
   let idIndex = -1;
   const proposalColumns: ColumnResolution["proposalColumns"] = [];
@@ -140,7 +195,11 @@ function resolveColumns(header: string[]): ColumnResolution {
     ignoredColumns.push(raw);
   });
 
-  return { idColumn, idIndex, proposalColumns, unrecognizedProposedColumns, ignoredColumns };
+  return { strategy: "fuzzy", idColumn, idIndex, proposalColumns, unrecognizedProposedColumns, ignoredColumns };
+}
+
+function resolveColumns(header: string[]): ColumnResolution {
+  return resolveColumnsExact(header) ?? resolveColumnsFuzzy(header);
 }
 
 // ---------------------------------------------------------------------------
@@ -199,6 +258,7 @@ async function main() {
   log("");
   log("## Column resolution");
   log("");
+  log(`- strategy: ${resolution.strategy}`);
   log(`- id column: ${resolution.idColumn ?? "(none found)"}`);
   for (const col of resolution.proposalColumns) {
     log(`- proposal column: "${col.header}" -> category "${col.category}"`);
@@ -232,7 +292,7 @@ async function main() {
   const programById = new Map(programs.map((p) => [p.id, p]));
 
   let totalRows = 0;
-  let rowsWithProposals = 0;
+  let matchedRows = 0;
   let unchangedRows = 0;
   let tagsToAdd = 0;
   let tagsToRemove = 0;
@@ -260,22 +320,13 @@ async function main() {
       idFirstSeenRow.set(id, rowNum);
     }
 
-    // Determine whether this row proposes anything at all before touching the DB match,
-    // per "ignore rows where proposed_type and proposed_essence are both empty".
-    const rawCells = resolution.proposalColumns.map((col) => (cells[col.index] ?? "").trim());
-    const hasAnyProposal = rawCells.some((c) => c.length > 0);
-    if (!hasAnyProposal) {
-      unchangedRows++;
-      return;
-    }
-
     const program = programById.get(id);
     if (!program) {
       unmatchedIds.push({ row: rowNum, id });
       return;
     }
 
-    rowsWithProposals++;
+    matchedRows++;
 
     const currentByCategory = new Map<string, Set<string>>();
     for (const t of program.tags) {
@@ -289,8 +340,10 @@ async function main() {
 
     for (const col of resolution.proposalColumns) {
       const cell = (cells[col.index] ?? "").trim();
-      if (!cell) continue; // blank cell: no change intended for this category
-
+      // A blank cell is a valid, explicit "empty desired set" (remove everything
+      // currently in this category) -- see the header comment. It only nets an
+      // actual removal when the program has current tags in this category; if both
+      // are empty this produces zero diff, same as leaving a pre-filled cell alone.
       const values = splitValues(cell);
       let rowRejected = false;
       for (const v of values) {
@@ -336,7 +389,7 @@ async function main() {
   log("## Summary");
   log("");
   log(`- total rows: ${totalRows}`);
-  log(`- rows with proposals (matched, non-blank): ${rowsWithProposals}`);
+  log(`- rows with proposals (matched): ${matchedRows}`);
   log(`- tags to add: ${tagsToAdd}`);
   log(`- tags to remove: ${tagsToRemove}`);
   log(`- invalid values: ${rejects.length}`);
