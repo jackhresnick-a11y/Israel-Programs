@@ -11,6 +11,8 @@ import DurationManager from "@/components/DurationManager";
 import RegionManager from "@/components/RegionManager";
 import PageContainer from "@/components/ui/PageContainer";
 import PageHeader from "@/components/ui/PageHeader";
+import { buttonVariants } from "@/components/ui/Button";
+import Link from "next/link";
 
 export default async function AdminTagsPage() {
   const role = await getCurrentRole();
@@ -73,9 +75,26 @@ export default async function AdminTagsPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
-          Tags ({tags.length})
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+            Tags ({tags.length})
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="/api/admin/tags/audit-csv"
+              download
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Download tag audit CSV
+            </a>
+            <Link
+              href="/admin/tags/coverage"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Tag coverage
+            </Link>
+          </div>
+        </div>
         <p className="text-sm text-muted">
           Rename a tag, move it to a different category, or add a brand-new one. Tags with
           no category still work as freeform hashtags but won&rsquo;t appear in the filter bar.

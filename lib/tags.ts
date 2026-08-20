@@ -222,6 +222,91 @@ export async function reorderTags(ids: string[]) {
   );
 }
 
+/** Every PUBLISHED program with its tags, for the /admin/tags/coverage page. Same
+ * unpaginated "fetch everything once" convention every other admin list in this app
+ * uses (listProgramsBestFor, getFacetData) -- the catalog is small enough that client-side
+ * filtering/pagination over the full set is simpler than a paginated query. */
+export async function listPublishedProgramsForCoverage() {
+  return prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      durationType: true,
+      hasScholarship: true,
+      hasCollegeCredit: true,
+      travelType: true,
+      tags: { select: { id: true, slug: true, name: true, category: true } },
+    },
+    orderBy: { name: "asc" },
+  });
+}
+
+/** Replaces a program's tag set within exactly one category, leaving every other
+ * category's tags (and every uncategorized tag) untouched -- unlike updateProgramTags
+ * (lib/programs.ts), which replaces the *entire* tags array and would silently wipe out
+ * gender/affiliation/age/location/etc. if called with just a type or essence selection.
+ * Used by the /admin/tags/coverage inline editor for program-type and essence.
+ *
+ * `slugs` must all already exist as Tag rows *in this category* -- an unknown slug or one
+ * belonging to a different category is rejected (never silently created or reattached to
+ * the wrong family), per this repo's "propose from existing set, flag gaps" tag rule. */
+export async function setCategoryTags(programId: string, category: string, slugs: string[]) {
+  const uniqueSlugs = Array.from(new Set(slugs));
+  const candidates = await prisma.tag.findMany({
+    where: { slug: { in: uniqueSlugs } },
+    select: { id: true, slug: true, category: true },
+  });
+  const bySlug = new Map(candidates.map((t) => [t.slug, t]));
+
+  const invalid: string[] = [];
+  const resolvedIds: string[] = [];
+  for (const slug of uniqueSlugs) {
+    const tag = bySlug.get(slug);
+    if (!tag || tag.category !== category) {
+      invalid.push(slug);
+      continue;
+    }
+    resolvedIds.push(tag.id);
+  }
+  if (invalid.length > 0) {
+    throw new InvalidCategoryTagsError(category, invalid);
+  }
+
+  const program = await prisma.program.findUnique({
+    where: { id: programId },
+    select: { tags: { where: { category }, select: { id: true } } },
+  });
+  if (!program) {
+    const err = new Error("Program not found") as Error & { code: string };
+    err.code = "P2025";
+    throw err;
+  }
+  const currentIds = program.tags.map((t) => t.id);
+
+  return prisma.program.update({
+    where: { id: programId },
+    data: {
+      tags: {
+        disconnect: currentIds.map((id) => ({ id })),
+        connect: resolvedIds.map((id) => ({ id })),
+      },
+    },
+    select: { id: true, tags: { select: { id: true, slug: true, name: true, category: true } } },
+  });
+}
+
+export class InvalidCategoryTagsError extends Error {
+  constructor(
+    public category: string,
+    public slugs: string[]
+  ) {
+    super(`Unknown or wrong-category slug(s) for "${category}": ${slugs.join(", ")}`);
+    this.name = "InvalidCategoryTagsError";
+  }
+}
+
 /** Merges `sourceId` into `targetId`: repoints every program association from source to
  * target (skipping programs already tagged with target, since Program<->Tag is a unique
  * relation pair) then deletes the source tag. Used by admins to consolidate near-duplicate
