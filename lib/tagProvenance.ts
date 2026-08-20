@@ -19,6 +19,28 @@ export {
 };
 export type { TagProvenanceInput };
 
+/**
+ * Runs a query against ProgramTagProvenance and returns `empty` instead of throwing when
+ * the table isn't in the database yet. Same "safety net, not the plan" posture as
+ * lib/references.ts's emptyIfColumnMissing, for the same migration-ordering reason (see
+ * CLAUDE.md) -- /admin/programs must not 500 outright while a pending migration catches up.
+ *
+ * Deliberately narrow: only swallows the missing-table error (Prisma P2021). Any other
+ * failure propagates.
+ */
+export async function emptyIfTableMissing<T>(run: () => Promise<T>, empty: T): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    if (code === "P2021") {
+      console.error("[tagProvenance] ProgramTagProvenance migration not applied yet; degrading to empty");
+      return empty;
+    }
+    throw err;
+  }
+}
+
 export type ProgramTagProvenanceRow = {
   id: string;
   tagId: string;
@@ -107,9 +129,13 @@ export async function getTagProvenanceBacklog(): Promise<TagProvenanceBacklog> {
       select: { id: true, name: true, slug: true, tags: { select: { id: true } } },
       orderBy: { name: "asc" },
     }),
-    prisma.programTagProvenance.findMany({
-      select: { programId: true, tagId: true, source: true },
-    }),
+    emptyIfTableMissing(
+      () =>
+        prisma.programTagProvenance.findMany({
+          select: { programId: true, tagId: true, source: true },
+        }),
+      []
+    ),
   ]);
 
   const provenanceByProgram = new Map<string, Set<string>>();
