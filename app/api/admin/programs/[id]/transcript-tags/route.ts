@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { approveTranscriptTag, rejectTranscriptTag } from "@/lib/programs";
-import { UnknownTagSlugsError } from "@/lib/finder";
+import { UnknownTagSlugsError } from "@/lib/tagSlugValidation";
 import { revalidateProgram } from "@/lib/revalidate";
 
 type Params = { params: Promise<{ id: string }> };

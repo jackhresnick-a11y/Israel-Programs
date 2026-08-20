@@ -29,7 +29,7 @@ export type TranscriptListRow = {
 
 /** Thrown by saveTranscriptsBulk when a batch names a slug with no matching Program --
  * same "typed value must already exist, never fuzzily resolved" shape as
- * lib/finder.ts's UnknownTagSlugsError. */
+ * lib/tagSlugValidation.ts's UnknownTagSlugsError. */
 export class UnknownProgramSlugsError extends Error {
   slugs: string[];
   constructor(slugs: string[]) {

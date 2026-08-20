@@ -12,7 +12,7 @@ export default async function AdminFlowLayout({ children }: { children: React.Re
     <PageContainer width="wide">
       <PageHeader
         title="Match flow (v2)"
-        description="The weighted, video-argued question flow at /match -- questions, options, branching rules, and (soon) clips, all admin-editable with no deploy. /find (v1) is unaffected and stays live separately."
+        description="The weighted, video-argued question flow at /match -- questions, options, branching rules, and (soon) clips, all admin-editable with no deploy. This is now the site's one Placement Quiz experience; the old /find flow was removed and redirects here."
       />
       <FlowTabs />
       {children}
