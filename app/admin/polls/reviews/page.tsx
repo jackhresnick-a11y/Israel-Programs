@@ -35,12 +35,18 @@ export default async function AdminPollsReviewsPage({
   if (role !== "admin") redirect("/");
 
   const sp = await searchParams;
-  const status = VALID_STATUSES.includes(sp.status as PollReviewStatus) ? (sp.status as PollReviewStatus) : "PENDING";
+  // Missing or "ALL" -- and anything else unrecognized -- means "every status": the
+  // status filter must never be a hidden default exclusion (see listReviewQueue/
+  // listStandaloneReviewQueue). Only an actual VALID_STATUSES value narrows it.
+  const status = VALID_STATUSES.includes(sp.status as PollReviewStatus) ? (sp.status as PollReviewStatus) : undefined;
 
   const [reviews, elaborationAnswers, standaloneReviews, programs] = await Promise.all([
     listReviewQueue({ status, programId: sp.programId || undefined }),
     listElaborationQueue({ status, programId: sp.programId || undefined }),
-    listStandaloneReviewQueue({ status: POLL_TO_STANDALONE_STATUS[status], programId: sp.programId || undefined }),
+    listStandaloneReviewQueue({
+      status: status ? POLL_TO_STANDALONE_STATUS[status] : undefined,
+      programId: sp.programId || undefined,
+    }),
     listPublishedProgramNames(),
   ]);
 
@@ -61,8 +67,9 @@ export default async function AdminPollsReviewsPage({
   // Elaboration answers join PollReview in one merged queue (poll restructure item --
   // one moderation surface, not a second page): reshaped into the same row shape
   // PollReviewQueue renders, with `question` standing in for the prompt's key/text so no
-  // rendering branch is needed for that field. Merged rows sort oldest-first, matching
-  // each individual query's own `orderBy: { createdAt: "asc" }`.
+  // rendering branch is needed for that field. Merged rows always display oldest-first
+  // (this sort runs regardless of each underlying query's own orderBy, which only governs
+  // which 200 rows survive the take cap when `status` is unset -- see listReviewQueue).
   const pollReviewRows: PollReviewRow[] = reviews.map((r) => ({ ...withArchiverName(r), kind: "question" as const }));
   const elaborationRows: PollReviewRow[] = elaborationAnswers.map((a) => ({
     ...withArchiverName(a),
@@ -78,7 +85,7 @@ export default async function AdminPollsReviewsPage({
       <PollReviewQueue
         reviews={mergedRows}
         programs={programs}
-        filters={{ status, programId: sp.programId ?? "" }}
+        filters={{ status: status ?? "ALL", programId: sp.programId ?? "" }}
       />
       <StandaloneReviewQueue reviews={standaloneReviews.map(withArchiverName)} />
     </div>
