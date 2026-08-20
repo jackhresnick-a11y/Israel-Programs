@@ -1,6 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
+// /api/admin(.*) is listed separately from /admin(.*) (rather than relying on
+// /admin(.*) matching everything under that prefix) because every admin API route
+// previously relied solely on its own in-handler requireRole() check, with zero
+// defense-in-depth from auth.protect() here -- config.matcher below already runs this
+// middleware on every /api/:path* request, so this was purely a missing enforcement
+// call, not a missing invocation.
+const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
 
 export const proxy = clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {

@@ -17,6 +17,7 @@ import {
 } from "@/lib/pollShared";
 import { computeClusterSignal, type ClusterResponseInput } from "@/lib/pollClustering";
 import type { TagProvenanceSource } from "@/lib/tagProvenanceShared";
+import { emptyIfTableMissing } from "@/lib/tagProvenance";
 
 /** The one question every program's poll always carries (see the Core bucket seed) whose
  * answers we deliberately never surface -- no aggregate/overall scored number appears
@@ -378,9 +379,13 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
     // Batched, same posture as contactOptInRows above -- one fetch for every program's
     // tag-provenance rows rather than a query per program. Admin-only (see
     // ProgramTagProvenanceRow's doc comment); this is /admin/programs, gated admin-only.
-    prisma.programTagProvenance.findMany({
-      select: { programId: true, tagId: true, source: true, sourceUrl: true, note: true, verifiedAt: true, verifiedBy: true },
-    }),
+    emptyIfTableMissing(
+      () =>
+        prisma.programTagProvenance.findMany({
+          select: { programId: true, tagId: true, source: true, sourceUrl: true, note: true, verifiedAt: true, verifiedBy: true },
+        }),
+      []
+    ),
   ]);
 
   const provenanceByProgramId = new Map<string, ProgramTagProvenanceRow[]>();
