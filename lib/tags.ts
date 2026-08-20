@@ -204,10 +204,21 @@ export async function deleteTag(id: string) {
  * admin reorder arrows for a single category group at a time -- normalizing the whole
  * group instead of swapping two `order` values means it self-heals ties (most seeded
  * tags share the default `order: 0`, so a two-row swap between equal values was a no-op)
- * and can't leave a half-applied swap if one write fails. */
+ * and can't leave a half-applied swap if one write fails.
+ *
+ * `ids` may include a tag that's been deleted since the client last loaded the list (e.g.
+ * a stale browser tab open across a tag deletion/merge) -- same soft-reference-rot
+ * tolerance as Region.memberSlugs/BucketAttachmentRule.tagSlugs elsewhere in this app, so
+ * a client update() against a since-deleted id doesn't throw P2025 and fail the whole
+ * batch. Surviving ids are re-normalized to their index in the *filtered* list, not the
+ * original list, so no gaps are introduced. */
 export async function reorderTags(ids: string[]) {
+  const existing = await prisma.tag.findMany({ where: { id: { in: ids } }, select: { id: true } });
+  const existingIds = new Set(existing.map((t) => t.id));
+  const survivingIds = ids.filter((id) => existingIds.has(id));
+
   await prisma.$transaction(
-    ids.map((id, index) => prisma.tag.update({ where: { id }, data: { order: index } }))
+    survivingIds.map((id, index) => prisma.tag.update({ where: { id }, data: { order: index } }))
   );
 }
 

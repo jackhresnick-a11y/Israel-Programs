@@ -99,6 +99,16 @@ export const POLL_FIRST_COMMENT_EXPLAINER =
  * not a one-liner" framing. */
 export const POLL_COMMENT_PLACEHOLDER = "A few sentences — what it was actually like.";
 
+/** Shown directly above every open comment textarea (components/polls/
+ * QuestionWithReview.tsx), not just the first -- writing a comment while this is visible
+ * IS the consent to publish it, same "entering data under a fixed label/notice is the
+ * consent" pattern as POLL_REFERENCE_CONSENT_LABEL and the elaboration block's consent
+ * line below. There is deliberately no separate checkbox: a comment typed here is included
+ * in the next autosave unconditionally (see RateForm.tsx's saveDetailsToServer), and this
+ * disclaimer is what makes that a genuine, informed consent rather than a silent default. */
+export const POLL_COMMENT_PUBLIC_DISCLAIMER =
+  "This comment may be published publicly on this program's page after moderation.";
+
 /** Fixed consent line for the end-of-poll elaboration block (components/polls/
  * ElaborationBlock.tsx) -- pressing "Add this" under this label IS the consent, same
  * "entering data under a fixed label is the consent" pattern as

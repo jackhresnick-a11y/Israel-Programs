@@ -101,6 +101,7 @@ function FilterBar({ programs, filters }: { programs: ProgramOption[]; filters: 
       <label className="flex flex-col gap-1 text-xs text-muted">
         Status
         <Select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)} className="w-36">
+          <option value="ALL">All statuses</option>
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>

@@ -83,17 +83,19 @@ async function computeAttentionFlags(
   return flagsByResponseId;
 }
 
-/** The moderation queue -- default PENDING, capped at 200 most-recent matches. Includes
- * the full parent response (answers, verified/counted state, token label) for context,
- * same "sensitive fields are fine past the admin gate" posture as
- * lib/pollResponses.ts's listPollResponses. */
+/** The moderation queue -- capped at 200 matches. Includes the full parent response
+ * (answers, verified/counted state, token label) for context, same "sensitive fields are
+ * fine past the admin gate" posture as lib/pollResponses.ts's listPollResponses. No
+ * `filter.status` means "every status" -- see lib/reviews.ts's listStandaloneReviewQueue
+ * for why the status filter must never be a hidden exclusion, and why ordering flips to
+ * newest-first when it's absent. */
 export async function listReviewQueue(filter: PollReviewFilter = {}) {
   const reviews = await prisma.pollReview.findMany({
     where: {
-      status: filter.status ?? "PENDING",
+      ...(filter.status ? { status: filter.status } : {}),
       ...(filter.programId ? { programId: filter.programId } : {}),
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: filter.status ? "asc" : "desc" },
     take: 200,
     include: {
       question: { select: { key: true, text: true } },

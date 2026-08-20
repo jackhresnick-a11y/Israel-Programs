@@ -11,6 +11,14 @@
  * everything in this category" -- pre-filling means that only happens when a reviewer
  * deliberately clears it, not by leaving a cell untouched.
  *
+ * A program with no current tags in a category pre-fills as the literal sentinel
+ * "NONE", not an empty string -- current_type/current_essence stay real empty strings
+ * (the read-only reference), but if proposed_* also started blank for an untagged
+ * program, "empty because it had nothing" and "empty because a reviewer cleared it"
+ * would be indistinguishable in the CSV. NONE reads as "confirmed no tags" until a
+ * reviewer either leaves it (import-tag-audit.ts treats NONE the same as blank -- no
+ * change against an already-empty category) or replaces/deletes it.
+ *
  * MODIFIES NOTHING. Run:
  *   set -a && source .env && source .env.local && set +a
  *   npx tsx scripts/export-tag-audit.ts
@@ -22,6 +30,11 @@ import { getDurationLabelMap } from "../lib/duration";
 import { listRegions } from "../lib/regions";
 
 const LISTING_BASE_URL = "https://israelprogramswiki.com/programs";
+
+// Written into proposed_type/proposed_essence in place of "" when a program has no
+// current tags in that category -- see header comment. import-tag-audit.ts recognizes
+// this same string.
+const NONE_SENTINEL = "NONE";
 
 const FAMILY = {
   type: "program-type",
@@ -81,9 +94,10 @@ async function main() {
       current_religious_affiliation: slugsIn(p.tags, FAMILY.affiliation),
       current_israeli_integration: slugsIn(p.tags, FAMILY.integration),
       current_region: regionSlugs.join("|"),
-      // Pre-filled with the current value, not blank -- see header comment.
-      proposed_type: currentType,
-      proposed_essence: currentEssence,
+      // Pre-filled with the current value, not blank -- see header comment. A program
+      // with no current tags in the category gets the NONE sentinel instead of "".
+      proposed_type: currentType || NONE_SENTINEL,
+      proposed_essence: currentEssence || NONE_SENTINEL,
       reviewer: "",
       notes: "",
     };
