@@ -6,7 +6,7 @@
  */
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { UnknownTagSlugsError, slugifyValue, assertTagSlugsExist } from "@/lib/finder";
+import { UnknownTagSlugsError, slugifyValue, assertTagSlugsExist } from "@/lib/tagSlugValidation";
 import { parseVideoLink } from "@/lib/videoEmbed";
 import { youtubePosterFromEmbedUrl } from "@/lib/homeVideoConfig";
 import { fetchVimeoPosterUrl } from "@/lib/homeVideo";

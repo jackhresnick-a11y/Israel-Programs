@@ -12,7 +12,7 @@ import {
 import { recordProgramForExport } from "@/lib/programExport";
 import { resolveTagsByName, resolveExistingTagsByName } from "@/lib/tags";
 import { rankBySearchTerm, rankBySearchTermScored } from "@/lib/programSearch";
-import { UnknownTagSlugsError } from "@/lib/finder";
+import { UnknownTagSlugsError } from "@/lib/tagSlugValidation";
 
 export { DURATION_LABELS } from "@/lib/duration";
 

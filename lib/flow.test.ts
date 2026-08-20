@@ -5,7 +5,8 @@ import type { FlowCondition, FlowOptionSetRules } from "./flowShared";
 // Same hand-rolled shape as lib/finder.test.ts's fake, sized to lib/flow.ts's larger
 // Prisma surface: FlowQuestion/FlowOption CRUD + reorder, FlowResponse existence
 // checks (for the version-bump and retire-never-delete guards), and Tag lookups (for
-// the shared UnknownTagSlugsError contract).
+// the shared UnknownTagSlugsError contract) -- plus seedProgram, used by the
+// Tag-category-coverage tests below.
 const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, seedProgram } = vi.hoisted(() => {
   type QuestionRow = {
     id: string;
@@ -234,9 +235,9 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, se
   };
 });
 
-// lib/flow.ts imports UnknownTagSlugsError from lib/finder.ts, which itself imports
-// @/lib/prisma -- mocking that one module is enough for both files, no separate
-// lib/finder mock needed.
+// lib/flow.ts imports UnknownTagSlugsError from lib/tagSlugValidation.ts, which itself
+// imports @/lib/prisma -- mocking that one module is enough for both files, no separate
+// lib/tagSlugValidation mock needed.
 vi.mock("@/lib/prisma", () => ({ prisma: fakePrisma }));
 
 const {

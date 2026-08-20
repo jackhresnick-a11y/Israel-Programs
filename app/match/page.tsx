@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { getCurrentRole } from "@/lib/roles";
 import { getSiteContent } from "@/lib/siteContent";
 import { getClientIpFromHeaders } from "@/lib/rateLimit";
+import { SITE_NAME } from "@/lib/siteUrl";
 import {
   loadActiveFlowQuestions,
   loadFlowClipData,
@@ -19,12 +20,35 @@ import PageHeader from "@/components/ui/PageHeader";
 import { buttonVariants } from "@/components/ui/Button";
 import Link from "next/link";
 
-// Non-indexed while /match is flag-gated and still being content-authored (see
-// /admin/flow/questions) -- unlike v1's /find, which is a stable, permanent tool.
-export const metadata: Metadata = {
-  title: "Find your program",
-  robots: { index: false, follow: false },
-};
+const MATCH_DESCRIPTION =
+  "A few quick, weighted questions to match you with the programs worth a closer look.";
+
+// This is now the site's one Placement Quiz experience (v1's /find was removed and
+// redirects here). Indexable only once findV2Enabled is live -- while admin-only, the
+// public URL still resolves for admins previewing it, so it must stay noindexed rather
+// than get crawled/surfaced before it's meant to be public.
+export async function generateMetadata(): Promise<Metadata> {
+  const flag = await getSiteContent("findV2Enabled");
+  const live = flag === "true";
+  return {
+    title: "Find your program",
+    description: MATCH_DESCRIPTION,
+    alternates: { canonical: "/match" },
+    robots: { index: live, follow: live },
+    openGraph: live
+      ? {
+          title: "Find your program",
+          description: MATCH_DESCRIPTION,
+          url: "/match",
+          type: "website",
+          siteName: SITE_NAME,
+          // Nested `openGraph` objects replace the parent's wholesale (not merge) --
+          // see app/programs/page.tsx's identical note.
+          images: "/opengraph-image",
+        }
+      : undefined,
+  };
+}
 
 type SearchParams = Promise<{
   s?: string;
