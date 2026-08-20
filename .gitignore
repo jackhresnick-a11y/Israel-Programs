@@ -57,3 +57,6 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# local-only tag-audit export (scripts/export-tag-audit.ts) -- regenerate, don't commit
+/exports/
