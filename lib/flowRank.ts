@@ -54,9 +54,18 @@ export type FlowRequireTarget = {
 
 export type FlowRunInput = { criteria: FlowCriterion[]; requireTargets: FlowRequireTarget[] };
 
-/** Splits a resolved flow's answered options by FlowOption.matchMode. Iterates
- * `visible` (not the full question bank), so a condition-hidden question's answer
- * -- already pruned out of `state` by resolveFlow -- can never leak in here either. */
+/** Splits a resolved flow's answered options by FlowOption.matchMode -- but matchMode
+ * and weight are independent, not exclusive: a REQUIRE option ALSO contributes a
+ * weighted criterion alongside its require target. That's what lets an admin
+ * distinguish a program that merely survived a REQUIRE filter via
+ * requireIncludesUntagged from one that genuinely carries the required tag -- the
+ * latter should rank higher, and only a weight can express that. A REQUIRE option
+ * with the conventional weight: 0 (the three eliminators in the live seed) still
+ * contributes nothing to ranking, because rankPrograms filters weight === 0 before
+ * computing totalWeight -- so this is purely additive against existing data.
+ * Iterates `visible` (not the full question bank), so a condition-hidden question's
+ * answer -- already pruned out of `state` by resolveFlow -- can never leak in here
+ * either. */
 export function buildFlowRunInput(visible: FlowQuestionDTO[], state: FlowAnswerState): FlowRunInput {
   const criteria: FlowCriterion[] = [];
   const requireTargets: FlowRequireTarget[] = [];
@@ -75,15 +84,14 @@ export function buildFlowRunInput(visible: FlowQuestionDTO[], state: FlowAnswerS
           durationValues: option.durationValues,
           requireIncludesUntagged: option.requireIncludesUntagged,
         });
-      } else {
-        criteria.push({
-          questionKey: question.key,
-          label: option.label,
-          weight: option.weight,
-          tagSlugs: option.tagSlugs,
-          durationValues: option.durationValues,
-        });
       }
+      criteria.push({
+        questionKey: question.key,
+        label: option.label,
+        weight: option.weight,
+        tagSlugs: option.tagSlugs,
+        durationValues: option.durationValues,
+      });
     }
   }
   return { criteria, requireTargets };

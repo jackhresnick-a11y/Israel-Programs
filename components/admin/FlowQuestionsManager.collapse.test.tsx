@@ -27,6 +27,7 @@ function option(overrides: Partial<FlowOptionRow> & Pick<FlowOptionRow, "id" | "
     weight: 1,
     requireIncludesUntagged: true,
     optionSetKeys: [],
+    showWhen: null,
     ...overrides,
   };
 }

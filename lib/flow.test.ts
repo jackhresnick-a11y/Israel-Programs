@@ -36,6 +36,7 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, se
     weight: number;
     requireIncludesUntagged: boolean;
     optionSetKeys: string[];
+    showWhen: unknown;
   };
   type ResponseRow = { id: string; questionKey: string; optionKeys: string[] };
   type TagRow = { slug: string; category?: string | null };
@@ -62,17 +63,30 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, se
   // TransactionClient | typeof prisma union type expects.
   const fakePrisma: Record<string, unknown> = {
     flowQuestion: {
-      findMany: async ({ where }: { where?: { key?: { in: string[] }; status?: string } }) => {
+      findMany: async ({
+        where,
+        select,
+      }: {
+        where?: { key?: { in: string[] }; status?: string };
+        select?: { options?: { where?: { status?: string } } };
+      }) => {
         let rows = [...db.questions];
         if (where?.key?.in) rows = rows.filter((q) => where.key!.in.includes(q.key));
         if (where?.status) rows = rows.filter((q) => q.status === where.status);
         // Every real query that fetches question rows here also wants each
-        // question's options (assertConditionReferencesValid's optionKeys check),
-        // so the fake always attaches them rather than modeling select/include
-        // shape precisely.
+        // question's options -- assertConditionReferencesValid's optionKeys check
+        // (ANY status, per its own doc comment), and the reorder/removal guards'
+        // option-level showWhen scan (ACTIVE only, via `select.options.where.status`,
+        // same as the two question-level rule fields those callers also read) -- so
+        // the fake always attaches key/showWhen/status rather than modeling
+        // select/include shape precisely.
+        const optionStatusFilter = select?.options?.where?.status;
         return rows.map((q) => ({
           ...q,
-          options: db.options.filter((o) => o.questionId === q.id).map((o) => ({ key: o.key })),
+          options: db.options
+            .filter((o) => o.questionId === q.id)
+            .filter((o) => !optionStatusFilter || o.status === optionStatusFilter)
+            .map((o) => ({ key: o.key, showWhen: o.showWhen, status: o.status })),
         }));
       },
       findUniqueOrThrow: async ({ where }: { where: { id: string } }) => {
@@ -122,7 +136,7 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, se
         const row = db.options.find((o) => o.id === where.id);
         if (!row) throw new Error("fake prisma: no FlowOption with that id");
         const question = db.questions.find((q) => q.id === row.questionId);
-        return { ...row, question: { key: question?.key ?? "" } };
+        return { ...row, question: { key: question?.key ?? "", order: question?.order ?? 0 } };
       },
       aggregate: async ({ where }: { where?: { questionId?: string } }) => {
         const rows = where?.questionId ? db.options.filter((o) => o.questionId === where.questionId) : db.options;
@@ -226,6 +240,7 @@ const { fakePrisma, resetDb, seedQuestion, seedOption, seedTag, seedResponse, se
         weight: 1,
         requireIncludesUntagged: true,
         optionSetKeys: [],
+        showWhen: null,
         ...row,
       }),
     seedTag: (slug: string, category?: string) => db.tags.push({ slug, category }),
@@ -409,6 +424,40 @@ describe("removing an option a show-condition depends on -- the same failure cla
     });
     await expect(deleteFlowOption("opt-working")).resolves.toBeDefined();
   });
+
+  it("refuses to retire/delete an option that ANOTHER OPTION's showWhen references", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({
+      id: "opt-religious",
+      questionId: "q2",
+      key: "religious-mechina",
+      showWhen: {
+        v: 1,
+        when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+      },
+    });
+    await expect(updateFlowOption("opt-during-college", { status: "RETIRED" })).rejects.toThrow(/can't be removed/);
+    await expect(deleteFlowOption("opt-during-college")).rejects.toThrow(/can't be removed/);
+  });
+
+  it("an ACTIVE option's own rule doesn't block removal of an unrelated sibling", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedOption({ id: "opt-right-after-hs", questionId: "q1", key: "right-after-hs" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({
+      id: "opt-religious",
+      questionId: "q2",
+      key: "religious-mechina",
+      showWhen: {
+        v: 1,
+        when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+      },
+    });
+    await expect(deleteFlowOption("opt-right-after-hs")).resolves.toBeDefined();
+  });
 });
 
 describe("version bump on reword, only once the question has responses", () => {
@@ -509,6 +558,53 @@ describe("show-condition forward-reference validation at write time", () => {
       rules: [{ optionSetKey: "boys", when: { type: "answerIn", questionKey: "program-essence", optionKeys: ["x"] } }],
     };
     await expect(updateFlowQuestion("q2", { optionSetRules: badRules })).rejects.toThrow(/isn't ordered before/);
+  });
+});
+
+describe("option-level show-condition forward-reference validation at write time", () => {
+  it("accepts an option's rule referencing a question ordered before the option's PARENT question", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({ id: "opt-religious", questionId: "q2", key: "religious-mechina" });
+    const rule: FlowCondition = {
+      v: 1,
+      when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+    };
+    await expect(updateFlowOption("opt-religious", { showWhen: rule })).resolves.toBeDefined();
+  });
+
+  it("rejects an option's rule referencing its OWN parent question", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedOption({ id: "opt-right-after-hs", questionId: "q1", key: "right-after-hs" });
+    const rule: FlowCondition = {
+      v: 1,
+      when: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] },
+    };
+    await expect(updateFlowOption("opt-right-after-hs", { showWhen: rule })).rejects.toThrow(/isn't ordered before/);
+  });
+
+  it("rejects an option's rule referencing a LATER question", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({ id: "opt-religious", questionId: "q2", key: "religious-mechina" });
+    const rule: FlowCondition = { v: 1, when: { type: "answerIn", questionKey: "program-type", optionKeys: ["religious-mechina"] } };
+    // during-college's parent (q1, order 0) referencing program-type (order 1), which comes AFTER it.
+    await expect(updateFlowOption("opt-during-college", { showWhen: rule })).rejects.toThrow(/isn't ordered before/);
+  });
+
+  it("rejects an option's rule naming a typo'd option key on the referenced question", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({ id: "opt-religious", questionId: "q2", key: "religious-mechina" });
+    const rule: FlowCondition = {
+      v: 1,
+      when: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-collage"] },
+    };
+    await expect(updateFlowOption("opt-religious", { showWhen: rule })).rejects.toThrow(/unknown option key/);
   });
 });
 
@@ -614,6 +710,41 @@ describe("reordering can't silently break an EXISTING show-condition elsewhere i
     // (0) is invalid (1 >= 0), and must be rejected on that basis.
     const badRule = { v: 1 as const, when: { type: "answerIn" as const, questionKey: "s", optionKeys: ["x"] } };
     await expect(updateFlowQuestion("q", { showWhen: badRule, order: 0 })).rejects.toThrow(/isn't ordered before/);
+  });
+
+  it("rejects a reorder that would leave an OPTION's saved rule referencing something no longer earlier", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({
+      id: "opt-religious",
+      questionId: "q2",
+      key: "religious-mechina",
+      showWhen: {
+        v: 1,
+        when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+      },
+    });
+    // Moving life-stage to AFTER program-type breaks religious-mechina's saved
+    // option-level rule -- this PATCH only touches `order`, never the option row.
+    await expect(updateFlowQuestion("q1", { order: 2 })).rejects.toThrow(/would break existing show-conditions/);
+  });
+
+  it("a RETIRED option's stale rule doesn't block reordering everyone else", async () => {
+    seedQuestion({ id: "q1", key: "life-stage", order: 0 });
+    seedOption({ id: "opt-during-college", questionId: "q1", key: "during-college" });
+    seedQuestion({ id: "q2", key: "program-type", order: 1 });
+    seedOption({
+      id: "opt-religious",
+      questionId: "q2",
+      key: "religious-mechina",
+      status: "RETIRED",
+      showWhen: {
+        v: 1,
+        when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+      },
+    });
+    await expect(updateFlowQuestion("q1", { order: 5 })).resolves.toBeDefined();
   });
 });
 

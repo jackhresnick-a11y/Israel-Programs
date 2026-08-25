@@ -47,6 +47,7 @@ function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | 
     rationale: null,
     order: 0,
     optionSetKeys: [],
+    showWhen: null,
     tagSlugs: [],
     durationValues: [],
     matchMode: "WEIGHT",
@@ -91,12 +92,28 @@ describe("buildFlowRunInput", () => {
     options: [option({ key: "spiritual", label: "Spiritual growth", tagSlugs: ["essence-spiritual-growth"], weight: 1 })],
   });
 
-  it("splits WEIGHT and REQUIRE options into criteria vs requireTargets", () => {
+  it("a REQUIRE option ALSO contributes a criterion (matchMode and weight are independent) -- weight: 0 (the live convention) keeps it inert once rankPrograms filters weight === 0", () => {
     const state: FlowAnswerState = new Map([["program-gender", ["boys-only"]]]);
     const { criteria, requireTargets } = buildFlowRunInput([genderQuestion], state);
-    expect(criteria).toEqual([]);
+    expect(criteria).toEqual([
+      { questionKey: "program-gender", label: "Boys only", weight: 0, tagSlugs: ["boys-only"], durationValues: [] },
+    ]);
     expect(requireTargets).toHaveLength(1);
     expect(requireTargets[0]).toMatchObject({ questionKey: "program-gender", tagSlugs: ["boys-only"] });
+  });
+
+  it("a REQUIRE option with a non-zero weight contributes both a require target and a live criterion", () => {
+    const q = question({
+      key: "program-gender",
+      order: 0,
+      options: [option({ key: "boys-only", label: "Boys only", matchMode: "REQUIRE", tagSlugs: ["boys-only"], weight: 3 })],
+    });
+    const state: FlowAnswerState = new Map([["program-gender", ["boys-only"]]]);
+    const { criteria, requireTargets } = buildFlowRunInput([q], state);
+    expect(requireTargets).toHaveLength(1);
+    expect(criteria).toEqual([
+      { questionKey: "program-gender", label: "Boys only", weight: 3, tagSlugs: ["boys-only"], durationValues: [] },
+    ]);
   });
 
   it("a WEIGHT option produces a criterion", () => {
@@ -416,6 +433,21 @@ describe("rankPrograms -- no hard cut, ever", () => {
     const b = rankPrograms(shuffled, [spiritual, gapYear, boysOnly], tagCategoryBySlug).map((r) => r.program.id);
     expect(a).toEqual(b);
   });
+
+  it("a REQUIRE option's weight separates a genuinely-tagged survivor from one that only survived via requireIncludesUntagged", () => {
+    // program 1 (Alpha) carries boys-only; program 4 (Delta Mechina) carries no gender
+    // tag at all -- exactly the row requireIncludesUntagged: true is designed to let
+    // through a REQUIRE filter without excluding it. Both would previously score
+    // identically on this criterion (it didn't exist). Now Delta scores 0 on it and
+    // sinks below Alpha, fulfilling requireIncludesUntagged's own doc comment: "They
+    // still earn nothing on the criterion and sink naturally in the ranking."
+    const results = rankPrograms(programs, [boysOnly], tagCategoryBySlug);
+    const alpha = results.find((r) => r.program.id === "1")!;
+    const delta = results.find((r) => r.program.id === "4")!;
+    expect(alpha.matchedCriteria).toBe(1);
+    expect(delta.matchedCriteria).toBe(0);
+    expect(alpha.score).toBeGreaterThan(delta.score);
+  });
 });
 
 describe("rankPrograms -- poll modifier (4th arg), matchedCriteria-preserving and eligibility-preserving", () => {
@@ -542,6 +574,7 @@ describe("makeOptionCoverageCounter -- the live-catalog half of coverage gating"
       rationale: null,
       order: 0,
       optionSetKeys: [],
+      showWhen: null,
       tagSlugs: [],
       durationValues: [],
       matchMode: "WEIGHT",

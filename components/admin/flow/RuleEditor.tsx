@@ -33,6 +33,13 @@ const PLACEHOLDER =
  * "raw is authoritative on save" holds by construction. A condition the row grammar
  * can't model (nested groups, `not` wrapping a group -- see lib/flowRuleBuilder.ts's
  * design note) locks the view to raw JSON rather than risking losing the shape.
+ *
+ * Shared by both FlowQuestion.showWhen and FlowOption.showWhen: `question` is always
+ * the OWNING question (a question editing its own rule, or an option's PARENT
+ * question) -- candidates/self are derived from its key/order either way, which is
+ * exactly the "an option may only reference a question ordered before its parent"
+ * rule. `endpoint`/`fieldId` default to the question-level PATCH target; the
+ * option-level call site overrides both to point at the option's own id instead.
  */
 export default function RuleEditor({
   question,
@@ -40,21 +47,40 @@ export default function RuleEditor({
   onSaved,
   api,
   errorMessage,
+  showWhen,
+  endpoint,
+  fieldId,
+  fieldLabel = "Show-condition (empty = always shown)",
+  saveLabel = "Save show-condition",
+  savedMessage = "Show-condition saved",
 }: {
   question: { id: string; key: string; order: number; showWhen: unknown };
   bank: BuilderQuestionRef[];
   onSaved: () => void;
   api: (url: string, method: string, body?: object) => Promise<unknown>;
   errorMessage: (err: unknown, fallback: string) => string;
+  /** The rule being edited -- defaults to `question.showWhen` for the question-level
+   * call site; the option-level call site passes the OPTION's showWhen instead. */
+  showWhen?: unknown;
+  /** PATCH target -- defaults to the question's own route. */
+  endpoint?: string;
+  /** data-testid suffix -- defaults to `question.id`. */
+  fieldId?: string;
+  fieldLabel?: string;
+  saveLabel?: string;
+  savedMessage?: string;
 }) {
+  const initialShowWhen = showWhen !== undefined ? showWhen : question.showWhen;
+  const patchEndpoint = endpoint ?? `/api/admin/flow/questions/${question.id}`;
+  const testId = fieldId ?? question.id;
   const { toast } = useToast();
-  const [text, setText] = useState(jsonText(question.showWhen));
+  const [text, setText] = useState(jsonText(initialShowWhen));
   const [mode, setMode] = useState<"builder" | "raw">("builder");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const parsed = parseJsonText(text);
-  const dirty = !parsed.ok || JSON.stringify(parsed.value) !== JSON.stringify(question.showWhen ?? null);
+  const dirty = !parsed.ok || JSON.stringify(parsed.value) !== JSON.stringify(initialShowWhen ?? null);
 
   const candidates = bank.filter((q) => q.order < question.order && q.key !== question.key);
   const self = { key: question.key, order: question.order };
@@ -110,8 +136,8 @@ export default function RuleEditor({
     setSaving(true);
     setSaveError(null);
     try {
-      await api(`/api/admin/flow/questions/${question.id}`, "PATCH", { showWhen: parsed.value });
-      toast("Show-condition saved");
+      await api(patchEndpoint, "PATCH", { showWhen: parsed.value });
+      toast(savedMessage);
       onSaved();
     } catch (err) {
       setSaveError(errorMessage(err, "Failed to save"));
@@ -121,16 +147,16 @@ export default function RuleEditor({
   }
 
   function handleCancel() {
-    setText(jsonText(question.showWhen));
+    setText(jsonText(initialShowWhen));
     setSaveError(null);
   }
 
   const effectiveMode = canUseBuilder ? mode : "raw";
 
   return (
-    <div className="flex flex-col gap-1" data-testid={`show-when-${question.id}`}>
+    <div className="flex flex-col gap-1" data-testid={`show-when-${testId}`}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted">Show-condition (empty = always shown)</span>
+        <span className="text-xs text-muted">{fieldLabel}</span>
         {dirty && <Badge tone="info">Unsaved</Badge>}
         <div className="ml-auto flex gap-1">
           <Button
@@ -229,7 +255,7 @@ export default function RuleEditor({
       {dirty && (
         <div className="flex flex-wrap items-center gap-2 rounded border border-dashed border-border px-2 py-1">
           <Button type="button" size="sm" disabled={!canSave} className="ml-auto" onClick={handleSave}>
-            {saving ? "Saving..." : "Save show-condition"}
+            {saving ? "Saving..." : saveLabel}
           </Button>
           <Button type="button" variant="ghost" size="sm" disabled={saving} onClick={handleCancel}>
             Cancel
