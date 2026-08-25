@@ -29,6 +29,10 @@ export type FlowOptionDTO = {
   order: number;
   /** Empty = belongs to every option set (see resolveOptionSetKey/optionsForSet). */
   optionSetKeys: string[];
+  /** Raw Json column value -- parsed lazily by shouldShowOption, never trusted
+   * pre-validated. ANDs with optionSetKeys above: an option is offered only if it
+   * belongs to the resolved set AND this rule passes. NULL = always offered. */
+  showWhen: unknown;
   tagSlugs: string[];
   durationValues: string[];
   matchMode: FlowOptionMatchMode;
@@ -143,6 +147,18 @@ export function shouldShowQuestion(showWhen: unknown, answers: FlowAnswers): boo
   const parsed = flowConditionSchema.safeParse(showWhen);
   if (!parsed.success) return true;
   return evaluateFlowCondition(parsed.data.when, answers);
+}
+
+/** The FlowOption.showWhen counterpart -- same grammar, same tolerant fail-OPEN read
+ * as shouldShowQuestion, and for an even stronger reason here: a wrongly-hidden
+ * option doesn't just disappear, it can also make a respondent's already-selected
+ * answer go stale (see evaluateVisibility), silently rewriting an in-progress run
+ * from one bad byte in one Json column. Failing open costs at most one extra option
+ * on screen. A named function (rather than reusing shouldShowQuestion directly) so
+ * this reasoning has its own home and the two can diverge later if they ever need
+ * to. */
+export function shouldShowOption(showWhen: unknown, answers: FlowAnswers): boolean {
+  return shouldShowQuestion(showWhen, answers);
 }
 
 /** Every question key a rule depends on -- used by lib/flow.ts at WRITE time to
@@ -358,18 +374,43 @@ function evaluateVisibility(
   questions: FlowQuestionDTO[],
   state: FlowAnswerState,
   coverage?: CoverageContext
-): { visible: FlowQuestionDTO[]; conditionAnswers: FlowAnswers; staleKeys: Set<string>; gateInfo: Map<string, QuestionGateInfo> } {
+): {
+  visible: FlowQuestionDTO[];
+  conditionAnswers: FlowAnswers;
+  staleKeys: Set<string>;
+  gateInfo: Map<string, QuestionGateInfo>;
+  optionsByKey: Map<string, FlowOptionDTO[]>;
+} {
   const visible: FlowQuestionDTO[] = [];
   const conditionAnswers: FlowAnswers = {};
   const staleKeys = new Set<string>();
   const gateInfo = new Map<string, QuestionGateInfo>();
+  // The final (post-set, post-rule, post-coverage) option list for every question
+  // pushed to `visible` -- the ONE place that list is computed, so resolveFlow's
+  // coverage and non-coverage callers can never resolve a different option set for
+  // the same question (see resolveFlow below).
+  const optionsByKey = new Map<string, FlowOptionDTO[]>();
   const eliminatorsSoFar: CoverageEliminator[] = [];
 
   for (const q of questions) {
     if (!shouldShowQuestion(q.showWhen, conditionAnswers)) continue;
 
     const setKey = resolveOptionSetKey(q.optionSetRules, q.defaultOptionSetKey, conditionAnswers);
-    const activeOptions = optionsForSet(q.options.filter((o) => o.status === "ACTIVE"), setKey);
+    const setOptions = optionsForSet(q.options.filter((o) => o.status === "ACTIVE"), setKey);
+    // Per-option show-conditions AND with the resolved option set above -- an option
+    // must belong to the set AND pass its own rule. Applied before coverage gating so
+    // a rule-hidden option never consumes a coverage count and never props a question
+    // past either guard.
+    const activeOptions = setOptions.filter((o) => shouldShowOption(o.showWhen, conditionAnswers));
+
+    // Guard 1b: a per-option rule that starves a question below 2 options drops the
+    // whole question -- same "never render a 0- or 1-option stub" contract as
+    // coverage's guard 1 below, a stub is a stub regardless of WHY it's starved.
+    // Gated on `activeOptions.length < setOptions.length` (a rule actually removed
+    // something) so this can never affect a question with no option-level rules at
+    // all: an unchanged interstitial (0 options) or an unchanged single-option
+    // question keeps behaving exactly as before.
+    if (activeOptions.length < setOptions.length && activeOptions.length < 2) continue;
 
     let survivingOptions = activeOptions;
     if (coverage && activeOptions.length > 0) {
@@ -388,6 +429,7 @@ function evaluateVisibility(
     }
 
     visible.push(q);
+    optionsByKey.set(q.key, survivingOptions);
     const stored = state.get(q.key);
     if (!stored || stored.length === 0) continue;
     if (activeOptions.length > 0) {
@@ -412,7 +454,7 @@ function evaluateVisibility(
       }
     }
   }
-  return { visible, conditionAnswers, staleKeys, gateInfo };
+  return { visible, conditionAnswers, staleKeys, gateInfo, optionsByKey };
 }
 
 /** Drops any answer-state entry for a question that isn't (or is no longer) visible,
@@ -484,17 +526,20 @@ export function resolveFlow(
   requestedKey: string | null,
   coverage?: CoverageContext
 ): ResolvedFlow {
-  const { visible, conditionAnswers, staleKeys, gateInfo } = evaluateVisibility(questions, rawState, coverage);
+  const { visible, conditionAnswers, staleKeys, gateInfo, optionsByKey } = evaluateVisibility(
+    questions,
+    rawState,
+    coverage
+  );
   const state = pruneAnswerState(rawState, visible, staleKeys);
   const current = resolveCurrentQuestion(visible, state, requestedKey);
-  const visibleOptions = current
-    ? (coverage
-        ? gateInfo.get(current.key)?.options.filter((o) => !o.suppressed).map((o) => o.option) ?? []
-        : optionsForSet(
-            current.options.filter((o) => o.status === "ACTIVE"),
-            resolveOptionSetKey(current.optionSetRules, current.defaultOptionSetKey, conditionAnswers)
-          ))
-    : [];
+  // Sourced from the SAME optionsByKey map evaluateVisibility already computed while
+  // walking forward -- previously this branch re-resolved the option set independently
+  // (re-running optionsForSet against the final conditionAnswers rather than the
+  // answers as of this question's turn), which would have silently diverged from the
+  // coverage branch the moment per-option show-conditions existed. One computation,
+  // both branches read it.
+  const visibleOptions = current ? optionsByKey.get(current.key) ?? [] : [];
   const prevKey = resolvePrevKey(visible, current);
   return {
     visible,
@@ -552,7 +597,14 @@ export function recordToAnswerState(record: Record<string, string[] | null>): Fl
  * matchMode -- used to preview "if this option's hard-eliminator flag changed,
  * what would survive" against not-yet-saved admin edits, without writing
  * anything. Identity-returns `questions` when there's nothing to override, so a
- * caller with no pending edits pays no allocation cost. */
+ * caller with no pending edits pays no allocation cost. Deliberately matchMode-only,
+ * not weight: MatchModeControl's preview reports survivorCount/totalCount, which
+ * depend solely on requireTargets -- a REQUIRE option's weight (now scored
+ * alongside its eliminator, see buildFlowRunInput) can't move that number, so a
+ * staged-but-unsaved weight edit needs no override here. Only becomes a gap if a
+ * future preview surface reports ranking (e.g. bandCounts, already computed by
+ * POST /api/admin/flow/preview but unrendered) against a staged weight edit -- add
+ * a `weight?: number` field to the override value at that point. */
 export function applyOptionOverrides(
   questions: FlowQuestionDTO[],
   overrides: Map<string, FlowOptionMatchMode>

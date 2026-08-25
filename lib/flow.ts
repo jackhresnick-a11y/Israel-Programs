@@ -26,6 +26,7 @@ export {
   flowOptionSetRulesSchema,
   evaluateFlowCondition,
   shouldShowQuestion,
+  shouldShowOption,
   referencedQuestionKeys,
   resolveOptionSetKey,
   optionsForSet,
@@ -174,7 +175,14 @@ async function assertReorderKeepsConditionsValid(
 ) {
   const rows = await tx.flowQuestion.findMany({
     where: { status: "ACTIVE" },
-    select: { id: true, key: true, order: true, showWhen: true, optionSetRules: true },
+    select: {
+      id: true,
+      key: true,
+      order: true,
+      showWhen: true,
+      optionSetRules: true,
+      options: { where: { status: "ACTIVE" }, select: { key: true, showWhen: true } },
+    },
   });
   const orderByKey = new Map(rows.map((r) => [r.key, pendingOrder.get(r.id) ?? r.order]));
 
@@ -202,6 +210,19 @@ async function assertReorderKeepsConditionsValid(
         for (const key of referencedQuestionKeys(rule.when)) checkAgainst(row.key, myOrder, key);
       }
     }
+    // Option-level rules are scoped to the PARENT question's order, never their own
+    // (options don't have one) -- so this uses `myOrder`, the same value the
+    // question's own rules were just checked against above. No ruleOverrides entry
+    // exists for options: unlike a question's own showWhen, an option's showWhen is
+    // written through a different route than the question's `order`, so the "one
+    // PATCH changes both" case ruleOverrides exists for can't arise here.
+    for (const opt of row.options) {
+      const optShowWhen = flowConditionSchema.safeParse(opt.showWhen);
+      if (!optShowWhen.success) continue;
+      for (const key of referencedQuestionKeys(optShowWhen.data.when)) {
+        checkAgainst(`${row.key}.${opt.key}`, myOrder, key);
+      }
+    }
   }
   if (problems.length > 0) {
     throw new Error(`This reorder would break existing show-conditions (question -> reference): ${problems.join(", ")}`);
@@ -222,10 +243,18 @@ async function assertOptionNotReferencedByOtherRules(
 ) {
   const rows = await tx.flowQuestion.findMany({
     where: { status: "ACTIVE" },
-    select: { key: true, showWhen: true, optionSetRules: true },
+    select: {
+      key: true,
+      showWhen: true,
+      optionSetRules: true,
+      options: { where: { status: "ACTIVE" }, select: { key: true, showWhen: true } },
+    },
   });
 
   const referencedBy = new Set<string>();
+  const referencesThisOption = (leaves: { questionKey: string; optionKeys: string[] }[]) =>
+    leaves.some((leaf) => leaf.questionKey === questionKey && leaf.optionKeys.includes(optionKey));
+
   for (const row of rows) {
     const showWhen = flowConditionSchema.safeParse(row.showWhen);
     const showWhenLeaves = showWhen.success ? collectAnswerInLeaves(showWhen.data.when) : [];
@@ -233,10 +262,16 @@ async function assertOptionNotReferencedByOtherRules(
     const ruleLeaves = optionSetRules.success
       ? optionSetRules.data.rules.flatMap((rule) => collectAnswerInLeaves(rule.when))
       : [];
-    const referencesThisOption = [...showWhenLeaves, ...ruleLeaves].some(
-      (leaf) => leaf.questionKey === questionKey && leaf.optionKeys.includes(optionKey)
-    );
-    if (referencesThisOption) referencedBy.add(row.key);
+    if (referencesThisOption([...showWhenLeaves, ...ruleLeaves])) referencedBy.add(row.key);
+
+    // An OPTION's own showWhen is the same failure class -- e.g. a "religious
+    // mechina" option that's only offered when an earlier option was picked can't
+    // let that earlier option be removed either.
+    for (const opt of row.options) {
+      const optShowWhen = flowConditionSchema.safeParse(opt.showWhen);
+      const optLeaves = optShowWhen.success ? collectAnswerInLeaves(optShowWhen.data.when) : [];
+      if (referencesThisOption(optLeaves)) referencedBy.add(`${row.key}.${opt.key}`);
+    }
   }
 
   if (referencedBy.size > 0) {
@@ -425,15 +460,16 @@ export async function updateFlowOption(
     weight: number;
     requireIncludesUntagged: boolean;
     optionSetKeys: string[];
+    showWhen: FlowCondition | null;
   }>
 ) {
   if (input.tagSlugs !== undefined) await assertTagSlugsExist(input.tagSlugs);
 
   return prisma.$transaction(async (tx) => {
-    if (input.label !== undefined || input.status === "RETIRED") {
+    if (input.label !== undefined || input.status === "RETIRED" || input.showWhen != null) {
       const existing = await tx.flowOption.findUniqueOrThrow({
         where: { id },
-        select: { key: true, label: true, question: { select: { key: true } } },
+        select: { key: true, label: true, question: { select: { key: true, order: true } } },
       });
 
       if (input.label !== undefined && input.label !== existing.label && (await questionHasResponses(tx, existing.question.key))) {
@@ -444,6 +480,13 @@ export async function updateFlowOption(
       // deleting -- same guard, run before either.
       if (input.status === "RETIRED") {
         await assertOptionNotReferencedByOtherRules(tx, existing.question.key, existing.key);
+      }
+
+      // Scoped to the PARENT question's order, same forward-reference rule
+      // FlowQuestion.showWhen follows -- this also rejects a rule naming the
+      // option's own parent question (that question's order >= itself, always).
+      if (input.showWhen != null) {
+        await assertConditionReferencesValid(tx, existing.question.order, input.showWhen.when);
       }
     }
 
@@ -458,6 +501,7 @@ export async function updateFlowOption(
         ...(input.durationValues !== undefined ? { durationValues: input.durationValues } : {}),
         ...(input.matchMode !== undefined ? { matchMode: input.matchMode } : {}),
         ...(input.weight !== undefined ? { weight: input.weight } : {}),
+        ...(input.showWhen !== undefined ? { showWhen: toJsonInput(input.showWhen) } : {}),
         ...(input.requireIncludesUntagged !== undefined
           ? { requireIncludesUntagged: input.requireIncludesUntagged }
           : {}),

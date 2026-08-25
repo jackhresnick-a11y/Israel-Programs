@@ -212,8 +212,13 @@ export type MatchResults = {
  * consulted by the poll modifier.
  */
 export async function runMatchResults(questions: FlowQuestionDTO[], state: FlowAnswerState): Promise<MatchResults> {
-  const { visible } = resolveFlow(questions, state, null);
-  const { criteria, requireTargets } = buildFlowRunInput(visible, state);
+  // resolved.state, not the raw `state` param: a stale answer (an earlier answer to
+  // an option a show-condition, an option-set switch, or coverage has since hidden)
+  // must never score. app/match/results/page.tsx already passes an already-pruned
+  // state in, so this was previously a no-op there; POST /api/admin/flow/preview
+  // passes raw admin-supplied answers straight through, where it wasn't.
+  const resolved = resolveFlow(questions, state, null);
+  const { criteria, requireTargets } = buildFlowRunInput(resolved.visible, resolved.state);
 
   const [programs, tagCategoryBySlug, pollStats] = await Promise.all([
     listPrograms({}),

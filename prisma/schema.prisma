@@ -1460,6 +1460,22 @@ model FlowOption {
   /// rather than a single key so one option can live in two sets without
   /// duplicating the row and its rationale.
   optionSetKeys           String[]            @default([])
+  /// Per-option show-condition -- same lib/flowShared.ts flowConditionSchema as
+  /// FlowQuestion.showWhen and FlowVideoTrigger.when (identical grammar, identical
+  /// evaluator). NULL = always offered (subject to optionSetKeys, which this ANDs
+  /// with -- an option must belong to the resolved set AND pass this rule). May only
+  /// reference a question ordered strictly BEFORE this option's PARENT question, same
+  /// forward-reference rule as FlowQuestion.showWhen. Fails OPEN on an unparseable
+  /// value (option still offered) -- same posture as shouldShowQuestion, for the same
+  /// reason: a silently-missing option is harder to notice than an extra one, and
+  /// failing closed could starve a question below 2 options and delete a whole step
+  /// out from under an in-progress respondent. Deliberately additive to
+  /// optionSetRules/optionSetKeys above, not a replacement: optionSetRules is a
+  /// SWITCH (resolves to exactly one set, good for "swap this whole list," e.g. Q6's
+  /// gender-keyed sets); this is a composable PREDICATE (good for "hide this one
+  /// option," which a set-key cross-product can't express without reauthoring every
+  /// option in the set).
+  showWhen                Json?
   tagSlugs                String[]            @default([])
   durationValues          String[]            @default([])
   /// See FlowMatchMode. WEIGHT for every option in the spec except the gender and

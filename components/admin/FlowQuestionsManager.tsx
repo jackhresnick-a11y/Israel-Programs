@@ -27,6 +27,7 @@ export type FlowOptionRow = {
   weight: number;
   requireIncludesUntagged: boolean;
   optionSetKeys: string[];
+  showWhen: unknown;
 };
 
 export type FlowQuestionRow = {
@@ -404,6 +405,12 @@ function QuestionCard({
   const [saving, setSaving] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
   const [manuallyExpanded, setManuallyExpanded] = useState(false);
+  // Per-option "show this option's rule editor" disclosure -- a question with many
+  // options shouldn't render a rule builder under every single one by default. An
+  // option that already carries a rule starts expanded so an existing condition is
+  // never hidden from view.
+  const [expandedOptionRules, setExpandedOptionRules] = useState<Record<string, boolean>>({});
+  const isOptionRuleExpanded = (option: FlowOptionRow) => expandedOptionRules[option.id] ?? option.showWhen != null;
 
   const sortedOptions = [...question.options].sort((a, b) => a.order - b.order);
   const effectiveOptionDraft = (option: FlowOptionRow) => optionDrafts[option.id] ?? optionDraftFromRow(option);
@@ -414,7 +421,10 @@ function QuestionCard({
   // A dirty card always shows its body -- collapsing mid-edit would hide the very
   // Save/Cancel bar (and any inline error) the user needs to resolve it.
   const expanded = manuallyExpanded || cardDirty;
-  const hasConditions = question.showWhen != null || question.optionSetRules != null;
+  const hasConditions =
+    question.showWhen != null ||
+    question.optionSetRules != null ||
+    question.options.some((o) => o.showWhen != null);
 
   const blankTouchedField =
     (questionDirty && !questionDraft.prompt.trim()) ||
@@ -674,6 +684,32 @@ function QuestionCard({
 
                   <MatchModeControl option={option} question={question} onSaved={() => router.refresh()} />
 
+                  {isOptionRuleExpanded(option) ? (
+                    <RuleEditor
+                      question={question}
+                      showWhen={option.showWhen}
+                      endpoint={`/api/admin/flow/options/${option.id}`}
+                      fieldId={`option-${option.id}`}
+                      fieldLabel="Show this option when (empty = always offered)"
+                      saveLabel="Save option condition"
+                      savedMessage="Option condition saved"
+                      bank={bank}
+                      onSaved={() => router.refresh()}
+                      api={api}
+                      errorMessage={errorMessage}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="self-start"
+                      onClick={() => setExpandedOptionRules((prev) => ({ ...prev, [option.id]: true }))}
+                    >
+                      Add a condition
+                    </Button>
+                  )}
+
                   <Input
                     value={draft.rationale}
                     placeholder="One-line reason this option exists (shown under it)"
@@ -694,15 +730,20 @@ function QuestionCard({
                       />
                     </label>
                     {option.matchMode === "REQUIRE" && (
-                      <label className="flex items-center gap-2 text-xs text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={draft.requireIncludesUntagged}
-                          disabled={busyId === option.id || saving}
-                          onChange={(e) => updateOptionField(option, "requireIncludesUntagged", e.target.checked)}
-                        />
-                        A program with no tag in this category still passes
-                      </label>
+                      <>
+                        <span className="text-xs text-muted">
+                          Also ranks the programs that survive this filter. 0 = eliminate only.
+                        </span>
+                        <label className="flex items-center gap-2 text-xs text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={draft.requireIncludesUntagged}
+                            disabled={busyId === option.id || saving}
+                            onChange={(e) => updateOptionField(option, "requireIncludesUntagged", e.target.checked)}
+                          />
+                          A program with no tag in this category still passes
+                        </label>
+                      </>
                     )}
                   </div>
 
