@@ -254,6 +254,95 @@ describe("passesRequireTarget / passesAllRequireTargets -- the two hard eliminat
   });
 });
 
+// Regression coverage for the reported bug: picking "Girls only" in /match still
+// returned boys-only programs. Root cause was NOT the eliminator mechanism itself --
+// "Boys only"/"Girls only" were already matchMode: REQUIRE -- it was
+// requireIncludesUntagged: true admitting the ~30 published programs carrying no
+// gender tag at all (some of which read as single-gender in practice). The fix is a
+// data change (flip requireIncludesUntagged to false on these two options via
+// prisma/strict-gender-eliminator.ts), not an engine change, so this block fixes the
+// *desired* per-option config in its fixtures and asserts the pipeline honors it --
+// same shape as the "matches the live-data arithmetic" test above, one section up.
+describe("gender eliminator matrix -- strict requireIncludesUntagged on the two gender REQUIRE options", () => {
+  const genderPrograms: RankableProgram[] = [
+    { id: "g-boys", name: "Boys Program", durationType: "GAP_YEAR", tagSlugs: ["boys-only"] },
+    { id: "g-girls", name: "Girls Program", durationType: "GAP_YEAR", tagSlugs: ["girls-only"] },
+    { id: "g-coed", name: "Coed Program", durationType: "GAP_YEAR", tagSlugs: ["coed"] },
+    { id: "g-untagged", name: "Untagged Program", durationType: "GAP_YEAR", tagSlugs: [] },
+    { id: "g-both", name: "Both-Tagged Program", durationType: "GAP_YEAR", tagSlugs: ["boys-only", "girls-only"] }, // mirrors the one live program (mechinat-melach-haaretz) with two single-gender campuses
+  ];
+
+  const strictBoysOnly: FlowRequireTarget = {
+    questionKey: "what-kind-of-program-are-you-looking-for",
+    label: "Boys only",
+    tagSlugs: ["boys-only"],
+    durationValues: [],
+    requireIncludesUntagged: false,
+  };
+  const strictGirlsOnly: FlowRequireTarget = { ...strictBoysOnly, label: "Girls only", tagSlugs: ["girls-only"] };
+
+  it.each([
+    ["Boys only", strictBoysOnly, ["g-boys", "g-both"]],
+    ["Girls only", strictGirlsOnly, ["g-girls", "g-both"]],
+  ])("%s (REQUIRE, strict) keeps only the matching tag or a program carrying both -- drops the opposite tag, coed, AND untagged", (_label, target, expectedIds) => {
+    const survivors = survivingPrograms(genderPrograms, [target], tagCategoryBySlug);
+    expect(survivors.map((p) => p.id).sort()).toEqual([...expectedIds].sort());
+  });
+
+  it("THE HEADLINE: girls-only never yields a program tagged boys-only without girls-only", () => {
+    const survivors = survivingPrograms(genderPrograms, [strictGirlsOnly], tagCategoryBySlug);
+    const leaked = survivors.filter((p) => p.tagSlugs.includes("boys-only") && !p.tagSlugs.includes("girls-only"));
+    expect(leaked).toEqual([]);
+  });
+
+  it("a conflicting same-category tag is eliminated regardless of requireIncludesUntagged -- the flag only ever governs the UNTAGGED case", () => {
+    const lenientGirlsOnly: FlowRequireTarget = { ...strictGirlsOnly, requireIncludesUntagged: true };
+    const boysOnlyProgram = genderPrograms[0];
+    expect(passesRequireTarget(boysOnlyProgram, strictGirlsOnly, tagCategoryBySlug)).toBe(false);
+    expect(passesRequireTarget(boysOnlyProgram, lenientGirlsOnly, tagCategoryBySlug)).toBe(false);
+    // Only the untagged program's fate flips on the flag -- this is the actual bug that shipped.
+    const untaggedProgram = genderPrograms[3];
+    expect(passesRequireTarget(untaggedProgram, strictGirlsOnly, tagCategoryBySlug)).toBe(false);
+    expect(passesRequireTarget(untaggedProgram, lenientGirlsOnly, tagCategoryBySlug)).toBe(true);
+  });
+
+  it("Mixed (WEIGHT, untouched by this fix) never eliminates -- every gender value survives, coed just ranks first", () => {
+    const mixedCriterion: FlowCriterion = {
+      questionKey: "what-kind-of-program-are-you-looking-for",
+      label: "Mixed",
+      weight: 2,
+      tagSlugs: ["coed"],
+      durationValues: [],
+    };
+    const ranked = rankPrograms(genderPrograms, [mixedCriterion], tagCategoryBySlug);
+    expect(ranked).toHaveLength(genderPrograms.length); // never truncates
+    expect(ranked[0].program.id).toBe("g-coed");
+    expect(ranked.map((r) => r.program.id).sort()).toEqual(genderPrograms.map((p) => p.id).sort());
+  });
+
+  it("No preference, or skipping the gender question entirely, contributes no eliminator -- every gender value survives", () => {
+    expect(survivingPrograms(genderPrograms, [], tagCategoryBySlug)).toEqual(genderPrograms);
+  });
+
+  it("end-to-end via buildFlowRunInput, using the real live option shape: picking Girls only eliminates boys-only and untagged", () => {
+    const genderQuestion = question({
+      key: "what-kind-of-program-are-you-looking-for",
+      order: 0,
+      options: [
+        option({ key: "boys-only", label: "Boys only", matchMode: "REQUIRE", tagSlugs: ["boys-only"], weight: 0, requireIncludesUntagged: false }),
+        option({ key: "girls-only", label: "Girls only", matchMode: "REQUIRE", tagSlugs: ["girls-only"], weight: 0, requireIncludesUntagged: false }),
+        option({ key: "mixed", label: "Mixed", matchMode: "WEIGHT", tagSlugs: ["coed"], weight: 2 }),
+        option({ key: "no-preference", label: "No preference", matchMode: "WEIGHT", tagSlugs: [], weight: 0 }),
+      ],
+    });
+    const state: FlowAnswerState = new Map([["what-kind-of-program-are-you-looking-for", ["girls-only"]]]);
+    const { criteria, requireTargets } = buildFlowRunInput([genderQuestion], state);
+    expect(criteria).toEqual([]); // REQUIRE options never also produce a criterion
+    const survivors = survivingPrograms(genderPrograms, requireTargets, tagCategoryBySlug);
+    expect(survivors.map((p) => p.id).sort()).toEqual(["g-both", "g-girls"]);
+  });
+});
+
 describe("hardFilterRelaxations", () => {
   it("reports the surviving count if each ONE eliminator were relaxed, holding others fixed", () => {
     const boysOnly: FlowRequireTarget = {

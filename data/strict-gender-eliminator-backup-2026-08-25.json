@@ -1,0 +1,22 @@
+[
+  {
+    "id": "cmsp1b1sf0009edmz4i1o1dhz",
+    "questionKey": "what-kind-of-program-are-you-looking-for",
+    "label": "Boys only",
+    "key": "boys-only",
+    "tagSlugs": [
+      "boys-only"
+    ],
+    "requireIncludesUntagged": true
+  },
+  {
+    "id": "cmsp1b29e000aedmzti9kporm",
+    "questionKey": "what-kind-of-program-are-you-looking-for",
+    "label": "Girls only",
+    "key": "girls-only",
+    "tagSlugs": [
+      "girls-only"
+    ],
+    "requireIncludesUntagged": true
+  }
+]
