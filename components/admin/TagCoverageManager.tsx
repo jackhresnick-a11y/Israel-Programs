@@ -10,6 +10,13 @@ import Badge from "@/components/ui/Badge";
 import CategoryTagMultiSelect, { type CategoryTagOption } from "@/components/ui/CategoryTagMultiSelect";
 import { TRAVEL_TYPE_LABELS } from "@/lib/facets";
 
+export type CoverageCategory = {
+  slug: string;
+  shortLabel: string;
+  label: string;
+  options: CategoryTagOption[];
+};
+
 export type CoverageRow = {
   id: string;
   name: string;
@@ -18,14 +25,14 @@ export type CoverageRow = {
   hasScholarship: boolean | null;
   hasCollegeCredit: boolean | null;
   travelType: string | null;
-  typeTags: { slug: string; name: string }[];
-  essenceTags: { slug: string; name: string }[];
+  /** Keyed by CoverageCategory.slug -- one entry per editable category. */
+  categoryTags: Record<string, { slug: string; name: string }[]>;
   otherTags: { slug: string; name: string; category: string }[];
 };
 
 const PAGE_SIZE = 50;
 
-async function saveCategoryTags(programId: string, category: "program-type" | "essence", slugs: string[]) {
+async function saveCategoryTags(programId: string, category: string, slugs: string[]) {
   const res = await fetch(`/api/admin/programs/${programId}/category-tags`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -37,34 +44,31 @@ async function saveCategoryTags(programId: string, category: "program-type" | "e
   }
 }
 
-function CoverageRowCard({
-  row,
-  typeOptions,
-  essenceOptions,
-}: {
-  row: CoverageRow;
-  typeOptions: CategoryTagOption[];
-  essenceOptions: CategoryTagOption[];
-}) {
+function sortedEqual(a: string[], b: string[]) {
+  return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+}
+
+function CoverageRowCard({ row, categories }: { row: CoverageRow; categories: CoverageCategory[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [typeSlugs, setTypeSlugs] = useState(row.typeTags.map((t) => t.slug));
-  const [essenceSlugs, setEssenceSlugs] = useState(row.essenceTags.map((t) => t.slug));
+  const [selected, setSelected] = useState<Record<string, string[]>>(() => {
+    const initial: Record<string, string[]> = {};
+    for (const c of categories) initial[c.slug] = row.categoryTags[c.slug]?.map((t) => t.slug) ?? [];
+    return initial;
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const typeChanged = JSON.stringify([...typeSlugs].sort()) !== JSON.stringify(row.typeTags.map((t) => t.slug).sort());
-  const essenceChanged =
-    JSON.stringify([...essenceSlugs].sort()) !== JSON.stringify(row.essenceTags.map((t) => t.slug).sort());
+  const changedSlugs = categories
+    .map((c) => c.slug)
+    .filter((slug) => !sortedEqual(selected[slug] ?? [], (row.categoryTags[slug] ?? []).map((t) => t.slug)));
+  const isDirty = changedSlugs.length > 0;
 
   async function handleSave() {
     setBusy(true);
     setError(null);
     try {
-      const calls: Promise<void>[] = [];
-      if (typeChanged) calls.push(saveCategoryTags(row.id, "program-type", typeSlugs));
-      if (essenceChanged) calls.push(saveCategoryTags(row.id, "essence", essenceSlugs));
-      await Promise.all(calls);
+      await Promise.all(changedSlugs.map((slug) => saveCategoryTags(row.id, slug, selected[slug] ?? [])));
       router.refresh();
       setOpen(false);
     } catch (err) {
@@ -73,6 +77,8 @@ function CoverageRowCard({
       setBusy(false);
     }
   }
+
+  const missingCategories = categories.filter((c) => (row.categoryTags[c.slug]?.length ?? 0) === 0);
 
   return (
     <Card className="flex flex-col gap-2 p-4">
@@ -84,8 +90,11 @@ function CoverageRowCard({
         >
           {row.name}
         </Link>
-        {row.typeTags.length === 0 && <Badge tone="warning">Missing type</Badge>}
-        {row.essenceTags.length === 0 && <Badge tone="warning">Missing essence</Badge>}
+        {missingCategories.map((c) => (
+          <Badge key={c.slug} tone="warning">
+            Missing {c.shortLabel}
+          </Badge>
+        ))}
         <Button
           type="button"
           variant="secondary"
@@ -111,40 +120,33 @@ function CoverageRowCard({
 
       {!open && (
         <div className="flex flex-col gap-1 text-xs text-muted">
-          <p>
-            <span className="font-semibold">Type:</span>{" "}
-            {row.typeTags.length > 0 ? row.typeTags.map((t) => t.name).join(", ") : "(none)"}
-          </p>
-          <p>
-            <span className="font-semibold">Essence:</span>{" "}
-            {row.essenceTags.length > 0 ? row.essenceTags.map((t) => t.name).join(", ") : "(none)"}
-          </p>
+          {categories.map((c) => {
+            const tags = row.categoryTags[c.slug] ?? [];
+            return (
+              <p key={c.slug}>
+                <span className="font-semibold">{c.label}:</span>{" "}
+                {tags.length > 0 ? tags.map((t) => t.name).join(", ") : "(none)"}
+              </p>
+            );
+          })}
         </div>
       )}
 
       {open && (
         <div className="flex flex-col gap-3 border-t border-border pt-3">
-          <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-            Program type
-            <CategoryTagMultiSelect options={typeOptions} selected={typeSlugs} onChange={setTypeSlugs} disabled={busy} />
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-            Essence
-            <CategoryTagMultiSelect
-              options={essenceOptions}
-              selected={essenceSlugs}
-              onChange={setEssenceSlugs}
-              disabled={busy}
-            />
-          </label>
+          {categories.map((c) => (
+            <label key={c.slug} className="flex flex-col gap-1 text-xs font-semibold text-muted">
+              {c.label}
+              <CategoryTagMultiSelect
+                options={c.options}
+                selected={selected[c.slug] ?? []}
+                onChange={(slugs) => setSelected((prev) => ({ ...prev, [c.slug]: slugs }))}
+                disabled={busy}
+              />
+            </label>
+          ))}
           {error && <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{error}</p>}
-          <Button
-            type="button"
-            size="sm"
-            className="self-start"
-            disabled={busy || (!typeChanged && !essenceChanged)}
-            onClick={handleSave}
-          >
+          <Button type="button" size="sm" className="self-start" disabled={busy || !isDirty} onClick={handleSave}>
             {busy ? "Saving..." : "Save"}
           </Button>
         </div>
@@ -153,16 +155,14 @@ function CoverageRowCard({
   );
 }
 
-type Filter = "all" | "missing-type" | "missing-essence";
+type Filter = "all" | `missing:${string}`;
 
 export default function TagCoverageManager({
   rows,
-  typeOptions,
-  essenceOptions,
+  categories,
 }: {
   rows: CoverageRow[];
-  typeOptions: CategoryTagOption[];
-  essenceOptions: CategoryTagOption[];
+  categories: CoverageCategory[];
 }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
@@ -172,8 +172,10 @@ export default function TagCoverageManager({
     const term = search.trim().toLowerCase();
     let result = rows;
     if (term) result = result.filter((r) => r.name.toLowerCase().includes(term));
-    if (filter === "missing-type") result = result.filter((r) => r.typeTags.length === 0);
-    if (filter === "missing-essence") result = result.filter((r) => r.essenceTags.length === 0);
+    if (filter.startsWith("missing:")) {
+      const slug = filter.slice("missing:".length);
+      result = result.filter((r) => (r.categoryTags[slug]?.length ?? 0) === 0);
+    }
     return result;
   }, [rows, search, filter]);
 
@@ -191,15 +193,22 @@ export default function TagCoverageManager({
   const clampedPage = Math.min(page, pageCount);
   const paged = filtered.slice((clampedPage - 1) * PAGE_SIZE, clampedPage * PAGE_SIZE);
 
-  const missingTypeCount = rows.filter((r) => r.typeTags.length === 0).length;
-  const missingEssenceCount = rows.filter((r) => r.essenceTags.length === 0).length;
+  const missingCounts = categories.map((c) => ({
+    ...c,
+    count: rows.filter((r) => (r.categoryTags[c.slug]?.length ?? 0) === 0).length,
+  }));
 
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex flex-col gap-3 p-4">
         <p className="text-xs text-muted">
-          {rows.length} published programs — {missingTypeCount} missing a type tag, {missingEssenceCount} missing
-          an essence tag
+          {rows.length} published programs —{" "}
+          {missingCounts.map((c, i) => (
+            <span key={c.slug}>
+              {i > 0 && ", "}
+              {c.count} missing {c.shortLabel}
+            </span>
+          ))}
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Input
@@ -217,29 +226,24 @@ export default function TagCoverageManager({
             >
               All
             </Button>
-            <Button
-              type="button"
-              variant={filter === "missing-type" ? "primary" : "secondary"}
-              size="sm"
-              onClick={() => updateFilter("missing-type")}
-            >
-              Missing type
-            </Button>
-            <Button
-              type="button"
-              variant={filter === "missing-essence" ? "primary" : "secondary"}
-              size="sm"
-              onClick={() => updateFilter("missing-essence")}
-            >
-              Missing essence
-            </Button>
+            {categories.map((c) => (
+              <Button
+                key={c.slug}
+                type="button"
+                variant={filter === `missing:${c.slug}` ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => updateFilter(`missing:${c.slug}`)}
+              >
+                Missing {c.shortLabel}
+              </Button>
+            ))}
           </div>
         </div>
       </Card>
 
       <div className="flex flex-col gap-3">
         {paged.map((row) => (
-          <CoverageRowCard key={row.id} row={row} typeOptions={typeOptions} essenceOptions={essenceOptions} />
+          <CoverageRowCard key={row.id} row={row} categories={categories} />
         ))}
         {paged.length === 0 && (
           <p className="px-4 py-6 text-center text-sm text-muted">No programs match.</p>
