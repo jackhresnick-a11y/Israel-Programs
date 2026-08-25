@@ -7,7 +7,7 @@ import AssistantWidgetMount from "@/components/AssistantWidgetMount";
 import HeaderHeightVar from "@/components/HeaderHeightVar";
 import { ToastProvider } from "@/components/ui/Toast";
 import { getSiteContent } from "@/lib/siteContent";
-import { SITE_NAME, SITE_URL } from "@/lib/siteUrl";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/siteUrl";
 import "./globals.css";
 
 // Display/headings/wordmark (§3) -- one family covers both scripts, so a Hebrew
@@ -43,9 +43,6 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const SITE_DESCRIPTION =
-  "A community-driven guide to Jewish Israel programs — gap years, summer trips, internships, and more.";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
@@ -63,6 +60,12 @@ export const metadata: Metadata = {
     url: "/",
   },
   twitter: { card: "summary_large_image" },
+  // Short label under the icon when the site is saved to an iOS home screen --
+  // the full title truncates there. Deliberately no `capable: true`: that would
+  // force standalone mode (no URL bar, links captured in-app), which is a UX
+  // change beyond giving the bookmark a real icon. See app/manifest.ts, which
+  // sets display: "browser" for the same reason.
+  appleWebApp: { title: "Israel Programs" },
 };
 
 export default async function RootLayout({
