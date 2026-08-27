@@ -137,6 +137,78 @@ export async function getQuestionsForProgram(programId: string): Promise<Resolve
   );
 }
 
+/** Batched form of getQuestionsForProgram -- one set of bulk queries for every id in
+ * `programIds` rather than one getQuestionsForProgram call per program, which was an
+ * N+1 (~16 round trips per program) at the 463-published-program scale
+ * countResponsesMeetingReadinessBarByProgram (lib/pollResults.ts) needs this for. Must
+ * stay behaviour-identical to getQuestionsForProgram for any single id -- that's the
+ * whole point of /admin/programs and /admin/polls/coverage never disagreeing (see
+ * countResponsesMeetingReadinessBar's doc comment) -- so this mirrors its resolution
+ * exactly, including matched-rule bucket ids sorted by the bucket's own `order` (the
+ * same ordering getRuleAttachedBucketIds produces via its own `orderBy` query) and the
+ * same "since-deleted program id" fallback (empty tags, CUSTOM duration). */
+export async function getQuestionsForPrograms(
+  programIds: string[]
+): Promise<Map<string, ResolvedPollQuestionSet>> {
+  const result = new Map<string, ResolvedPollQuestionSet>();
+  if (programIds.length === 0) return result;
+
+  const [programs, configRows, buckets, questions, activeRules] = await Promise.all([
+    prisma.program.findMany({
+      where: { id: { in: programIds } },
+      select: { id: true, durationType: true, tags: { select: { slug: true } } },
+    }),
+    prisma.programPollConfig.findMany({ where: { programId: { in: programIds } } }),
+    prisma.questionBucket.findMany(),
+    prisma.pollQuestion.findMany(),
+    prisma.bucketAttachmentRule.findMany({ where: { status: "ACTIVE" } }),
+  ]);
+
+  const programById = new Map(programs.map((p) => [p.id, p]));
+  const configByProgramId = new Map(configRows.map((c) => [c.programId, c]));
+  const bucketOrderById = new Map(buckets.map((b) => [b.id, b.order]));
+  const bucketDTOs = buckets.map(toBucketDTO);
+  const questionDTOs = questions.map(toQuestionDTO);
+
+  for (const programId of programIds) {
+    const program = programById.get(programId);
+    const programTagSlugs = program?.tags.map((t) => t.slug) ?? [];
+    const durationType = program?.durationType ?? "CUSTOM";
+
+    const ruleBucketIds = [
+      ...new Set(
+        activeRules
+          .filter((r) => ruleMatchesProgram(r, { tagSlugs: programTagSlugs, durationType }))
+          .map((r) => r.bucketId)
+      ),
+    ].sort((a, b) => (bucketOrderById.get(a) ?? 0) - (bucketOrderById.get(b) ?? 0));
+
+    const row = configByProgramId.get(programId);
+    const config: ProgramPollConfigDTO = row
+      ? {
+          bucketIds: row.bucketIds,
+          addedQuestionIds: row.addedQuestionIds,
+          removedQuestionIds: row.removedQuestionIds,
+          resultsVisible: row.resultsVisible,
+          minResponsesToPublish: row.minResponsesToPublish,
+          grandfatheredQuestionIds: row.grandfatheredQuestionIds,
+          displayFormat: row.displayFormat,
+          placeholderOverride: row.placeholderOverride,
+          editorialBestFor: row.editorialBestFor,
+          pollLinkPublic: row.pollLinkPublic,
+        }
+      : DEFAULT_POLL_CONFIG;
+
+    const effectiveBucketIds = mergeRuleAttachedBucketIds(config.bucketIds, ruleBucketIds);
+    result.set(
+      programId,
+      resolvePollQuestionSet({ ...config, bucketIds: effectiveBucketIds }, bucketDTOs, questionDTOs)
+    );
+  }
+
+  return result;
+}
+
 export type ProgramWithPollConfig = {
   id: string;
   name: string;
