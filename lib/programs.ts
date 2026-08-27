@@ -693,15 +693,22 @@ export async function setProgramOutreachCategory(id: string, category: string | 
   return prisma.program.update({ where: { id }, data: { outreachCategory: category } });
 }
 
-/** Admin-only: sets (or clears, with null) a program's overview video link, raw
- * transcript, and distilled public brief in one write. `videoUrl` and `aiBrief` are
+/** Admin-only: sets (or clears, with null) a program's overview video link, its
+ * attribution (credit text + optional link-out), raw transcript, and distilled public
+ * brief in one write. `videoUrl`, `videoCredit`, `videoCreditUrl`, and `aiBrief` are all
  * public; `videoTranscript` never is (see PROGRAM_PRIVATE_OMIT/ADMIN_ONLY_PROGRAM_FIELDS
- * above) -- http(s)-only validation on videoUrl happens at the API layer
+ * above) -- http(s)-only validation on videoUrl/videoCreditUrl happens at the API layer
  * (app/api/admin/programs/[id]/video/route.ts), not here, same split as
  * setProgramWebsiteLanguage/setProgramOutreachCategory. */
 export async function setProgramVideoFields(
   id: string,
-  fields: { videoUrl: string | null; videoTranscript: string | null; aiBrief: string | null }
+  fields: {
+    videoUrl: string | null;
+    videoCredit: string | null;
+    videoCreditUrl: string | null;
+    videoTranscript: string | null;
+    aiBrief: string | null;
+  }
 ) {
   return prisma.program.update({ where: { id }, data: fields, omit: PROGRAM_PRIVATE_OMIT });
 }

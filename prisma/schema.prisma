@@ -301,6 +301,13 @@ model Program {
   /// user or moderator adds separately). Not yet validated/embedded like those; a
   /// plain public URL field.
   videoUrl               String?
+  /// Attribution for videoUrl -- public, admin-editable, rendered as a header line above
+  /// the embed (e.g. "Video by @handle") and hidden entirely when empty. Not proposable
+  /// content: no ProgramEdit field-decision path touches it, same as videoUrl itself.
+  videoCredit            String?
+  /// Optional outbound link the videoCredit text points to (e.g. the creator's own
+  /// profile) -- public, http(s)-only, rendered only when videoCredit is also set.
+  videoCreditUrl         String?
   /// Raw, unedited transcript of videoUrl -- admin-only, NEVER public. Never selected
   /// into a public page, the public JSON API, or a ProgramCandidate (see
   /// lib/ai/types.ts). Only aiBrief (below) may summarize it for public consumption.

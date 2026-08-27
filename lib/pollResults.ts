@@ -316,6 +316,8 @@ export type ProgramBestForRow = {
   editorialBestFor: string | null;
   contactOptIns: ContactOptInRow[];
   videoUrl: string | null;
+  videoCredit: string | null;
+  videoCreditUrl: string | null;
   videoTranscript: string | null;
   aiBrief: string | null;
   transcriptTags: string[];
@@ -350,6 +352,8 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
         // PROGRAM_PRIVATE_OMIT (lib/programs.ts) -- this view is /admin/programs,
         // gated admin-only, and is exactly where a moderator curates these.
         videoUrl: true,
+        videoCredit: true,
+        videoCreditUrl: true,
         videoTranscript: true,
         aiBrief: true,
         transcriptTags: true,
@@ -462,6 +466,8 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
       contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
       videoUrl: p.videoUrl,
+      videoCredit: p.videoCredit,
+      videoCreditUrl: p.videoCreditUrl,
       videoTranscript: p.videoTranscript,
       aiBrief: p.aiBrief,
       transcriptTags: p.transcriptTags,
