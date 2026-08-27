@@ -423,40 +423,32 @@ admin adds it to that Region's `memberSlugs` (via `RegionManager`) — an empty
 Duration is also multi-select (`DurationType[]`, Prisma `{ in: [...] }`), matching the
 other dropdowns — its URL `duration` param is comma-joined like `tags`.
 
-### `/find`: an admin-editable narrowing flow that redirects into the browse filters
-`/find` is a short, skippable, single-select question sequence (`app/find/page.tsx`,
-`components/FindStep.tsx`) whose entire output is a redirect to
-`/programs?tags=...&duration=...` — the exact same URL shape the filter bar above
-produces. It owns no results UI, ranking, or scoring of its own; `app/programs/page.tsx`
-does all the actual filtering, same as always. State lives in the URL as
-`?step=N&a=<comma-joined FinderOption ids>` rather than any client-side store, so the
-flow works with JavaScript disabled.
+### `/find` (v1) was removed in favor of `/match` (v2) — don't resurrect it
+v1's `/find` (a short, skippable, single-select question sequence redirecting into
+`/programs?tags=...&duration=...`, backed by `FinderQuestion`/`FinderOption`) was removed
+outright in `edcbceb` ("Replace v1 placement quiz (/find) with match flow v2 (/match)"):
+`app/find`, `components/FindStep.tsx`, `/admin/find` and its API routes, and
+`components/admin/FinderQuestionsManager.tsx` are all deleted. `/find` now permanently
+redirects to `/match` (`next.config.ts`). `lib/finder.ts` is gone too — the tag-slug
+validation helpers it shared with v2 (`UnknownTagSlugsError`, `assertTagSlugsExist`) were
+extracted first into `lib/tagSlugValidation.ts`, and the pure param-assembly helper
+`assembleProgramsHref` lives on in `lib/finderTargets.ts` (still used by `lib/flow.ts`).
+`FinderQuestion`/`FinderOption` remain in `schema.prisma` untouched — dropping them is a
+separate, explicitly-deferred schema change, not something either removal or a doc fix
+should trigger.
 
-Questions and options are DB-backed (`FinderQuestion`/`FinderOption` in `schema.prisma`,
-reusing `PollLifecycleStatus` for ACTIVE/RETIRED rather than a new enum) and managed from
-`/admin/find` (`components/admin/FinderQuestionsManager.tsx`) — prompt, help text, order,
-active state, and, critically, **each option's target**: the `tagSlugs`/`durationValues`
-it contributes to the final redirect. The tag side of that target is a checkbox picker
-over the live `Tag` table (never free text), and `lib/finder.ts`'s
-`createFinderOption`/`updateFinderOption` additionally reject (via `UnknownTagSlugsError`,
-surfaced as a 400 by the `/api/admin/find/*` routes) any write naming a tag slug with no
-matching `Tag` row — closing the gap a direct API call (bypassing the picker) or a
-duration-values typo could otherwise open. This is a stronger guarantee than
-`buildProgramsHref` itself needs at read time: that function still drops a stale tag slug
-or an out-of-`DurationType` duration value rather than erroring, since an option can
-legitimately go stale *after* being saved (e.g. its tag is later renamed/deleted from
-`app/admin/tags`), and a broken filter selection at *that* point should degrade quietly,
-not 500 the redirect.
-
-`listFinderQuestions`/`buildProgramsHref` are fully generic over whatever
-`FinderQuestion`/`FinderOption` rows exist — no question key or count is hardcoded
-anywhere, so a 5th question added purely from `/admin/find` works with zero code changes.
-The pure param-assembly logic (`assembleProgramsHref`) lives in `lib/finderTargets.ts`,
-split out of `lib/finder.ts` per the client-module-split pattern above, so
-`FinderQuestionsManager.tsx` can render a live "→ `/programs?...`" preview under every
-option — recomputed from that option's own stored `tagSlugs`/`durationValues` on every
-render — without risking drift from what `buildProgramsHref` actually produces at
-redirect time.
+**`/match` (v2)** is the live weighted, video-argued placement flow, gated behind the
+`findV2Enabled` SiteContent flag: `app/match/page.tsx` + `app/match/results/page.tsx`
+(public-facing), `lib/flow.ts`/`lib/flowRun.ts`/`lib/flowShared.ts` (question resolution,
+session/response recording, the `FlowQuestion.showWhen`/`FlowOption.showWhen`/
+`optionSetRules` condition grammar), and `FlowQuestion`/`FlowOption` in `schema.prisma`
+(weight/require/matchMode per option, not a single tag/duration target like v1). Admin
+management lives at `/admin/flow/questions` (`components/admin/FlowQuestionsManager.tsx`),
+with `/admin/flow/clips` and `/admin/flow/preview` alongside it — see
+`app/admin/flow/layout.tsx`'s own description for the current scope. This is a
+substantial enough system that it deserves its own full write-up here beyond this pointer
+if it keeps growing; treat this note as "don't confuse it with v1," not as the complete
+spec.
 
 ### Search ranking: Postgres filters, then a tokenized-match ∪ Fuse.js union, then a relevance-tier pass
 `lib/programs.ts`'s `listPrograms` runs every structured filter (`status`, tag AND/OR
