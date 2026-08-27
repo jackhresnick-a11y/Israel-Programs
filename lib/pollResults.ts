@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/siteContent";
-import { getProgramPollConfig, getQuestionsForProgram } from "@/lib/pollConfig";
+import { getProgramPollConfig, getQuestionsForProgram, getQuestionsForPrograms } from "@/lib/pollConfig";
 import { computeBestForPhrases, computeVarianceNote, type BestForQuestionInput } from "@/lib/pollBestFor";
 import { responseMeetsHistoricalSpread, type HistoricalQuestion } from "@/lib/pollUnlock";
 import { listPublicStandaloneReviews, type PublicStandaloneReview } from "@/lib/reviews";
@@ -424,7 +424,16 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
     perQuestion.set(row.questionId, { sum: existing.sum + row.value, n: existing.n + 1 });
   }
 
-  return Promise.all(programs.map(async (p) => {
+  // Batched, same posture as every other per-program fetch on this page -- see
+  // countResponsesMeetingReadinessBarByProgram's doc comment. This used to be an
+  // `await countResponsesMeetingReadinessBar(p.id)` inside the map below, i.e. one
+  // ~16-round-trip call per program (~7,400 queries / ~49s at the current
+  // 463-published-program count).
+  const responseCountsByProgramId = await countResponsesMeetingReadinessBarByProgram(
+    programs.map((p) => p.id)
+  );
+
+  return programs.map((p) => {
     const programStats = statsByProgramId.get(p.id);
     const candidates: BestForQuestionInput[] = questions.map((q) => {
       const stat = programStats?.get(q.id);
@@ -448,7 +457,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       // countResponsesMeetingReadinessBar -- was a raw COUNTED-row count, now the
       // same shared "genuine engagement" definition listRatingCoverage uses, so this
       // admin list and the coverage list can never disagree with each other again.
-      responseCount: await countResponsesMeetingReadinessBar(p.id),
+      responseCount: responseCountsByProgramId.get(p.id) ?? 0,
       bestForPhrases: computeBestForPhrases(candidates),
       editorialBestFor: p.pollConfig?.editorialBestFor ?? null,
       contactOptIns: contactOptInsByProgramId.get(p.id) ?? [],
@@ -457,7 +466,7 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       aiBrief: p.aiBrief,
       transcriptTags: p.transcriptTags,
     };
-  }));
+  });
 }
 
 /** One question's raw mean/count for one program -- the input shape the
@@ -495,6 +504,83 @@ export async function getProgramQuestionStats(programId: string): Promise<Progra
 }
 
 /**
+ * Batched form of countResponsesMeetingReadinessBar -- one set of bulk queries for
+ * every id in `programIds` (via getQuestionsForPrograms, plus scoped
+ * pollResponse/pollAnswer/pollQuestion fetches) rather than the ~16-round-trip
+ * per-program version repeated once per program. At 463 published programs the
+ * per-program version was ~7,400 queries and ~49s wall clock for /admin/programs alone
+ * -- this is the fix. Folds every program's responses/answers in JS, then runs the
+ * same unchanged responseMeetsHistoricalSpread per response, so the readiness
+ * definition itself is untouched -- only the query shape changes.
+ *
+ * countResponsesMeetingReadinessBar (below) is now a thin one-id wrapper over this, so
+ * the two can never drift apart -- same invariant the shared-definition doc comment on
+ * this function's non-batched predecessor already called out.
+ */
+export async function countResponsesMeetingReadinessBarByProgram(
+  programIds: string[]
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
+  if (programIds.length === 0) return result;
+
+  const resolvedByProgramId = await getQuestionsForPrograms(programIds);
+
+  const bucketGroupsByProgramId = new Map<string, string[][]>();
+  const allIdsByProgramId = new Map<string, string[]>();
+  const everyQuestionId = new Set<string>();
+  for (const programId of programIds) {
+    const resolved = resolvedByProgramId.get(programId);
+    const bucketGroups = resolved
+      ? [resolved.core.map((q) => q.id), ...resolved.extras.map((e) => e.questions.map((q) => q.id))]
+      : [];
+    const allIds = [...new Set(bucketGroups.flat())];
+    bucketGroupsByProgramId.set(programId, bucketGroups);
+    allIdsByProgramId.set(programId, allIds);
+    for (const id of allIds) everyQuestionId.add(id);
+    result.set(programId, 0);
+  }
+  if (everyQuestionId.size === 0) return result;
+
+  const [questions, responses, answers] = await Promise.all([
+    prisma.pollQuestion.findMany({
+      where: { id: { in: [...everyQuestionId] } },
+      select: { id: true, status: true },
+    }),
+    prisma.pollResponse.findMany({
+      where: { programId: { in: programIds }, status: "COUNTED" },
+      select: { id: true, programId: true, naQuestionIds: true, presentedQuestionIds: true },
+    }),
+    prisma.pollAnswer.groupBy({
+      by: ["responseId", "questionId"],
+      where: { response: { programId: { in: programIds }, status: "COUNTED" } },
+    }),
+  ]);
+  if (responses.length === 0) return result;
+
+  const questionsById = new Map<string, HistoricalQuestion>(questions.map((q) => [q.id, q]));
+
+  const answeredByResponse = new Map<string, Set<string>>();
+  for (const a of answers) {
+    if (!answeredByResponse.has(a.responseId)) answeredByResponse.set(a.responseId, new Set());
+    answeredByResponse.get(a.responseId)!.add(a.questionId);
+  }
+
+  for (const r of responses) {
+    const bucketGroups = bucketGroupsByProgramId.get(r.programId);
+    const allIds = allIdsByProgramId.get(r.programId);
+    if (!bucketGroups || !allIds || allIds.length === 0) continue;
+
+    const answeredIds = answeredByResponse.get(r.id) ?? new Set<string>();
+    const naIds = new Set(r.naQuestionIds);
+    const presented = r.presentedQuestionIds.length > 0 ? r.presentedQuestionIds : allIds;
+    if (responseMeetsHistoricalSpread(bucketGroups, presented, questionsById, answeredIds, naIds)) {
+      result.set(r.programId, (result.get(r.programId) ?? 0) + 1);
+    }
+  }
+  return result;
+}
+
+/**
  * How many of a program's COUNTED responses meet the historical readiness bar --
  * "genuine engagement," judged against the bucket groups EACH response was actually
  * served (via its own `presentedQuestionIds` snapshot -- see
@@ -504,52 +590,13 @@ export async function getProgramQuestionStats(programId: string): Promise<Progra
  * counted "answered the vestigial `overall` question," the other counted raw COUNTED
  * rows with no bar at all), which is exactly the bug this replaces both with one number.
  *
- * Reuses getQuestionsForProgram's already-correct, per-program resolution (respecting
- * that program's own addedQuestionIds/removedQuestionIds, and already ACTIVE-only) for
- * today's bucket groups, then layers each response's own presentedQuestionIds snapshot
- * on top -- rather than re-deriving group membership from the raw bucket array, which
- * would miss a program's own customizations. A response predating the
- * presentedQuestionIds column (an empty snapshot) falls back to today's full resolved
- * set rather than looking like it was served nothing.
+ * A thin wrapper over the batched countResponsesMeetingReadinessBarByProgram -- callers
+ * needing more than one program's count should call that directly instead of looping
+ * this, which is exactly the N+1 this pair of functions used to be.
  */
 export async function countResponsesMeetingReadinessBar(programId: string): Promise<number> {
-  const resolved = await getQuestionsForProgram(programId);
-  const bucketGroups = [resolved.core.map((q) => q.id), ...resolved.extras.map((e) => e.questions.map((q) => q.id))];
-  const allIds = [...new Set(bucketGroups.flat())];
-  if (allIds.length === 0) return 0;
-
-  const [questions, responses] = await Promise.all([
-    prisma.pollQuestion.findMany({
-      where: { id: { in: allIds } },
-      select: { id: true, status: true },
-    }),
-    prisma.pollResponse.findMany({
-      where: { programId, status: "COUNTED" },
-      select: { id: true, naQuestionIds: true, presentedQuestionIds: true },
-    }),
-  ]);
-  if (responses.length === 0) return 0;
-
-  const questionsById = new Map<string, HistoricalQuestion>(questions.map((q) => [q.id, q]));
-
-  const answers = await prisma.pollAnswer.groupBy({
-    by: ["responseId", "questionId"],
-    where: { response: { programId, status: "COUNTED" } },
-  });
-  const answeredByResponse = new Map<string, Set<string>>();
-  for (const a of answers) {
-    if (!answeredByResponse.has(a.responseId)) answeredByResponse.set(a.responseId, new Set());
-    answeredByResponse.get(a.responseId)!.add(a.questionId);
-  }
-
-  let count = 0;
-  for (const r of responses) {
-    const answeredIds = answeredByResponse.get(r.id) ?? new Set<string>();
-    const naIds = new Set(r.naQuestionIds);
-    const presented = r.presentedQuestionIds.length > 0 ? r.presentedQuestionIds : allIds;
-    if (responseMeetsHistoricalSpread(bucketGroups, presented, questionsById, answeredIds, naIds)) count++;
-  }
-  return count;
+  const counts = await countResponsesMeetingReadinessBarByProgram([programId]);
+  return counts.get(programId) ?? 0;
 }
 
 /**
@@ -561,11 +608,12 @@ export async function countResponsesMeetingReadinessBar(programId: string): Prom
  * vestigial and easy to skip; a program could have many genuinely engaged responses
  * that happen to have skipped that one specific question).
  *
- * One per-program loop (not a single set query) since each program's bucket groups can
- * be individually customized (addedQuestionIds/removedQuestionIds) -- see
- * countResponsesMeetingReadinessBar's own doc comment. Bounded by the published-program
- * count (tens, not thousands), on an admin-only page, so this is an acceptable cost.
- * Sorted ascending by count so the programs most in need of responses sort to the top.
+ * Uses the batched countResponsesMeetingReadinessBarByProgram (one set of bulk queries
+ * for every published program, since each program's bucket groups can still be
+ * individually customized via addedQuestionIds/removedQuestionIds -- see that
+ * function's own doc comment) rather than one countResponsesMeetingReadinessBar call
+ * per program, which was an N+1 at the current 463-published-program scale. Sorted
+ * ascending by count so the programs most in need of responses sort to the top.
  */
 export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
   const programs = await prisma.program.findMany({
@@ -573,17 +621,16 @@ export async function listRatingCoverage(): Promise<RatingCoverageRow[]> {
     select: { id: true, name: true, slug: true },
   });
 
-  const [rows, clusterInputsByProgram] = await Promise.all([
-    Promise.all(
-      programs.map(async (p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        count: await countResponsesMeetingReadinessBar(p.id),
-      }))
-    ),
+  const [countsByProgramId, clusterInputsByProgram] = await Promise.all([
+    countResponsesMeetingReadinessBarByProgram(programs.map((p) => p.id)),
     loadClusterInputsByProgram(programs.map((p) => p.id)),
   ]);
+  const rows = programs.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    count: countsByProgramId.get(p.id) ?? 0,
+  }));
 
   const withCluster = rows.map((row) => ({
     ...row,
