@@ -224,6 +224,23 @@ describe("POST /api/assistant -- transcript private-field boundary", () => {
     expect(JSON.stringify(data)).not.toContain(SECRET_TRANSCRIPT);
     expect(JSON.stringify(data)).not.toContain("staged-slug");
   });
+
+  it("videoCredit/videoCreditUrl never reach the candidate payload -- public fields, but not part of ProgramCandidate's hand-built allowlist", async () => {
+    mockListPrograms.mockResolvedValue([
+      makeProgram({
+        aiBrief: "A short public summary of the program.",
+        videoCredit: "@handle",
+        videoCreditUrl: "https://instagram.com/handle",
+      }),
+    ]);
+
+    await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0]).not.toHaveProperty("videoCredit");
+    expect(candidates[0]).not.toHaveProperty("videoCreditUrl");
+    expect(JSON.stringify(candidates)).not.toContain("@handle");
+  });
 });
 
 describe("POST /api/assistant -- slug re-validation", () => {

@@ -16,6 +16,7 @@ import { programDefinitionSentence } from "@/lib/programDefinition";
 import { SITE_NAME } from "@/lib/siteUrl";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
+import ProgramVideoBlock from "@/components/ProgramVideoBlock";
 import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
@@ -335,6 +336,11 @@ export default async function ProgramDetailPage({
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Videos
         </h2>
+        <ProgramVideoBlock
+          videoUrl={program.videoUrl}
+          videoCredit={program.videoCredit}
+          videoCreditUrl={program.videoCreditUrl}
+        />
         <VideoList videos={program.videos} />
         <SignedInGate action="add a video">
           <VideoUploader programId={program.id} />

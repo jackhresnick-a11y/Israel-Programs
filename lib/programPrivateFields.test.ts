@@ -243,6 +243,83 @@ describe("A transcript written through lib/transcripts.ts's bulk-upload path is 
   });
 });
 
+describe("videoCredit/videoCreditUrl are public -- distinct from videoTranscript/transcriptTags", () => {
+  it("getProgramBySlug returns the credit fields while still omitting the transcript fields", async () => {
+    seedProgram({
+      slug: "prog-credit-a",
+      videoCredit: "@handle",
+      videoCreditUrl: "https://instagram.com/handle",
+      videoTranscript: SECRET_TRANSCRIPT,
+      transcriptTags: ["staged-slug"],
+    });
+
+    const result = await getProgramBySlug("prog-credit-a");
+
+    expect(result?.videoCredit).toBe("@handle");
+    expect(result?.videoCreditUrl).toBe("https://instagram.com/handle");
+    expect(result).not.toHaveProperty("videoTranscript");
+    expect(result).not.toHaveProperty("transcriptTags");
+    expect(JSON.stringify(result)).not.toContain(SECRET_TRANSCRIPT);
+  });
+
+  it("listPrograms returns the credit fields while still omitting the transcript fields", async () => {
+    seedProgram({
+      slug: "prog-credit-b",
+      videoCredit: "@handle",
+      videoCreditUrl: "https://instagram.com/handle",
+      videoTranscript: SECRET_TRANSCRIPT,
+      transcriptTags: ["staged-slug"],
+    });
+
+    const results = await listPrograms({});
+
+    expect(results).toHaveLength(1);
+    expect(results[0].videoCredit).toBe("@handle");
+    expect(results[0].videoCreditUrl).toBe("https://instagram.com/handle");
+    expect(results[0]).not.toHaveProperty("videoTranscript");
+    expect(JSON.stringify(results)).not.toContain(SECRET_TRANSCRIPT);
+  });
+
+  it("getProgramsBySlugs returns the credit fields while still omitting the transcript fields", async () => {
+    seedProgram({
+      slug: "prog-credit-c",
+      status: "PUBLISHED",
+      videoCredit: "@handle",
+      videoCreditUrl: "https://instagram.com/handle",
+      videoTranscript: SECRET_TRANSCRIPT,
+      transcriptTags: ["staged-slug"],
+    });
+
+    const results = await getProgramsBySlugs(["prog-credit-c"]);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].videoCredit).toBe("@handle");
+    expect(results[0].videoCreditUrl).toBe("https://instagram.com/handle");
+    expect(results[0]).not.toHaveProperty("videoTranscript");
+    expect(JSON.stringify(results)).not.toContain(SECRET_TRANSCRIPT);
+  });
+
+  it("toPublicProgram keeps the credit fields (public, like videoUrl/aiBrief) while still stripping videoTranscript/transcriptTags", () => {
+    const row = {
+      id: "prog_x",
+      name: "X",
+      videoUrl: "https://example.com/video",
+      videoCredit: "@handle",
+      videoCreditUrl: "https://instagram.com/handle",
+      videoTranscript: SECRET_TRANSCRIPT,
+      transcriptTags: ["staged-slug"],
+    };
+
+    const result = toPublicProgram(row);
+
+    expect(result.videoCredit).toBe("@handle");
+    expect(result.videoCreditUrl).toBe("https://instagram.com/handle");
+    expect(result).not.toHaveProperty("videoTranscript");
+    expect(result).not.toHaveProperty("transcriptTags");
+    expect(JSON.stringify(result)).not.toContain(SECRET_TRANSCRIPT);
+  });
+});
+
 describe("Per-tag provenance (ProgramTagProvenance) never reaches the public program DTO", () => {
   it("toPublicProgram strips a `provenance` array even if one arrived on the row (e.g. reused from lib/pollResults.ts's admin-only ProgramBestForRow shape)", () => {
     const row = {

@@ -10,6 +10,7 @@ import Badge from "@/components/ui/Badge";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
 import Textarea from "@/components/ui/Textarea";
 import { programMatchesTagFilter } from "@/lib/adminFilters";
+import { countWords, MAX_TRANSCRIPT_CHARS } from "@/lib/transcriptsShared";
 import {
   TAG_PROVENANCE_SOURCES,
   TAG_PROVENANCE_SOURCE_LABELS,
@@ -46,6 +47,8 @@ export type ProgramRow = {
   editorialBestFor: string | null;
   contactOptIns: ContactOptInRow[];
   videoUrl: string | null;
+  videoCredit: string | null;
+  videoCreditUrl: string | null;
   videoTranscript: string | null;
   aiBrief: string | null;
   transcriptTags: string[];
@@ -86,8 +89,11 @@ function ProgramRowCard({
   const [editorialBestFor, setEditorialBestFor] = useState(program.editorialBestFor ?? "");
   const [tagsValue, setTagsValue] = useState(program.tags.map((t) => t.name).join(", "));
   const [videoUrl, setVideoUrl] = useState(program.videoUrl ?? "");
+  const [videoCredit, setVideoCredit] = useState(program.videoCredit ?? "");
+  const [videoCreditUrl, setVideoCreditUrl] = useState(program.videoCreditUrl ?? "");
   const [aiBrief, setAiBrief] = useState(program.aiBrief ?? "");
   const [videoTranscript, setVideoTranscript] = useState(program.videoTranscript ?? "");
+  const [transcriptUploadError, setTranscriptUploadError] = useState<string | null>(null);
   const [tagBusy, setTagBusy] = useState<string | null>(null);
   const [generatingBrief, setGeneratingBrief] = useState(false);
   const [generateBriefError, setGenerateBriefError] = useState<string | null>(null);
@@ -143,6 +149,21 @@ function ProgramRowCard({
   }
 
   const aiBriefWordCount = aiBrief.trim() ? aiBrief.trim().split(/\s+/).length : 0;
+  const transcriptWordCount = countWords(videoTranscript);
+
+  async function handleTranscriptFile(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setTranscriptUploadError(null);
+    const text = await file.text();
+    if (text.length > MAX_TRANSCRIPT_CHARS) {
+      setTranscriptUploadError(
+        `Transcript is ${text.length.toLocaleString()} characters, over the ${MAX_TRANSCRIPT_CHARS.toLocaleString()} limit.`
+      );
+      return;
+    }
+    setVideoTranscript(text);
+  }
 
   async function handleGenerateBrief() {
     setGeneratingBrief(true);
@@ -173,6 +194,8 @@ function ProgramRowCard({
         }),
         api(`/api/admin/programs/${program.id}/video`, "PATCH", {
           videoUrl: videoUrl.trim() || null,
+          videoCredit: videoCredit.trim() || null,
+          videoCreditUrl: videoCreditUrl.trim() || null,
           videoTranscript: videoTranscript.trim() || null,
           aiBrief: aiBrief.trim() || null,
         }),
@@ -271,11 +294,13 @@ function ProgramRowCard({
             />
           </label>
 
-          {program.transcriptTags.length > 0 && (
-            <div className="flex flex-col gap-2 rounded border border-border bg-surface-muted p-3">
-              <p className="text-xs font-semibold text-muted">
-                Suggested from transcript — nothing is applied until you approve
-              </p>
+          <div className="flex flex-col gap-2 rounded border border-border bg-surface-muted p-3">
+            <p className="text-xs font-semibold text-muted">
+              Suggested from transcript — nothing is applied until you approve
+            </p>
+            {program.transcriptTags.length === 0 ? (
+              <p className="text-xs text-muted">No suggested tags.</p>
+            ) : (
               <div className="flex flex-col gap-1">
                 {program.transcriptTags.map((slug) => {
                   const match = allTags.find((t) => t.slug === slug);
@@ -306,8 +331,8 @@ function ProgramRowCard({
                   );
                 })}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <label className="flex flex-col gap-1 text-xs text-muted">
             Tags
@@ -390,6 +415,24 @@ function ProgramRowCard({
               placeholder="https://..."
             />
           </label>
+          <div className="flex flex-wrap gap-3">
+            <label className="flex flex-1 flex-col gap-1 text-xs text-muted">
+              Video credit (public — e.g. &ldquo;@handle&rdquo;, hidden when blank)
+              <Input
+                value={videoCredit}
+                onChange={(e) => setVideoCredit(e.target.value)}
+                placeholder="Video by..."
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1 text-xs text-muted">
+              Video credit link (optional)
+              <Input
+                value={videoCreditUrl}
+                onChange={(e) => setVideoCreditUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </label>
+          </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between gap-2 text-xs text-muted">
               <span>AI brief ({aiBriefWordCount} word{aiBriefWordCount === 1 ? "" : "s"}, target ~80) — public</span>
@@ -421,15 +464,35 @@ function ProgramRowCard({
               </p>
             )}
           </div>
-          <label className="flex flex-col gap-1 text-xs text-muted">
-            Transcript (admin only — never shown publicly)
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-2 text-xs text-muted">
+              <span>
+                Transcript (admin only — never shown publicly) — {transcriptWordCount} word
+                {transcriptWordCount === 1 ? "" : "s"}
+              </span>
+              <label className="cursor-pointer text-accent-hover underline">
+                Upload .txt
+                <input
+                  type="file"
+                  accept=".txt,text/plain"
+                  onChange={(e) => {
+                    handleTranscriptFile(e.target.files);
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+              </label>
+            </div>
             <Textarea
               value={videoTranscript}
               onChange={(e) => setVideoTranscript(e.target.value)}
               rows={8}
-              placeholder="Raw video transcript"
+              placeholder="Raw video transcript, or upload a .txt file above"
             />
-          </label>
+            {transcriptUploadError && (
+              <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{transcriptUploadError}</p>
+            )}
+          </div>
           <Button type="button" size="sm" className="self-start" disabled={busy} onClick={handleSave}>
             {busy ? "Saving..." : "Save"}
           </Button>

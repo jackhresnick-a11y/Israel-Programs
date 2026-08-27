@@ -18,6 +18,10 @@ const httpUrl = z
 
 const bodySchema = z.object({
   videoUrl: httpUrl.nullable(),
+  // Public attribution for videoUrl -- rendered as a header line above the embed and
+  // hidden when empty (see components/ProgramVideoBlock.tsx). Plain text, not a URL.
+  videoCredit: z.string().trim().max(120).nullable(),
+  videoCreditUrl: httpUrl.nullable(),
   // Raw transcript text -- admin-only, never validated as anything but a string. See
   // PROGRAM_PRIVATE_OMIT (lib/programs.ts) for why it can never reach a public route.
   // Shares MAX_TRANSCRIPT_CHARS with lib/transcripts.ts's bulk-upload path
@@ -27,8 +31,8 @@ const bodySchema = z.object({
   aiBrief: z.string().trim().max(2_000).nullable(),
 });
 
-/** Admin-only: sets or clears a program's overview video link, raw transcript, and
- * distilled public brief. See lib/programs.ts's setProgramVideoFields. */
+/** Admin-only: sets or clears a program's overview video link, its attribution, raw
+ * transcript, and distilled public brief. See lib/programs.ts's setProgramVideoFields. */
 export async function PATCH(request: Request, { params }: Params) {
   const check = await requireRole("admin");
   if (!check.ok) {
@@ -41,6 +45,8 @@ export async function PATCH(request: Request, { params }: Params) {
     const body = bodySchema.parse(await request.json());
     await setProgramVideoFields(id, {
       videoUrl: body.videoUrl,
+      videoCredit: body.videoCredit || null,
+      videoCreditUrl: body.videoCreditUrl,
       videoTranscript: body.videoTranscript || null,
       aiBrief: body.aiBrief || null,
     });
