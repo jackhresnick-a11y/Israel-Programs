@@ -24,6 +24,10 @@ import { POLL_RANK_TAG } from "@/lib/pollRankData";
  * answer (the autosave COUNTED transition, review/response moderation), so this is
  * the one place that cache needs to be told to refresh. Over-invalidating a ~300-row
  * aggregate on an unrelated call site (e.g. a tag edit) costs nothing.
+ *
+ * "/llms.txt" is included too (revalidate = 3600, same window): lib/briefs.ts's
+ * publishBrief/archiveBrief call this, so a brief going live or being pulled shows up
+ * there immediately rather than waiting out the hour, same reasoning as /rate above.
  */
 export async function revalidateProgram(programId: string): Promise<void> {
   const slug = await getProgramSlugById(programId);
@@ -32,6 +36,7 @@ export async function revalidateProgram(programId: string): Promise<void> {
   revalidatePath("/programs");
   revalidatePath("/");
   revalidatePath("/rate");
+  revalidatePath("/llms.txt");
   // { expire: 0 } is Next 16's non-deprecated spelling of "invalidate now" --
   // revalidateTag(tag) alone still works but logs a deprecation warning on every call.
   revalidateTag(POLL_RANK_TAG, { expire: 0 });

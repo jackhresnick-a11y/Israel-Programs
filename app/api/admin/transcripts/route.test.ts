@@ -3,26 +3,32 @@ import { MAX_TRANSCRIPT_CHARS } from "@/lib/transcriptsShared";
 
 // Style A (hoisted in-memory Prisma fake + dynamic import after vi.mock), same
 // precedent as lib/programPrivateFields.test.ts -- this route's whole point is a
-// server-side re-check against the live DB (unknown slug, overwrite-without-confirm),
-// so the test needs a fake that actually models program.findMany/update/$transaction,
-// not just a mocked lib/ boundary.
-const { fakePrisma, resetDb, seedProgram, getPrograms } = vi.hoisted(() => {
-  const db = { programs: [] as { id: string; slug: string; videoTranscript: string | null }[] };
+// server-side re-check against the live DB (unknown slug), so the test needs a fake
+// that actually models program.findMany/transcript.create/programBrief.updateMany/
+// $transaction, not just a mocked lib/ boundary.
+const { fakePrisma, resetDb, seedProgram, getTranscripts } = vi.hoisted(() => {
+  type ProgramRow = { id: string; slug: string };
+  type TranscriptRow = { id: string; programId: string; filename: string; text: string; sourceUrl: string | null };
+
+  const db = { programs: [] as ProgramRow[], transcripts: [] as TranscriptRow[], briefs: [] as unknown[] };
+  let nextId = 1;
 
   const fakePrisma = {
     program: {
       findMany: async (args: { where?: { slug?: { in?: string[] } } }) => {
         const slugs = args.where?.slug?.in;
-        return db.programs
-          .filter((p) => !slugs || slugs.includes(p.slug))
-          .map((p) => ({ id: p.id, slug: p.slug, videoTranscript: p.videoTranscript }));
+        return db.programs.filter((p) => !slugs || slugs.includes(p.slug));
       },
-      update: async (args: { where: { id: string }; data: { videoTranscript: string | null } }) => {
-        const row = db.programs.find((p) => p.id === args.where.id);
-        if (!row) throw Object.assign(new Error("not found"), { code: "P2025" });
-        row.videoTranscript = args.data.videoTranscript;
-        return { ...row };
+    },
+    transcript: {
+      create: async (args: { data: { programId: string; filename: string; text: string; sourceUrl: string | null } }) => {
+        const row: TranscriptRow = { id: `tr_${nextId++}`, ...args.data };
+        db.transcripts.push(row);
+        return row;
       },
+    },
+    programBrief: {
+      updateMany: async () => ({ count: 0 }),
     },
     $transaction: async (ops: Promise<unknown>[]) => Promise.all(ops),
   };
@@ -31,11 +37,14 @@ const { fakePrisma, resetDb, seedProgram, getPrograms } = vi.hoisted(() => {
     fakePrisma,
     resetDb: () => {
       db.programs = [];
+      db.transcripts = [];
+      db.briefs = [];
+      nextId = 1;
     },
-    seedProgram: (overrides: { id: string; slug: string; videoTranscript?: string | null }) => {
-      db.programs.push({ videoTranscript: null, ...overrides });
+    seedProgram: (overrides: ProgramRow) => {
+      db.programs.push(overrides);
     },
-    getPrograms: () => db.programs,
+    getTranscripts: () => db.transcripts,
   };
 });
 
@@ -65,10 +74,10 @@ describe("POST /api/admin/transcripts authorization", () => {
     requireRole.mockResolvedValue({ ok: false, status: 403 });
     seedProgram({ id: "p1", slug: "aish-hatorah" });
 
-    const res = await POST(post({ entries: [{ slug: "aish-hatorah", text: "hello" }], confirmOverwrite: false }));
+    const res = await POST(post({ entries: [{ slug: "aish-hatorah", filename: "aish-hatorah.txt", text: "hello" }] }));
 
     expect(res.status).toBe(403);
-    expect(getPrograms()[0].videoTranscript).toBeNull();
+    expect(getTranscripts()).toEqual([]);
   });
 });
 
@@ -79,54 +88,44 @@ describe("POST /api/admin/transcripts -- unknown slug", () => {
     const res = await POST(
       post({
         entries: [
-          { slug: "aish-hatorah", text: "hello" },
-          { slug: "no-such-program", text: "world" },
+          { slug: "aish-hatorah", filename: "aish-hatorah.txt", text: "hello" },
+          { slug: "no-such-program", filename: "no-such-program.txt", text: "world" },
         ],
-        confirmOverwrite: true,
       })
     );
 
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.slugs).toEqual(["no-such-program"]);
-    expect(getPrograms()[0].videoTranscript).toBeNull();
+    expect(getTranscripts()).toEqual([]);
   });
 });
 
-describe("POST /api/admin/transcripts -- overwrite gate", () => {
-  it("rejects with 409 and writes nothing when a slug already has a transcript and confirmOverwrite is false", async () => {
-    seedProgram({ id: "p1", slug: "aish-hatorah", videoTranscript: "existing text" });
+describe("POST /api/admin/transcripts -- append-only, never an overwrite", () => {
+  it("a slug with an existing transcript still succeeds, adding a second row rather than requiring confirmation", async () => {
+    seedProgram({ id: "p1", slug: "aish-hatorah" });
+    await POST(post({ entries: [{ slug: "aish-hatorah", filename: "aish-hatorah--1.txt", text: "existing text" }] }));
 
-    const res = await POST(
-      post({ entries: [{ slug: "aish-hatorah", text: "new text" }], confirmOverwrite: false })
-    );
+    const res = await POST(post({ entries: [{ slug: "aish-hatorah", filename: "aish-hatorah--2.txt", text: "new text" }] }));
 
-    expect(res.status).toBe(409);
-    const body = await res.json();
-    expect(body.slugs).toEqual(["aish-hatorah"]);
-    expect(getPrograms()[0].videoTranscript).toBe("existing text");
+    expect(res.status).toBe(200);
+    expect(getTranscripts()).toHaveLength(2);
+    expect(getTranscripts().map((t) => t.text).sort()).toEqual(["existing text", "new text"]);
   });
 
-  it("writes through when confirmOverwrite is true", async () => {
-    seedProgram({ id: "p1", slug: "aish-hatorah", videoTranscript: "existing text" });
+  it("stores an optional sourceUrl per transcript", async () => {
+    seedProgram({ id: "p1", slug: "aish-hatorah" });
 
     const res = await POST(
-      post({ entries: [{ slug: "aish-hatorah", text: "new text" }], confirmOverwrite: true })
+      post({
+        entries: [
+          { slug: "aish-hatorah", filename: "aish-hatorah.txt", text: "hi", sourceUrl: "https://example.com/video" },
+        ],
+      })
     );
 
     expect(res.status).toBe(200);
-    expect(getPrograms()[0].videoTranscript).toBe("new text");
-  });
-
-  it("never requires confirmation for a brand-new transcript", async () => {
-    seedProgram({ id: "p1", slug: "aish-hatorah", videoTranscript: null });
-
-    const res = await POST(
-      post({ entries: [{ slug: "aish-hatorah", text: "first transcript" }], confirmOverwrite: false })
-    );
-
-    expect(res.status).toBe(200);
-    expect(getPrograms()[0].videoTranscript).toBe("first transcript");
+    expect(getTranscripts()[0].sourceUrl).toBe("https://example.com/video");
   });
 });
 
@@ -135,9 +134,9 @@ describe("POST /api/admin/transcripts -- length cap", () => {
     seedProgram({ id: "p1", slug: "aish-hatorah" });
     const tooLong = "a".repeat(MAX_TRANSCRIPT_CHARS + 1);
 
-    const res = await POST(post({ entries: [{ slug: "aish-hatorah", text: tooLong }], confirmOverwrite: false }));
+    const res = await POST(post({ entries: [{ slug: "aish-hatorah", filename: "aish-hatorah.txt", text: tooLong }] }));
 
     expect(res.status).toBe(400);
-    expect(getPrograms()[0].videoTranscript).toBeNull();
+    expect(getTranscripts()).toEqual([]);
   });
 });

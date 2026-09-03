@@ -318,9 +318,11 @@ export type ProgramBestForRow = {
   videoUrl: string | null;
   videoCredit: string | null;
   videoCreditUrl: string | null;
-  videoTranscript: string | null;
-  aiBrief: string | null;
   transcriptTags: string[];
+  /** How many Transcript rows this program has (see /admin/transcripts) -- replaces the
+   * old "does this program have a transcript at all" tell that used to come from the
+   * boolean Program.videoTranscript column. */
+  transcriptCount: number;
 };
 
 /**
@@ -354,9 +356,8 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
         videoUrl: true,
         videoCredit: true,
         videoCreditUrl: true,
-        videoTranscript: true,
-        aiBrief: true,
         transcriptTags: true,
+        _count: { select: { transcripts: true } },
       },
       orderBy: { name: "asc" },
     }),
@@ -468,9 +469,8 @@ export async function listProgramsBestFor(): Promise<ProgramBestForRow[]> {
       videoUrl: p.videoUrl,
       videoCredit: p.videoCredit,
       videoCreditUrl: p.videoCreditUrl,
-      videoTranscript: p.videoTranscript,
-      aiBrief: p.aiBrief,
       transcriptTags: p.transcriptTags,
+      transcriptCount: p._count.transcripts,
     };
   });
 }

@@ -228,6 +228,16 @@ enum ProgramFaqStatus {
   REJECTED
 }
 
+/// DRAFT -> PUBLISHED is an explicit admin action (lib/briefs.ts's publishBrief) --
+/// nothing auto-publishes. ARCHIVED frees the (programId, briefTypeId) slot enforced by
+/// the hand-written partial unique index below, same "retire, don't delete" posture as
+/// ReviewStatus/ProgramFaqStatus.
+enum ProgramBriefStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 /// Retain-never-delete posture, same as ReviewStatus/PollReviewStatus/ProgramFaqStatus
 /// elsewhere in this schema -- a rejected pending tag stays as a record, never deleted.
 enum PendingTagStatus {
@@ -308,14 +318,22 @@ model Program {
   /// Optional outbound link the videoCredit text points to (e.g. the creator's own
   /// profile) -- public, http(s)-only, rendered only when videoCredit is also set.
   videoCreditUrl         String?
-  /// Raw, unedited transcript of videoUrl -- admin-only, NEVER public. Never selected
-  /// into a public page, the public JSON API, or a ProgramCandidate (see
-  /// lib/ai/types.ts). Only aiBrief (below) may summarize it for public consumption.
-  /// Not proposable content: no ProgramEdit field-decision path touches it.
+  /// SUPERSEDED by the Transcript model below -- kept only as a rollback safety net for
+  /// the one-time backfill migration (20260903000000_add_program_briefs) that copied any
+  /// non-empty value here into a Transcript row. Read by nothing: every write path that
+  /// used to touch this column now writes Transcript rows instead (see /admin/transcripts
+  /// and lib/transcripts.ts). Never dropped -- dropping a column is a destructive schema
+  /// change, not a doc fix -- but no code should ever read or write it again.
   videoTranscript        String?
-  /// ~80-word distilled public summary, admin-authored (typically from
-  /// videoTranscript) -- the ONLY transcript-derived text allowed to reach a public
-  /// route, page payload, or ProgramCandidate.
+  /// ~80-word distilled public summary, admin-authored -- historically "the ONLY
+  /// transcript-derived text allowed to reach a public route, page payload, or
+  /// ProgramCandidate," now joined by ProgramBrief (below). See BriefType.
+  /// supersedesAiBrief: when a program has a PUBLISHED brief of a superseding type, that
+  /// brief's text takes this field's place in the assistant payload and the public JSON
+  /// API -- this field is never overwritten or cleared by that, only shadowed at read
+  /// time. No write path remains for this column (the admin textarea that used to author
+  /// it was removed alongside videoTranscript's), so it can only ever hold whatever value
+  /// was already saved before this feature shipped.
   aiBrief                String?
   /// Tag slugs suggested from videoTranscript, staged for admin approval one at a
   /// time (see lib/programs.ts's approveTranscriptTag/rejectTranscriptTag) -- never
@@ -343,10 +361,104 @@ model Program {
   pollElaborationAnswers PollElaborationAnswer[]
   faqs                   ProgramFAQ[]
   pendingTags            PendingTag[]
+  transcripts            Transcript[]
+  briefs                 ProgramBrief[]
 
   @@index([durationType])
   @@index([status])
   @@index([organizationId])
+}
+
+/// One uploaded video transcript. Admin-only, NEVER public -- never selected into a
+/// public page, the public JSON API, or a ProgramCandidate (same "raw transcript never
+/// leaves the admin surface" rule as the old Program.videoTranscript column this
+/// replaces). A program may have several (see /admin/transcripts -- files named
+/// "<slug>--1.txt", "<slug>--2.txt", ... all attach to the same program); uploading never
+/// overwrites an existing row, it always inserts a new one.
+model Transcript {
+  id        String   @id @default(cuid())
+  programId String
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  text      String
+  /// The original uploaded filename, verbatim (e.g. "aish-hatorah--2.txt") -- kept for
+  /// admin traceability back to the source .txt file.
+  filename  String
+  /// Optional admin-entered provenance URL for the source video.
+  sourceUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([programId])
+}
+
+/// One kind of program brief (e.g. "What it is", "A day in the life"), admin-defined via
+/// /admin/briefs/types -- not hardcoded, so a new brief type needs zero code changes.
+/// promptText is the ONLY prompt for this type: pasted by an admin alongside a program's
+/// concatenated transcripts (see lib/briefsShared.ts's buildCopyPayload) into an external
+/// Claude conversation by hand, or used as-is by the retargeted AI "Generate" button --
+/// either way, the same stored prompt, never a hardcoded string.
+model BriefType {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  promptText        String
+  /// Bumped only when promptText actually changes (see lib/briefs.ts's updateBriefType) --
+  /// lets the admin UI show "this brief was drafted against an older prompt version" on
+  /// every ProgramBrief row via promptVersionUsed below.
+  promptVersion     Int      @default(1)
+  /// Whether a PUBLISHED brief of this type is included in the assistant's
+  /// ProgramCandidate enrichment (see app/api/assistant/route.ts) -- independent of
+  /// public-page/llms.txt visibility, which is gated on PUBLISHED status alone.
+  sendToAssistant   Boolean  @default(false)
+  /// When true, a PUBLISHED brief of this type takes Program.aiBrief's place in the
+  /// assistant payload and the public JSON API for that program (see the doc comment on
+  /// Program.aiBrief above) -- purely a read-time precedence rule, never a write.
+  supersedesAiBrief Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  briefs            ProgramBrief[]
+}
+
+/// One brief of one BriefType for one program. DRAFT until an admin explicitly presses
+/// Publish (lib/briefs.ts's publishBrief) -- nothing here ever auto-publishes. Uniqueness
+/// on (programId, briefTypeId) among non-ARCHIVED rows is enforced by a hand-written
+/// partial unique index in this model's migration (Prisma has no first-class syntax for
+/// partial indexes -- see the standing "never run `prisma db push`" warning on the
+/// alumni-polls migration). An "insufficient" paste (see lib/briefsShared.ts's
+/// isInsufficientPaste) IS that one slot -- status DRAFT, text "", insufficient: true --
+/// rather than a second row or a separate table, so the uniqueness holds for that state
+/// by construction.
+model ProgramBrief {
+  id                String             @id @default(cuid())
+  programId         String
+  program           Program            @relation(fields: [programId], references: [id], onDelete: Cascade)
+  briefTypeId       String
+  briefType         BriefType          @relation(fields: [briefTypeId], references: [id], onDelete: Restrict)
+  text              String             @default("")
+  status            ProgramBriefStatus @default(DRAFT)
+  /// BriefType.promptVersion at the moment this text was last saved -- lets the admin UI
+  /// flag a brief as drafted against a since-edited prompt.
+  promptVersionUsed Int
+  /// Set whenever a new Transcript is uploaded for this program (see
+  /// lib/transcripts.ts's saveTranscriptsBulk) -- new source material may change what
+  /// this brief should say. Cleared on the next save of this row's text, same as
+  /// insufficient below.
+  needsRegeneration Boolean            @default(false)
+  /// True when the last paste into this slot was the exact sentinel "INSUFFICIENT" (see
+  /// lib/briefsShared.ts's INSUFFICIENT_SENTINEL) -- a durable, reload-surviving flag
+  /// rather than an ephemeral API error, so the admin UI can badge it distinctly from an
+  /// ordinary empty draft. Never publishable while true. Cleared by pasting real text, or
+  /// by a new transcript upload for this program (same trigger as needsRegeneration --
+  /// new material is worth retrying).
+  insufficient      Boolean            @default(false)
+  insufficientAt    DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([programId, status])
+  @@index([briefTypeId])
 }
 
 /// One outreach ("verify your listing") draft/send record per program -- @unique

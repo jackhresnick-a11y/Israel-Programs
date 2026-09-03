@@ -9,11 +9,12 @@ const {
   fakePrisma,
   resetDb,
   seedProgram,
+  getTranscripts,
   getLastFindUniqueArgs,
   getLastFindManyArgs,
   getProvenanceFindManyCallCount,
 } = vi.hoisted(() => {
-  const db = { programs: [] as Record<string, unknown>[], seq: 0 };
+  const db = { programs: [] as Record<string, unknown>[], transcripts: [] as Record<string, unknown>[], seq: 0 };
   let lastFindUniqueArgs: unknown = null;
   let lastFindManyArgs: unknown = null;
   let provenanceFindManyCallCount = 0;
@@ -79,6 +80,21 @@ const {
         return [];
       },
     },
+    // Transcript is a wholly separate table now (see lib/transcripts.ts) -- none of
+    // lib/programs.ts's Program queries select or include it, so this fake exists only
+    // to let saveTranscriptsBulk's write succeed; the leak assertion below checks that
+    // its written text never shows up in any Program read, not that this table itself
+    // is omitted (there's nothing to omit -- it's simply never joined in).
+    transcript: {
+      create: async (args: { data: { programId: string; filename: string; text: string; sourceUrl: string | null } }) => {
+        const row = { id: `tr_${db.transcripts.length + 1}`, ...args.data };
+        db.transcripts.push(row);
+        return row;
+      },
+    },
+    programBrief: {
+      updateMany: async () => ({ count: 0 }),
+    },
     $transaction: async (ops: Promise<unknown>[]) => Promise.all(ops),
   };
 
@@ -110,10 +126,12 @@ const {
     fakePrisma,
     resetDb: () => {
       db.programs = [];
+      db.transcripts = [];
       db.seq = 0;
       provenanceFindManyCallCount = 0;
     },
     seedProgram,
+    getTranscripts: () => db.transcripts,
     getLastFindUniqueArgs: () => lastFindUniqueArgs,
     getLastFindManyArgs: () => lastFindManyArgs,
     getProvenanceFindManyCallCount: () => provenanceFindManyCallCount,
@@ -224,21 +242,22 @@ describe("A transcript written through lib/transcripts.ts's bulk-upload path is 
   it("stays absent from getProgramBySlug, listPrograms, and toPublicProgram after saveTranscriptsBulk writes it", async () => {
     const row = seedProgram({ slug: "prog-bulk", status: "PUBLISHED" });
 
-    await saveTranscriptsBulk([{ slug: "prog-bulk", text: SECRET_TRANSCRIPT }], { confirmOverwrite: false });
+    await saveTranscriptsBulk([{ slug: "prog-bulk", filename: "prog-bulk.txt", text: SECRET_TRANSCRIPT }]);
 
-    // The write landed on the underlying row (bulk-upload's whole point)...
-    expect(row.videoTranscript).toBe(SECRET_TRANSCRIPT);
+    // The write landed as a Transcript row (bulk-upload's whole point) -- a wholly
+    // separate table from Program, not the legacy Program.videoTranscript column.
+    expect(getTranscripts()).toHaveLength(1);
+    expect(getTranscripts()[0].text).toBe(SECRET_TRANSCRIPT);
 
-    // ...but every lib/programs.ts read path still keeps it out.
+    // ...and every lib/programs.ts read path -- which never selects or joins
+    // Transcript at all -- keeps it out.
     const bySlug = await getProgramBySlug("prog-bulk");
-    expect(bySlug).not.toHaveProperty("videoTranscript");
     expect(JSON.stringify(bySlug)).not.toContain(SECRET_TRANSCRIPT);
 
     const listed = await listPrograms({});
     expect(JSON.stringify(listed)).not.toContain(SECRET_TRANSCRIPT);
 
     const publicRow = toPublicProgram({ ...row });
-    expect(publicRow).not.toHaveProperty("videoTranscript");
     expect(JSON.stringify(publicRow)).not.toContain(SECRET_TRANSCRIPT);
   });
 });

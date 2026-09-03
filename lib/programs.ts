@@ -693,11 +693,12 @@ export async function setProgramOutreachCategory(id: string, category: string | 
   return prisma.program.update({ where: { id }, data: { outreachCategory: category } });
 }
 
-/** Admin-only: sets (or clears, with null) a program's overview video link, its
- * attribution (credit text + optional link-out), raw transcript, and distilled public
- * brief in one write. `videoUrl`, `videoCredit`, `videoCreditUrl`, and `aiBrief` are all
- * public; `videoTranscript` never is (see PROGRAM_PRIVATE_OMIT/ADMIN_ONLY_PROGRAM_FIELDS
- * above) -- http(s)-only validation on videoUrl/videoCreditUrl happens at the API layer
+/** Admin-only: sets (or clears, with null) a program's overview video link and its
+ * attribution (credit text + optional link-out) in one write. All three fields are
+ * public. `videoTranscript`/`aiBrief` used to be edited here too -- both write paths
+ * moved to /admin/transcripts (Transcript rows) and /admin/briefs (ProgramBrief rows)
+ * respectively, so this function no longer touches either column. http(s)-only
+ * validation on videoUrl/videoCreditUrl happens at the API layer
  * (app/api/admin/programs/[id]/video/route.ts), not here, same split as
  * setProgramWebsiteLanguage/setProgramOutreachCategory. */
 export async function setProgramVideoFields(
@@ -706,22 +707,9 @@ export async function setProgramVideoFields(
     videoUrl: string | null;
     videoCredit: string | null;
     videoCreditUrl: string | null;
-    videoTranscript: string | null;
-    aiBrief: string | null;
   }
 ) {
   return prisma.program.update({ where: { id }, data: fields, omit: PROGRAM_PRIVATE_OMIT });
-}
-
-/** Admin-only: reads a program's raw transcript for the "Generate from transcript"
- * button (POST .../generate-brief) -- an explicit, narrowly-scoped exception to
- * PROGRAM_PRIVATE_OMIT's blanket "never selected into a whole-row query" rule, since
- * that route's whole job is handing this exact field to the AI provider. Returns null
- * for both "no program" and "no transcript" -- the caller's empty-transcript check
- * doesn't need to distinguish the two. */
-export async function getProgramVideoTranscript(id: string): Promise<string | null> {
-  const program = await prisma.program.findUnique({ where: { id }, select: { videoTranscript: true } });
-  return program?.videoTranscript ?? null;
 }
 
 /** Approves one transcript-suggested tag: connects the existing Tag by slug (never

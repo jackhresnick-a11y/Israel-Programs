@@ -157,6 +157,12 @@ export default async function AdminPage() {
               Transcripts
             </Link>
             <Link
+              href="/admin/briefs"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+            >
+              Briefs
+            </Link>
+            <Link
               href="/admin/glossary"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >
