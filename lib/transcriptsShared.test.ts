@@ -48,7 +48,7 @@ describe("matchFilesToSlugs", () => {
       programId: "prog_1",
       programName: "Aish HaTorah",
       wordCount: 2,
-      previousWordCount: null,
+      existingCount: 0,
     });
   });
 
@@ -72,7 +72,7 @@ describe("matchFilesToSlugs", () => {
     expect(unmatched).toEqual([{ filename: "aish hatorah.txt" }]);
   });
 
-  it("never fuzzily matches -- an extra-suffixed filename is unmatched, not resolved", () => {
+  it("never fuzzily matches -- a single-dash-suffixed filename (not the '--' disambiguator) is unmatched, not resolved", () => {
     const { matched, unmatched } = matchFilesToSlugs(
       [{ filename: "aish-hatorah-2.txt", text: "x" }],
       SLUGS,
@@ -92,22 +92,22 @@ describe("matchFilesToSlugs", () => {
     expect(unmatched).toEqual([{ filename: "aish-hatorah.mp4" }]);
   });
 
-  it("classifies a slug with no existing transcript as New (previousWordCount null)", () => {
+  it("classifies a slug with no existing transcripts as existingCount 0", () => {
     const { matched } = matchFilesToSlugs(
       [{ filename: "example-program.txt", text: "one two three" }],
       SLUGS,
       new Map()
     );
-    expect(matched[0].previousWordCount).toBeNull();
+    expect(matched[0].existingCount).toBe(0);
   });
 
-  it("classifies a slug with an existing transcript as Overwrite, carrying the prior word count", () => {
+  it("carries the current transcript count for a slug that already has some", () => {
     const { matched } = matchFilesToSlugs(
       [{ filename: "example-program.txt", text: "one two three" }],
       SLUGS,
-      new Map([["example-program", 42]])
+      new Map([["example-program", 2]])
     );
-    expect(matched[0].previousWordCount).toBe(42);
+    expect(matched[0].existingCount).toBe(2);
   });
 
   it("handles a mixed batch: matched and unmatched files independently", () => {
@@ -121,5 +121,39 @@ describe("matchFilesToSlugs", () => {
     );
     expect(matched.map((m) => m.slug)).toEqual(["aish-hatorah"]);
     expect(unmatched).toEqual([{ filename: "not-a-real-slug.txt" }]);
+  });
+
+  it("'<slug>--1.txt' and '<slug>--2.txt' both match the same program, letting several transcripts attach in one batch", () => {
+    const { matched, unmatched } = matchFilesToSlugs(
+      [
+        { filename: "aish-hatorah--1.txt", text: "a" },
+        { filename: "aish-hatorah--2.txt", text: "b" },
+      ],
+      SLUGS,
+      new Map()
+    );
+    expect(unmatched).toEqual([]);
+    expect(matched.map((m) => m.slug)).toEqual(["aish-hatorah", "aish-hatorah"]);
+    expect(matched.map((m) => m.filename)).toEqual(["aish-hatorah--1.txt", "aish-hatorah--2.txt"]);
+  });
+
+  it("a '--' disambiguator on a slug that doesn't otherwise match is still unmatched -- no fuzzing", () => {
+    const { matched, unmatched } = matchFilesToSlugs(
+      [{ filename: "not-a-real-slug--1.txt", text: "x" }],
+      SLUGS,
+      new Map()
+    );
+    expect(matched).toEqual([]);
+    expect(unmatched).toEqual([{ filename: "not-a-real-slug--1.txt" }]);
+  });
+
+  it("a non-.txt file with a '--' disambiguator is unmatched, same as any other non-.txt file", () => {
+    const { matched, unmatched } = matchFilesToSlugs(
+      [{ filename: "aish-hatorah--1.md", text: "x" }],
+      SLUGS,
+      new Map()
+    );
+    expect(matched).toEqual([]);
+    expect(unmatched).toEqual([{ filename: "aish-hatorah--1.md" }]);
   });
 });

@@ -174,6 +174,7 @@ export class AnthropicProvider implements AIProvider {
         ];
         if (c.unmetLabels.length > 0) lines.push(`  does NOT match: ${c.unmetLabels.join(", ")}`);
         if (c.aiBrief) lines.push(`  brief: ${c.aiBrief}`);
+        for (const b of c.briefs) lines.push(`  ${b.typeName}: ${b.text}`);
         if (c.bestForPhrases.length > 0) lines.push(`  published "best for": ${c.bestForPhrases.join("; ")}`);
         if (c.alumniQuotes.length > 0) lines.push(`  approved alumni review quotes: ${c.alumniQuotes.map((q) => `"${q}"`).join(" / ")}`);
         return lines.join("\n");
@@ -189,7 +190,7 @@ export class AnthropicProvider implements AIProvider {
         "CANDIDATES are pre-ranked by how many parts of the request they match; always pick your picks/alternatives from earlier in the list when quality is comparable, never skip ahead to a worse-matching candidate for variety. " +
         "Every candidate that doesn't fully satisfy the request still lists what it's missing under 'does NOT match' -- you MUST state that plainly in your why/line for that candidate, never omit it or gloss over it. " +
         "Never claim a program is a full match if it has any 'does NOT match' entries. " +
-        "'brief' is an admin-authored public summary of the program -- you may state it as fact about the program. " +
+        "'brief' and any other labeled brief line (e.g. 'What it is', 'A day in the life') are moderator-published public summaries of the program -- you may state them as fact about the program. " +
         "'published \"best for\"' lines are already-public aggregate results -- you may state them as fact about the program. " +
         "'approved alumni review quotes' are individual opinions, not facts about the program -- you MUST frame any use of them as \"alumni describe it as...\" or similar, never restate a quote as a plain fact. " +
         "Always return exactly 2 picks and up to 3 alternatives from the candidates given (fewer only if there are literally fewer than 5 candidates total) -- there is always something to show, even if it's an imperfect match; never respond as if nothing was found.\n\n" +
@@ -211,24 +212,18 @@ export class AnthropicProvider implements AIProvider {
 
   /**
    * A short, explicit timeout (rather than the SDK's 10-minute default) so a stuck
-   * request surfaces as a clear error near the admin's "Generate from transcript"
-   * button instead of hanging indefinitely -- see app/api/admin/programs/[id]/
-   * generate-brief/route.ts, which turns any rejection here into a surfaced 502.
+   * request surfaces as a clear error near the admin's "Generate" button instead of
+   * hanging indefinitely -- see app/api/admin/briefs/generate/route.ts, which turns any
+   * rejection here into a surfaced 502. `prompt` is the calling BriefType's own stored
+   * promptText, verbatim -- this provider no longer hardcodes any brief-drafting
+   * instruction of its own.
    */
-  async generateBrief(transcript: string): Promise<string> {
+  async generateBrief(prompt: string, transcript: string): Promise<string> {
     const response = await this.client.messages.create(
       {
         model: FAST_MODEL,
         max_tokens: 400,
-        system:
-          "The following is a raw transcript of a study/gap-year/volunteer program's own self-shot video. " +
-          "Extract a short, factual brief from it for a program directory listing. These videos routinely mix " +
-          "real facts with promotional or sales language (e.g. \"this will change your life\", \"you won't " +
-          "regret it\") -- extract ONLY concrete facts stated in the transcript and discard every promotional " +
-          "or persuasive sentence entirely. Cover, whenever the transcript actually states them: location, " +
-          "program duration, languages of instruction, participant age range, and what a typical day looks " +
-          "like. Never invent or infer a fact the transcript doesn't state. Write flowing prose (no bullet " +
-          "points, no headers), roughly 60-100 words.",
+        system: prompt,
         messages: [{ role: "user", content: transcript }],
       },
       { timeout: 30_000 }

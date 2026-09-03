@@ -8,9 +8,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import TagPicker, { type TagOption, type TagCategoryOption } from "@/components/ui/TagPicker";
-import Textarea from "@/components/ui/Textarea";
 import { programMatchesTagFilter } from "@/lib/adminFilters";
-import { countWords, MAX_TRANSCRIPT_CHARS } from "@/lib/transcriptsShared";
 import {
   TAG_PROVENANCE_SOURCES,
   TAG_PROVENANCE_SOURCE_LABELS,
@@ -49,9 +47,8 @@ export type ProgramRow = {
   videoUrl: string | null;
   videoCredit: string | null;
   videoCreditUrl: string | null;
-  videoTranscript: string | null;
-  aiBrief: string | null;
   transcriptTags: string[];
+  transcriptCount: number;
 };
 
 export type TagProvenanceBacklogRow = { programId: string; unprovenancedCount: number };
@@ -91,12 +88,7 @@ function ProgramRowCard({
   const [videoUrl, setVideoUrl] = useState(program.videoUrl ?? "");
   const [videoCredit, setVideoCredit] = useState(program.videoCredit ?? "");
   const [videoCreditUrl, setVideoCreditUrl] = useState(program.videoCreditUrl ?? "");
-  const [aiBrief, setAiBrief] = useState(program.aiBrief ?? "");
-  const [videoTranscript, setVideoTranscript] = useState(program.videoTranscript ?? "");
-  const [transcriptUploadError, setTranscriptUploadError] = useState<string | null>(null);
   const [tagBusy, setTagBusy] = useState<string | null>(null);
-  const [generatingBrief, setGeneratingBrief] = useState(false);
-  const [generateBriefError, setGenerateBriefError] = useState<string | null>(null);
 
   const provenanceByTagId = useMemo(() => {
     const map = new Map<string, ProgramTagProvenanceRow>();
@@ -148,36 +140,6 @@ function ProgramRowCard({
     }
   }
 
-  const aiBriefWordCount = aiBrief.trim() ? aiBrief.trim().split(/\s+/).length : 0;
-  const transcriptWordCount = countWords(videoTranscript);
-
-  async function handleTranscriptFile(files: FileList | null) {
-    const file = files?.[0];
-    if (!file) return;
-    setTranscriptUploadError(null);
-    const text = await file.text();
-    if (text.length > MAX_TRANSCRIPT_CHARS) {
-      setTranscriptUploadError(
-        `Transcript is ${text.length.toLocaleString()} characters, over the ${MAX_TRANSCRIPT_CHARS.toLocaleString()} limit.`
-      );
-      return;
-    }
-    setVideoTranscript(text);
-  }
-
-  async function handleGenerateBrief() {
-    setGeneratingBrief(true);
-    setGenerateBriefError(null);
-    try {
-      const { brief } = await api(`/api/admin/programs/${program.id}/generate-brief`, "POST");
-      setAiBrief(brief);
-    } catch (err) {
-      setGenerateBriefError(err instanceof Error ? err.message : "Failed to generate a brief");
-    } finally {
-      setGeneratingBrief(false);
-    }
-  }
-
   async function handleSave() {
     setBusy(true);
     setError(null);
@@ -196,8 +158,6 @@ function ProgramRowCard({
           videoUrl: videoUrl.trim() || null,
           videoCredit: videoCredit.trim() || null,
           videoCreditUrl: videoCreditUrl.trim() || null,
-          videoTranscript: videoTranscript.trim() || null,
-          aiBrief: aiBrief.trim() || null,
         }),
       ]);
       router.refresh();
@@ -433,66 +393,17 @@ function ProgramRowCard({
               />
             </label>
           </div>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between gap-2 text-xs text-muted">
-              <span>AI brief ({aiBriefWordCount} word{aiBriefWordCount === 1 ? "" : "s"}, target ~80) — public</span>
-              {program.videoTranscript && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  disabled={generatingBrief}
-                  onClick={handleGenerateBrief}
-                >
-                  {generatingBrief ? "Generating..." : "Generate from transcript"}
-                </Button>
-              )}
-            </div>
-            <Textarea
-              aria-label="AI brief"
-              value={aiBrief}
-              onChange={(e) => setAiBrief(e.target.value)}
-              rows={3}
-              placeholder="A short distilled summary, e.g. from the video transcript below"
-            />
-            {generateBriefError && (
-              <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{generateBriefError}</p>
-            )}
-            {program.videoTranscript && (
-              <p className="text-[11px] text-muted">
-                Draft only — review and edit above, then press Save. Nothing is written until you save.
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between gap-2 text-xs text-muted">
-              <span>
-                Transcript (admin only — never shown publicly) — {transcriptWordCount} word
-                {transcriptWordCount === 1 ? "" : "s"}
-              </span>
-              <label className="cursor-pointer text-accent-hover underline">
-                Upload .txt
-                <input
-                  type="file"
-                  accept=".txt,text/plain"
-                  onChange={(e) => {
-                    handleTranscriptFile(e.target.files);
-                    e.target.value = "";
-                  }}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            <Textarea
-              value={videoTranscript}
-              onChange={(e) => setVideoTranscript(e.target.value)}
-              rows={8}
-              placeholder="Raw video transcript, or upload a .txt file above"
-            />
-            {transcriptUploadError && (
-              <p className="rounded bg-danger-bg px-3 py-2 text-xs text-danger">{transcriptUploadError}</p>
-            )}
-          </div>
+          <p className="text-xs text-muted">
+            Transcripts ({program.transcriptCount}) and public briefs are managed at{" "}
+            <a href="/admin/transcripts" className="text-accent-hover underline">
+              /admin/transcripts
+            </a>{" "}
+            and{" "}
+            <a href="/admin/briefs" className="text-accent-hover underline">
+              /admin/briefs
+            </a>
+            .
+          </p>
           <Button type="button" size="sm" className="self-start" disabled={busy} onClick={handleSave}>
             {busy ? "Saving..." : "Save"}
           </Button>

@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
 import { setProgramVideoFields } from "@/lib/programs";
 import { revalidateProgram } from "@/lib/revalidate";
-import { MAX_TRANSCRIPT_CHARS } from "@/lib/transcriptsShared";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -16,23 +15,21 @@ const httpUrl = z
   .url()
   .refine((value) => /^https?:\/\//i.test(value), { message: "Must be a valid http(s) URL" });
 
+// videoTranscript and aiBrief used to be edited here too -- both write paths are gone
+// now that transcripts are Transcript rows (/admin/transcripts) and public summaries
+// are ProgramBrief rows (/admin/briefs). Program.videoTranscript/aiBrief are kept as
+// columns (see their doc comments in schema.prisma) but this route no longer touches
+// either, so /admin/briefs isn't competing with a second place to write the same text.
 const bodySchema = z.object({
   videoUrl: httpUrl.nullable(),
   // Public attribution for videoUrl -- rendered as a header line above the embed and
   // hidden when empty (see components/ProgramVideoBlock.tsx). Plain text, not a URL.
   videoCredit: z.string().trim().max(120).nullable(),
   videoCreditUrl: httpUrl.nullable(),
-  // Raw transcript text -- admin-only, never validated as anything but a string. See
-  // PROGRAM_PRIVATE_OMIT (lib/programs.ts) for why it can never reach a public route.
-  // Shares MAX_TRANSCRIPT_CHARS with lib/transcripts.ts's bulk-upload path
-  // (/admin/transcripts) -- both write this same column, so they must agree on the
-  // ceiling or a transcript saved via one becomes unsaveable via the other.
-  videoTranscript: z.string().trim().max(MAX_TRANSCRIPT_CHARS).nullable(),
-  aiBrief: z.string().trim().max(2_000).nullable(),
 });
 
-/** Admin-only: sets or clears a program's overview video link, its attribution, raw
- * transcript, and distilled public brief. See lib/programs.ts's setProgramVideoFields. */
+/** Admin-only: sets or clears a program's overview video link and its attribution. See
+ * lib/programs.ts's setProgramVideoFields. */
 export async function PATCH(request: Request, { params }: Params) {
   const check = await requireRole("admin");
   if (!check.ok) {
@@ -47,8 +44,6 @@ export async function PATCH(request: Request, { params }: Params) {
       videoUrl: body.videoUrl,
       videoCredit: body.videoCredit || null,
       videoCreditUrl: body.videoCreditUrl,
-      videoTranscript: body.videoTranscript || null,
-      aiBrief: body.aiBrief || null,
     });
     await revalidateProgram(id);
     return NextResponse.json({ ok: true });

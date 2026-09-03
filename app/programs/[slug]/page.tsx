@@ -9,6 +9,7 @@ import { listPublishedReferences } from "@/lib/references";
 import { getReferenceListVisibility } from "@/lib/referenceConfig";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns } from "@/lib/pollResults";
+import { getPublishedBriefsForProgram } from "@/lib/briefs";
 import { getPublicPollLink } from "@/lib/pollConfig";
 import { shouldShowContactHint } from "@/lib/contactOptIn";
 import { listPublishedFaqs } from "@/lib/programFaq";
@@ -27,6 +28,7 @@ import PartnerCta from "@/components/PartnerCta";
 import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
 import ReviewsSection from "@/components/ReviewsSection";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
+import ProgramBriefs from "@/components/ProgramBriefs";
 import ProgramJumpNav, { type JumpNavItem } from "@/components/ProgramJumpNav";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
@@ -151,6 +153,7 @@ export default async function ProgramDetailPage({
   // section itself renders from, with only one fetch either way (cache()-wrapped
   // like the other program-page reads).
   const reviewsSummary = await getProgramReviewsSummary(program.id);
+  const publishedBriefs = await getPublishedBriefsForProgram(program.id);
 
   // Same rateHref PollSummaryStrip's own RateCta computes (publicPollLink falls
   // back to the sign-in-walled /rate/[slug]) -- kept in sync so the jump bar's
@@ -233,6 +236,8 @@ export default async function ProgramDetailPage({
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
         {program.description}
       </p>
+
+      <ProgramBriefs briefs={publishedBriefs} />
 
       <PollSummaryStrip
         summary={pollSummary}

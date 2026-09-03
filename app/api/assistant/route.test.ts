@@ -36,6 +36,16 @@ vi.mock("@/lib/pollResults", () => ({
   getProgramReviewsSummary: (id: string) => mockGetProgramReviewsSummary(id),
 }));
 
+// --- Brief enrichment -- mocked at @/lib/briefs, the exact module boundary the route
+// imports. getAssistantBriefsForProgram owns its own PUBLISHED/sendToAssistant gating
+// (untouched by these tests); what's verified here is that the route never reaches past
+// what it returns, and correctly applies supersedesAiBrief to drop the legacy aiBrief
+// field. -----------------------------------------------------------------------------
+const mockGetAssistantBriefsForProgram = vi.fn();
+vi.mock("@/lib/briefs", () => ({
+  getAssistantBriefsForProgram: (id: string) => mockGetAssistantBriefsForProgram(id),
+}));
+
 // --- AI provider -- fully controllable fake so tests can drive exactly what
 // a "provider" (real or Null) returns, including an adversarial hallucinated
 // slug for the re-validation test. -------------------------------------------
@@ -89,6 +99,7 @@ beforeEach(() => {
   mockParseSearchQuery.mockResolvedValue({});
   mockGetProgramPollSummary.mockResolvedValue(EMPTY_POLL_SUMMARY);
   mockGetProgramReviewsSummary.mockResolvedValue(EMPTY_REVIEWS_SUMMARY);
+  mockGetAssistantBriefsForProgram.mockResolvedValue({ briefs: [], supersedesAiBrief: false });
   mockRecommendPrograms.mockResolvedValue({
     reply: "Here's what I found.",
     picks: [{ slug: "aardvark-israel", why: "It's a tech program." }],
@@ -240,6 +251,57 @@ describe("POST /api/assistant -- transcript private-field boundary", () => {
     expect(candidates[0]).not.toHaveProperty("videoCredit");
     expect(candidates[0]).not.toHaveProperty("videoCreditUrl");
     expect(JSON.stringify(candidates)).not.toContain("@handle");
+  });
+});
+
+describe("POST /api/assistant -- brief enrichment", () => {
+  it("a PUBLISHED sendToAssistant brief reaches the candidate payload, labeled by brief type", async () => {
+    mockGetAssistantBriefsForProgram.mockResolvedValue({
+      briefs: [{ typeName: "What it is", text: "A structured gap year in Tel Aviv." }],
+      supersedesAiBrief: false,
+    });
+
+    await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0].briefs).toEqual([{ typeName: "What it is", text: "A structured gap year in Tel Aviv." }]);
+  });
+
+  it("aiBrief still reaches the payload alongside briefs when supersedesAiBrief is false", async () => {
+    mockListPrograms.mockResolvedValue([makeProgram({ aiBrief: "Legacy admin brief." })]);
+    mockGetAssistantBriefsForProgram.mockResolvedValue({
+      briefs: [{ typeName: "A day in the life", text: "Mornings are Hebrew class." }],
+      supersedesAiBrief: false,
+    });
+
+    await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0].aiBrief).toBe("Legacy admin brief.");
+    expect(candidates[0].briefs).toHaveLength(1);
+  });
+
+  it("supersedesAiBrief drops the legacy aiBrief from the payload -- never sent twice under two names", async () => {
+    mockListPrograms.mockResolvedValue([makeProgram({ aiBrief: "Legacy admin brief." })]);
+    mockGetAssistantBriefsForProgram.mockResolvedValue({
+      briefs: [{ typeName: "What it is", text: "A structured gap year in Tel Aviv." }],
+      supersedesAiBrief: true,
+    });
+
+    await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0].aiBrief).toBeNull();
+    expect(JSON.stringify(candidates)).not.toContain("Legacy admin brief.");
+  });
+
+  it("a DRAFT or non-sendToAssistant brief never reaches the candidate payload -- getAssistantBriefsForProgram owns that gate, and the route trusts it exclusively", async () => {
+    mockGetAssistantBriefsForProgram.mockResolvedValue({ briefs: [], supersedesAiBrief: false });
+
+    await POST(makeRequest({ message: "tech program" }));
+
+    const { candidates } = mockRecommendPrograms.mock.calls[0][0];
+    expect(candidates[0].briefs).toEqual([]);
   });
 });
 
