@@ -91,7 +91,7 @@ function isAdult(p: CategorizableProgram): boolean {
  * override (Program.outreachCategory, set via the per-row dropdown) always wins;
  * otherwise these rules run in a specific PRECEDENCE order (distinct from the display
  * order in CATEGORY_KEYS) so a program isn't swallowed by a broader bucket before a
- * more specific one gets a chance -- mechina/pre-army programs are checked first so
+ * more specific one gets a chance -- mechina-tagged programs are checked first so
  * they never fall into the generic English-gap-year or Israeli-yeshiva buckets, and
  * yeshiva/seminary signal is checked before the generic gap-year/adult buckets for
  * the same reason. Every program lands somewhere: "other" is the deliberate catch-all,
