@@ -21,9 +21,7 @@ function markerLeft(frac: number): string {
  * The extractability sentence (see lib/pollSentences.ts's trackSentence) reuses this
  * same closest-label index expression, so it can never name a different option than the
  * "Closest to" line beside it -- and, like this component, it deliberately never states
- * a numeric average. It's visually hidden via Tailwind's `sr-only` -- never
- * display:none/visibility:hidden/aria-hidden -- so it stays in the server-rendered HTML
- * and the accessibility tree without cluttering the visible block.
+ * a numeric average.
  */
 export default function DescriptiveTrack({
   text,
@@ -75,7 +73,7 @@ export default function DescriptiveTrack({
           Closest to: <span className="text-foreground">{closestLabel}</span>
         </p>
       )}
-      {sentence && <p className="sr-only">{sentence}</p>}
+      {sentence && <p className="text-sm text-foreground/80">{sentence}</p>}
       <span className="text-[10px] text-muted">n={count}</span>
     </div>
   );

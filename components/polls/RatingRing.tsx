@@ -14,9 +14,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
  * The extractability sentence (see lib/pollSentences.ts's ringSentence) is a fixed
  * template over the same mean/count/labels the ring already renders visually -- it can
  * never contradict the ring, and renders nothing when ringSentence does (unanswered/
- * not-yet-published question). It's visually hidden via Tailwind's `sr-only` -- never
- * display:none/visibility:hidden/aria-hidden -- so it stays in the server-rendered HTML
- * and the accessibility tree without cluttering the visible block.
+ * not-yet-published question).
  */
 export default function RatingRing({
   text,
@@ -80,7 +78,7 @@ export default function RatingRing({
         <p className="text-xs text-muted">
           1 {labels[0]} · 5 {labels[4]}
         </p>
-        {sentence && <p className="sr-only">{sentence}</p>}
+        {sentence && <p className="text-sm text-foreground/80">{sentence}</p>}
         <span className="text-[10px] text-muted">n={count}</span>
       </div>
     </div>
