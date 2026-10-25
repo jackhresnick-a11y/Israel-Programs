@@ -109,6 +109,17 @@ describe("PollSummaryStrip collapse-by-bucket", () => {
     expect(html).toContain('Asked &quot;Question q_orphan&quot;');
   });
 
+  it("each extractability sentence is visually hidden via sr-only, never aria-hidden/display:none", () => {
+    const html = renderHtml(summary);
+    const sentences = html.match(/<p[^>]*>Asked &quot;/g) ?? [];
+    expect(sentences.length).toBeGreaterThan(0);
+    for (const tag of sentences) {
+      expect(tag).toContain('class="sr-only"');
+      expect(tag).not.toContain("aria-hidden");
+      expect(tag).not.toContain("hidden");
+    }
+  });
+
   it("a retired bucket's row carries a Retired tag", () => {
     const html = renderHtml(summary);
     const nameIndex = html.indexOf("Old cohort");
