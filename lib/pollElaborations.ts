@@ -147,18 +147,19 @@ async function computeSharedAttentionFlags(
   return flagsByResponseId;
 }
 
-/** The moderation queue for elaboration answers -- default PENDING, capped at 200,
- * mirroring lib/pollReviews.ts's listReviewQueue shape so PollReviewQueue.tsx can render
- * both kinds of row with one component. */
+/** The moderation queue for elaboration answers -- capped at 200, mirroring
+ * lib/pollReviews.ts's listReviewQueue shape (including its "no filter.status means every
+ * status, ordering flips to newest-first" behavior) so PollReviewQueue.tsx can render both
+ * kinds of row with one component. */
 export async function listElaborationQueue(filter: PollElaborationFilter = {}) {
   let answers;
   try {
     answers = await prisma.pollElaborationAnswer.findMany({
       where: {
-        status: filter.status ?? "PENDING",
+        ...(filter.status ? { status: filter.status } : {}),
         ...(filter.programId ? { programId: filter.programId } : {}),
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: filter.status ? "asc" : "desc" },
       take: 200,
       include: {
         program: { select: { name: true, slug: true } },

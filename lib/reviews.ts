@@ -62,16 +62,20 @@ export type StandaloneReviewFilter = {
 };
 
 /** The standalone-review moderation queue -- same shape as lib/pollReviews.ts's
- * listReviewQueue (default PENDING, capped at 200 most-recent matches), rendered
- * alongside the poll-review queue on /admin/polls/reviews as one combined moderation
- * surface, even though the two models stay separate. */
+ * listReviewQueue, capped at 200 matches, rendered alongside the poll-review queue on
+ * /admin/polls/reviews as one combined moderation surface, even though the two models
+ * stay separate. No `filter.status` means "every status" -- the status filter must never
+ * be a hidden exclusion, so nothing defaults to PENDING-only here. Ordering flips with it:
+ * a specific status keeps the oldest-first FIFO admins work the queue in, but the
+ * unfiltered "everything" view orders newest-first so a fresh PENDING row can never be
+ * pushed past the 200-row cap by four months of old PUBLISHED history. */
 export async function listStandaloneReviewQueue(filter: StandaloneReviewFilter = {}) {
   return prisma.review.findMany({
     where: {
-      status: filter.status ?? "PENDING",
+      ...(filter.status ? { status: filter.status } : {}),
       ...(filter.programId ? { programId: filter.programId } : {}),
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: filter.status ? "asc" : "desc" },
     take: 200,
     include: {
       program: { select: { name: true, slug: true } },

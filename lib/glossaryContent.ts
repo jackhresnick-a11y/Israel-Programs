@@ -120,7 +120,14 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
       },
     ],
     programLinks: [{ label: "Browse mechina programs", href: "/programs?tags=mechina" }],
-    related: ["yeshiva", "mechina-vs-yeshiva", "gap-year"],
+    related: [
+      "yeshiva",
+      "mechina-vs-yeshiva",
+      "gap-year",
+      "religious-mechina-vs-mechina",
+      "religious-mechina-vs-yeshiva",
+      "hesder-vs-religious-mechina",
+    ],
   },
   {
     slug: "hesder",
@@ -143,7 +150,7 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
       },
     ],
     programLinks: [{ label: "Browse hesder yeshivas", href: "/programs?tags=hesder" }],
-    related: ["yeshiva", "hesder-vs-regular-yeshiva"],
+    related: ["yeshiva", "hesder-vs-regular-yeshiva", "hesder-vs-religious-mechina"],
   },
   {
     slug: "yeshiva",
@@ -166,7 +173,13 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
       },
     ],
     programLinks: [{ label: "Browse yeshivas", href: "/programs?tags=yeshiva" }],
-    related: ["hesder", "mechina-vs-yeshiva", "hesder-vs-regular-yeshiva"],
+    related: [
+      "hesder",
+      "mechina-vs-yeshiva",
+      "hesder-vs-regular-yeshiva",
+      "israeli-yeshiva-vs-english-speaking-yeshiva",
+      "religious-mechina-vs-yeshiva",
+    ],
   },
   {
     slug: "seminary",
@@ -387,6 +400,117 @@ export const DEFAULT_GLOSSARY_ENTRIES: GlossaryEntry[] = [
       { label: "Browse yeshivas", href: "/programs?tags=yeshiva" },
     ],
     related: ["mechina", "yeshiva"],
+  },
+  // The four comparison entries below are STRUCTURE-ONLY placeholders (published:
+  // false, TODO-marked copy) -- content pending, see PR description / plan doc. Each
+  // TODO section body still satisfies glossarySectionSchema's non-empty-string
+  // requirement so the array keeps parsing and the admin manager can load it.
+  {
+    slug: "religious-mechina-vs-mechina",
+    term: "Religious mechina vs. mechina",
+    kind: "comparison",
+    summary: "TODO -- one-sentence summary of how a religious mechina differs from the broader mechina category.",
+    sections: [
+      {
+        heading: "The short answer",
+        body: "TODO -- short-answer paragraph: religious mechina is a subset of the broader mechina category, distinguished by X.",
+      },
+      {
+        heading: "Religious life and daily schedule",
+        body: "TODO -- how a religious mechina's daily schedule, religious observance, and orientation differ from a mechina generally.",
+      },
+      {
+        heading: "Which one fits",
+        body: "TODO -- guidance on which student fits a religious mechina versus a mechina more broadly.",
+      },
+    ],
+    // No NOT-operator on /programs, so the second link is the whole mechina category
+    // (religious mechinot included), not "non-religious mechinot" -- same limitation
+    // noted on hesder-vs-regular-yeshiva above.
+    programLinks: [
+      { label: "Browse religious mechina programs", href: "/programs?tags=religious-mechina" },
+      { label: "Browse all mechina programs", href: "/programs?tags=mechina" },
+    ],
+    related: ["mechina", "hesder-vs-religious-mechina"],
+    published: false,
+  },
+  {
+    slug: "religious-mechina-vs-yeshiva",
+    term: "Religious mechina vs. yeshiva",
+    kind: "comparison",
+    summary: "TODO -- one-sentence summary of how a religious mechina differs from a yeshiva.",
+    sections: [
+      {
+        heading: "The short answer",
+        body: "TODO -- short-answer paragraph contrasting a religious mechina's pre-army/personal-growth focus with a yeshiva's Torah-study focus.",
+      },
+      {
+        heading: "Religious life and daily schedule",
+        body: "TODO -- how daily schedule, study intensity, and religious programming compare between a religious mechina and a yeshiva.",
+      },
+      {
+        heading: "Which one fits",
+        body: "TODO -- guidance on which student fits a religious mechina versus a yeshiva.",
+      },
+    ],
+    programLinks: [
+      { label: "Browse religious mechina programs", href: "/programs?tags=religious-mechina" },
+      { label: "Browse yeshivas", href: "/programs?tags=yeshiva" },
+    ],
+    related: ["mechina", "yeshiva", "mechina-vs-yeshiva"],
+    published: false,
+  },
+  {
+    slug: "israeli-yeshiva-vs-english-speaking-yeshiva",
+    term: "Israeli yeshiva vs. English-speaking yeshiva",
+    kind: "comparison",
+    summary: "TODO -- one-sentence summary of how an Israeli yeshiva differs from an English-speaking yeshiva.",
+    sections: [
+      {
+        heading: "The short answer",
+        body: "TODO -- short-answer paragraph contrasting an Israeli yeshiva's Hebrew-language, Israeli-integrated setup with an English-speaking yeshiva's English-language, overseas-cohort setup.",
+      },
+      {
+        heading: "Language and cohort",
+        body: "TODO -- how language of instruction, student body composition, and day-to-day integration into Israeli society differ between the two.",
+      },
+      {
+        heading: "Which one fits",
+        body: "TODO -- guidance on which student fits an Israeli yeshiva versus an English-speaking yeshiva.",
+      },
+    ],
+    programLinks: [
+      { label: "Browse Israeli yeshivas", href: "/programs?tags=israeli-yeshiva" },
+      { label: "Browse English-speaking yeshivas", href: "/programs?tags=american-yeshiva" },
+    ],
+    related: ["yeshiva"],
+    published: false,
+  },
+  {
+    slug: "hesder-vs-religious-mechina",
+    term: "Hesder vs. religious mechina",
+    kind: "comparison",
+    summary: "TODO -- one-sentence summary of how hesder's combined study-and-service track differs from a religious mechina.",
+    sections: [
+      {
+        heading: "The short answer",
+        body: "TODO -- short-answer paragraph contrasting hesder's multi-year study-and-service arrangement with a religious mechina's single pre-army year.",
+      },
+      {
+        heading: "Time commitment",
+        body: "TODO -- how total length and structure (hesder's roughly five-year arrangement vs. a religious mechina's typical one or two years) compare.",
+      },
+      {
+        heading: "Which one fits",
+        body: "TODO -- guidance on which student fits hesder versus a religious mechina.",
+      },
+    ],
+    programLinks: [
+      { label: "Browse hesder yeshivas", href: "/programs?tags=hesder" },
+      { label: "Browse religious mechina programs", href: "/programs?tags=religious-mechina" },
+    ],
+    related: ["hesder", "mechina", "religious-mechina-vs-mechina"],
+    published: false,
   },
 ];
 

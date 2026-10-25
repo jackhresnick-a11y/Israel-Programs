@@ -9,6 +9,7 @@ import { listPublishedReferences } from "@/lib/references";
 import { getReferenceListVisibility } from "@/lib/referenceConfig";
 import { isEmailVerificationFresh } from "@/lib/emailVerification";
 import { getProgramPollSummary, getProgramReviewsSummary, countOpenContactOptIns } from "@/lib/pollResults";
+import { getPublishedBriefsForProgram } from "@/lib/briefs";
 import { getPublicPollLink } from "@/lib/pollConfig";
 import { shouldShowContactHint } from "@/lib/contactOptIn";
 import { listPublishedFaqs } from "@/lib/programFaq";
@@ -16,6 +17,7 @@ import { programDefinitionSentence } from "@/lib/programDefinition";
 import { SITE_NAME } from "@/lib/siteUrl";
 import VideoUploader from "@/components/VideoUploader";
 import VideoList from "@/components/VideoList";
+import ProgramVideoBlock from "@/components/ProgramVideoBlock";
 import DeleteProgramButton from "@/components/DeleteProgramButton";
 import BackButton from "@/components/BackButton";
 import ReferenceForm from "@/components/ReferenceForm";
@@ -25,8 +27,8 @@ import PollSummaryStrip from "@/components/PollSummaryStrip";
 import PartnerCta from "@/components/PartnerCta";
 import { resolveProgramPagePartnerCta } from "@/lib/partnerLinks";
 import ReviewsSection from "@/components/ReviewsSection";
-import PublicPollLink from "@/components/polls/PublicPollLink";
 import ProgramFaqSection from "@/components/ProgramFaqSection";
+import ProgramBriefs from "@/components/ProgramBriefs";
 import ProgramJumpNav, { type JumpNavItem } from "@/components/ProgramJumpNav";
 import PageContainer from "@/components/ui/PageContainer";
 import Card from "@/components/ui/Card";
@@ -151,6 +153,7 @@ export default async function ProgramDetailPage({
   // section itself renders from, with only one fetch either way (cache()-wrapped
   // like the other program-page reads).
   const reviewsSummary = await getProgramReviewsSummary(program.id);
+  const publishedBriefs = await getPublishedBriefsForProgram(program.id);
 
   // Same rateHref PollSummaryStrip's own RateCta computes (publicPollLink falls
   // back to the sign-in-walled /rate/[slug]) -- kept in sync so the jump bar's
@@ -234,6 +237,8 @@ export default async function ProgramDetailPage({
         {program.description}
       </p>
 
+      <ProgramBriefs briefs={publishedBriefs} />
+
       <PollSummaryStrip
         summary={pollSummary}
         programSlug={program.slug}
@@ -245,8 +250,6 @@ export default async function ProgramDetailPage({
           when the one-per-page resolver picked PROGRAM_LOCKED (which already required
           !pollSummary.visible). */}
       {partnerCta?.placement === "PROGRAM_LOCKED" && <PartnerCta slot={partnerCta.slot} />}
-
-      {publicPollLink && <PublicPollLink link={publicPollLink} />}
 
       <ProgramFaqSection programId={program.id} faqs={await listPublishedFaqs(program.id)} />
 
@@ -338,6 +341,11 @@ export default async function ProgramDetailPage({
         <h2 className="font-serif text-lg font-semibold tracking-tight text-foreground">
           Videos
         </h2>
+        <ProgramVideoBlock
+          videoUrl={program.videoUrl}
+          videoCredit={program.videoCredit}
+          videoCreditUrl={program.videoCreditUrl}
+        />
         <VideoList videos={program.videos} />
         <SignedInGate action="add a video">
           <VideoUploader programId={program.id} />

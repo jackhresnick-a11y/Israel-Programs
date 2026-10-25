@@ -7,6 +7,7 @@ import { listPrograms, listAllTags } from "@/lib/programs";
 import { rankPrograms, type RankableProgram } from "@/lib/flowRank";
 import { validateParsedQuery, buildSearchCriteria, unmetLabels } from "@/lib/searchIntent";
 import { getProgramPollSummary, getProgramReviewsSummary } from "@/lib/pollResults";
+import { getAssistantBriefsForProgram } from "@/lib/briefs";
 import { getAIProvider } from "@/lib/ai";
 import type { ChatMessage, ProgramCandidate } from "@/lib/ai/types";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
@@ -14,6 +15,17 @@ import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 const MAX_CANDIDATES = 15;
 const MAX_ALUMNI_QUOTES = 3;
 const DESCRIPTION_EXCERPT_LENGTH = 200;
+// Mirrors aiBrief's own max(2_000) ceiling (app/api/admin/programs/[id]/video/route.ts,
+// historical) -- a brief is admin-published text, not user input, but one long brief
+// still shouldn't be able to blow up the per-candidate prompt cost unbounded.
+const MAX_ASSISTANT_BRIEF_CHARS = 1_200;
+
+function truncateBrief(text: string): string {
+  if (text.length <= MAX_ASSISTANT_BRIEF_CHARS) return text;
+  const cut = text.slice(0, MAX_ASSISTANT_BRIEF_CHARS);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 0 ? lastSpace : MAX_ASSISTANT_BRIEF_CHARS).trimEnd()}...`;
+}
 
 const bodySchema = z.object({
   message: z.string().trim().min(1).max(1000),
@@ -130,18 +142,21 @@ export async function POST(request: Request) {
   const scored = rankPrograms(matchPrograms, criteria, tagCategoryBySlug);
   const topScored = scored.slice(0, MAX_CANDIDATES);
 
-  // Enrichment: attach only already-public poll/review data to each of the top
-  // candidates. getProgramPollSummary/getProgramReviewsSummary are the exact same
-  // functions (same visible/published/approved-COUNTED gates) the program page itself
-  // calls -- a below-threshold poll result or an unapproved review is never fetched
-  // into this payload in the first place, so a provider has nothing to leak even if it
-  // tried.
+  // Enrichment: attach only already-public poll/review/brief data to each of the top
+  // candidates. getProgramPollSummary/getProgramReviewsSummary/getAssistantBriefsForProgram
+  // are the exact same functions (same visible/published/approved-COUNTED/PUBLISHED
+  // gates) the program page itself calls -- a below-threshold poll result, an
+  // unapproved review, or an unpublished brief draft is never fetched into this payload
+  // in the first place, so a provider has nothing to leak even if it tried. Runs after
+  // topScored is already sliced to MAX_CANDIDATES, so briefs can only ever change the
+  // why-line text a provider writes -- never which candidates were ranked or how.
   const candidates: ProgramCandidate[] = await Promise.all(
     topScored.map(async (s) => {
       const program = s.program;
-      const [pollSummary, reviewsSummary] = await Promise.all([
+      const [pollSummary, reviewsSummary, assistantBriefs] = await Promise.all([
         getProgramPollSummary(program.id),
         getProgramReviewsSummary(program.id),
+        getAssistantBriefsForProgram(program.id),
       ]);
       return {
         slug: program.slug,
@@ -156,7 +171,10 @@ export async function POST(request: Request) {
         unmetLabels: unmetLabels(s, criteria),
         bestForPhrases: pollSummary.bestForPhrases,
         alumniQuotes: extractAlumniQuotes(reviewsSummary, MAX_ALUMNI_QUOTES),
-        aiBrief: program.aiBrief,
+        // null whenever a PUBLISHED brief of a supersedesAiBrief type exists -- never
+        // hand the provider the same paragraph twice under two names.
+        aiBrief: assistantBriefs.supersedesAiBrief ? null : program.aiBrief,
+        briefs: assistantBriefs.briefs.map((b) => ({ typeName: b.typeName, text: truncateBrief(b.text) })),
       };
     })
   );

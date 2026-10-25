@@ -204,11 +204,107 @@ export async function deleteTag(id: string) {
  * admin reorder arrows for a single category group at a time -- normalizing the whole
  * group instead of swapping two `order` values means it self-heals ties (most seeded
  * tags share the default `order: 0`, so a two-row swap between equal values was a no-op)
- * and can't leave a half-applied swap if one write fails. */
+ * and can't leave a half-applied swap if one write fails.
+ *
+ * `ids` may include a tag that's been deleted since the client last loaded the list (e.g.
+ * a stale browser tab open across a tag deletion/merge) -- same soft-reference-rot
+ * tolerance as Region.memberSlugs/BucketAttachmentRule.tagSlugs elsewhere in this app, so
+ * a client update() against a since-deleted id doesn't throw P2025 and fail the whole
+ * batch. Surviving ids are re-normalized to their index in the *filtered* list, not the
+ * original list, so no gaps are introduced. */
 export async function reorderTags(ids: string[]) {
+  const existing = await prisma.tag.findMany({ where: { id: { in: ids } }, select: { id: true } });
+  const existingIds = new Set(existing.map((t) => t.id));
+  const survivingIds = ids.filter((id) => existingIds.has(id));
+
   await prisma.$transaction(
-    ids.map((id, index) => prisma.tag.update({ where: { id }, data: { order: index } }))
+    survivingIds.map((id, index) => prisma.tag.update({ where: { id }, data: { order: index } }))
   );
+}
+
+/** Every PUBLISHED program with its tags, for the /admin/tags/coverage page. Same
+ * unpaginated "fetch everything once" convention every other admin list in this app
+ * uses (listProgramsBestFor, getFacetData) -- the catalog is small enough that client-side
+ * filtering/pagination over the full set is simpler than a paginated query. */
+export async function listPublishedProgramsForCoverage() {
+  return prisma.program.findMany({
+    where: { status: "PUBLISHED" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      durationType: true,
+      hasScholarship: true,
+      hasCollegeCredit: true,
+      travelType: true,
+      tags: { select: { id: true, slug: true, name: true, category: true } },
+    },
+    orderBy: { name: "asc" },
+  });
+}
+
+/** Replaces a program's tag set within exactly one category, leaving every other
+ * category's tags (and every uncategorized tag) untouched -- unlike updateProgramTags
+ * (lib/programs.ts), which replaces the *entire* tags array and would silently wipe out
+ * gender/affiliation/age/location/etc. if called with just a type or essence selection.
+ * Used by the /admin/tags/coverage inline editor for program-type and essence.
+ *
+ * `slugs` must all already exist as Tag rows *in this category* -- an unknown slug or one
+ * belonging to a different category is rejected (never silently created or reattached to
+ * the wrong family), per this repo's "propose from existing set, flag gaps" tag rule. */
+export async function setCategoryTags(programId: string, category: string, slugs: string[]) {
+  const uniqueSlugs = Array.from(new Set(slugs));
+  const candidates = await prisma.tag.findMany({
+    where: { slug: { in: uniqueSlugs } },
+    select: { id: true, slug: true, category: true },
+  });
+  const bySlug = new Map(candidates.map((t) => [t.slug, t]));
+
+  const invalid: string[] = [];
+  const resolvedIds: string[] = [];
+  for (const slug of uniqueSlugs) {
+    const tag = bySlug.get(slug);
+    if (!tag || tag.category !== category) {
+      invalid.push(slug);
+      continue;
+    }
+    resolvedIds.push(tag.id);
+  }
+  if (invalid.length > 0) {
+    throw new InvalidCategoryTagsError(category, invalid);
+  }
+
+  const program = await prisma.program.findUnique({
+    where: { id: programId },
+    select: { tags: { where: { category }, select: { id: true } } },
+  });
+  if (!program) {
+    const err = new Error("Program not found") as Error & { code: string };
+    err.code = "P2025";
+    throw err;
+  }
+  const currentIds = program.tags.map((t) => t.id);
+
+  return prisma.program.update({
+    where: { id: programId },
+    data: {
+      tags: {
+        disconnect: currentIds.map((id) => ({ id })),
+        connect: resolvedIds.map((id) => ({ id })),
+      },
+    },
+    select: { id: true, tags: { select: { id: true, slug: true, name: true, category: true } } },
+  });
+}
+
+export class InvalidCategoryTagsError extends Error {
+  constructor(
+    public category: string,
+    public slugs: string[]
+  ) {
+    super(`Unknown or wrong-category slug(s) for "${category}": ${slugs.join(", ")}`);
+    this.name = "InvalidCategoryTagsError";
+  }
 }
 
 /** Merges `sourceId` into `targetId`: repoints every program association from source to

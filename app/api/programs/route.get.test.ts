@@ -35,6 +35,8 @@ describe("GET /api/programs", () => {
         transcriptTags: ["staged-slug"],
         aiBrief: "A public brief.",
         videoUrl: "https://example.com/video",
+        videoCredit: "@handle",
+        videoCreditUrl: "https://instagram.com/handle",
         tags: [],
         reviews: [],
       },
@@ -52,8 +54,10 @@ describe("GET /api/programs", () => {
     expect(body[0]).not.toHaveProperty("outreachCategory");
     expect(JSON.stringify(body)).not.toContain(SECRET_TRANSCRIPT);
 
-    // The two public fields must still cross.
+    // The public fields must still cross.
     expect(body[0].aiBrief).toBe("A public brief.");
     expect(body[0].videoUrl).toBe("https://example.com/video");
+    expect(body[0].videoCredit).toBe("@handle");
+    expect(body[0].videoCreditUrl).toBe("https://instagram.com/handle");
   });
 });

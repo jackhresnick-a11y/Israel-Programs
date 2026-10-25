@@ -148,8 +148,12 @@ export default async function GlossaryEntryPage({
           <div className="flex flex-wrap items-center gap-3">
             {relatedEntries.map((related) => (
               <span key={related.slug} className="flex items-center gap-2">
-                <Link href={`/glossary/${related.slug}`} className="text-sm text-accent-hover underline">
+                <Link
+                  href={`/glossary/${related.slug}`}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-hover hover:underline"
+                >
                   {related.term}
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
                 </Link>
                 {!isGlossaryEntryPublished(related) && <Badge tone="warning">Hidden</Badge>}
               </span>

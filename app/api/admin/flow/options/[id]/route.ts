@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { requireRole } from "@/lib/roles";
-import { updateFlowOption, deleteFlowOption, UnknownTagSlugsError } from "@/lib/flow";
+import { updateFlowOption, deleteFlowOption, UnknownTagSlugsError, flowConditionSchema } from "@/lib/flow";
 
 const patchBodySchema = z
   .object({
@@ -15,6 +15,7 @@ const patchBodySchema = z
     weight: z.number().int().optional(),
     requireIncludesUntagged: z.boolean().optional(),
     optionSetKeys: z.array(z.string()).optional(),
+    showWhen: flowConditionSchema.nullable().optional(),
   })
   .refine((b) => Object.values(b).some((v) => v !== undefined), "No changes provided");
 

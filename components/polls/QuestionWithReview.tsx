@@ -3,15 +3,22 @@
 import { useState } from "react";
 import AutoGrowTextarea from "@/components/ui/AutoGrowTextarea";
 import QuestionInput from "@/components/polls/QuestionInput";
-import { POLL_FIRST_COMMENT_EXPLAINER, POLL_COMMENT_PLACEHOLDER, type PollQuestionDTO } from "@/lib/pollShared";
+import {
+  POLL_FIRST_COMMENT_EXPLAINER,
+  POLL_COMMENT_PLACEHOLDER,
+  POLL_COMMENT_PUBLIC_DISCLAIMER,
+  type PollQuestionDTO,
+} from "@/lib/pollShared";
 
 /**
  * One question's rating control plus its optional, collapsed-by-default review comment --
  * shared by the signed-in and anonymous forms so review UX never drifts between them.
- * Consent for written comments is collected once, at the bottom of the form -- see the
- * single consent checkbox rendered above the questions -- not per question. The
- * moderation notice itself is likewise stated once, in ReviewConsentContext above the
- * whole question list, not repeated as placeholder text under every question.
+ * There is no consent checkbox anywhere on the form: POLL_COMMENT_PUBLIC_DISCLAIMER is
+ * shown every time a comment box is open (below), and writing a comment while it's visible
+ * IS the consent -- see RateForm.tsx's saveDetailsToServer, which now includes every typed
+ * comment unconditionally. The separate moderation notice (reviews may be rejected, not
+ * just published) is still stated once, in ReviewConsentContext above the whole question
+ * list, not repeated here.
  *
  * `isFirst` (poll restructure item 4) governs the collapsed trigger's verbosity AND
  * starting state, not the moderation notice (already handled once, above): the poll's
@@ -57,6 +64,7 @@ export default function QuestionWithReview({
         {commentOpen ? (
           <div className="flex flex-col gap-1">
             {isFirst && <p className="text-xs text-muted">{POLL_FIRST_COMMENT_EXPLAINER}</p>}
+            <p className="text-xs text-muted">{POLL_COMMENT_PUBLIC_DISCLAIMER}</p>
             <AutoGrowTextarea
               placeholder={POLL_COMMENT_PLACEHOLDER}
               value={reviewText}

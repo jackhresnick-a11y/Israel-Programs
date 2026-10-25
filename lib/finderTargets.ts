@@ -1,9 +1,12 @@
 /**
- * Split out from lib/finder.ts because that file imports the Prisma client (via
- * lib/prisma.ts, which pulls in `pg`) -- fine for server components/routes, but
- * FinderQuestionsManager.tsx is a "use client" component that only needs to preview
- * the /programs URL a given tagSlugs/durationValues pair produces, and bundling `pg`
- * into the client build fails (it needs Node built-ins like `tls`). Same shape as
+ * Originally split out from the old lib/finder.ts (v1's /find, since removed -- see
+ * next.config.ts's redirect to /match) because that file imported the Prisma client
+ * (via lib/prisma.ts, which pulls in `pg`) -- fine for server components/routes, but
+ * a "use client" preview component only needed the pure URL-assembly logic, and
+ * bundling `pg` into the client build fails (it needs Node built-ins like `tls`). No
+ * client component imports this directly anymore, but the same Prisma-free
+ * requirement still holds for its remaining server-side callers (lib/flow.ts,
+ * lib/searchIntent.ts, lib/tagProvenanceShared.ts), so the split stays. Same shape as
  * lib/tagTints.ts's split from lib/tags.ts.
  */
 

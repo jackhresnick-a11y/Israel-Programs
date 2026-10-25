@@ -19,11 +19,21 @@ type RoleCheck =
 /** Returns an error result instead of throwing so route handlers can return it directly. */
 export async function requireRole(minRole: "moderator" | "admin"): Promise<RoleCheck> {
   const { userId } = await auth();
-  if (!userId) return { ok: false, status: 401 };
+  if (!userId) {
+    // No code path found (as of the admin/tags "unauthorized" investigation) that
+    // should cause this for a legitimately signed-in admin -- if this fires
+    // unexpectedly, this line is what turns the next occurrence into a diagnosable
+    // Vercel log entry instead of another unreproducible report.
+    console.error(`[roles] requireRole(${minRole}): rejected 401, no userId from auth()`);
+    return { ok: false, status: 401 };
+  }
 
   const role = await getCurrentRole();
   const allowed = minRole === "admin" ? role === "admin" : role === "moderator" || role === "admin";
-  if (!allowed) return { ok: false, status: 403 };
+  if (!allowed) {
+    console.error(`[roles] requireRole(${minRole}): rejected 403 for userId=${userId}, role=${role}`);
+    return { ok: false, status: 403 };
+  }
 
   return { ok: true, userId, role };
 }

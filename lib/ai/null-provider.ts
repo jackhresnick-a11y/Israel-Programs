@@ -63,6 +63,7 @@ export class NullProvider implements AIProvider {
   private describeCandidate(c: ProgramCandidate): string {
     const parts: string[] = [];
     if (c.aiBrief) parts.push(c.aiBrief);
+    for (const b of c.briefs) parts.push(b.text);
     if (c.location) parts.push(`located in ${c.location}`);
     if (c.tags.length > 0) parts.push(`tagged ${c.tags.slice(0, 3).join(", ")}`);
     if (c.bestForPhrases.length > 0) parts.push(`best for ${c.bestForPhrases[0]}`);
@@ -107,13 +108,13 @@ export class NullProvider implements AIProvider {
   }
 
   /** No network call, and deliberately no real extraction -- there's no reliable
-   * non-AI way to separate fact from promotional language in free-form prose the way
-   * describeCandidate above does from already-structured fields. Returns the leading
-   * words of the transcript verbatim (roughly matching aiBrief's ~80-word admin target)
-   * so the draft flow still works end-to-end with AI off, at the cost of not actually
-   * filtering out any sales language -- callers should not expect this to be
-   * publish-ready the way the real AnthropicProvider's output aims to be. */
-  async generateBrief(transcript: string): Promise<string> {
+   * non-AI way to separate fact from promotional language in free-form prose. Ignores
+   * `prompt` entirely and returns the leading words of the transcript verbatim (roughly
+   * matching a brief's ~80-word target) so the draft flow still works end-to-end with AI
+   * off, at the cost of not actually following the brief type's own instructions --
+   * callers should not expect this to be publish-ready the way the real
+   * AnthropicProvider's output aims to be. */
+  async generateBrief(_prompt: string, transcript: string): Promise<string> {
     const words = transcript.trim().split(/\s+/).filter(Boolean);
     return words.slice(0, 80).join(" ");
   }

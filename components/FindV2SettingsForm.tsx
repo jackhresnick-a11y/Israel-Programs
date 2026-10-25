@@ -41,9 +41,10 @@ export default function FindV2SettingsForm({ initialEnabled }: { initialEnabled:
     <div className="flex flex-col gap-2 rounded border border-border p-4">
       <h2 className="text-sm font-semibold text-foreground">Match flow (v2)</h2>
       <p className="text-xs text-muted">
-        The weighted, video-argued question flow at /match -- a rebuilt version of /find that&rsquo;s still being
-        content-authored (see /admin/flow/questions). /find (v1) stays live either way. Admins can always reach
-        /match regardless of this setting, for testing before it&rsquo;s public.
+        The weighted, video-argued question flow at /match -- the site&rsquo;s one Placement Quiz experience
+        (the old /find flow was removed; it now redirects here). This toggle controls whether /match is public
+        yet. Admins can always reach /match regardless of this setting, for testing before it&rsquo;s public --
+        everyone else sees the nav link and can visit the page only once this is on.
       </p>
       {error && <p className="text-xs text-danger">{error}</p>}
       <div className="mt-1 flex items-center gap-3">

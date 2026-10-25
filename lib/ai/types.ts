@@ -52,10 +52,16 @@ export type ChatMessage = {
  * provider's prompt is forced to frame it as "alumni describe it as...", never restate
  * it as fact about the program.
  *
- * `aiBrief` is the ONLY transcript-derived field allowed here -- Program.videoTranscript
- * (the raw transcript) and Program.transcriptTags (un-approved suggestions) must NEVER
- * appear on this type or anywhere in app/api/assistant/route.ts; only Program.aiBrief,
- * the admin-authored distilled public summary, may cross into a candidate. */
+ * `aiBrief`/`briefs` are the ONLY transcript-derived fields allowed here --
+ * Program.videoTranscript (the raw transcript) and Program.transcriptTags (un-approved
+ * suggestions), and every raw Transcript row, must NEVER appear on this type or anywhere
+ * in app/api/assistant/route.ts. Only Program.aiBrief (the legacy admin-authored
+ * distilled summary) and PUBLISHED ProgramBrief rows whose BriefType.sendToAssistant is
+ * true may cross into a candidate -- both are moderator-published public content, never
+ * the raw source material. `aiBrief` is null whenever a PUBLISHED brief of a
+ * supersedesAiBrief type exists for this program (see lib/briefs.ts's
+ * getAssistantBriefsForProgram) -- the two are never both non-empty for the same
+ * program, so a provider is never handed the same paragraph twice under two names. */
 export type ProgramCandidate = {
   slug: string;
   name: string;
@@ -71,8 +77,12 @@ export type ProgramCandidate = {
   bestForPhrases: string[];
   /** Approved alumni review text on a COUNTED response, already gated public. */
   alumniQuotes: string[];
-  /** Admin-authored ~80-word distilled summary (Program.aiBrief), or null if unset. */
+  /** Admin-authored ~80-word distilled summary (Program.aiBrief), or null if unset or
+   * superseded by a published brief (see this type's doc comment above). */
   aiBrief: string | null;
+  /** PUBLISHED ProgramBrief rows of a sendToAssistant BriefType, labeled by brief type
+   * name. Additive to aiBrief, not a replacement for it (unless supersedesAiBrief). */
+  briefs: { typeName: string; text: string }[];
 };
 
 /** Everything the reply says about why this candidate fits must be traceable to
@@ -139,13 +149,12 @@ export interface AIProvider {
     candidates: ProgramCandidate[];
   }): Promise<RecommendationResult>;
 
-  /** Distills a program's raw video transcript (Program.videoTranscript, admin-only,
-   * never public -- see ProgramCandidate's doc comment) into a short factual draft for
-   * the admin-authored public Program.aiBrief field. The transcript is the program's
-   * own self-shot video, so it routinely mixes real facts with promotional/sales
-   * language -- an implementation must extract facts only (location, duration,
-   * languages, age range, what a typical day looks like) and discard anything
-   * persuasive. The caller (POST .../generate-brief) never saves this result directly;
-   * it only ever fills the aiBrief textarea as an editable draft. */
-  generateBrief(transcript: string): Promise<string>;
+  /** Drafts one ProgramBrief from a program's concatenated Transcript rows (admin-only,
+   * never public -- see ProgramCandidate's doc comment), using the calling BriefType's
+   * own stored `prompt` as the system prompt rather than a hardcoded instruction -- every
+   * brief type's wording lives in the DB (see /admin/briefs/types), not in this provider.
+   * The caller (POST /api/admin/briefs/generate) saves the result as a DRAFT via the same
+   * lib/briefs.ts's saveBriefDraft the manual paste path uses, so an exact "INSUFFICIENT"
+   * response is handled identically either way -- never published automatically. */
+  generateBrief(prompt: string, transcript: string): Promise<string>;
 }

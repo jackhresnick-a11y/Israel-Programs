@@ -45,6 +45,19 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 2678400,
     qualities: [75],
   },
+  async redirects() {
+    // v1's placement-quiz flow ("Narrow the directory") was deleted in favor of the
+    // /match flow (v2) -- this is a permanent content relocation (preserves inbound
+    // links/bookmarks/SEO equity for the old, previously-indexed /find URL), not a
+    // temporary one, so it belongs here rather than a page-level redirect() call.
+    return [
+      {
+        source: "/find",
+        destination: "/match",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

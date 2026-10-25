@@ -31,6 +31,7 @@ function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | 
     rationale: null,
     order: 0,
     optionSetKeys: [],
+    showWhen: null,
     tagSlugs: [],
     durationValues: [],
     matchMode: "WEIGHT",

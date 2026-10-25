@@ -11,6 +11,17 @@
  * everything in this category" -- pre-filling means that only happens when a reviewer
  * deliberately clears it, not by leaving a cell untouched.
  *
+ * A program with no current tags in a category pre-fills as the literal sentinel
+ * "NONE", not an empty string -- current_type/current_essence stay real empty strings
+ * (the read-only reference), but if proposed_* also started blank for an untagged
+ * program, "empty because it had nothing" and "empty because a reviewer cleared it"
+ * would be indistinguishable in the CSV. NONE reads as "confirmed no tags" until a
+ * reviewer either leaves it (import-tag-audit.ts treats NONE the same as blank -- no
+ * change against an already-empty category) or replaces/deletes it.
+ *
+ * Row-building itself lives in lib/tagAudit.ts, shared with the admin CSV-download route
+ * (app/api/admin/tags/audit-csv/route.ts) so the two can never diverge on CSV shape.
+ *
  * MODIFIES NOTHING. Run:
  *   set -a && source .env && source .env.local && set +a
  *   npx tsx scripts/export-tag-audit.ts
@@ -20,30 +31,7 @@ import path from "node:path";
 import { prisma } from "../lib/prisma";
 import { getDurationLabelMap } from "../lib/duration";
 import { listRegions } from "../lib/regions";
-
-const LISTING_BASE_URL = "https://israelprogramswiki.com/programs";
-
-const FAMILY = {
-  type: "program-type",
-  essence: "essence",
-  gender: "gender",
-  affiliation: "affiliation",
-  integration: "israeli-integration",
-  location: "location",
-} as const;
-
-function csvField(value: string): string {
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
-}
-
-function slugsIn(tags: { slug: string; category: string | null }[], category: string): string {
-  return tags
-    .filter((t) => t.category === category)
-    .map((t) => t.slug)
-    .sort()
-    .join("|");
-}
+import { FAMILY, buildAuditRow, compareAuditRows, renderAuditCsv } from "../lib/tagAudit";
 
 async function main() {
   const programs = await prisma.program.findMany({
@@ -61,68 +49,14 @@ async function main() {
   const durationLabels = await getDurationLabelMap();
   const regions = await listRegions();
 
-  const rows = programs.map((p) => {
-    const locationSlugs = new Set(slugsIn(p.tags, FAMILY.location).split("|").filter(Boolean));
-    const regionSlugs = regions
-      .filter((r) => r.memberSlugs.some((s) => locationSlugs.has(s)))
-      .map((r) => r.slug);
-    const currentType = slugsIn(p.tags, FAMILY.type);
-    const currentEssence = slugsIn(p.tags, FAMILY.essence);
-
-    return {
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      url: `${LISTING_BASE_URL}/${p.slug}`,
-      current_type: currentType,
-      current_essence: currentEssence,
-      current_duration: durationLabels[p.durationType],
-      current_gender: slugsIn(p.tags, FAMILY.gender),
-      current_religious_affiliation: slugsIn(p.tags, FAMILY.affiliation),
-      current_israeli_integration: slugsIn(p.tags, FAMILY.integration),
-      current_region: regionSlugs.join("|"),
-      // Pre-filled with the current value, not blank -- see header comment.
-      proposed_type: currentType,
-      proposed_essence: currentEssence,
-      reviewer: "",
-      notes: "",
-    };
-  });
-
-  // Programs missing a type tag first, then alphabetical by name -- stable across runs.
-  rows.sort((a, b) => {
-    const missingA = a.current_type === "" ? 0 : 1;
-    const missingB = b.current_type === "" ? 0 : 1;
-    if (missingA !== missingB) return missingA - missingB;
-    return a.name.localeCompare(b.name);
-  });
-
-  const header = [
-    "id",
-    "name",
-    "slug",
-    "url",
-    "current_type",
-    "current_essence",
-    "current_duration",
-    "current_gender",
-    "current_religious_affiliation",
-    "current_israeli_integration",
-    "current_region",
-    "proposed_type",
-    "proposed_essence",
-    "reviewer",
-    "notes",
-  ];
-
-  const lines = rows.map((r) =>
-    header.map((key) => csvField(String(r[key as keyof typeof r]))).join(",")
-  );
+  const rows = programs
+    .map((p) => buildAuditRow(p, durationLabels, regions))
+    .sort(compareAuditRows);
 
   const outDir = path.join(__dirname, "..", "exports");
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, "tag-audit.csv");
-  fs.writeFileSync(outPath, [header.join(","), ...lines].join("\n") + "\n");
+  fs.writeFileSync(outPath, renderAuditCsv(rows));
 
   const typeTags = await prisma.tag.findMany({
     where: { category: FAMILY.type },

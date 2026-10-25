@@ -221,33 +221,6 @@ function QuestionSections({
 }
 
 /**
- * The single, once-per-form consent checkbox for written comments -- gates `reviews`
- * only, never the rating/N/A fields. A comment typed without this checked is simply held
- * back from autosaving (never discarded from the textarea) until the box is checked, at
- * which point the next debounced save picks it up -- there's no submit to block anymore,
- * so `hint` is a persistent, non-blocking nudge rather than a submit-time error.
- */
-function ReviewConsentCheckbox({
-  checked,
-  onChange,
-  hint,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  hint: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="flex items-start gap-2 text-sm text-foreground">
-        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-accent" />
-        <span>I understand my written comments may be published publicly on this program&rsquo;s page after moderation.</span>
-      </label>
-      {hint && <p className="pl-6 text-xs text-muted">Check the box above to publish your written comments.</p>}
-    </div>
-  );
-}
-
-/**
  * How far through the poll the respondent is (item 10) -- answered counts a real value
  * *or* an explicit N/A, matching exactly what counts toward the readiness unlock bar
  * server-side, so this number and "did that last tap just unlock the response" never
@@ -521,7 +494,6 @@ function SignedInRateForm({
     Object.fromEntries(allQuestions.map((q) => [q.id, existingNaQuestionIds?.includes(q.id) ?? false]))
   );
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
-  const [consentGiven, setConsentGiven] = useState(false);
   const [referenceEmail, setReferenceEmail] = useState("");
   const [ageAttested, setAgeAttested] = useState(false);
   const [responseId, setResponseId] = useState<string | null>(null);
@@ -603,21 +575,20 @@ function SignedInRateForm({
   async function saveDetailsToServer(
     overrides: {
       reviewTexts?: Record<string, string>;
-      consentGiven?: boolean;
       referenceEmail?: string;
       ageAttested?: boolean;
     } = {}
   ) {
     if (!responseId) return;
     const effectiveReviewTexts = overrides.reviewTexts ?? reviewTexts;
-    const effectiveConsent = overrides.consentGiven ?? consentGiven;
     const effectiveReferenceEmail = overrides.referenceEmail ?? referenceEmail;
     const effectiveAgeAttested = overrides.ageAttested ?? ageAttested;
-    const reviews = effectiveConsent
-      ? allQuestions
-          .filter((q) => effectiveReviewTexts[q.id]?.trim())
-          .map((q) => ({ questionId: q.id, text: effectiveReviewTexts[q.id].trim(), consent: true as const }))
-      : [];
+    // Consent is the disclaimer shown at the moment the comment box is open (see
+    // QuestionWithReview.tsx's POLL_COMMENT_PUBLIC_DISCLAIMER) -- same "the act IS the
+    // consent" pattern as POLL_REFERENCE_CONSENT_LABEL below, no separate checkbox.
+    const reviews = allQuestions
+      .filter((q) => effectiveReviewTexts[q.id]?.trim())
+      .map((q) => ({ questionId: q.id, text: effectiveReviewTexts[q.id].trim(), consent: true as const }));
     try {
       const res = await fetch(`/api/polls/responses/${responseId}/details`, {
         method: "POST",
@@ -705,10 +676,6 @@ function SignedInRateForm({
     setReviewTexts(next);
     schedule("details", () => saveDetailsToServer({ reviewTexts: next }));
   }
-  function handleConsentChange(checked: boolean) {
-    setConsentGiven(checked);
-    schedule("details", () => saveDetailsToServer({ consentGiven: checked }));
-  }
   function handleEmailChange(email: string) {
     setReferenceEmail(email);
     schedule("details", () => saveDetailsToServer({ referenceEmail: email }));
@@ -762,11 +729,6 @@ function SignedInRateForm({
         onNaChange={handleNaChange}
         onReviewTextChange={handleReviewTextChange}
       />
-      <ReviewConsentCheckbox
-        checked={consentGiven}
-        onChange={handleConsentChange}
-        hint={!consentGiven && Object.values(reviewTexts).some((t) => t.trim().length > 0)}
-      />
       <ReferenceOptInBlock
         responseId={responseId}
         email={referenceEmail}
@@ -799,7 +761,6 @@ function AnonymousRateForm({
   );
   const [naFlags, setNaFlags] = useState<Record<string, boolean>>({});
   const [reviewTexts, setReviewTexts] = useState<Record<string, string>>({});
-  const [consentGiven, setConsentGiven] = useState(false);
   const [yearAttended, setYearAttended] = useState<number | null>(null);
   const [referenceEmail, setReferenceEmail] = useState("");
   const [ageAttested, setAgeAttested] = useState(false);
@@ -893,7 +854,6 @@ function AnonymousRateForm({
   async function saveDetailsToServer(
     overrides: {
       reviewTexts?: Record<string, string>;
-      consentGiven?: boolean;
       yearAttended?: number | null;
       referenceEmail?: string;
       ageAttested?: boolean;
@@ -901,15 +861,15 @@ function AnonymousRateForm({
   ) {
     if (!responseId) return;
     const effectiveReviewTexts = overrides.reviewTexts ?? reviewTexts;
-    const effectiveConsent = overrides.consentGiven ?? consentGiven;
     const effectiveYearAttended = overrides.yearAttended !== undefined ? overrides.yearAttended : yearAttended;
     const effectiveReferenceEmail = overrides.referenceEmail ?? referenceEmail;
     const effectiveAgeAttested = overrides.ageAttested ?? ageAttested;
-    const reviews = effectiveConsent
-      ? allQuestions
-          .filter((q) => effectiveReviewTexts[q.id]?.trim())
-          .map((q) => ({ questionId: q.id, text: effectiveReviewTexts[q.id].trim(), consent: true as const }))
-      : [];
+    // Consent is the disclaimer shown at the moment the comment box is open (see
+    // QuestionWithReview.tsx's POLL_COMMENT_PUBLIC_DISCLAIMER) -- same "the act IS the
+    // consent" pattern as POLL_REFERENCE_CONSENT_LABEL below, no separate checkbox.
+    const reviews = allQuestions
+      .filter((q) => effectiveReviewTexts[q.id]?.trim())
+      .map((q) => ({ questionId: q.id, text: effectiveReviewTexts[q.id].trim(), consent: true as const }));
     try {
       const res = await fetch(`/api/polls/responses/${responseId}/details`, {
         method: "POST",
@@ -986,10 +946,6 @@ function AnonymousRateForm({
     setReviewTexts(next);
     schedule("details", () => saveDetailsToServer({ reviewTexts: next }));
   }
-  function handleConsentChange(checked: boolean) {
-    setConsentGiven(checked);
-    schedule("details", () => saveDetailsToServer({ consentGiven: checked }));
-  }
   function handleYearAttendedChange(year: number | null) {
     setYearAttended(year);
     schedule("details", () => saveDetailsToServer({ yearAttended: year }));
@@ -1058,11 +1014,6 @@ function AnonymousRateForm({
           ))}
         </Select>
       </label>
-      <ReviewConsentCheckbox
-        checked={consentGiven}
-        onChange={handleConsentChange}
-        hint={!consentGiven && Object.values(reviewTexts).some((t) => t.trim().length > 0)}
-      />
       <ReferenceOptInBlock
         responseId={responseId}
         email={referenceEmail}

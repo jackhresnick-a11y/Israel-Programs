@@ -21,7 +21,10 @@ async function api(url: string, method: string, body?: object) {
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
-    throw new Error(errBody.error ?? "Request failed");
+    // Include the real status so a vague label (e.g. a 500 whose body happens to say
+    // something terse) is never mistaken for a 401/403 -- see the reorder-endpoint
+    // "unauthorized" bug this was added to help diagnose next time.
+    throw new Error(`${errBody.error ?? "Request failed"} (${res.status})`);
   }
   return res.json().catch(() => ({}));
 }

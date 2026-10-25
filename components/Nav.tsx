@@ -4,10 +4,11 @@ import { MobileAuthLinks, DesktopAuthControls } from "@/components/NavAuthContro
 import MobileNavDrawer from "@/components/MobileNavDrawer";
 
 export default async function Nav() {
-  const [logoUrl, logoMode, glossaryEnabled] = await Promise.all([
+  const [logoUrl, logoMode, glossaryEnabled, findV2Enabled] = await Promise.all([
     getSiteContent("headerLogoUrl"),
     getSiteContent("headerLogoMode"),
     getSiteContent("glossaryEnabled"),
+    getSiteContent("findV2Enabled"),
   ]);
   const showText = !logoUrl || logoMode === "alongside";
   // Flag-only, deliberately not role-aware -- Nav renders on every route via the root
@@ -15,6 +16,11 @@ export default async function Nav() {
   // dynamic. When the section is off, the link disappears for admins too; they can
   // still reach /glossary or /admin/glossary by URL.
   const showGlossaryLink = glossaryEnabled === "true";
+  // Same flag-only posture as showGlossaryLink above. The Placement Quiz link only ever
+  // points at /match (v1's /find no longer exists -- it permanently redirects here, see
+  // next.config.ts) -- hiding the link when the flag is off avoids sending a visitor into
+  // a redirect that dead-ends in notFound().
+  const showPlacementQuizLink = findV2Enabled === "true";
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-primary">
@@ -46,9 +52,11 @@ export default async function Nav() {
             <Link href="/programs" className="hover:text-accent">
               Browse
             </Link>
-            <Link href="/find" className="hover:text-accent">
-              Placement Quiz
-            </Link>
+            {showPlacementQuizLink && (
+              <Link href="/match" className="hover:text-accent">
+                Placement Quiz
+              </Link>
+            )}
             {showGlossaryLink && (
               <Link href="/glossary" className="hover:text-accent">
                 Glossary
@@ -98,12 +106,14 @@ export default async function Nav() {
               >
                 Browse
               </Link>
-              <Link
-                href="/find"
-                className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
-              >
-                Placement Quiz
-              </Link>
+              {showPlacementQuizLink && (
+                <Link
+                  href="/match"
+                  className="block rounded px-3 py-2 text-foreground hover:bg-surface-muted"
+                >
+                  Placement Quiz
+                </Link>
+              )}
               {showGlossaryLink && (
                 <Link
                   href="/glossary"

@@ -15,6 +15,11 @@
  * this category" (the reviewer deliberately cleared a pre-filled cell), not "no change".
  * A category's tags are fully replaced by whatever survives validation in its cell.
  *
+ * A program with no current tags pre-fills as the literal sentinel "NONE" rather than
+ * blank (see export-tag-audit.ts), so "confirmed no tags" and "not yet reviewed" don't
+ * both render as an empty cell. A cell that is exactly NONE (case-insensitive) is
+ * treated identically to blank -- an empty desired set -- not as a slug to validate.
+ *
  * Because blank now means "remove everything", a mis-selected/deleted spreadsheet
  * column looks identical to a genuine mass-removal. The bulk-removal guard refuses to
  * report when more rows propose a removal than the smaller of 10% of the CSV's rows or
@@ -227,7 +232,14 @@ type ProgramResult = {
 const BULK_REMOVAL_PERCENT = 0.1;
 const BULK_REMOVAL_ABS_CAP = 25;
 
+// export-tag-audit.ts's pre-fill for an already-untagged category -- an explicit empty
+// desired set, same as blank, not a slug to validate. Checked whole-cell so a malformed
+// mix like "NONE|essence-travel" still falls through to normal split-and-reject instead
+// of being silently swallowed.
+const NONE_SENTINEL = "NONE";
+
 function splitValues(cell: string): string[] {
+  if (cell.toUpperCase() === NONE_SENTINEL) return [];
   return cell
     .split("|")
     .map((v) => v.trim())
@@ -351,9 +363,9 @@ async function main() {
 
     for (const col of resolution.proposalColumns) {
       const cell = (cells[col.index] ?? "").trim();
-      // A blank cell is a valid, explicit "empty desired set" (remove everything
-      // currently in this category) -- see the header comment. It only nets an
-      // actual removal when the program has current tags in this category; if both
+      // Blank, or the NONE sentinel, is a valid, explicit "empty desired set" (remove
+      // everything currently in this category) -- see the header comment. It only nets
+      // an actual removal when the program has current tags in this category; if both
       // are empty this produces zero diff, same as leaving a pre-filled cell alone.
       const values = splitValues(cell);
       let rowRejected = false;

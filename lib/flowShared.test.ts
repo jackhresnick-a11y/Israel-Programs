@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   evaluateFlowCondition,
   shouldShowQuestion,
+  shouldShowOption,
   referencedQuestionKeys,
   resolveOptionSetKey,
   optionsForSet,
@@ -29,6 +30,7 @@ function option(overrides: Partial<FlowOptionDTO> & Pick<FlowOptionDTO, "key" | 
     rationale: null,
     order: 0,
     optionSetKeys: [],
+    showWhen: null,
     tagSlugs: [],
     durationValues: [],
     matchMode: "WEIGHT",
@@ -641,5 +643,273 @@ describe("resolveFlow coverage gating (live-catalog option/question suppression)
     const { current, state: pruned } = resolveFlow(questions, state, null, { counter, floor: 3 });
     expect(current?.key).toBe("program-type"); // re-asked, not treated as already answered
     expect(pruned.has("program-type")).toBe(false);
+  });
+});
+
+describe("resolveFlow with per-option show-conditions (conditional option visibility)", () => {
+  const lifeStage = question({
+    key: "life-stage",
+    order: 0,
+    options: [
+      option({ key: "during-college", label: "During college" }),
+      option({ key: "right-after-hs", label: "Right after high school" }),
+    ],
+  });
+  const programType = question({
+    key: "program-type",
+    order: 1,
+    options: [
+      option({
+        key: "religious-mechina",
+        label: "Religious mechina",
+        showWhen: {
+          v: 1,
+          when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+        },
+      }),
+      option({ key: "regular-mechina", label: "Regular mechina" }),
+      option({ key: "academic", label: "Academic" }),
+    ],
+  });
+  const questions = [lifeStage, programType];
+
+  it("hides only the ruled-out option, leaving its siblings offered", () => {
+    const state: FlowAnswerState = new Map([["life-stage", ["during-college"]]]);
+    const { visibleOptions } = resolveFlow(questions, state, "program-type");
+    expect(visibleOptions.map((o) => o.key)).toEqual(["regular-mechina", "academic"]);
+  });
+
+  it("offers the option when the earlier answer doesn't match the rule", () => {
+    const state: FlowAnswerState = new Map([["life-stage", ["right-after-hs"]]]);
+    const { visibleOptions } = resolveFlow(questions, state, "program-type");
+    expect(visibleOptions.map((o) => o.key)).toEqual(["religious-mechina", "regular-mechina", "academic"]);
+  });
+
+  it("offers the option when the earlier question was skipped -- not(answerIn(...)) reads a skip as true", () => {
+    const state: FlowAnswerState = new Map([["life-stage", null]]);
+    const { visibleOptions } = resolveFlow(questions, state, "program-type");
+    expect(visibleOptions.map((o) => o.key)).toContain("religious-mechina");
+  });
+
+  it("a previously-selected option that a rule now hides is treated as stale and the question is re-asked", () => {
+    // Answered while right-after-hs was selected, then backed up and switched to
+    // during-college -- religious-mechina is no longer offered.
+    const state: FlowAnswerState = new Map([
+      ["life-stage", ["during-college"]],
+      ["program-type", ["religious-mechina"]],
+    ]);
+    const { current, state: pruned } = resolveFlow(questions, state, null);
+    expect(current?.key).toBe("program-type"); // re-asked, not treated as already answered
+    expect(pruned.has("program-type")).toBe(false);
+  });
+
+  it("a stale-by-rule answer is excluded from conditionAnswers, so a later rule can't observe it", () => {
+    const state: FlowAnswerState = new Map([
+      ["life-stage", ["during-college"]],
+      ["program-type", ["religious-mechina"]],
+    ]);
+    const { conditionAnswers } = resolveFlow(questions, state, null);
+    expect(conditionAnswers["program-type"]).toBeUndefined();
+  });
+
+  it("an unparseable option rule fails OPEN -- the option is still offered", () => {
+    const q = question({
+      key: "program-type",
+      order: 1,
+      options: [
+        option({ key: "religious-mechina", label: "Religious mechina", showWhen: { garbage: true } }),
+        option({ key: "regular-mechina", label: "Regular mechina" }),
+      ],
+    });
+    const { visibleOptions } = resolveFlow([lifeStage, q], new Map(), "program-type");
+    expect(visibleOptions.map((o) => o.key)).toContain("religious-mechina");
+  });
+
+  it("shouldShowOption itself fails open on an unparseable rule, mirroring shouldShowQuestion", () => {
+    expect(shouldShowOption({ garbage: true }, {})).toBe(true);
+    expect(shouldShowOption(null, {})).toBe(true);
+  });
+});
+
+describe("per-option show-conditions AND with optionSetKeys, never OR", () => {
+  const gender = question({
+    key: "program-gender",
+    order: 0,
+    options: [option({ key: "boys-only", label: "Boys only" }), option({ key: "girls-only", label: "Girls only" })],
+  });
+  const essence = question({
+    key: "program-essence",
+    order: 1,
+    optionSetRules: {
+      v: 1,
+      default: "mixed",
+      rules: [{ optionSetKey: "boys", when: { type: "answerIn", questionKey: "program-gender", optionKeys: ["boys-only"] } }],
+    },
+    defaultOptionSetKey: "mixed",
+    options: [
+      option({
+        key: "israeli-yeshiva",
+        label: "Israeli yeshiva",
+        optionSetKeys: ["boys"],
+        showWhen: { v: 1, when: { type: "answered", questionKey: "program-gender" } },
+      }),
+      option({ key: "religious-mechina", label: "Religious mechina", optionSetKeys: [] }),
+    ],
+  });
+  const questions = [gender, essence];
+
+  it("an out-of-set option stays hidden even when its own rule passes", () => {
+    const state: FlowAnswerState = new Map([["program-gender", ["girls-only"]]]); // resolves to "mixed", not "boys"
+    const { visibleOptions } = resolveFlow(questions, state, "program-essence");
+    expect(visibleOptions.map((o) => o.key)).not.toContain("israeli-yeshiva");
+  });
+
+  it("an in-set option still hides when its own rule fails", () => {
+    const q = question({
+      key: "program-essence",
+      order: 1,
+      options: [
+        option({
+          key: "israeli-yeshiva",
+          label: "Israeli yeshiva",
+          optionSetKeys: [], // universal, so set membership alone would pass...
+          showWhen: { v: 1, when: { type: "answerIn", questionKey: "program-gender", optionKeys: ["girls-only"] } }, // ...but the rule fails for boys
+        }),
+        option({ key: "religious-mechina", label: "Religious mechina", optionSetKeys: [] }),
+      ],
+    });
+    const state: FlowAnswerState = new Map([["program-gender", ["boys-only"]]]);
+    const { visibleOptions } = resolveFlow([gender, q], state, "program-essence");
+    expect(visibleOptions.map((o) => o.key)).not.toContain("israeli-yeshiva");
+  });
+
+  it("an option is offered only when BOTH set membership and its own rule pass", () => {
+    const state: FlowAnswerState = new Map([["program-gender", ["boys-only"]]]); // resolves to "boys" set
+    const { visibleOptions } = resolveFlow(questions, state, "program-essence");
+    expect(visibleOptions.map((o) => o.key)).toContain("israeli-yeshiva");
+  });
+});
+
+describe("guard 1b: a per-option rule that starves a question below 2 options drops it", () => {
+  const trigger = question({
+    key: "trigger",
+    order: 0,
+    options: [option({ key: "a", label: "A" }), option({ key: "b", label: "B" })],
+  });
+
+  it("drops the whole question when a rule leaves fewer than 2 options", () => {
+    const gated = question({
+      key: "gated",
+      order: 1,
+      options: [
+        option({
+          key: "x",
+          label: "X",
+          showWhen: { v: 1, when: { type: "answerIn", questionKey: "trigger", optionKeys: ["a"] } },
+        }),
+        option({
+          key: "y",
+          label: "Y",
+          showWhen: { v: 1, when: { type: "answerIn", questionKey: "trigger", optionKeys: ["nonexistent"] } },
+        }),
+      ],
+    });
+    const state: FlowAnswerState = new Map([["trigger", ["a"]]]); // x passes, y fails -> 1 survivor
+    const { visible } = resolveFlow([trigger, gated], state, null);
+    expect(visible.map((q) => q.key)).toEqual(["trigger"]); // "gated" dropped entirely, no stub
+  });
+
+  it("a question that has always had exactly 1 option and no rules is unaffected", () => {
+    const single = question({ key: "single", order: 1, options: [option({ key: "only", label: "Only" })] });
+    const { visible } = resolveFlow([trigger, single], new Map(), null);
+    expect(visible.map((q) => q.key)).toEqual(["trigger", "single"]);
+  });
+
+  it("a video-only interstitial (0 options) is unaffected", () => {
+    const interstitial = question({ key: "video", order: 1, options: [] });
+    const { visible } = resolveFlow([trigger, interstitial], new Map(), null);
+    expect(visible.map((q) => q.key)).toEqual(["trigger", "video"]);
+  });
+
+  it("a rule that removes ONE option but leaves 2+ does not drop the question", () => {
+    const gated = question({
+      key: "gated",
+      order: 1,
+      options: [
+        option({
+          key: "x",
+          label: "X",
+          showWhen: { v: 1, when: { type: "answerIn", questionKey: "trigger", optionKeys: ["nonexistent"] } },
+        }),
+        option({ key: "y", label: "Y" }),
+        option({ key: "z", label: "Z" }),
+      ],
+    });
+    const state: FlowAnswerState = new Map([["trigger", ["a"]]]);
+    const { visible, visibleOptions } = resolveFlow([trigger, gated], state, "gated");
+    expect(visible.map((q) => q.key)).toContain("gated");
+    expect(visibleOptions.map((o) => o.key)).toEqual(["y", "z"]);
+  });
+});
+
+describe("per-option rules compose correctly with coverage gating, and the two resolveFlow branches agree", () => {
+  const lifeStage = question({
+    key: "life-stage",
+    order: 0,
+    options: [
+      option({ key: "during-college", label: "During college" }),
+      option({ key: "right-after-hs", label: "Right after HS" }),
+    ],
+  });
+  const programType = question({
+    key: "program-type",
+    order: 1,
+    options: [
+      option({
+        key: "religious",
+        label: "Religious mechina",
+        tagSlugs: ["religious-mechina"],
+        showWhen: {
+          v: 1,
+          when: { type: "not", of: { type: "answerIn", questionKey: "life-stage", optionKeys: ["during-college"] } },
+        },
+      }),
+      option({ key: "mixed", label: "Mixed", tagSlugs: [] }),
+      option({ key: "academic", label: "Academic", tagSlugs: ["academic"] }),
+    ],
+  });
+  const questions = [lifeStage, programType];
+
+  function fakeCounter(overrides: Record<string, number>, calls: string[] = []): OptionCoverageCounter {
+    const coverageByKey: Record<string, number> = { "during-college": 5, "right-after-hs": 5, ...overrides };
+    return (opt) => {
+      calls.push(opt.key);
+      return coverageByKey[opt.key] ?? 0;
+    };
+  }
+
+  it("a rule-hidden option never consumes a coverage count", () => {
+    const calls: string[] = [];
+    const counter = fakeCounter({ mixed: 5, academic: 5 }, calls);
+    const state: FlowAnswerState = new Map([["life-stage", ["during-college"]]]);
+    resolveFlow(questions, state, "program-type", { counter, floor: 3 });
+    expect(calls).not.toContain("religious"); // hidden by the rule before coverage ever runs
+  });
+
+  it("a rule-hidden option never props a question past guard 1", () => {
+    // religious hidden by rule; mixed falls below floor -- only academic survives.
+    const counter = fakeCounter({ mixed: 1, academic: 5 });
+    const state: FlowAnswerState = new Map([["life-stage", ["during-college"]]]);
+    const { visible } = resolveFlow(questions, state, null, { counter, floor: 3 });
+    expect(visible.map((q) => q.key)).toEqual(["life-stage"]); // program-type dropped
+  });
+
+  it("resolveFlow's no-coverage path returns the same visibleOptions as the coverage path", () => {
+    const state: FlowAnswerState = new Map([["life-stage", ["during-college"]]]);
+    const counter = fakeCounter({ mixed: 5, academic: 5 });
+    const withCoverage = resolveFlow(questions, state, "program-type", { counter, floor: 3 });
+    const withoutCoverage = resolveFlow(questions, state, "program-type");
+    expect(withCoverage.visibleOptions.map((o) => o.key)).toEqual(withoutCoverage.visibleOptions.map((o) => o.key));
+    expect(withoutCoverage.visibleOptions.map((o) => o.key)).toEqual(["mixed", "academic"]); // religious hidden in BOTH
   });
 });
