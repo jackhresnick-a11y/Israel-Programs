@@ -53,7 +53,17 @@ function hasTag(tags: { slug: string }[], slug: string): boolean {
 }
 
 function isMechina(p: CategorizableProgram): boolean {
-  return hasTag(p.tags, "mechina") || hasTag(p.tags, "pre-army");
+  // pre-army (merged into essence-pre-military 2026-08-20, see
+  // prisma/apply-essence-retag-2026-08-20.ts) is NOT a safe swap-in here:
+  // essence-pre-military is broader and also covers hesder yeshivas (Kerem
+  // B'Yavneh, Har Etzion, Sha'alvim, ...), which -- since isMechina is checked
+  // before isYeshivaOrSeminary below -- would misclassify well-known yeshivas as
+  // mechinot. Falling back to the mechina tag alone means the ~9 ex-pre-army
+  // programs that never carried a generic "mechina" tag (Sar-El, Garin Tzabar,
+  // Young Judaea Year Course, etc.) now fall through to a later rule instead --
+  // an honest categorization gap, not a wrong one; use outreachCategory to
+  // override any of those by hand if the resulting bucket is wrong.
+  return hasTag(p.tags, "mechina");
 }
 
 function isYeshivaOrSeminary(p: CategorizableProgram): boolean {
@@ -81,7 +91,7 @@ function isAdult(p: CategorizableProgram): boolean {
  * override (Program.outreachCategory, set via the per-row dropdown) always wins;
  * otherwise these rules run in a specific PRECEDENCE order (distinct from the display
  * order in CATEGORY_KEYS) so a program isn't swallowed by a broader bucket before a
- * more specific one gets a chance -- mechina/pre-army programs are checked first so
+ * more specific one gets a chance -- mechina-tagged programs are checked first so
  * they never fall into the generic English-gap-year or Israeli-yeshiva buckets, and
  * yeshiva/seminary signal is checked before the generic gap-year/adult buckets for
  * the same reason. Every program lands somewhere: "other" is the deliberate catch-all,
